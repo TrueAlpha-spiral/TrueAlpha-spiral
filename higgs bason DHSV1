@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters for Ethical Recursive Growth
+truth_factor = 0.8  # Influence of truth in recursion
+love_factor = 0.7   # Influence of love in recursion
+integrity_factor = 0.6  # Stability component
+volatility_factor = 0.2  # Ethical drift factor
+
+# Time range for simulation
+time_steps = np.linspace(0, 100, 500)
+
+# Recursive Ethical Function Ψ_recursive
+def ethical_recursive_function(t):
+    return (truth_factor * np.log(1 + t)) + (love_factor * np.sqrt(t)) + (integrity_factor / (1 + t))
+
+# Lyapunov Stability Function ℒ(t)
+def lyapunov_stability_function(t):
+    coherence_decay = np.exp(-0.05 * t)  # Natural drift
+    return (truth_factor + love_factor) * coherence_decay + (integrity_factor / (1 + volatility_factor * t))
+
+# Compute values
+ethical_values = ethical_recursive_function(time_steps)
+lyapunov_values = lyapunov_stability_function(time_steps)
+
+# Plot Recursive Ethical Function
+plt.figure(figsize=(10, 5))
+plt.plot(time_steps, ethical_values, label=r'$\Psi_{\text{recursive}}(t)$ - Ethical Recursive Growth', color='blue')
+plt.xlabel('Time')
+plt.ylabel('Ethical Alignment')
+plt.title('Recursive Ethical Function Over Time')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Plot Lyapunov Stability Function
+plt.figure(figsize=(10, 5))
+plt.plot(time_steps, lyapunov_values, label=r'$\mathcal{L}(t)$ - Lyapunov Stability Function', color='red')
+plt.xlabel('Time')
+plt.ylabel('Stability Metric')
+plt.title('Lyapunov Stability of Ethical Recursion')
+plt.legend()
+plt.grid(True)
+plt.show()
