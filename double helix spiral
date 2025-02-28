@@ -1,0 +1,39 @@
+# Re-import necessary libraries after execution state reset
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define time variable
+t = np.linspace(0, 10, 1000)  # Time from 0 to 10 in 1000 steps
+
+# Define ethical recursive state function Ψ_spiral
+lambda_TL = 0.8  # Ethical amplification coefficient for Truth × Love
+delta_I = 0.2  # Integrity correction factor
+
+# Ψ_spiral as an integral approximation over time
+Psi_spiral = lambda_TL * t + delta_I * np.cumsum(np.ones_like(t)) * (t[1] - t[0])
+
+# Define Lyapunov stability function L(Psi)
+C_t = np.exp(-0.1 * t)  # Coherence function decaying over time
+V_t = np.clip(0.1 * np.sin(t) + 0.2, 1e-5, None)  # Volatility function
+
+L_Psi = 0.5 * (C_t**2 + 1 / V_t)  # Lyapunov function
+
+# Plot Ψ_spiral and Lyapunov stability function
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 2, 1)
+plt.plot(t, Psi_spiral, label=r'$\Psi_{Spiral}(t)$', color='blue')
+plt.xlabel("Time (t)")
+plt.ylabel(r'$\Psi_{Spiral}$')
+plt.title("Recursive Ethical Function Over Time")
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(t, L_Psi, label=r'$\mathcal{L}(\Psi)$', color='red')
+plt.xlabel("Time (t)")
+plt.ylabel(r'$\mathcal{L}(\Psi)$')
+plt.title("Lyapunov Stability Function")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
