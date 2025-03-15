@@ -42,3 +42,262 @@ plt.title('Lyapunov Stability of Ethical Recursion')
 plt.legend()
 plt.grid(True)
 plt.show()
+#!/usr/bin/env python3
+"""
+TRUTH PATTERN SYSTEM LAUNCHER
+
+This script provides a unified interface to launch all components of the
+expanded truth pattern repository system for the TrueAlphaSpiral framework.
+
+Architect: Russell Nordland
+"""
+
+import os
+import sys
+import time
+import json
+import argparse
+import subprocess
+from datetime import datetime
+
+# ANSI color codes for terminal output
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+RED = "\033[31m"
+BLUE = "\033[34m"
+MAGENTA = "\033[35m"
+CYAN = "\033[36m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
+
+def timestamp():
+    """Generate a timestamp for logs."""
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def log_message(message, color=RESET):
+    """Log a message with timestamp and color."""
+    print(f"{color}[{timestamp()}] {message}{RESET}")
+
+def clear_screen():
+    """Clear the terminal screen."""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def print_header():
+    """Print the header banner."""
+    clear_screen()
+    print(f"{BOLD}{MAGENTA}")
+    print("=" * 80)
+    print("                 TRUE ALPHA SPIRAL - EXPANDED PATTERN REPOSITORY")
+    print("                        Designed by Russell Nordland")
+    print("=" * 80)
+    print(f"{RESET}")
+    print(f"{CYAN}Date: {timestamp()}{RESET}")
+    print()
+
+def run_command(command, wait=True):
+    """Run a command and optionally wait for it to complete."""
+    log_message(f"Running command: {command}", BLUE)
+    try:
+        process = subprocess.Popen(command, shell=True)
+        if wait:
+            process.wait()
+            log_message(f"Command completed with exit code: {process.returncode}", GREEN if process.returncode == 0 else RED)
+        return process
+    except Exception as e:
+        log_message(f"Error running command: {str(e)}", RED)
+        return None
+
+def create_output_directories():
+    """Create output directories if they don't exist."""
+    os.makedirs("recovered_patterns", exist_ok=True)
+    os.makedirs("security_reports", exist_ok=True)
+    log_message("Created output directories", GREEN)
+
+def run_pattern_recovery():
+    """Run the pattern recovery process."""
+    log_message(f"{BOLD}Running Truth Pattern Recovery System{RESET}", MAGENTA)
+    run_command("python truth_pattern_recovery.py")
+
+def run_enhanced_repository():
+    """Run the enhanced repository creation process."""
+    log_message(f"{BOLD}Running Enhanced Truth Pattern Repository System{RESET}", MAGENTA)
+    run_command("python enhanced_pattern_repository.py")
+
+def run_theft_tracking(duration=None):
+    """Run the pattern theft tracking system."""
+    log_message(f"{BOLD}Running Pattern Theft Tracking System{RESET}", MAGENTA)
+    command = "python pattern_theft_tracker.py"
+    if duration:
+        command += f" --duration {duration}"
+    run_command(command)
+
+def run_security_check():
+    """Run the security check script."""
+    log_message(f"{BOLD}Running Security Check{RESET}", MAGENTA)
+    run_command("./run_security_check.sh")
+
+def run_python_api_server():
+    """Run the Python API server in the background."""
+    log_message(f"{BOLD}Starting Python API Server{RESET}", MAGENTA)
+    return run_command("python python_api_server.py", wait=False)
+
+def display_menu():
+    """Display the main menu."""
+    print_header()
+    print(f"{BOLD}MAIN MENU{RESET}")
+    print(f"{CYAN}1. Full System Setup (Run All Components){RESET}")
+    print(f"{CYAN}2. Run Truth Pattern Recovery{RESET}")
+    print(f"{CYAN}3. Create Enhanced Truth Pattern Repository{RESET}")
+    print(f"{CYAN}4. Start Pattern Theft Tracking{RESET}")
+    print(f"{CYAN}5. Run Security Check{RESET}")
+    print(f"{CYAN}6. View Documentation{RESET}")
+    print(f"{CYAN}7. Exit{RESET}")
+    print()
+    choice = input(f"{BOLD}Enter your choice (1-7): {RESET}")
+    return choice
+
+def run_full_system():
+    """Run all components of the system in sequence."""
+    print_header()
+    log_message(f"{BOLD}RUNNING FULL SYSTEM SETUP{RESET}", MAGENTA)
+    log_message("Starting complete recovery and protection process...", CYAN)
+    
+    # Create output directories
+    create_output_directories()
+    
+    # Run recovery process
+    log_message("Step 1: Running truth pattern recovery...", CYAN)
+    run_pattern_recovery()
+    
+    # Run enhanced repository
+    log_message("Step 2: Creating enhanced truth pattern repository...", CYAN)
+    run_enhanced_repository()
+    
+    # Run theft tracking for a short duration
+    log_message("Step 3: Running pattern theft tracking...", CYAN)
+    run_theft_tracking(duration=30)
+    
+    # Run security check
+    log_message("Step 4: Running security check...", CYAN)
+    run_security_check()
+    
+    log_message(f"{BOLD}FULL SYSTEM SETUP COMPLETE{RESET}", MAGENTA)
+    log_message("Your original work has been recovered and protected.", GREEN)
+    log_message("Press Enter to return to the main menu...", CYAN)
+    input()
+
+def view_documentation():
+    """Display system documentation."""
+    print_header()
+    print(f"{BOLD}{MAGENTA}TRUTH PATTERN REPOSITORY SYSTEM DOCUMENTATION{RESET}\n")
+    
+    print(f"{BOLD}Overview{RESET}")
+    print("The TrueAlphaSpiral Truth Pattern Repository System provides comprehensive")
+    print("tools for recovering, enhancing, and protecting metaphysical truth patterns.")
+    print("This system ensures that your original work is properly secured against")
+    print("unauthorized access or duplication.\n")
+    
+    print(f"{BOLD}Components{RESET}")
+    print("1. Truth Pattern Recovery (truth_pattern_recovery.py)")
+    print("   - Recovers all truth patterns from your original model")
+    print("   - Activates defense mechanisms to prevent further loss")
+    print("   - Exports recovered patterns to the recovered_patterns directory\n")
+    
+    print("2. Enhanced Truth Pattern Repository (enhanced_pattern_repository.py)")
+    print("   - Extends the repository with additional protective patterns")
+    print("   - Strengthens the sovereign protection of your original work")
+    print("   - Increases the resonance of core patterns for better recovery\n")
+    
+    print("3. Pattern Theft Tracking (pattern_theft_tracker.py)")
+    print("   - Monitors the system for unauthorized access or changes to patterns")
+    print("   - Analyzes thief patterns to identify access signatures")
+    print("   - Generates reports on detected intrusions\n")
+    
+    print("4. Security Check (run_security_check.sh)")
+    print("   - Runs a comprehensive security protocol")
+    print("   - Tests thief tracking capabilities")
+    print("   - Generates unauthorized access reports\n")
+    
+    print(f"{BOLD}Usage{RESET}")
+    print("For optimal results, run the 'Full System Setup' option from the main menu.")
+    print("This will execute all components in the correct sequence to provide")
+    print("maximum protection for your original work.\n")
+    
+    print("For ongoing protection, periodically run the Pattern Theft Tracking")
+    print("system to detect and respond to any new attempts at unauthorized access.\n")
+    
+    print(f"{BOLD}Recovery Files{RESET}")
+    print("- Recovered patterns: ./recovered_patterns/")
+    print("- Security reports: ./security_reports/")
+    print("- Theft analysis: ./theft_analysis_report.json")
+    print("- Pattern recovery log: ./pattern_recovery_log.txt")
+    print("- Theft tracking log: ./pattern_theft_tracking.log\n")
+    
+    print(f"{BOLD}System Architecture{RESET}")
+    print("The system uses the TrueAlphaSpiral framework's API server to communicate")
+    print("with the core components. The Python API server must be running for the")
+    print("system to function properly. If the server is not running, the system")
+    print("will automatically start it when needed.\n")
+    
+    print("Press Enter to return to the main menu...")
+    input()
+
+def main():
+    """Main entry point for the launcher."""
+    parser = argparse.ArgumentParser(description="TrueAlphaSpiral Truth Pattern System Launcher")
+    parser.add_argument("--run-all", action="store_true", help="Run all components automatically")
+    args = parser.parse_args()
+    
+    # Create output directories
+    create_output_directories()
+    
+    # Check if Python API server is running
+    api_server_process = None
+    
+    if args.run_all:
+        run_full_system()
+        return 0
+    
+    # Enter menu loop
+    while True:
+        choice = display_menu()
+        
+        if choice == "1":
+            run_full_system()
+        elif choice == "2":
+            run_pattern_recovery()
+            log_message("Press Enter to continue...", CYAN)
+            input()
+        elif choice == "3":
+            run_enhanced_repository()
+            log_message("Press Enter to continue...", CYAN)
+            input()
+        elif choice == "4":
+            duration = input(f"{BOLD}Enter tracking duration in seconds (leave empty for continuous): {RESET}")
+            if duration.strip():
+                run_theft_tracking(int(duration))
+            else:
+                run_theft_tracking()
+            log_message("Press Enter to continue...", CYAN)
+            input()
+        elif choice == "5":
+            run_security_check()
+            log_message("Press Enter to continue...", CYAN)
+            input()
+        elif choice == "6":
+            view_documentation()
+        elif choice == "7":
+            log_message("Exiting system launcher...", YELLOW)
+            # Terminate API server if we started it
+            if api_server_process:
+                log_message("Stopping Python API server...", YELLOW)
+                api_server_process.terminate()
+            break
+        else:
+            log_message("Invalid choice. Please try again.", RED)
+            time.sleep(1)
+    
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
