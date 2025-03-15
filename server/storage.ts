@@ -3,6 +3,7 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 
 const MemoryStore = createMemoryStore(session);
+type SessionStore = ReturnType<typeof createMemoryStore> | any;
 
 export interface IStorage {
   // User operations
@@ -22,14 +23,14 @@ export interface IStorage {
   deleteTruthPattern(id: number): Promise<boolean>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: SessionStore;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private verificationHashes: Map<number, VerificationHash>;
   private truthPatterns: Map<number, TruthPattern>;
-  sessionStore: session.SessionStore;
+  sessionStore: SessionStore;
   currentUserId: number;
   currentHashId: number;
   currentPatternId: number;
@@ -81,7 +82,8 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id, 
       access_level: 1,
-      created_at: now
+      created_at: now,
+      architect_identifier: insertUser.architect_identifier || null
     };
     this.users.set(id, user);
     return user;
@@ -101,7 +103,9 @@ export class MemStorage implements IStorage {
       ...insertHash,
       id,
       timestamp: now,
-      verified: false
+      verified: false,
+      user_id: insertHash.user_id || null,
+      related_file: insertHash.related_file || null
     };
     this.verificationHashes.set(id, hash);
     return hash;
@@ -140,7 +144,9 @@ export class MemStorage implements IStorage {
     const id = this.currentPatternId++;
     const pattern: TruthPattern = {
       ...insertPattern,
-      id
+      id,
+      user_id: insertPattern.user_id || null,
+      resonance_level: insertPattern.resonance_level || null
     };
     this.truthPatterns.set(id, pattern);
     return pattern;

@@ -81,8 +81,8 @@ export default function AuthPage({ path }: { path?: string }) {
           <Card className="w-full max-w-md bg-[color:hsl(var(--cosmic-dark))]30 backdrop-blur-sm border-[color:hsl(var(--quantum-purple))]20">
             <CardHeader className="space-y-1">
               <div className="flex items-center space-x-2 mb-2">
-                <div className="w-10 h-10 hexagon bg-[color:hsl(var(--quantum-purple))] flex items-center justify-center animate-pulse-glow">
-                  <i className="ri-spiral-line text-white text-xl"></i>
+                <div className="w-10 h-10 rounded-full bg-[#6e44ff] flex items-center justify-center animate-pulse">
+                  <span className="text-white text-xl">Ⓢ</span>
                 </div>
                 <h1 className="font-bold text-xl sm:text-2xl tracking-tight">
                   <span className="text-[color:hsl(var(--resonance-cyan))] glow-text">True</span>
@@ -139,7 +139,7 @@ export default function AuthPage({ path }: { path?: string }) {
                         {loginMutation.isPending ? (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                          <i className="ri-login-box-line mr-2"></i>
+                          <span className="mr-2">→</span>
                         )}
                         Login
                       </Button>
@@ -198,7 +198,7 @@ export default function AuthPage({ path }: { path?: string }) {
                         {registerMutation.isPending ? (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                          <i className="ri-user-add-line mr-2"></i>
+                          <span className="mr-2">+</span>
                         )}
                         Register
                       </Button>
@@ -219,8 +219,8 @@ export default function AuthPage({ path }: { path?: string }) {
         <div className="w-full md:w-1/2 bg-[color:hsl(var(--deep-violet))]40 p-8 hidden md:flex flex-col justify-center items-center relative overflow-hidden">
           <div className="absolute inset-0 quantum-grid opacity-20"></div>
           <div className="relative z-10 max-w-xl text-center space-y-6">
-            <div className="w-24 h-24 hexagon bg-[color:hsl(var(--quantum-purple))]50 mx-auto flex items-center justify-center animate-pulse-glow mb-6">
-              <i className="ri-spiral-line text-[color:hsl(var(--resonance-cyan))] text-5xl"></i>
+            <div className="w-24 h-24 rounded-full bg-[#6e44ff]50 mx-auto flex items-center justify-center animate-pulse mb-6">
+              <span className="text-[#00e5ff] text-5xl">⦿</span>
             </div>
             <h2 className="text-4xl font-bold">
               <span className="text-[color:hsl(var(--resonance-cyan))] glow-text">Universal Truth</span> Access System
@@ -242,29 +242,29 @@ export default function AuthPage({ path }: { path?: string }) {
               </div>
             </div>
             <div className="flex flex-wrap gap-4 justify-center pt-6">
-              <div className="bg-[color:hsl(var(--deep-violet))]60 p-3 rounded-lg flex items-center w-48">
-                <i className="ri-shield-keyhole-line text-[color:hsl(var(--verify-green))] text-2xl mr-3"></i>
+              <div className="bg-[#231a4b] p-3 rounded-lg flex items-center w-48">
+                <span className="text-[#00ff9d] text-2xl mr-3">🔒</span>
                 <div className="text-sm text-left">
                   <div className="font-bold">Quantum Security</div>
                   <div className="text-white/70">Recursive verification</div>
                 </div>
               </div>
-              <div className="bg-[color:hsl(var(--deep-violet))]60 p-3 rounded-lg flex items-center w-48">
-                <i className="ri-bubble-chart-fill text-[color:hsl(var(--resonance-cyan))] text-2xl mr-3"></i>
+              <div className="bg-[#231a4b] p-3 rounded-lg flex items-center w-48">
+                <span className="text-[#00e5ff] text-2xl mr-3">◉</span>
                 <div className="text-sm text-left">
                   <div className="font-bold">Truth Patterns</div>
                   <div className="text-white/70">Metaphysical access</div>
                 </div>
               </div>
-              <div className="bg-[color:hsl(var(--deep-violet))]60 p-3 rounded-lg flex items-center w-48">
-                <i className="ri-link-m text-[color:hsl(var(--quantum-purple))] text-2xl mr-3"></i>
+              <div className="bg-[#231a4b] p-3 rounded-lg flex items-center w-48">
+                <span className="text-[#6e44ff] text-2xl mr-3">⊕</span>
                 <div className="text-sm text-left">
                   <div className="font-bold">Hash Chains</div>
                   <div className="text-white/70">Ownership verification</div>
                 </div>
               </div>
-              <div className="bg-[color:hsl(var(--deep-violet))]60 p-3 rounded-lg flex items-center w-48">
-                <i className="ri-dna-line text-[color:hsl(var(--verify-green))] text-2xl mr-3"></i>
+              <div className="bg-[#231a4b] p-3 rounded-lg flex items-center w-48">
+                <span className="text-[#00ff9d] text-2xl mr-3">⟁</span>
                 <div className="text-sm text-left">
                   <div className="font-bold">DNA Explorer</div>
                   <div className="text-white/70">Interstellar structures</div>
