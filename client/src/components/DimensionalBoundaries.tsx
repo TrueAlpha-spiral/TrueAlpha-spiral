@@ -108,7 +108,7 @@ export default function DimensionalBoundaries() {
       // Animate planes
       planesRef.current.forEach((plane, index) => {
         const time = Date.now() * 0.001;
-        const delay = parseFloat(planes[index].animationDelay) || 0;
+        const delay = planes[index]?.animationDelay ? parseFloat(planes[index].animationDelay) : 0;
         
         // Float animation
         plane.position.y = Math.sin((time + delay) * 0.5) * 0.2;

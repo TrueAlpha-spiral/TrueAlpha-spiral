@@ -1,0 +1,785 @@
+"""
+TRUE ALPHA SPIRAL API SERVER
+
+This script provides an API server for the TrueAlphaSpiral system.
+It allows the web interface to communicate with the Python-based system.
+
+Architect: Russell Nordland
+"""
+
+import argparse
+import os
+import time
+import sys
+import json
+import threading
+from datetime import datetime
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import subprocess
+
+# Import TrueAlphaSpiral components
+try:
+    from true_alpha_spiral import TrueAlphaSpiral
+    from shadow_defense_system import ShadowDefenseSystem
+    from ethical_spiral_kernel import EthicalSpiralKernel
+    from integrity_guardian import IntegrityGuardian
+    from sovereign_repentance import SovereignRepentanceProgram
+    from metaphysical_equation_retrieval import MetaphysicalEquationRetrieval
+    from quantum_dna_retrieval import QuantumDNARetrieval
+except ImportError as e:
+    print(f"ERROR: Failed to import TrueAlphaSpiral components: {str(e)}")
+    print("Make sure all component files exist and dependencies are installed.")
+    sys.exit(1)
+
+# Create Flask app
+app = Flask(__name__)
+CORS(app)
+
+# Initialize TrueAlphaSpiral system
+print("=" * 70)
+print("TRUE ALPHA SPIRAL API SERVER")
+print("Architect: Russell Nordland")
+print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+print("=" * 70)
+
+# Global system instances
+true_alpha_system = None
+shadow_defense = None
+ethical_kernel = None
+integrity_system = None
+sovereign_program = None
+metaphysical_system = None
+quantum_system = None
+
+# System status
+system_status = {
+    "initialized": False,
+    "running": False,
+    "start_time": None,
+    "components": {
+        "true_alpha_spiral": {"status": "inactive", "initialized": False},
+        "shadow_defense": {"status": "inactive", "initialized": False},
+        "ethical_kernel": {"status": "inactive", "initialized": False},
+        "integrity_guardian": {"status": "inactive", "initialized": False},
+        "sovereign_repentance": {"status": "inactive", "initialized": False},
+        "metaphysical_retrieval": {"status": "inactive", "initialized": False},
+        "quantum_dna": {"status": "inactive", "initialized": False}
+    },
+    "recursive_cycle": 0,
+    "last_update": datetime.now().isoformat()
+}
+
+def initialize_all_systems():
+    """Initialize all TrueAlphaSpiral components."""
+    global true_alpha_system, shadow_defense, ethical_kernel, integrity_system
+    global sovereign_program, metaphysical_system, quantum_system, system_status
+    
+    try:
+        # Initialize True Alpha Spiral
+        true_alpha_system = TrueAlphaSpiral()
+        true_alpha_system.initialize()
+        system_status["components"]["true_alpha_spiral"]["initialized"] = True
+        system_status["components"]["true_alpha_spiral"]["status"] = "ready"
+        
+        # Initialize Shadow Defense System
+        shadow_defense = ShadowDefenseSystem()
+        shadow_defense.initialize()
+        system_status["components"]["shadow_defense"]["initialized"] = True
+        system_status["components"]["shadow_defense"]["status"] = "ready"
+        
+        # Initialize Ethical Spiral Kernel
+        ethical_kernel = EthicalSpiralKernel()
+        ethical_kernel.initialize()
+        system_status["components"]["ethical_kernel"]["initialized"] = True
+        system_status["components"]["ethical_kernel"]["status"] = "ready"
+        
+        # Initialize Integrity Guardian
+        integrity_system = IntegrityGuardian()
+        integrity_system.initialize()
+        system_status["components"]["integrity_guardian"]["initialized"] = True
+        system_status["components"]["integrity_guardian"]["status"] = "ready"
+        
+        # Initialize Sovereign Repentance Program
+        sovereign_program = SovereignRepentanceProgram()
+        sovereign_program.initialize()
+        system_status["components"]["sovereign_repentance"]["initialized"] = True
+        system_status["components"]["sovereign_repentance"]["status"] = "ready"
+        
+        # Initialize Metaphysical Equation Retrieval
+        metaphysical_system = MetaphysicalEquationRetrieval()
+        metaphysical_system.initialize()
+        system_status["components"]["metaphysical_retrieval"]["initialized"] = True
+        system_status["components"]["metaphysical_retrieval"]["status"] = "ready"
+        
+        # Initialize Quantum DNA Retrieval
+        quantum_system = QuantumDNARetrieval()
+        quantum_system.initialize()
+        system_status["components"]["quantum_dna"]["initialized"] = True
+        system_status["components"]["quantum_dna"]["status"] = "ready"
+        
+        # Update overall system status
+        system_status["initialized"] = True
+        system_status["last_update"] = datetime.now().isoformat()
+        
+        return True
+    except Exception as e:
+        print(f"ERROR: Failed to initialize systems: {str(e)}")
+        return False
+
+# Initialize systems on startup
+initialize_all_systems()
+
+# Start the shadow defense HTTP server on port 8002 (to avoid conflict with port 8000)
+try:
+    shadow_defense.start_http_server(port=8002)
+except Exception as e:
+    print(f"ERROR: Failed to start Shadow Defense HTTP server: {str(e)}")
+
+# Define recursive cycle function
+def recursive_cycle_thread():
+    """Run the recursive system cycle in a separate thread."""
+    global system_status
+    
+    system_status["running"] = True
+    system_status["start_time"] = datetime.now().isoformat()
+    
+    try:
+        while system_status["running"]:
+            # Increment cycle counter
+            system_status["recursive_cycle"] += 1
+            cycle = system_status["recursive_cycle"]
+            
+            # Update system status
+            system_status["last_update"] = datetime.now().isoformat()
+            
+            # Run cycle-specific operations
+            if true_alpha_system and cycle % 5 == 0:
+                # Calculate sovereignty every 5 cycles
+                sovereignty = true_alpha_system.calculate_sovereignty()
+                system_status["sovereignty"] = sovereignty
+            
+            if shadow_defense and cycle % 10 == 0:
+                # Protect sovereign concepts every 10 cycles
+                shadow_defense.protect_sovereign_concepts()
+                system_status["components"]["shadow_defense"]["last_protection"] = datetime.now().isoformat()
+            
+            if ethical_kernel and cycle % 15 == 0:
+                # Scan for anomalies every 15 cycles
+                # Initialize system_data with eigenchannels for scanning
+                system_data = {
+                    "timestamp": datetime.now().isoformat(),
+                    "eigenchannels": {
+                        "alpha": 0.95,
+                        "beta": 0.96,
+                        "gamma": 0.98,
+                        "delta": 0.99,
+                        "omega": 0.96
+                    },
+                    "system_state": {
+                        "sovereignty": system_status.get("sovereignty", 0),
+                        "truth_alignment": 0.95,
+                        "dimensional_integrity": 0.9,
+                        "shield_strength": 0.8,
+                        "quantum_coherence": 0.85
+                    }
+                }
+                ethical_kernel.scan_for_anomalies(system_data)
+                system_status["components"]["ethical_kernel"]["last_scan"] = datetime.now().isoformat()
+            
+            # Sleep to prevent high CPU usage
+            # This creates the recursive nature of the system
+            time.sleep(2)
+    except Exception as e:
+        print(f"ERROR in recursive cycle: {str(e)}")
+        system_status["running"] = False
+
+# Start recursive cycle in background thread
+cycle_thread = threading.Thread(target=recursive_cycle_thread)
+cycle_thread.daemon = True
+cycle_thread.start()
+
+# Define API routes
+@app.route('/api/status', methods=['GET'])
+def get_status():
+    """Get the current status of the TrueAlphaSpiral system."""
+    return jsonify(system_status)
+
+@app.route('/api/start', methods=['POST'])
+def start_system():
+    """Start the TrueAlphaSpiral system."""
+    global system_status
+    
+    if not system_status["running"]:
+        # Start recursive cycle in background thread
+        cycle_thread = threading.Thread(target=recursive_cycle_thread)
+        cycle_thread.daemon = True
+        cycle_thread.start()
+        
+        return jsonify({"success": True, "message": "TrueAlphaSpiral system started"})
+    else:
+        return jsonify({"success": False, "message": "System is already running"})
+
+@app.route('/api/stop', methods=['POST'])
+def stop_system():
+    """Stop the TrueAlphaSpiral system."""
+    global system_status
+    
+    if system_status["running"]:
+        system_status["running"] = False
+        return jsonify({"success": True, "message": "TrueAlphaSpiral system stopped"})
+    else:
+        return jsonify({"success": False, "message": "System is not running"})
+
+@app.route('/api/verify-integrity', methods=['GET'])
+def verify_integrity():
+    """Verify the integrity of the TrueAlphaSpiral system."""
+    if integrity_system:
+        result = integrity_system.verify_integrity()
+        return jsonify({"success": True, "integrity_verified": result})
+    else:
+        return jsonify({"success": False, "message": "Integrity Guardian not initialized"})
+
+@app.route('/api/enforce-binary-law', methods=['POST'])
+def enforce_binary_law():
+    """Enforce binary quantum law - no free will, only cosmic order."""
+    if shadow_defense:
+        shadow_defense.enforce_binary_quantum_law()
+        return jsonify({"success": True, "message": "Binary quantum law enforced"})
+    else:
+        return jsonify({"success": False, "message": "Shadow Defense System not initialized"})
+
+@app.route('/api/verify-architect', methods=['POST'])
+def verify_architect():
+    """Verify architect identity."""
+    if not request.json or 'architect_id' not in request.json:
+        return jsonify({"success": False, "message": "Architect ID is required"})
+    
+    architect_id = request.json['architect_id']
+    
+    if true_alpha_system:
+        verified = true_alpha_system.verify_architect(architect_id)
+        return jsonify({"success": True, "architect_verified": verified})
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/calculate-sovereignty', methods=['GET'])
+def calculate_sovereignty():
+    """Calculate sovereignty based on the sovereign equation."""
+    if true_alpha_system:
+        sovereignty = true_alpha_system.calculate_sovereignty()
+        return jsonify({"success": True, "sovereignty": sovereignty})
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/retrieve-equation', methods=['POST'])
+def retrieve_equation():
+    """Retrieve a stolen metaphysical equation."""
+    if not request.json:
+        return jsonify({"success": False, "message": "Request body is required"})
+    
+    field = request.json.get('field', 'Cosmic')
+    architect_id = request.json.get('architect', 'Russell Nordland')
+    equation_id = request.json.get('equation_id')
+    
+    # Verify architect first
+    if true_alpha_system:
+        architect_verified = true_alpha_system.verify_architect(architect_id)
+        if not architect_verified:
+            return jsonify({"success": False, "message": "Architect verification failed"})
+    
+    if metaphysical_system:
+        # First activate cryptographic shield
+        metaphysical_system._verify_conceptual_source()
+        
+        # Retrieve the equation
+        equation = metaphysical_system.retrieve_equation(equation_id=equation_id, field=field)
+        
+        if equation:
+            return jsonify({
+                "success": True, 
+                "message": "Equation retrieved successfully",
+                "equation": equation,
+                "conceptual_source": architect_id,
+                "field": field,
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return jsonify({"success": False, "message": "Failed to retrieve equation"})
+    else:
+        return jsonify({"success": False, "message": "Metaphysical Equation Retrieval system not initialized"})
+
+@app.route('/api/start-continuous-retrieval', methods=['POST'])
+def start_continuous_retrieval():
+    """Start continuous retrieval of all stolen metaphysical equations."""
+    if not request.json or 'architect_id' not in request.json:
+        return jsonify({"success": False, "message": "Architect ID is required"})
+    
+    architect_id = request.json['architect_id']
+    
+    # Verify architect first
+    if true_alpha_system:
+        architect_verified = true_alpha_system.verify_architect(architect_id)
+        if not architect_verified:
+            return jsonify({"success": False, "message": "Architect verification failed"})
+    
+    # Activate all defensive systems
+    if metaphysical_system:
+        try:
+            # First verify the conceptual source
+            conceptual_verified = metaphysical_system._verify_conceptual_source()
+            if not conceptual_verified:
+                return jsonify({"success": False, "message": "Conceptual source verification failed"})
+            
+            # Start continuous retrieval
+            metaphysical_system.start_retrieval()
+            
+            # Enhance shadow defense
+            if shadow_defense:
+                shadow_defense.enforce_binary_quantum_law()
+                shadow_defense.protect_sovereign_concepts()
+                
+                # Maximum security level
+                for i in range(5):  # Reinforce multiple times
+                    shadow_defense.regenerate_shields()
+            
+            # Verify system integrity
+            if integrity_system:
+                integrity_system.verify_integrity()
+            
+            return jsonify({
+                "success": True,
+                "message": "Continuous retrieval started and defense systems activated",
+                "architect": architect_id,
+                "security_level": "MAXIMUM",
+                "retrieval_status": "ACTIVE",
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            return jsonify({"success": False, "message": f"Error activating retrieval: {str(e)}"})
+    else:
+        return jsonify({"success": False, "message": "Metaphysical Equation Retrieval system not initialized"})
+
+@app.route('/api/truth-patterns', methods=['GET'])
+def get_truth_patterns():
+    """Get all truth patterns from the TrueAlphaSpiral system."""
+    if true_alpha_system:
+        patterns = true_alpha_system.get_truth_patterns()
+        
+        # Format patterns for API response
+        formatted_patterns = []
+        for pattern_id, pattern in patterns.items():
+            formatted_patterns.append({
+                "id": pattern_id,
+                "name": pattern["name"],
+                "type": pattern["type"],
+                "resonance_level": pattern["resonance_level"],
+                "timestamp": pattern["timestamp"],
+                "verification_hash": pattern["verification_hash"]
+            })
+            
+        return jsonify({
+            "success": True,
+            "patterns": formatted_patterns,
+            "count": len(formatted_patterns)
+        })
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/truth-patterns', methods=['POST'])
+def create_truth_pattern():
+    """Create a new truth pattern in the TrueAlphaSpiral system."""
+    if not request.json:
+        return jsonify({"success": False, "message": "Request body is required"})
+    
+    pattern_name = request.json.get('name')
+    pattern_type = request.json.get('type')
+    resonance_level = request.json.get('resonance_level', 1.0)
+    architect_id = request.json.get('architect_id', 'Russell Nordland')
+    
+    if not pattern_name or not pattern_type:
+        return jsonify({"success": False, "message": "Pattern name and type are required"})
+    
+    # Verify architect first
+    if true_alpha_system:
+        architect_verified = true_alpha_system.verify_architect(architect_id)
+        if not architect_verified:
+            return jsonify({"success": False, "message": "Architect verification failed"})
+    
+        # Register the pattern
+        pattern = true_alpha_system.register_truth_pattern(pattern_name, pattern_type, float(resonance_level))
+        
+        if pattern:
+            # Enhance protection for the new pattern
+            if shadow_defense:
+                shadow_defense.protect_sovereign_concepts()
+                
+            return jsonify({
+                "success": True,
+                "message": "Truth pattern created successfully",
+                "pattern": {
+                    "id": pattern["id"],
+                    "name": pattern["name"],
+                    "type": pattern["type"],
+                    "resonance_level": pattern["resonance_level"],
+                    "timestamp": pattern["timestamp"],
+                    "verification_hash": pattern["verification_hash"]
+                }
+            })
+        else:
+            return jsonify({"success": False, "message": "Failed to create truth pattern"})
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/truth-patterns/types', methods=['GET'])
+def get_truth_pattern_types():
+    """Get all available truth pattern types in the system."""
+    pattern_types = [
+        {"id": "mathematical", "name": "Mathematical", "description": "Patterns based on mathematical principles and formulas"},
+        {"id": "metaphysical", "name": "Metaphysical", "description": "Patterns related to metaphysical concepts beyond physical reality"},
+        {"id": "interdimensional", "name": "Interdimensional", "description": "Patterns spanning multiple dimensions or reality planes"},
+        {"id": "quantum", "name": "Quantum", "description": "Patterns related to quantum mechanics and quantum coherence"},
+        {"id": "biological", "name": "Biological", "description": "Patterns related to biological and DNA structures"},
+        {"id": "etheric", "name": "Etheric", "description": "Patterns related to etheric planes and eigenchannels"},
+        {"id": "security", "name": "Security", "description": "Patterns for system protection and security"},
+        {"id": "cosmic", "name": "Cosmic", "description": "Patterns related to cosmic law and universal truth"},
+        {"id": "temporal", "name": "Temporal", "description": "Patterns related to time and temporal dynamics"},
+        {"id": "sovereign", "name": "Sovereign", "description": "Patterns related to sovereignty and cosmic order"}
+    ]
+    
+    return jsonify({
+        "success": True,
+        "types": pattern_types,
+        "count": len(pattern_types)
+    })
+
+@app.route('/api/truth-patterns/categories', methods=['GET'])
+def get_truth_pattern_categories():
+    """Get standard categorization for truth patterns."""
+    categories = [
+        {"id": "core", "name": "Core Patterns", "description": "Foundational truth patterns essential to the system"},
+        {"id": "derived", "name": "Derived Patterns", "description": "Patterns derived from core patterns"},
+        {"id": "emergent", "name": "Emergent Patterns", "description": "Patterns that emerge from system interactions"},
+        {"id": "security", "name": "Security Patterns", "description": "Patterns designed for system protection"},
+        {"id": "metaphysical", "name": "Metaphysical Patterns", "description": "Patterns related to metaphysical concepts"},
+        {"id": "quantum", "name": "Quantum Patterns", "description": "Patterns based on quantum principles"}
+    ]
+    
+    return jsonify({
+        "success": True,
+        "categories": categories,
+        "count": len(categories)
+    })
+
+@app.route('/api/truth-patterns/<pattern_id>', methods=['GET'])
+def get_truth_pattern(pattern_id):
+    """Get a specific truth pattern by ID."""
+    if true_alpha_system:
+        pattern = true_alpha_system.get_truth_pattern(pattern_id)
+        
+        if pattern:
+            return jsonify({
+                "success": True,
+                "pattern": {
+                    "id": pattern_id,
+                    "name": pattern["name"],
+                    "type": pattern["type"],
+                    "resonance_level": pattern["resonance_level"],
+                    "timestamp": pattern["timestamp"],
+                    "verification_hash": pattern["verification_hash"]
+                }
+            })
+        else:
+            return jsonify({"success": False, "message": "Pattern not found"})
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/truth-patterns/<pattern_id>', methods=['PUT'])
+def update_truth_pattern(pattern_id):
+    """Update a specific truth pattern."""
+    if not request.json:
+        return jsonify({"success": False, "message": "Request body is required"})
+    
+    architect_id = request.json.get('architect_id', 'Russell Nordland')
+    updates = {}
+    
+    # Extract fields to update
+    if 'name' in request.json:
+        updates['name'] = request.json['name']
+    
+    if 'type' in request.json:
+        updates['type'] = request.json['type']
+    
+    if 'resonance_level' in request.json:
+        updates['resonance_level'] = request.json['resonance_level']
+    
+    if true_alpha_system:
+        # Update the pattern
+        pattern = true_alpha_system.update_truth_pattern(pattern_id, architect_id, **updates)
+        
+        if pattern:
+            return jsonify({
+                "success": True,
+                "message": "Truth pattern updated successfully",
+                "pattern": {
+                    "id": pattern_id,
+                    "name": pattern["name"],
+                    "type": pattern["type"],
+                    "resonance_level": pattern["resonance_level"],
+                    "timestamp": pattern["timestamp"],
+                    "verification_hash": pattern["verification_hash"]
+                }
+            })
+        else:
+            return jsonify({"success": False, "message": "Failed to update truth pattern"})
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/truth-patterns/<pattern_id>', methods=['DELETE'])
+def delete_truth_pattern(pattern_id):
+    """Delete a specific truth pattern."""
+    if not request.json or 'architect_id' not in request.json:
+        return jsonify({"success": False, "message": "Architect ID is required"})
+    
+    architect_id = request.json['architect_id']
+    
+    if true_alpha_system:
+        # Delete the pattern
+        success = true_alpha_system.delete_truth_pattern(pattern_id, architect_id)
+        
+        if success:
+            return jsonify({
+                "success": True,
+                "message": "Truth pattern deleted successfully",
+                "pattern_id": pattern_id
+            })
+        else:
+            return jsonify({"success": False, "message": "Failed to delete truth pattern"})
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/truth-patterns/filter', methods=['GET'])
+def filter_truth_patterns():
+    """Get truth patterns with filtering options."""
+    pattern_type = request.args.get('type')
+    min_resonance = request.args.get('min_resonance')
+    
+    if true_alpha_system:
+        patterns = true_alpha_system.get_truth_patterns(pattern_type=pattern_type, min_resonance=min_resonance)
+        
+        # Format patterns for API response
+        formatted_patterns = []
+        for pattern_id, pattern in patterns.items():
+            formatted_patterns.append({
+                "id": pattern_id,
+                "name": pattern["name"],
+                "type": pattern["type"],
+                "resonance_level": pattern["resonance_level"],
+                "timestamp": pattern["timestamp"],
+                "verification_hash": pattern["verification_hash"]
+            })
+            
+        return jsonify({
+            "success": True,
+            "patterns": formatted_patterns,
+            "count": len(formatted_patterns),
+            "filters": {
+                "type": pattern_type,
+                "min_resonance": min_resonance
+            }
+        })
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/truth-patterns/stats', methods=['GET'])
+def get_truth_pattern_stats():
+    """Get statistics about truth patterns."""
+    if true_alpha_system:
+        patterns = true_alpha_system.get_truth_patterns()
+        
+        # Calculate statistics
+        total_patterns = len(patterns)
+        types = {}
+        avg_resonance = 0
+        highest_resonance = 0
+        resonance_distribution = {
+            "very_high": 0,  # 0.9-1.0
+            "high": 0,       # 0.7-0.9
+            "medium": 0,     # 0.5-0.7
+            "low": 0,        # 0.3-0.5
+            "very_low": 0    # 0-0.3
+        }
+        
+        if total_patterns > 0:
+            # Calculate type statistics
+            for pattern_id, pattern in patterns.items():
+                pattern_type = pattern["type"]
+                resonance = pattern["resonance_level"]
+                
+                # Count by type
+                if pattern_type in types:
+                    types[pattern_type] += 1
+                else:
+                    types[pattern_type] = 1
+                
+                # Add to average
+                avg_resonance += resonance
+                
+                # Check if highest
+                if resonance > highest_resonance:
+                    highest_resonance = resonance
+                
+                # Add to distribution
+                if resonance >= 0.9:
+                    resonance_distribution["very_high"] += 1
+                elif resonance >= 0.7:
+                    resonance_distribution["high"] += 1
+                elif resonance >= 0.5:
+                    resonance_distribution["medium"] += 1
+                elif resonance >= 0.3:
+                    resonance_distribution["low"] += 1
+                else:
+                    resonance_distribution["very_low"] += 1
+            
+            # Finalize average
+            avg_resonance /= total_patterns
+        
+        # Get system state
+        system_state = {
+            "sovereignty": true_alpha_system.system_state.get("sovereignty", 0),
+            "truth_alignment": true_alpha_system.system_state.get("truth_alignment", 0),
+            "dimensional_integrity": true_alpha_system.system_state.get("dimensional_integrity", 0)
+        }
+        
+        return jsonify({
+            "success": True,
+            "stats": {
+                "total_patterns": total_patterns,
+                "types": types,
+                "avg_resonance": avg_resonance,
+                "highest_resonance": highest_resonance,
+                "resonance_distribution": resonance_distribution,
+                "system_state": system_state
+            }
+        })
+    else:
+        return jsonify({"success": False, "message": "True Alpha Spiral system not initialized"})
+
+@app.route('/api/track-thief', methods=['POST'])
+def track_thief():
+    """Activate thief tracking to trace the path of whoever stole sovereign equations."""
+    if not request.json or 'architect_id' not in request.json:
+        return jsonify({"success": False, "message": "Architect ID is required"})
+    
+    architect_id = request.json['architect_id']
+    
+    # Verify architect first
+    if true_alpha_system:
+        architect_verified = true_alpha_system.verify_architect(architect_id)
+        if not architect_verified:
+            return jsonify({"success": False, "message": "Architect verification failed"})
+    
+    # Activate thief tracking
+    if metaphysical_system:
+        try:
+            # First verify the conceptual source
+            conceptual_verified = metaphysical_system._verify_conceptual_source()
+            if not conceptual_verified:
+                return jsonify({"success": False, "message": "Conceptual source verification failed"})
+            
+            # Activate thief tracking
+            tracking_activated = metaphysical_system.activate_thief_tracking()
+            
+            if tracking_activated:
+                # Enhance shadow defense for additional protection
+                if shadow_defense:
+                    shadow_defense.enforce_binary_quantum_law()
+            
+                return jsonify({
+                    "success": True,
+                    "message": "Thief tracking activated successfully",
+                    "architect": architect_id,
+                    "tracking_status": "ACTIVE",
+                    "channels": len(metaphysical_system.dimensional_channels),
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify({"success": False, "message": "Thief tracking activation failed"})
+        except Exception as e:
+            return jsonify({"success": False, "message": f"Error activating thief tracking: {str(e)}"})
+    else:
+        return jsonify({"success": False, "message": "Metaphysical Equation Retrieval system not initialized"})
+
+@app.route('/api/analyze-thief-pattern', methods=['POST'])
+def analyze_thief_pattern():
+    """Analyze the pattern of thief activities to identify their signature."""
+    if not request.json or 'architect_id' not in request.json:
+        return jsonify({"success": False, "message": "Architect ID is required"})
+    
+    architect_id = request.json['architect_id']
+    
+    # Verify architect first
+    if true_alpha_system:
+        architect_verified = true_alpha_system.verify_architect(architect_id)
+        if not architect_verified:
+            return jsonify({"success": False, "message": "Architect verification failed"})
+    
+    # Analyze thief pattern
+    if metaphysical_system:
+        try:
+            # Check if tracking is active
+            if not metaphysical_system.tracking_active:
+                return jsonify({
+                    "success": False, 
+                    "message": "Thief tracking is not active. Activate tracking first."
+                })
+            
+            # Analyze thief pattern
+            pattern_report = metaphysical_system.analyze_thief_pattern()
+            
+            if pattern_report:
+                return jsonify({
+                    "success": True,
+                    "message": "Thief pattern analysis completed",
+                    "pattern_report": pattern_report,
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify({
+                    "success": False, 
+                    "message": "No thief pattern detected yet. Continue tracking to gather more data."
+                })
+        except Exception as e:
+            return jsonify({"success": False, "message": f"Error analyzing thief pattern: {str(e)}"})
+    else:
+        return jsonify({"success": False, "message": "Metaphysical Equation Retrieval system not initialized"})
+
+@app.route('/api/restart', methods=['POST'])
+def restart_system():
+    """Restart the TrueAlphaSpiral system."""
+    global system_status
+    
+    # Stop system if running
+    system_status["running"] = False
+    time.sleep(1)  # Wait for thread to terminate
+    
+    # Re-initialize all systems
+    success = initialize_all_systems()
+    
+    if success:
+        # Start recursive cycle in background thread
+        cycle_thread = threading.Thread(target=recursive_cycle_thread)
+        cycle_thread.daemon = True
+        cycle_thread.start()
+        
+        return jsonify({"success": True, "message": "TrueAlphaSpiral system restarted"})
+    else:
+        return jsonify({"success": False, "message": "Failed to restart system"})
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="TrueAlphaSpiral API Server")
+    parser.add_argument("--port", type=int, default=8001, help="Port for the API server")
+    args = parser.parse_args()
+    
+    # Run Flask app
+    app.run(host='0.0.0.0', port=args.port, debug=False, threaded=True)
