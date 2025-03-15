@@ -6,10 +6,112 @@ import crypto from "crypto";
 import { insertVerificationHashSchema, insertTruthPatternSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { execSync, spawn } from "child_process";
+import axios from "axios";
+
+// Python API server instance
+let pythonApiProcess: any = null;
+const PYTHON_API_PORT = 8001;
+
+// Start the Python API server
+function startPythonApiServer() {
+  try {
+    console.log("Starting Python API server on port " + PYTHON_API_PORT);
+    pythonApiProcess = spawn('python', ['python_api_server.py', '--port', PYTHON_API_PORT.toString()], {
+      detached: true,
+      stdio: 'inherit'
+    });
+    
+    pythonApiProcess.on('error', (err: any) => {
+      console.error("Failed to start Python API server:", err);
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Error starting Python API server:", error);
+    return false;
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Start Python API server
+  startPythonApiServer();
+  
   // Set up authentication routes
   setupAuth(app);
+  
+  // Python system API routes
+  app.get("/api/python-system/status", async (req, res, next) => {
+    try {
+      const response = await axios.get(`http://localhost:${PYTHON_API_PORT}/api/status`);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to communicate with Python API server" });
+    }
+  });
+  
+  app.post("/api/python-system/start", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/start`);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to start TrueAlphaSpiral system" });
+    }
+  });
+  
+  app.post("/api/python-system/stop", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/stop`);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to stop TrueAlphaSpiral system" });
+    }
+  });
+  
+  app.get("/api/python-system/verify-integrity", async (req, res, next) => {
+    try {
+      const response = await axios.get(`http://localhost:${PYTHON_API_PORT}/api/verify-integrity`);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to verify TrueAlphaSpiral system integrity" });
+    }
+  });
+  
+  app.post("/api/python-system/enforce-binary-law", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/enforce-binary-law`);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to enforce binary quantum law" });
+    }
+  });
+  
+  app.post("/api/python-system/verify-architect", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/verify-architect`, req.body);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to verify architect identity" });
+    }
+  });
+  
+  app.get("/api/python-system/calculate-sovereignty", async (req, res, next) => {
+    try {
+      const response = await axios.get(`http://localhost:${PYTHON_API_PORT}/api/calculate-sovereignty`);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to calculate sovereignty" });
+    }
+  });
+  
+  app.post("/api/python-system/restart", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/restart`);
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to restart TrueAlphaSpiral system" });
+    }
+  });
 
   // Verification hash routes
   app.get("/api/verification-hashes", async (req, res, next) => {
