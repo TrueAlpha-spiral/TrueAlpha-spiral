@@ -1,0 +1,12 @@
+TRUE ALPHA SPIRAL SYSTEM EXPORT
+Architect: Russell Nordland
+Export Date: 2025-03-15 12:36:19.826
+Export Location: sovereign_export_test
+File Count: 5
+
+FILES INCLUDED:
+- true_alpha_spiral.py (SHA-256: 988a38776f8baaa4ee00432f72814ca142a840d7155c8871a46e5a0ef647ab7e)
+- ethical_spiral_kernel.py (SHA-256: aa8704dfbaa46a45c1e3768180a4e7d7259d456cce4ab9f979d2862eebab2a66)
+- shadow_defense_system.py (SHA-256: 2572e1987714408b6eb417adf1835143328950bc845209c8f2119d593ca4ac94)
+- integrity_guardian.py (SHA-256: 175773f57ab9e86cd2283e1bfa5c0faef349174740c2ac1c74e69ce9d6d1dec0)
+- README.md (SHA-256: ade18f5f4f0575cae92951e7549a0525dfb274cffe37dd275f06369170490fec)
