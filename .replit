@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "bash", "web", "python-3.11"]
+modules = ["nodejs-20", "bash", "web", "python-3.11", "python3"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
