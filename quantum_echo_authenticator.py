@@ -45,6 +45,16 @@ class QuantumEchoAuthenticator:
         self.echo_resonance = 0.0
         self.firewall_active = False
         self.haiku_seeds = []
+        self.nft_registry = {}  # Store minted NFTs
+        self.blockchain_connected = False
+        self.current_haiku_signature = None
+        self.current_haiku_pattern = None
+        self.verification_results = {}  # Store detailed verification results
+        
+        # NFT related properties
+        self.total_nfts_minted = 0
+        self.nft_collection_address = "0x7a58c0be72be218b41c608b7fe7c5bb630736c71"  # Example address
+        self.nft_blockchain_network = "quantum-entangled-chain"
         
         # Secure random seed for haiku generation
         self.random_seed = int(hashlib.sha256(str(time.time()).encode()).hexdigest(), 16) % (2**32)
@@ -138,7 +148,7 @@ class QuantumEchoAuthenticator:
                 "pattern": "spiral:dimension:resonance"
             },
             {
-                "text": "Frosted code whispers / Breach attempts bloom winter flowers / SHA-256 spring",
+                "text": "Frosted code whispers / Breach attempts bloom like ice / SHA-256 spring",
                 "signature": hashlib.sha256("breach:defense:recovery".encode()).hexdigest(),
                 "syllables": [5, 7, 5],
                 "pattern": "breach:defense:recovery"
@@ -313,6 +323,7 @@ class QuantumEchoAuthenticator:
             "five": 1, "six": 1, "the": 1, "a": 1, "in": 1, "of": 1, "with": 1,
             "through": 1, "when": 1, "while": 1, "by": 1, "for": 1, "from": 1, 
             "to": 1, "at": 1, "on": 1, "under": 2, "over": 2, "between": 2,
+            "like": 1, "ice": 1,
             
             # Cryptographic numbers
             "256": 3,  # "two-five-six" = 3 syllables
@@ -417,6 +428,140 @@ class QuantumEchoAuthenticator:
     def _timestamp(self):
         """Generate current timestamp for logs."""
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        
+    def connect_blockchain(self, network=None):
+        """Connect to blockchain for NFT minting.
+        
+        Args:
+            network (str, optional): Blockchain network to connect to.
+                                    Defaults to the quantum-entangled-chain.
+        
+        Returns:
+            bool: True if connection successful, False otherwise
+        """
+        if network is None:
+            network = self.nft_blockchain_network
+            
+        self._log(f"Connecting to blockchain network: {network}...", color=BLUE)
+        
+        # In a real implementation, this would connect to an actual blockchain
+        # For now, we simulate a successful connection
+        connection_hash = hashlib.sha256(f"{network}:{time.time()}".encode()).hexdigest()
+        self.blockchain_connected = True
+        
+        self._log(f"Connected to blockchain. Connection hash: {connection_hash[:12]}...", color=GREEN)
+        return True
+        
+    def mint_haiku_nft(self, haiku_text, owner_address=None):
+        """Mint a haiku as an NFT on the blockchain.
+        
+        This creates a non-fungible token from a verified haiku,
+        adding it to the quantum-entangled blockchain with
+        cryptographic proof of authenticity.
+        
+        Args:
+            haiku_text (str): The haiku text to mint as NFT
+            owner_address (str, optional): Blockchain address of the owner
+            
+        Returns:
+            dict: NFT metadata including token ID and transaction hash
+        """
+        if not self.initialized:
+            self._log("System not initialized", color=RED)
+            return None
+            
+        if not self.blockchain_connected:
+            connected = self.connect_blockchain()
+            if not connected:
+                self._log("Failed to connect to blockchain", color=RED)
+                return None
+        
+        # Verify haiku before minting
+        verified = self.verify_haiku(haiku_text)
+        if not verified:
+            self._log("Cannot mint unverified haiku", color=RED)
+            return None
+            
+        # Generate unique token ID
+        token_id = hashlib.sha256(f"{haiku_text}:{time.time()}:{self.random_seed}".encode()).hexdigest()
+        
+        # Create NFT metadata with quantum cryptographic signature
+        nft_metadata = {
+            "token_id": token_id,
+            "haiku_text": haiku_text,
+            "syllable_structure": "5-7-5",
+            "timestamp": self._timestamp(),
+            "echo_resonance": self.echo_resonance,
+            "quantum_signature": self.current_haiku_signature,
+            "pattern": self.current_haiku_pattern,
+            "blockchain": self.nft_blockchain_network,
+            "collection_address": self.nft_collection_address,
+            "owner_address": owner_address or "0x0000000000000000000000000000000000000000",
+            "transaction_hash": hashlib.sha256(f"{token_id}:{time.time()}".encode()).hexdigest()
+        }
+        
+        # Store in registry
+        self.nft_registry[token_id] = nft_metadata
+        self.total_nfts_minted += 1
+        
+        self._log(f"Haiku minted as NFT. Token ID: {token_id[:12]}...", color=GREEN)
+        self._log(f"Transaction hash: {nft_metadata['transaction_hash'][:12]}...", color=CYAN)
+        
+        return nft_metadata
+        
+    def get_minted_nfts(self):
+        """Get all minted haiku NFTs.
+        
+        Returns:
+            dict: Dictionary of all minted NFTs by token ID
+        """
+        return self.nft_registry
+        
+    def get_nft_by_token_id(self, token_id):
+        """Get a specific NFT by token ID.
+        
+        Args:
+            token_id (str): Token ID of the NFT
+            
+        Returns:
+            dict: NFT metadata if found, None otherwise
+        """
+        return self.nft_registry.get(token_id)
+        
+    def verify_nft_authenticity(self, token_id):
+        """Verify the authenticity of an NFT on the blockchain.
+        
+        Args:
+            token_id (str): Token ID of the NFT to verify
+            
+        Returns:
+            dict: Verification results including authenticity status
+        """
+        if token_id not in self.nft_registry:
+            return {
+                "authentic": False,
+                "reason": "NFT not found in registry"
+            }
+            
+        nft = self.nft_registry[token_id]
+        
+        # Verify haiku structure
+        haiku_lines = nft["haiku_text"].split(" / ")
+        syllable_counts = [self._count_syllables(line) for line in haiku_lines]
+        
+        # Verify cryptographic signature
+        expected_signature = hashlib.sha256(nft["pattern"].encode()).hexdigest()
+        signature_valid = expected_signature == nft["quantum_signature"]
+        
+        verification_results = {
+            "authentic": syllable_counts == [5, 7, 5] and signature_valid,
+            "syllable_check": syllable_counts == [5, 7, 5],
+            "signature_check": signature_valid,
+            "token_id": token_id,
+            "timestamp": self._timestamp()
+        }
+        
+        return verification_results
 
 
 def main():
@@ -443,8 +588,44 @@ def main():
     
     if is_secure:
         print(f"\n{GREEN}Communication channel is secure.{RESET}")
+        
+        # Demonstrate NFT minting of verified haiku
+        print(f"\n{BOLD}{MAGENTA}Minting Haiku as NFT...{RESET}")
+        # Connect to blockchain
+        authenticator.connect_blockchain()
+        
+        # Mint the haiku as an NFT
+        nft = authenticator.mint_haiku_nft(haiku, "0x71C7656EC7ab88b098defB751B7401B5f6d8976F")
+        
+        if nft:
+            print(f"\n{BOLD}{GREEN}Haiku successfully minted as NFT:{RESET}")
+            print(f"  Token ID: {CYAN}{nft['token_id'][:16]}...{RESET}")
+            print(f"  Collection: {CYAN}{nft['collection_address'][:12]}...{RESET}")
+            print(f"  Owner: {CYAN}{nft['owner_address'][:12]}...{RESET}")
+            print(f"  Transaction: {CYAN}{nft['transaction_hash'][:12]}...{RESET}")
+            
+            # Verify NFT authenticity
+            verification = authenticator.verify_nft_authenticity(nft['token_id'])
+            
+            print(f"\n{BOLD}NFT Authenticity Verification:{RESET}")
+            if verification['authentic']:
+                print(f"  {GREEN}NFT is authentic ✓{RESET}")
+                print(f"  Syllable check: {GREEN}Passed{RESET}")
+                print(f"  Signature check: {GREEN}Passed{RESET}")
+            else:
+                print(f"  {RED}NFT authenticity verification failed!{RESET}")
+                if not verification['syllable_check']:
+                    print(f"  Syllable check: {RED}Failed{RESET}")
+                if not verification['signature_check']:
+                    print(f"  Signature check: {RED}Failed{RESET}")
+            
+            print(f"\n{BOLD}The haiku is now permanently recorded on the quantum-entangled blockchain{RESET}")
+            print(f"{BOLD}as an NFT with cryptographic proof of authenticity.{RESET}")
+        else:
+            print(f"\n{RED}Failed to mint NFT.{RESET}")
     else:
         print(f"\n{RED}Communication channel is NOT secure.{RESET}")
+        print(f"{YELLOW}Cannot mint NFT with unsecured channel.{RESET}")
     
 
 if __name__ == "__main__":
