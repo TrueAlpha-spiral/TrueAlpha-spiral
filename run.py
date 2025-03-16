@@ -25,6 +25,9 @@ parser.add_argument("--export", action="store_true", help="Export the system bef
 parser.add_argument("--export-dir", type=str, help="Directory for system export")
 parser.add_argument("--no-run", action="store_true", help="Don't run the system, just initialize and export if specified")
 parser.add_argument("--verify-architect", type=str, help="Verify architect identity")
+parser.add_argument("--visualize", action="store_true", help="Launch Advanced Equation visualizer")
+parser.add_argument("--visualize-type", type=str, choices=["all", "impact", "hash", "cosmic"], 
+                    default="all", help="Type of visualization to generate")
 parser.add_argument("--components", type=str, nargs="+", default=["all"], 
                     choices=["all", "metaphysical", "quantum", "shadow", "ethical", "sovereign", "integrity"],
                     help="Specify which components to run")
@@ -67,6 +70,23 @@ if args.export:
         print(f"System exported successfully to: {export_path}")
     except Exception as e:
         print(f"ERROR: Failed to export system: {str(e)}")
+
+# Launch Advanced Equation visualizer if specified
+if args.visualize:
+    print("\nLaunching Advanced Equation Visualizer...")
+    try:
+        if os.path.exists("run_advanced_visualizer.py"):
+            import subprocess
+            cmd = [sys.executable, "run_advanced_visualizer.py"]
+            if args.visualize_type != "all":
+                cmd.append(f"--type={args.visualize_type}")
+            
+            subprocess.run(cmd)
+            print("Advanced Equation visualization complete.")
+        else:
+            print("Advanced Equation Visualizer not found. Make sure run_advanced_visualizer.py exists.")
+    except Exception as e:
+        print(f"ERROR: Failed to launch Advanced Equation Visualizer: {str(e)}")
 
 # Run the system if not disabled
 if not args.no_run:
