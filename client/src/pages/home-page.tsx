@@ -31,15 +31,11 @@ function HomePage() {
                 Detect AI-generated fabrications with TrueAlphaSpiral's advanced verification technology. Ensure content integrity with quantum-inspired pattern analysis.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="#verify">
-                  <a className="bg-white text-purple-700 hover:bg-purple-50 transition-colors px-6 py-3 rounded-lg font-medium">
-                    Verify Content
-                  </a>
+                <Link href="#verify" className="bg-white text-purple-700 hover:bg-purple-50 transition-colors px-6 py-3 rounded-lg font-medium">
+                  Verify Content
                 </Link>
-                <Link href="/about">
-                  <a className="bg-transparent border border-white text-white hover:bg-white/10 transition-colors px-6 py-3 rounded-lg font-medium">
-                    Learn More
-                  </a>
+                <Link href="/about" className="bg-transparent border border-white text-white hover:bg-white/10 transition-colors px-6 py-3 rounded-lg font-medium">
+                  Learn More
                 </Link>
               </div>
             </div>
@@ -136,14 +132,10 @@ function HomePage() {
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Button variant="outline" asChild>
-              <Link href="/about">
-                <a>Learn More</a>
-              </Link>
+              <Link href="/about">Learn More</Link>
             </Button>
             <Button variant="default" className="bg-white text-primary hover:bg-white/90" asChild>
-              <Link href="#verify">
-                <a>Try it Now</a>
-              </Link>
+              <Link href="#verify">Try it Now</Link>
             </Button>
           </div>
         </div>
