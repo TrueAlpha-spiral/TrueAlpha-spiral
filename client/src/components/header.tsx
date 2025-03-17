@@ -1,7 +1,28 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield } from "lucide-react";
+import { Shield, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/components/ui/theme-provider";
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {theme === "dark" ? (
+        <Sun className="h-[1.2rem] w-[1.2rem]" />
+      ) : (
+        <Moon className="h-[1.2rem] w-[1.2rem]" />
+      )}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
+  );
+}
 
 export default function Header() {
   const [location] = useLocation();
@@ -63,6 +84,7 @@ export default function Header() {
               Verification
             </Button>
           </Link>
+          <ThemeToggle />
         </div>
       </div>
     </header>

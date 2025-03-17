@@ -73,12 +73,37 @@ app.use((req, res, next) => {
     // It is the only port that is not firewalled.
     const port = 5000;
     log("Attempting to start server on port " + port);
+    
+    // Log environment info
+    log(`NODE_ENV: ${process.env.NODE_ENV}`);
+    log(`REPL_ID: ${process.env.REPL_ID}`);
+    log(`REPL_SLUG: ${process.env.REPL_SLUG}`);
+    log(`REPLIT_CLUSTER: ${process.env.REPLIT_CLUSTER}`);
+    log(`REPLIT_DOMAINS: ${process.env.REPLIT_DOMAINS}`);
+    
+    // Add a simple healthcheck route
+    app.get('/health', (_req, res) => {
+      res.status(200).send('OK - TrueAlphaSpiral system is running');
+    });
+    
     server.listen({
       port,
       host: "0.0.0.0",
       reusePort: true,
     }, () => {
-      log(`Server now listening on port ${port}`);
+      const serverAddress = server.address();
+      const addressInfo = typeof serverAddress === 'object' && serverAddress 
+        ? `${serverAddress.address}:${serverAddress.port}` 
+        : String(serverAddress);
+      
+      log(`Server now listening on ${addressInfo}`);
+      
+      // Log both localhost and Replit domain URLs
+      log(`Server accessible at http://localhost:${port}`);
+      if (process.env.REPLIT_DOMAINS) {
+        const replitDomain = `https://${process.env.REPLIT_DOMAINS.split(',')[0]}`;
+        log(`Server accessible at ${replitDomain}`);
+      }
     }).on('error', (error) => {
       log(`Error starting server: ${error.message}`, 'error');
     });
