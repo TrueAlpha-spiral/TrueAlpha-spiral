@@ -22,44 +22,30 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-sm">
           <div className="flex flex-col gap-2">
             <h3 className="font-medium">Applications</h3>
-            <Link href="/ai-audit">
-              <a className="text-muted-foreground hover:text-primary transition-colors">
-                AI Auditing
-              </a>
+            <Link href="/ai-audit" className="text-muted-foreground hover:text-primary transition-colors">
+              AI Auditing
             </Link>
-            <Link href="/resource-allocation">
-              <a className="text-muted-foreground hover:text-primary transition-colors">
-                Resource Allocation
-              </a>
+            <Link href="/resource-allocation" className="text-muted-foreground hover:text-primary transition-colors">
+              Resource Allocation
             </Link>
-            <Link href="/ethical-ai">
-              <a className="text-muted-foreground hover:text-primary transition-colors">
-                Ethical AI
-              </a>
+            <Link href="/ethical-ai" className="text-muted-foreground hover:text-primary transition-colors">
+              Ethical AI
             </Link>
-            <Link href="/ip-protection">
-              <a className="text-muted-foreground hover:text-primary transition-colors">
-                IP Protection
-              </a>
+            <Link href="/ip-protection" className="text-muted-foreground hover:text-primary transition-colors">
+              IP Protection
             </Link>
           </div>
 
           <div className="flex flex-col gap-2">
             <h3 className="font-medium">Resources</h3>
-            <Link href="/documentation">
-              <a className="text-muted-foreground hover:text-primary transition-colors">
-                Documentation
-              </a>
+            <Link href="/documentation" className="text-muted-foreground hover:text-primary transition-colors">
+              Documentation
             </Link>
-            <Link href="/verification">
-              <a className="text-muted-foreground hover:text-primary transition-colors">
-                Verification
-              </a>
+            <Link href="/verification" className="text-muted-foreground hover:text-primary transition-colors">
+              Verification
             </Link>
-            <Link href="/about">
-              <a className="text-muted-foreground hover:text-primary transition-colors">
-                About
-              </a>
+            <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+              About
             </Link>
           </div>
 

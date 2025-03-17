@@ -45,45 +45,45 @@ export default function Header() {
           </Link>
           <nav className="hidden md:flex space-x-6">
             <Link href="/ai-audit">
-              <a className={`text-sm font-medium transition-colors hover:text-primary ${
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/ai-audit") ? "text-primary" : "text-muted-foreground"
               }`}>
                 AI Auditing
-              </a>
+              </span>
             </Link>
             <Link href="/resource-allocation">
-              <a className={`text-sm font-medium transition-colors hover:text-primary ${
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/resource-allocation") ? "text-primary" : "text-muted-foreground"
               }`}>
                 Resource Allocation
-              </a>
+              </span>
             </Link>
             <Link href="/ethical-ai">
-              <a className={`text-sm font-medium transition-colors hover:text-primary ${
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/ethical-ai") ? "text-primary" : "text-muted-foreground"
               }`}>
                 Ethical AI
-              </a>
+              </span>
             </Link>
             <Link href="/ip-protection">
-              <a className={`text-sm font-medium transition-colors hover:text-primary ${
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/ip-protection") ? "text-primary" : "text-muted-foreground"
               }`}>
                 IP Protection
-              </a>
+              </span>
             </Link>
           </nav>
         </div>
         <div className="flex items-center space-x-4">
-          <Link href="/documentation">
-            <Button variant="ghost">Documentation</Button>
-          </Link>
-          <Link href="/verification">
-            <Button variant="outline" className="hidden sm:inline-flex">
+          <Button variant="ghost" asChild>
+            <Link href="/documentation">Documentation</Link>
+          </Button>
+          <Button variant="outline" className="hidden sm:inline-flex" asChild>
+            <Link href="/verification">
               <Shield className="mr-2 h-4 w-4" />
               Verification
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <ThemeToggle />
         </div>
       </div>

@@ -16,7 +16,9 @@ window.addEventListener('error', (event) => {
 // Add debugging info
 console.log("Starting TrueAlphaSpiral application...");
 console.log("Environment:", import.meta.env.MODE);
-console.log("Base URL:", window.location.origin);
+// Use location.origin without port number for Replit compatibility
+const baseUrl = window.location.origin.replace(/:\d+$/, '');
+console.log("Base URL:", baseUrl);
 
 // Add a network status indicator
 const statusIndicator = document.createElement('div');
@@ -74,8 +76,8 @@ const checkAppLoaded = () => {
     console.log(`Checking connection to server... (Attempt ${checkAttempts + 1}/${maxAttempts})`);
     checkAttempts++;
     
-    // Use apiTruthPatterns as a health check endpoint
-    fetch(window.location.origin + "/api/truth-patterns", {
+    // Use baseUrl without port for Replit compatibility
+    fetch(baseUrl + "/api/truth-patterns", {
       method: "GET",
       headers: {
         "Accept": "application/json",
@@ -91,8 +93,8 @@ const checkAppLoaded = () => {
             window.updateLoadingStatus('Quantum connection established');
           }
           
-          // Check Python API server status
-          fetch(window.location.origin + "/api/python-system/status")
+          // Check Python API server status using baseUrl
+          fetch(baseUrl + "/api/python-system/status")
             .then(pythonResponse => {
               if (pythonResponse.ok) {
                 console.log("Python API server connection verified");
