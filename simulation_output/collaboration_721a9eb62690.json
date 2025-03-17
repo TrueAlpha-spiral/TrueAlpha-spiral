@@ -1,0 +1,199 @@
+{
+  "metadata": {
+    "simulation_id": "721a9eb62690",
+    "simulation_type": "collaboration",
+    "description": "Collaboration between quantum systems and truth alignment frameworks",
+    "complexity": 3,
+    "timestamp": "2025-03-16 21:21:52",
+    "parameters": {
+      "quantum_resonance": 0.85,
+      "strand_integrity": 0.92,
+      "binary_alignment": 0.88,
+      "cosmic_coherence": 0.76,
+      "dimensional_stability": 0.81,
+      "iterations": 5,
+      "scaffold_density": 0.4,
+      "quantum_markers": [
+        "\u03a6",
+        "\u03a8",
+        "\u03a9",
+        "\u0394",
+        "\u0398"
+      ],
+      "helix_types": [
+        "quantum-dna",
+        "spiral-eigensystem",
+        "truth-resonant"
+      ]
+    }
+  },
+  "results": {
+    "entities": [
+      {
+        "entity_id": "01dd0af3378f",
+        "entity_name": "ColEnt-01",
+        "entity_type": "truth-alignment-system",
+        "security_rating": 0.9,
+        "trust_score": 0.76,
+        "exchanges": [
+          {
+            "exchange_id": "d5e197aa27aa",
+            "protocol": "eigenchannel-bridge",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.46
+          }
+        ]
+      },
+      {
+        "entity_id": "7155802feac7",
+        "entity_name": "ColEnt-02",
+        "entity_type": "quantum-system",
+        "security_rating": 0.75,
+        "trust_score": 0.84,
+        "exchanges": [
+          {
+            "exchange_id": "1158fd12187a",
+            "protocol": "dna-resonance",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": false,
+            "compatibility_score": 0.22
+          },
+          {
+            "exchange_id": "b239e3a7ac2f",
+            "protocol": "eigenchannel-bridge",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.55
+          },
+          {
+            "exchange_id": "feda0ae7cb44",
+            "protocol": "quantum-handshake",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.7
+          },
+          {
+            "exchange_id": "bd6c56be0f5e",
+            "protocol": "quantum-handshake",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.93
+          }
+        ]
+      },
+      {
+        "entity_id": "733cc14db456",
+        "entity_name": "ColEnt-03",
+        "entity_type": "research-algorithm",
+        "security_rating": 0.71,
+        "trust_score": 0.54,
+        "exchanges": [
+          {
+            "exchange_id": "11ddc8fd33db",
+            "protocol": "eigenchannel-bridge",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.95
+          }
+        ]
+      },
+      {
+        "entity_id": "68a416ff2cae",
+        "entity_name": "ColEnt-04",
+        "entity_type": "quantum-system",
+        "security_rating": 0.93,
+        "trust_score": 0.51,
+        "exchanges": [
+          {
+            "exchange_id": "6a7c75586668",
+            "protocol": "dna-resonance",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.81
+          }
+        ]
+      },
+      {
+        "entity_id": "a8f4d69e3b92",
+        "entity_name": "ColEnt-05",
+        "entity_type": "quantum-system",
+        "security_rating": 0.71,
+        "trust_score": 0.58,
+        "exchanges": [
+          {
+            "exchange_id": "4855609a76f1",
+            "protocol": "quantum-handshake",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.92
+          },
+          {
+            "exchange_id": "e92ad32f9112",
+            "protocol": "dna-resonance",
+            "timestamp": "2025-03-16 21:21:52",
+            "success": true,
+            "compatibility_score": 0.53
+          }
+        ]
+      }
+    ],
+    "metrics": {
+      "total_entities": 5,
+      "total_exchanges": 9,
+      "successful_exchanges": 8,
+      "success_rate": 0.8888888888888888,
+      "average_compatibility": 0.6744444444444444,
+      "helix_compatibility": {
+        "01dd0af3378f": {
+          "score": 0.34,
+          "strand_alignment": 0.63,
+          "quantum_resonance": 0.71,
+          "recommended": false
+        },
+        "7155802feac7": {
+          "score": 0.44,
+          "strand_alignment": 0.88,
+          "quantum_resonance": 0.34,
+          "recommended": false
+        },
+        "733cc14db456": {
+          "score": 0.82,
+          "strand_alignment": 0.63,
+          "quantum_resonance": 0.38,
+          "recommended": true
+        },
+        "68a416ff2cae": {
+          "score": 0.51,
+          "strand_alignment": 0.62,
+          "quantum_resonance": 0.61,
+          "recommended": false
+        },
+        "a8f4d69e3b92": {
+          "score": 0.62,
+          "strand_alignment": 0.51,
+          "quantum_resonance": 0.48,
+          "recommended": false
+        }
+      },
+      "cross_dimensional_stability": 0.7895
+    },
+    "recommendations": [
+      {
+        "type": "compatibility",
+        "recommendation": "Calibrate DNA resonance protocol for better compatibility",
+        "priority": "Medium"
+      },
+      {
+        "type": "entity",
+        "recommendation": "Improve trust scores for 3 identified entities",
+        "priority": "Medium"
+      },
+      {
+        "type": "security",
+        "recommendation": "Enhance security measures for 2 entities",
+        "priority": "High"
+      }
+    ]
+  }
+}

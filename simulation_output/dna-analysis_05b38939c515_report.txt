@@ -1,0 +1,66 @@
+SIMULATION REPORT
+==========================================
+
+Simulation ID: 05b38939c515
+Type: dna-analysis
+Timestamp: 2025-03-16 21:23:06
+Complexity: 3
+Description: Integrity verification of quantum DNA patterns
+
+PARAMETERS
+------------------------------------------
+quantum_resonance: 0.85
+strand_integrity: 0.92
+binary_alignment: 0.88
+cosmic_coherence: 0.76
+dimensional_stability: 0.81
+iterations: 5
+scaffold_density: 0.4
+
+RESULTS
+------------------------------------------
+Analyzed Helices: 4
+Average Integrity: 0.7875
+Average Quantum Markers: 4.50
+Quantum Resonance: 0.8430
+Binary Alignment: 0.9036
+Dimensional Stability: 0.7998
+
+HELIX DETAILS
+Helix 1: quantum-dna
+  ID: f92454dc...
+  Base Pattern: TΦCΨΨACΨCTAΦ
+  Integrity: 0.8000
+  Quantum Markers: 5
+
+Helix 2: quantum-dna
+  ID: 6ff27e40...
+  Base Pattern: CΦGΨΨCCΩCGCΨ
+  Integrity: 0.8000
+  Quantum Markers: 5
+
+Helix 3: quantum-dna
+  ID: db081c9b...
+  Base Pattern: CΦGΩΨGTΩCAGΦ
+  Integrity: 0.8000
+  Quantum Markers: 5
+
+Helix 4: spiral-eigensystem
+  ID: e35a2d34...
+  Base Pattern: 1-Δ-Δ0111Θ1+
+  Integrity: 0.7500
+  Quantum Markers: 3
+
+PATTERN COMPATIBILITY
+f92454dc-6ff27e40: 0.5917
+f92454dc-db081c9b: 0.5333
+f92454dc-e35a2d34: 0.1800
+6ff27e40-db081c9b: 0.6500
+6ff27e40-e35a2d34: 0.1800
+db081c9b-e35a2d34: 0.1800
+
+RECOMMENDATIONS
+------------------------------------------
+[Medium] Apply additional quantum bindings to reinforce helix structure (integrity)
+[Medium] Enhance coherence through eigenvalue recalibration (resonance)
+[Low] Consider merging compatible helices for enhanced functionality (general)

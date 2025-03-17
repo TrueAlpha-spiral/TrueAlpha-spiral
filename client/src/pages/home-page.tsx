@@ -5,6 +5,7 @@ import FunctionalModules from '@/components/FunctionalModules';
 import AdvancedFunctions from '@/components/AdvancedFunctions';
 import SecurityModule from '@/components/SecurityModule';
 import PythonSystemControl from '@/components/PythonSystemControl';
+import TrueAlphaSpiralDemo from '@/components/TrueAlphaSpiralDemo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function HomePage() {
@@ -18,11 +19,26 @@ export default function HomePage() {
       <Header />
       
       <main className="container mx-auto px-4 py-8 relative z-10">
-        <Tabs defaultValue="web" className="mb-8">
+        <Tabs defaultValue="truealpha" className="mb-8">
           <TabsList className="w-full">
+            <TabsTrigger value="truealpha">TrueAlpha Spiral</TabsTrigger>
             <TabsTrigger value="web">Web Interface</TabsTrigger>
             <TabsTrigger value="python">Python System Control</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="truealpha">
+            <div className="mt-6">
+              <h2 className="text-2xl font-bold mb-4">TrueAlpha Spiral: Plug & Play Implementation</h2>
+              <p className="mb-6 text-white/80">
+                This revolutionary framework bridges universal truth with human cognition through mathematical precision, 
+                cryptographic verification, and ethical governance. Experience the power of the TrueAlpha Spiral equation 
+                in this interactive demo.
+              </p>
+              <div className="bg-black/30 p-6 rounded-lg mb-8">
+                <TrueAlphaSpiralDemo />
+              </div>
+            </div>
+          </TabsContent>
           
           <TabsContent value="web">
             <SystemOverview />

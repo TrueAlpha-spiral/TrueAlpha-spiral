@@ -1,225 +1,224 @@
-#!/usr/bin/env python3
 """
-RUN QUANTUM DNA VISUALIZATION
+RUN DNA VISUALIZATION
 
-This script integrates the Quantum DNA Visualization system with the TrueAlphaSpiral
-system, allowing for real-time tracking and visualization of recovered interstellar
-DNA patterns and their implementations.
+This script runs the quantum DNA visualization system, connecting it to
+the double helix scaffold framework to visualize interstellar DNA patterns.
 
 Architect: Russell Nordland
 """
 
 import os
-import sys
-import time
-import argparse
-from datetime import datetime
-
-# Import the Quantum DNA Visualizer
+from double_helix_framework import DoubleHelixScaffold
 from quantum_dna_visualization import QuantumDNAVisualizer
-
-# ANSI color codes for terminal output
-RED = "\033[91m"
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-BLUE = "\033[94m"
-MAGENTA = "\033[95m"
-CYAN = "\033[96m"
-WHITE = "\033[97m"
-RESET = "\033[0m"
-BOLD = "\033[1m"
-DIM = "\033[2m"
-
-def timestamp():
-    """Generate a timestamp for logs."""
-    now = datetime.now()
-    return now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-
-def log_message(message, color=RESET, level="INFO"):
-    """Log a message with timestamp and color."""
-    print(f"{timestamp()} - {color}{level}{RESET} - {message}")
-
-def clear_screen():
-    """Clear the terminal screen."""
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def print_header():
-    """Print the header banner."""
-    clear_screen()
-    print(f"\n{BOLD}{MAGENTA}" + "=" * 80 + RESET)
-    print(f"{BOLD}{CYAN}                     QUANTUM DNA VISUALIZATION SYSTEM                     {RESET}")
-    print(f"{BOLD}{MAGENTA}" + "=" * 80 + RESET)
-    print(f"{YELLOW}Tracking interstellar DNA patterns and glow signatures across the globe{RESET}")
-    print(f"{GREEN}System status: ACTIVE | Cosmic alignment: STABLE{RESET}")
-    print(f"{BOLD}{MAGENTA}" + "=" * 80 + "\n" + RESET)
-
-def create_visualizer():
-    """Create and initialize the Quantum DNA Visualizer."""
-    log_message("Initializing Quantum DNA Visualizer", color=CYAN)
-    visualizer = QuantumDNAVisualizer()
-    log_message("Quantum DNA Visualizer initialized successfully", color=GREEN)
-    return visualizer
-
-def register_stellar_patterns(visualizer, count=5):
-    """Register DNA patterns from stellar sources."""
-    log_message(f"Registering {count} stellar DNA patterns", color=CYAN)
-    
-    patterns = []
-    for i in range(count):
-        stellar_index = i % len(visualizer.stellar_coordinates)
-        pattern_id = visualizer.register_pattern(stellar_source_index=stellar_index)
-        patterns.append(pattern_id)
-        time.sleep(0.5)  # Slight delay for visual effect
-    
-    log_message(f"Registered {len(patterns)} stellar DNA patterns successfully", color=GREEN)
-    return patterns
-
-def simulate_global_implementations(visualizer, patterns, count_per_pattern=3):
-    """Simulate implementations of DNA patterns across the globe."""
-    log_message(f"Simulating global implementations of DNA patterns", color=CYAN)
-    
-    total_implementations = 0
-    for pattern_id in patterns:
-        # Each pattern gets random number of implementations
-        for _ in range(count_per_pattern):
-            visualizer.add_implementation(pattern_id)
-            total_implementations += 1
-            time.sleep(0.3)  # Slight delay for visual effect
-    
-    log_message(f"Created {total_implementations} pattern implementations globally", color=GREEN)
-    return total_implementations
-
-def generate_visualizations(visualizer, patterns, output_dir="quantum_output"):
-    """Generate all visualizations."""
-    # Create output directory
-    os.makedirs(output_dir, exist_ok=True)
-    
-    log_message(f"Generating visualizations in {output_dir}", color=CYAN)
-    
-    # Generate world map
-    log_message("Generating global implementation map", color=BLUE)
-    world_map = visualizer.visualize_world_map(f"{output_dir}/world_map.png")
-    log_message(f"World map generated: {world_map}", color=GREEN)
-    
-    # Generate dimensional resonance
-    log_message("Generating METAfloor dimensional resonance chart", color=BLUE)
-    dim_res = visualizer.visualize_dimensional_resonance(f"{output_dir}/dimensional_resonance.png")
-    log_message(f"Dimensional resonance chart generated: {dim_res}", color=GREEN)
-    
-    # Generate glow history
-    log_message("Generating glow history chart", color=BLUE)
-    glow_hist = visualizer.visualize_glow_history(f"{output_dir}/glow_history.png")
-    log_message(f"Glow history chart generated: {glow_hist}", color=GREEN)
-    
-    # Generate individual pattern visualizations
-    for pattern_id in patterns:
-        log_message(f"Generating visualization for pattern {pattern_id}", color=BLUE)
-        pattern_vis = visualizer.visualize_pattern_glow(
-            pattern_id, 
-            f"{output_dir}/pattern_{pattern_id}.png"
-        )
-        log_message(f"Pattern visualization generated: {pattern_vis}", color=GREEN)
-    
-    # Generate comprehensive report
-    log_message("Generating comprehensive report", color=BLUE)
-    report_dir = visualizer.generate_comprehensive_report(f"{output_dir}/report")
-    log_message(f"Comprehensive report generated: {report_dir}", color=GREEN)
-    
-    return output_dir
-
-def run_continuous_monitoring(visualizer, duration=60, interval=10):
-    """Run continuous monitoring of DNA patterns for a specified duration."""
-    log_message(f"Starting continuous monitoring for {duration} seconds", color=CYAN)
-    
-    end_time = time.time() + duration
-    cycle = 0
-    
-    try:
-        while time.time() < end_time:
-            cycle += 1
-            log_message(f"Monitoring cycle {cycle}", color=BLUE)
-            
-            # Register a new pattern occasionally
-            if cycle % 3 == 0:
-                pattern_id = visualizer.register_pattern()
-                log_message(f"Registered new pattern: {pattern_id}", color=GREEN)
-                
-                # Add implementations for the new pattern
-                impl_count = np.random.randint(1, 4)
-                for _ in range(impl_count):
-                    visualizer.add_implementation(pattern_id)
-            
-            # Add new implementation to random existing pattern
-            if visualizer.dna_patterns:
-                pattern_id = random.choice(list(visualizer.dna_patterns.keys()))
-                visualizer.add_implementation(pattern_id)
-                log_message(f"Added new implementation for pattern: {pattern_id}", color=GREEN)
-            
-            # Update world map and dimensional resonance periodically
-            if cycle % 2 == 0:
-                visualizer.visualize_world_map(f"quantum_visualizations/world_map_cycle_{cycle}.png")
-                visualizer.visualize_dimensional_resonance(f"quantum_visualizations/dim_res_cycle_{cycle}.png")
-            
-            # Wait for next cycle
-            log_message(f"Waiting {interval} seconds until next monitoring cycle", color=YELLOW)
-            time.sleep(interval)
-    
-    except KeyboardInterrupt:
-        log_message("Monitoring interrupted by user", color=YELLOW)
-    
-    log_message("Continuous monitoring complete", color=GREEN)
-    return cycle
+from quantum_dna_retrieval import QuantumDNARetrieval
 
 def main():
-    """Main entry point for the visualization script."""
-    parser = argparse.ArgumentParser(description="Run Quantum DNA Visualization")
-    parser.add_argument("--patterns", type=int, default=5, help="Number of patterns to register")
-    parser.add_argument("--implementations", type=int, default=3, help="Implementations per pattern")
-    parser.add_argument("--continuous", action="store_true", help="Run continuous monitoring")
-    parser.add_argument("--duration", type=int, default=60, help="Duration for continuous monitoring (seconds)")
-    parser.add_argument("--output", type=str, default="quantum_output", help="Output directory")
+    """Run the DNA visualization system."""
+    print("\n=== QUANTUM DNA VISUALIZATION SYSTEM ===\n")
     
-    args = parser.parse_args()
+    # Initialize the double helix scaffold
+    print("Initializing Double Helix Scaffold Framework...")
+    scaffold = DoubleHelixScaffold()
+    scaffold.initialize()
     
-    # Print header
-    print_header()
+    # Initialize the DNA retrieval system if available
+    dna_retrieval = None
+    try:
+        print("Initializing Quantum DNA Retrieval System...")
+        dna_retrieval = QuantumDNARetrieval()
+        dna_retrieval.initialize()
+        
+        # Connect scaffold to retrieval system
+        print("Connecting scaffold to DNA retrieval system...")
+        scaffold.connect_to_dna_retrieval(dna_retrieval)
+        
+    except Exception as e:
+        print(f"Warning: Could not initialize DNA retrieval system: {str(e)}")
+        print("Continuing with manually created helices...")
     
-    # Create visualizer
-    visualizer = create_visualizer()
+    # Create output directory
+    output_dir = "visualization_output"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Created output directory: {output_dir}")
     
-    # Register patterns
-    patterns = register_stellar_patterns(visualizer, args.patterns)
+    # Create quantum DNA helix
+    print("\nCreating Quantum DNA Helix...")
+    quantum_helix = scaffold.create_helix("quantum-dna")
+    if not quantum_helix:
+        print("Failed to create quantum DNA helix. Exiting.")
+        return
     
-    # Simulate implementations
-    simulate_global_implementations(visualizer, patterns, args.implementations)
+    # Create spiral eigensystem helix
+    print("\nCreating Spiral Eigensystem Helix...")
+    spiral_helix = scaffold.create_helix("spiral-eigensystem")
+    if not spiral_helix:
+        print("Failed to create spiral eigensystem helix. Continuing with quantum helix only.")
+        spiral_helix = None
+    
+    # Create truth resonant helix
+    print("\nCreating Truth Resonant Helix...")
+    truth_helix = scaffold.create_helix("truth-resonant")
+    if not truth_helix:
+        print("Failed to create truth resonant helix. Continuing with other helices.")
+        truth_helix = None
+    
+    # Apply scaffold templates
+    print("\nApplying scaffold templates...")
+    enhanced_quantum_helix = scaffold.apply_scaffold_template(quantum_helix["helix_id"], "quantum-enhancement")
+    
+    # Apply templates to other helices if they exist
+    enhanced_spiral_helix = None
+    enhanced_truth_helix = None
+    if spiral_helix:
+        enhanced_spiral_helix = scaffold.apply_scaffold_template(spiral_helix["helix_id"], "eigensystem-reinforcement")
+    if truth_helix:
+        enhanced_truth_helix = scaffold.apply_scaffold_template(truth_helix["helix_id"], "truth-amplification")
+    
+    # Generate quantum bindings
+    print("\nGenerating quantum bindings...")
+    scaffold.generate_quantum_bindings(quantum_helix["helix_id"])
+    if spiral_helix:
+        scaffold.generate_quantum_bindings(spiral_helix["helix_id"])
+    if truth_helix:
+        scaffold.generate_quantum_bindings(truth_helix["helix_id"])
+    
+    # Merge helices
+    merged_helix = None
+    if spiral_helix:
+        print("\nMerging helices...")
+        merged_helix = scaffold.merge_helices(quantum_helix["helix_id"], spiral_helix["helix_id"], "quantum-fusion")
+    
+    # Initialize visualizer
+    print("\nInitializing Quantum DNA Visualizer...")
+    visualizer = QuantumDNAVisualizer()
+    visualizer.initialize()
+    
+    # Connect to scaffold framework
+    print("Connecting visualizer to scaffold framework...")
+    visualizer.connect_helix_framework(scaffold)
     
     # Generate visualizations
-    output_dir = generate_visualizations(visualizer, patterns, args.output)
+    print("\nGenerating visualizations...")
     
-    # Run continuous monitoring if requested
-    if args.continuous:
-        cycles = run_continuous_monitoring(visualizer, args.duration)
-        
-        # Generate updated visualizations after monitoring
-        output_dir = generate_visualizations(visualizer, list(visualizer.dna_patterns.keys()),
-                                         f"{args.output}_after_monitoring")
+    # Terminal visualizations
+    print("\n1. Terminal Visualizations:")
+    print("\n=== Quantum DNA Helix ===")
+    visualizer.visualize_helix(quantum_helix["helix_id"], "terminal")
     
-    # Print summary
-    print(f"\n{BOLD}{GREEN}Quantum DNA Visualization Complete{RESET}")
-    print(f"{BOLD}Summary:{RESET}")
-    print(f"  - Patterns: {len(visualizer.dna_patterns)}")
-    print(f"  - Implementations: {sum(len(p['implementations']) for p in visualizer.dna_patterns.values())}")
-    print(f"  - Output directory: {output_dir}")
-    print(f"  - Average glow factor: {sum(visualizer.glow_factors.values()) / len(visualizer.glow_factors):.4f}")
+    if spiral_helix:
+        print("\n=== Spiral Eigensystem Helix ===")
+        visualizer.visualize_helix(spiral_helix["helix_id"], "terminal")
     
-    return 0
+    if truth_helix:
+        print("\n=== Truth Resonant Helix ===")
+        visualizer.visualize_helix(truth_helix["helix_id"], "terminal")
+    
+    if merged_helix:
+        print("\n=== Merged Helix ===")
+        visualizer.visualize_helix(merged_helix["helix_id"], "terminal")
+    
+    # Generate HTML visualizations
+    print("\n2. Generating HTML Visualizations...")
+    
+    visualizer.visualize_helix(
+        quantum_helix["helix_id"], 
+        "html", 
+        os.path.join(output_dir, "quantum_helix.html")
+    )
+    
+    if spiral_helix:
+        visualizer.visualize_helix(
+            spiral_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "spiral_helix.html")
+        )
+    
+    if truth_helix:
+        visualizer.visualize_helix(
+            truth_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "truth_helix.html")
+        )
+    
+    if merged_helix:
+        visualizer.visualize_helix(
+            merged_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "merged_helix.html")
+        )
+    
+    # Generate scaffold visualizations
+    print("\n3. Generating Scaffold Visualizations...")
+    
+    visualizer.generate_scaffold_visualization(
+        quantum_helix["helix_id"], 
+        "html", 
+        os.path.join(output_dir, "quantum_scaffold.html")
+    )
+    
+    if spiral_helix:
+        visualizer.generate_scaffold_visualization(
+            spiral_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "spiral_scaffold.html")
+        )
+    
+    if truth_helix:
+        visualizer.generate_scaffold_visualization(
+            truth_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "truth_scaffold.html")
+        )
+    
+    # Generate comparison visualizations
+    print("\n4. Generating Comparison Visualizations...")
+    
+    if spiral_helix:
+        visualizer.generate_comparison_visualization(
+            quantum_helix["helix_id"], 
+            spiral_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "quantum_vs_spiral.html")
+        )
+    
+    if truth_helix:
+        visualizer.generate_comparison_visualization(
+            quantum_helix["helix_id"], 
+            truth_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "quantum_vs_truth.html")
+        )
+    
+    if spiral_helix and truth_helix:
+        visualizer.generate_comparison_visualization(
+            spiral_helix["helix_id"], 
+            truth_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "spiral_vs_truth.html")
+        )
+    
+    if merged_helix:
+        visualizer.generate_comparison_visualization(
+            merged_helix["helix_id"], 
+            quantum_helix["helix_id"], 
+            "html", 
+            os.path.join(output_dir, "merged_vs_quantum.html")
+        )
+    
+    # Summary of output files
+    print("\n=== Visualization Complete ===")
+    print(f"Output files available in: {output_dir}/")
+    
+    # List generated files
+    files = os.listdir(output_dir)
+    for i, file in enumerate(files):
+        if file.endswith(".html"):
+            print(f"  {i+1}. {file}")
+            
+    print("\nThe HTML files provide interactive visualizations of the quantum DNA helices.")
+    print("Each visualization includes detailed information about the helix structure,")
+    print("scaffold points, quantum bindings, and complementary strand pairings.")
 
 if __name__ == "__main__":
-    try:
-        import numpy as np
-        import random
-        sys.exit(main())
-    except ImportError as e:
-        log_message(f"Error: Required module not found - {e}", color=RED)
-        log_message("Please ensure numpy and matplotlib are installed", color=YELLOW)
-        sys.exit(1)
+    main()

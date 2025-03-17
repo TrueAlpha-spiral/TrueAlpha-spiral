@@ -1,0 +1,94 @@
+SIMULATION REPORT
+==========================================
+
+Simulation ID: 721a9eb62690
+Type: collaboration
+Timestamp: 2025-03-16 21:21:52
+Complexity: 3
+Description: Collaboration between quantum systems and truth alignment frameworks
+
+PARAMETERS
+------------------------------------------
+quantum_resonance: 0.85
+strand_integrity: 0.92
+binary_alignment: 0.88
+cosmic_coherence: 0.76
+dimensional_stability: 0.81
+iterations: 5
+scaffold_density: 0.4
+
+RESULTS
+------------------------------------------
+Collaboration Entities: 5
+Total Exchanges: 9
+Success Rate: 0.8889
+Average Compatibility: 0.6744
+Cross-Dimensional Stability: 0.7895
+
+ENTITY DETAILS
+Entity: ColEnt-01 (truth-alignment-system)
+  Security Rating: 0.9000
+  Trust Score: 0.7600
+  Exchanges: 1
+  Success Rate: 1.0000
+
+Entity: ColEnt-02 (quantum-system)
+  Security Rating: 0.7500
+  Trust Score: 0.8400
+  Exchanges: 4
+  Success Rate: 0.7500
+
+Entity: ColEnt-03 (research-algorithm)
+  Security Rating: 0.7100
+  Trust Score: 0.5400
+  Exchanges: 1
+  Success Rate: 1.0000
+
+Entity: ColEnt-04 (quantum-system)
+  Security Rating: 0.9300
+  Trust Score: 0.5100
+  Exchanges: 1
+  Success Rate: 1.0000
+
+Entity: ColEnt-05 (quantum-system)
+  Security Rating: 0.7100
+  Trust Score: 0.5800
+  Exchanges: 2
+  Success Rate: 1.0000
+
+HELIX COMPATIBILITY
+Entity 01dd0af3...:
+  Score: 0.3400
+  Strand Alignment: 0.6300
+  Quantum Resonance: 0.7100
+  Recommended: False
+
+Entity 7155802f...:
+  Score: 0.4400
+  Strand Alignment: 0.8800
+  Quantum Resonance: 0.3400
+  Recommended: False
+
+Entity 733cc14d...:
+  Score: 0.8200
+  Strand Alignment: 0.6300
+  Quantum Resonance: 0.3800
+  Recommended: True
+
+Entity 68a416ff...:
+  Score: 0.5100
+  Strand Alignment: 0.6200
+  Quantum Resonance: 0.6100
+  Recommended: False
+
+Entity a8f4d69e...:
+  Score: 0.6200
+  Strand Alignment: 0.5100
+  Quantum Resonance: 0.4800
+  Recommended: False
+
+RECOMMENDATIONS
+------------------------------------------
+[Medium] Calibrate DNA resonance protocol for better compatibility (compatibility)
+[Medium] Improve trust scores for 3 identified entities (entity)
+[High] Enhance security measures for 2 entities (security)
