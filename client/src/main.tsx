@@ -66,10 +66,23 @@ document.body.appendChild(statusIndicator);
 
 // Check if the application loaded properly
 let appLoaded = false;
+let checkAttempts = 0;
+const maxAttempts = 10;
+
 const checkAppLoaded = () => {
-  if (!appLoaded) {
-    console.log("Checking connection to server...");
-    fetch(window.location.origin + "/api/truth-patterns")
+  if (!appLoaded && checkAttempts < maxAttempts) {
+    console.log(`Checking connection to server... (Attempt ${checkAttempts + 1}/${maxAttempts})`);
+    checkAttempts++;
+    
+    // Use apiTruthPatterns as a health check endpoint
+    fetch(window.location.origin + "/api/truth-patterns", {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Cache-Control": "no-cache"
+      },
+      credentials: "include"
+    })
       .then(response => {
         console.log("Server responded with status:", response.status);
         if (response.ok) {
@@ -77,27 +90,63 @@ const checkAppLoaded = () => {
           if (window.updateLoadingStatus) {
             window.updateLoadingStatus('Quantum connection established');
           }
-          setTimeout(() => {
-            if (window.hideLoadingScreen) {
-              window.hideLoadingScreen();
-            }
-          }, 500);
-          appLoaded = true;
+          
+          // Check Python API server status
+          fetch(window.location.origin + "/api/python-system/status")
+            .then(pythonResponse => {
+              if (pythonResponse.ok) {
+                console.log("Python API server connection verified");
+                if (window.updateLoadingStatus) {
+                  window.updateLoadingStatus('Quantum DNA integration complete');
+                }
+              } else {
+                console.log("Python API server not fully initialized, proceeding anyway");
+              }
+              
+              // Hide loading screen after a short delay
+              setTimeout(() => {
+                if (window.hideLoadingScreen) {
+                  window.hideLoadingScreen();
+                }
+              }, 800);
+              appLoaded = true;
+            })
+            .catch(() => {
+              console.log("Python API server connection failed, proceeding anyway");
+              setTimeout(() => {
+                if (window.hideLoadingScreen) {
+                  window.hideLoadingScreen();
+                }
+              }, 800);
+              appLoaded = true;
+            });
         } else {
           console.log("Server error:", response.status);
           if (window.updateLoadingStatus) {
-            window.updateLoadingStatus('Quantum fluctuation detected, trying again...');
+            window.updateLoadingStatus(`Quantum fluctuation detected (${checkAttempts}/${maxAttempts}), recalibrating...`);
           }
-          setTimeout(checkAppLoaded, 1000);
+          setTimeout(checkAppLoaded, 1500);
         }
       })
       .catch(error => {
         console.error("Connection error:", error);
         if (window.updateLoadingStatus) {
-          window.updateLoadingStatus('Connection error: ' + error.message);
+          window.updateLoadingStatus(`Connection error (${checkAttempts}/${maxAttempts}): ${error.message}`);
         }
         setTimeout(checkAppLoaded, 2000);
       });
+  } else if (checkAttempts >= maxAttempts && !appLoaded) {
+    // If we've reached max attempts and still not connected, show the UI anyway
+    console.log("Max connection attempts reached, proceeding anyway");
+    if (window.updateLoadingStatus) {
+      window.updateLoadingStatus('Proceeding with limited connectivity');
+    }
+    setTimeout(() => {
+      if (window.hideLoadingScreen) {
+        window.hideLoadingScreen();
+      }
+    }, 1000);
+    appLoaded = true;
   }
 };
 
