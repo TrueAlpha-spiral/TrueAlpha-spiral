@@ -84,6 +84,11 @@ export default function Header() {
               Verification
             </Link>
           </Button>
+          <Button variant="default" className="hidden sm:inline-flex" asChild>
+            <Link href="/pricing">
+              Pricing
+            </Link>
+          </Button>
           <ThemeToggle />
         </div>
       </div>
