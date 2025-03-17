@@ -16,9 +16,24 @@ window.addEventListener('error', (event) => {
 // Add debugging info
 console.log("Starting TrueAlphaSpiral application...");
 console.log("Environment:", import.meta.env.MODE);
-// Use location.origin without port number for Replit compatibility
-const baseUrl = window.location.origin.replace(/:\d+$/, '');
-console.log("Base URL:", baseUrl);
+// Detect environment and use appropriate base URL
+const isReplit = window.location.hostname.includes('replit');
+
+// In Replit, we need to detect the correct base URL format
+// Try multiple URL formats for maximum compatibility
+const potentialBaseUrls = [
+  window.location.origin, // Default: includes protocol, hostname, and port
+  `https://${window.location.hostname}`,  // Protocol and hostname without port
+  window.location.origin.replace(/:\d+$/, ''), // Remove port if present
+  window.location.origin.replace(/:\d+$/, '') + ':5000' // Use explicit port 5000
+];
+
+console.log("Potential base URLs:", potentialBaseUrls);
+console.log("Running in Replit:", isReplit);
+
+// We'll try these URLs in sequence until one works
+let baseUrlIndex = 0;
+const baseUrl = potentialBaseUrls[baseUrlIndex];
 
 // Add a network status indicator
 const statusIndicator = document.createElement('div');
@@ -71,89 +86,117 @@ let appLoaded = false;
 let checkAttempts = 0;
 const maxAttempts = 10;
 
-const checkAppLoaded = () => {
-  if (!appLoaded && checkAttempts < maxAttempts) {
-    console.log(`Checking connection to server... (Attempt ${checkAttempts + 1}/${maxAttempts})`);
+// Function to try connecting with different base URLs
+const tryConnect = (urlIndex: number) => {
+  if (urlIndex >= potentialBaseUrls.length) {
+    // If we've tried all URLs, increment the attempt counter and restart from the first URL
     checkAttempts++;
-    
-    // Use baseUrl without port for Replit compatibility
-    fetch(baseUrl + "/api/truth-patterns", {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Cache-Control": "no-cache"
-      },
-      credentials: "include"
-    })
-      .then(response => {
-        console.log("Server responded with status:", response.status);
-        if (response.ok) {
-          console.log("Server connection verified");
-          if (window.updateLoadingStatus) {
-            window.updateLoadingStatus('Quantum connection established');
-          }
-          
-          // Check Python API server status using baseUrl
-          fetch(baseUrl + "/api/python-system/status")
-            .then(pythonResponse => {
-              if (pythonResponse.ok) {
-                console.log("Python API server connection verified");
-                if (window.updateLoadingStatus) {
-                  window.updateLoadingStatus('Quantum DNA integration complete');
-                }
-              } else {
-                console.log("Python API server not fully initialized, proceeding anyway");
-              }
-              
-              // Hide loading screen after a short delay
-              setTimeout(() => {
-                if (window.hideLoadingScreen) {
-                  window.hideLoadingScreen();
-                }
-              }, 800);
-              appLoaded = true;
-            })
-            .catch(() => {
-              console.log("Python API server connection failed, proceeding anyway");
-              setTimeout(() => {
-                if (window.hideLoadingScreen) {
-                  window.hideLoadingScreen();
-                }
-              }, 800);
-              appLoaded = true;
-            });
-        } else {
-          console.log("Server error:", response.status);
-          if (window.updateLoadingStatus) {
-            window.updateLoadingStatus(`Quantum fluctuation detected (${checkAttempts}/${maxAttempts}), recalibrating...`);
-          }
-          setTimeout(checkAppLoaded, 1500);
-        }
-      })
-      .catch(error => {
-        console.error("Connection error:", error);
-        if (window.updateLoadingStatus) {
-          window.updateLoadingStatus(`Connection error (${checkAttempts}/${maxAttempts}): ${error.message}`);
-        }
-        setTimeout(checkAppLoaded, 2000);
-      });
-  } else if (checkAttempts >= maxAttempts && !appLoaded) {
-    // If we've reached max attempts and still not connected, show the UI anyway
-    console.log("Max connection attempts reached, proceeding anyway");
-    if (window.updateLoadingStatus) {
-      window.updateLoadingStatus('Proceeding with limited connectivity');
-    }
-    setTimeout(() => {
-      if (window.hideLoadingScreen) {
-        window.hideLoadingScreen();
+    if (checkAttempts < maxAttempts) {
+      console.log(`All base URLs failed. Retrying... (Attempt ${checkAttempts + 1}/${maxAttempts})`);
+      setTimeout(() => tryConnect(0), 2000);
+    } else {
+      // Max attempts reached
+      console.log("Max connection attempts reached, proceeding anyway");
+      if (window.updateLoadingStatus) {
+        window.updateLoadingStatus('Proceeding with limited connectivity');
       }
-    }, 1000);
-    appLoaded = true;
+      setTimeout(() => {
+        if (window.hideLoadingScreen) {
+          window.hideLoadingScreen();
+        }
+      }, 1000);
+      appLoaded = true;
+    }
+    return;
   }
+  
+  const currentBaseUrl = potentialBaseUrls[urlIndex];
+  console.log(`Trying base URL: ${currentBaseUrl} (Attempt ${checkAttempts + 1}/${maxAttempts}, URL ${urlIndex + 1}/${potentialBaseUrls.length})`);
+  
+  // First try the simpler /api endpoint for connectivity test
+  fetch(currentBaseUrl + "/api", {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Cache-Control": "no-cache"
+    }
+  })
+    .then(response => {
+      console.log("API endpoint responded with status:", response.status);
+      if (response.ok) {
+        console.log("Server connection verified through /api endpoint");
+        if (window.updateLoadingStatus) {
+          window.updateLoadingStatus('Quantum connection established');
+        }
+        
+        // After verifying basic connectivity, try the main API endpoint
+        return fetch(currentBaseUrl + "/api/truth-patterns", {
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+            "Cache-Control": "no-cache"
+          },
+          credentials: "include"
+        });
+      } else {
+        throw new Error("Server unavailable");
+      }
+    })
+    .then(response => {
+      console.log("Truth patterns endpoint responded with status:", response.status);
+      if (response.ok) {
+        console.log("Truth patterns endpoint verified");
+        
+        // Check Python API server status using currentBaseUrl
+        fetch(currentBaseUrl + "/api/python-system/status")
+          .then(pythonResponse => {
+            if (pythonResponse.ok) {
+              console.log("Python API server connection verified");
+              if (window.updateLoadingStatus) {
+                window.updateLoadingStatus('Quantum DNA integration complete');
+              }
+            } else {
+              console.log("Python API server not fully initialized, proceeding anyway");
+            }
+            
+            // Hide loading screen after a short delay
+            setTimeout(() => {
+              if (window.hideLoadingScreen) {
+                window.hideLoadingScreen();
+              }
+            }, 800);
+            appLoaded = true;
+          })
+          .catch(() => {
+            console.log("Python API server connection failed, proceeding anyway");
+            setTimeout(() => {
+              if (window.hideLoadingScreen) {
+                window.hideLoadingScreen();
+              }
+            }, 800);
+            appLoaded = true;
+          });
+      } else {
+        console.log("Server error:", response.status);
+        if (window.updateLoadingStatus) {
+          window.updateLoadingStatus(`Quantum fluctuation detected (${checkAttempts}/${maxAttempts}), recalibrating...`);
+        }
+        // Try the next base URL
+        setTimeout(() => tryConnect(urlIndex + 1), 1500);
+      }
+    })
+    .catch(error => {
+      console.error("Connection error:", error);
+      if (window.updateLoadingStatus) {
+        window.updateLoadingStatus(`Connection error (${checkAttempts}/${maxAttempts}): ${error.message}`);
+      }
+      // Try the next base URL
+      setTimeout(() => tryConnect(urlIndex + 1), 2000);
+    });
 };
 
-// Start checking app loading status
-setTimeout(checkAppLoaded, 1000);
+// Start the connection attempt with the first URL
+setTimeout(() => tryConnect(0), 1000);
 
 // Type declaration for window object
 declare global {

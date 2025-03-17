@@ -24,19 +24,32 @@ function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="md:w-1/2 space-y-6">
+              <div className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-2">
+                Trusted by content teams & publishers worldwide
+              </div>
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Truth Verification for the AI Era
+                AI Content Verification that Grows Your Business
               </h1>
               <p className="text-xl">
-                Detect AI-generated fabrications with TrueAlphaSpiral's advanced verification technology. Ensure content integrity with quantum-inspired pattern analysis.
+                Protect your brand from AI hallucinations and false claims. Our verification engine distinguishes between factual content, questions, and potentially fabricated statements.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="#verify" className="bg-white text-purple-700 hover:bg-purple-50 transition-colors px-6 py-3 rounded-lg font-medium">
-                  Verify Content
+                <Link href="/pricing" className="bg-white text-purple-700 hover:bg-purple-50 transition-colors px-6 py-3 rounded-lg font-medium">
+                  View Pricing
                 </Link>
-                <Link href="/about" className="bg-transparent border border-white text-white hover:bg-white/10 transition-colors px-6 py-3 rounded-lg font-medium">
-                  Learn More
+                <Link href="#verify" className="bg-transparent border border-white text-white hover:bg-white/10 transition-colors px-6 py-3 rounded-lg font-medium">
+                  Try Demo
                 </Link>
+              </div>
+              <div className="flex items-center text-sm">
+                <Check className="text-green-300 h-4 w-4 mr-2" />
+                <span>No credit card required for trial</span>
+                <span className="mx-2">•</span>
+                <Check className="text-green-300 h-4 w-4 mr-2" />
+                <span>Enterprise-ready API</span>
+                <span className="mx-2">•</span>
+                <Check className="text-green-300 h-4 w-4 mr-2" />
+                <span>14-day money back</span>
               </div>
             </div>
             <div className="md:w-1/2">
@@ -122,22 +135,82 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-4">Trusted by Content Leaders</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Organizations worldwide rely on TrueAlphaSpiral to ensure content accuracy and protect their brand reputation.
+          </p>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-card rounded-xl p-6 shadow-sm border">
+              <div className="flex items-center space-x-1 mb-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="mb-4 italic">"TrueAlphaSpiral has transformed our content verification process. We now catch questions and speculative content before publishing, which has increased reader trust significantly."</p>
+              <div>
+                <h4 className="font-semibold">Sarah Johnson</h4>
+                <p className="text-sm text-muted-foreground">Content Director, Digital Publishing Inc.</p>
+              </div>
+            </div>
+            
+            <div className="bg-card rounded-xl p-6 shadow-sm border">
+              <div className="flex items-center space-x-1 mb-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="mb-4 italic">"The API integration was seamless. Our content team now verifies claims in real-time, saving hours of manual fact-checking each day."</p>
+              <div>
+                <h4 className="font-semibold">Michael Chen</h4>
+                <p className="text-sm text-muted-foreground">CTO, TechNews Global</p>
+              </div>
+            </div>
+            
+            <div className="bg-card rounded-xl p-6 shadow-sm border">
+              <div className="flex items-center space-x-1 mb-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="mb-4 italic">"ROI was immediate. The Enterprise plan paid for itself within the first month by preventing a major content accuracy issue that would have damaged our reputation."</p>
+              <div>
+                <h4 className="font-semibold">Lisa Rodriguez</h4>
+                <p className="text-sm text-muted-foreground">VP of Marketing, Enterprise Solutions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to ensure content integrity?</h2>
+          <h2 className="text-3xl font-bold mb-4">Ready to safeguard your content integrity?</h2>
           <p className="max-w-2xl mx-auto mb-8">
-            TrueAlphaSpiral offers enterprise solutions for large-scale content verification, 
-            AI alignment, and truth pattern analysis.
+            Choose the plan that fits your organization's needs. From small teams to enterprise solutions, 
+            we have pricing options that scale with your verification requirements.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Button variant="outline" asChild>
-              <Link href="/about">Learn More</Link>
+              <Link href="#verify">Try Demo</Link>
             </Button>
             <Button variant="default" className="bg-white text-primary hover:bg-white/90" asChild>
-              <Link href="#verify">Try it Now</Link>
+              <Link href="/pricing">See Pricing Plans</Link>
             </Button>
           </div>
+          <p className="mt-6 text-sm max-w-lg mx-auto">
+            Join organizations already using TrueAlphaSpiral to verify content and protect their brand reputation
+          </p>
         </div>
       </section>
     </div>

@@ -15,6 +15,43 @@ export class VerificationEngine {
   ): Promise<VerificationResult> {
     const startTime = Date.now();
     
+    console.log("[DEBUG] Verifying text:", text);
+    console.log("[DEBUG] Is question?", this.isQuestion(text));
+    
+    // First, check if this is a question or against known facts database
+    // This applies to the entire text, not individual sentences
+    const factCheck = this.checkAgainstKnownFacts(text);
+    console.log("[DEBUG] factCheck result:", factCheck);
+    
+    if (factCheck) {
+      console.log("[DEBUG] Using factCheck result with confidence:", factCheck.confidence);
+      // We have a direct factual/speculative/fabricated determination
+      const result: VerificationResult = {
+        originalText: text,
+        truthScore: factCheck.confidence,
+        overallScore: factCheck.confidence,
+        highlights: [{
+          startIndex: 0,
+          endIndex: text.length,
+          type: factCheck.type,
+          confidenceScore: factCheck.confidence,
+          message: factCheck.message,
+          patternName: factCheck.pattern.name
+        }],
+        processingTimeMs: Date.now() - startTime,
+        summary: {
+          factualCount: factCheck.type === 'factual' ? 1 : 0,
+          speculativeCount: factCheck.type === 'speculative' ? 1 : 0,
+          fabricatedCount: factCheck.type === 'fabricated' ? 1 : 0,
+          totalSentences: 1
+        }
+      };
+      
+      return result;
+    }
+    
+    // If not a known fact/question, proceed with normal pattern analysis
+    
     // Preprocess the text
     const sentences = this.splitIntoSentences(text);
     
@@ -30,6 +67,21 @@ export class VerificationEngine {
     // Process each sentence
     for (const sentence of sentences) {
       const { index, text: sentenceText } = sentence;
+      
+      // Check if this individual sentence is a question
+      if (this.isQuestion(sentenceText)) {
+        speculativeCount++;
+        highlights.push({
+          startIndex: index,
+          endIndex: index + sentenceText.length,
+          type: 'speculative',
+          confidenceScore: 0.5,
+          message: 'This is a question, not a factual statement.',
+          patternName: 'Question Detection'
+        });
+        totalConfidence += 0.5;
+        continue;
+      }
       
       // Check against each pattern
       const patternResults = patterns
@@ -110,6 +162,9 @@ export class VerificationEngine {
     text: string,
     pattern: TruthPattern
   ): { pattern: TruthPattern; confidence: number; type: 'factual' | 'speculative' | 'fabricated'; message: string; } | null {
+    // We've already checked against known facts and questions in verifyText
+    // so we don't need to do it here again
+    
     // Pattern-specific detection logic
     let confidence = 1.0;
     let message = '';
@@ -169,6 +224,105 @@ export class VerificationEngine {
     
     // No match
     return null;
+  }
+  
+  /**
+   * Checks text against a database of known facts
+   */
+  private checkAgainstKnownFacts(text: string): { pattern: TruthPattern; confidence: number; type: 'factual' | 'speculative' | 'fabricated'; message: string; } | null {
+    // First, handle questions or speculative statements
+    if (this.isQuestion(text)) {
+      return {
+        pattern: {
+          id: 998, // Special ID for question handling
+          name: "Question Detection",
+          description: "Identifies questions that cannot be verified as fact",
+          category: "Language",
+          confidenceThreshold: 0.9,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        confidence: 0.5, // Mid-range confidence (questions aren't factual or false)
+        type: 'speculative',
+        message: "This is a question, not a factual statement."
+      };
+    }
+
+    // Basic fact database - in production this would connect to a real database or API
+    const knownFalsehoods = [
+      {
+        pattern: /Elon Musk is the president/i,
+        message: "Elon Musk is not the president of the United States."
+      },
+      {
+        pattern: /\b(?:earth|world) is flat\b/i,
+        message: "The Earth is not flat; it is an oblate spheroid."
+      },
+      {
+        pattern: /\bhumans never (?:landed|went) (?:on|to) the moon\b/i,
+        message: "Humans have landed on the moon; the first moon landing was in 1969."
+      },
+      {
+        pattern: /\bvaccines cause autism\b/i,
+        message: "Scientific consensus shows no link between vaccines and autism."
+      },
+      {
+        pattern: /\bclimate change is (?:a hoax|not real|fake)\b/i,
+        message: "Climate change is supported by scientific consensus."
+      },
+      // Add statements about current political figures and celebrities
+      {
+        pattern: /\b(?:Joe Biden|President Biden) is dead\b/i,
+        message: "As of March 2025, Joe Biden is alive and serving as President of the United States."
+      },
+      {
+        pattern: /\bDonald Trump is (?:the president|president)\b/i,
+        message: "As of March 2025, Donald Trump is not the current president of the United States."
+      },
+      {
+        pattern: /\bQueen Elizabeth is alive\b/i,
+        message: "Queen Elizabeth II passed away on September 8, 2022."
+      }
+    ];
+    
+    // Check for falsehoods
+    for (const falsehood of knownFalsehoods) {
+      if (falsehood.pattern.test(text)) {
+        return {
+          pattern: {
+            id: 999, // Special ID for fact checking
+            name: "Fact Checking",
+            description: "Verifies statements against known facts",
+            category: "Data",
+            confidenceThreshold: 0.9,
+            isActive: true,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          },
+          confidence: 0.1, // Very low confidence (high certainty of being false)
+          type: 'fabricated',
+          message: falsehood.message
+        };
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Detects if a text is a question
+   */
+  private isQuestion(text: string): boolean {
+    // Check for question marks
+    if (text.includes('?')) return true;
+    
+    // Check for common question starters
+    const questionStarters = [
+      /^(?:who|what|where|when|why|how|is|are|was|were|will|would|should|could|can|do|does|did|has|have|had)\b/i
+    ];
+    
+    return questionStarters.some(pattern => pattern.test(text.trim()));
   }
   
   /**

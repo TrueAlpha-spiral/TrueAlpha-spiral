@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import HomePage from "@/pages/home-page";
+import PricingPage from "@/pages/pricing-page";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -20,6 +21,7 @@ export default function App() {
             <main className="flex-grow">
               <Switch>
                 <Route path="/" component={HomePage} />
+                <Route path="/pricing" component={PricingPage} />
                 {/* These routes will be implemented individually */}
                 <Route path="/ai-audit">
                   <div className="container py-10">
