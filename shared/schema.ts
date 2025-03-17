@@ -1,57 +1,102 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { pgTable, serial, text, timestamp, boolean, integer, json, real, pgEnum } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  architect_identifier: text("architect_identifier"),
-  access_level: integer("access_level").default(1).notNull(),
-  created_at: timestamp("created_at").defaultNow(),
+// Enumerations
+export const truthPatternCategoryEnum = pgEnum('truth_pattern_category', [
+  'Technical',
+  'Data',
+  'Business',
+  'Predictions',
+  'Language'
+]);
+
+export const highlightTypeEnum = pgEnum('highlight_type', [
+  'factual',
+  'speculative',
+  'fabricated'
+]);
+
+// Truth Pattern Table
+export const truthPattern = pgTable('truth_pattern', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  category: truthPatternCategoryEnum('category').notNull(),
+  confidenceThreshold: real('confidence_threshold').notNull().default(0.7),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
-export const verificationHashes = pgTable("verification_hashes", {
-  id: serial("id").primaryKey(),
-  hash_value: text("hash_value").notNull(),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-  user_id: integer("user_id").references(() => users.id),
-  related_file: text("related_file"),
-  verified: boolean("verified").default(false),
+// Text Verification Table
+export const textVerification = pgTable('text_verification', {
+  id: serial('id').primaryKey(),
+  content: text('content').notNull(),
+  verificationResult: json('verification_result').notNull(),
+  truthScore: real('truth_score').notNull(),
+  processingTimeMs: integer('processing_time_ms').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
-export const truthPatterns = pgTable("truth_patterns", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  type: text("type").notNull(),
-  icon: text("icon").notNull(),
-  resonance_level: integer("resonance_level").default(1),
-  user_id: integer("user_id").references(() => users.id),
+// Verification Highlight Table
+export const verificationHighlight = pgTable('verification_highlight', {
+  id: serial('id').primaryKey(),
+  verificationId: integer('verification_id').notNull(),
+  startIndex: integer('start_index').notNull(),
+  endIndex: integer('end_index').notNull(),
+  highlightType: highlightTypeEnum('highlight_type').notNull(),
+  confidenceScore: real('confidence_score').notNull(),
+  patternId: integer('pattern_id'),
+  message: text('message'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  architect_identifier: true,
+// Types
+export type TruthPattern = typeof truthPattern.$inferSelect;
+export type InsertTruthPattern = typeof truthPattern.$inferInsert;
+
+export type TextVerification = typeof textVerification.$inferSelect;
+export type InsertTextVerification = typeof textVerification.$inferInsert;
+
+export type VerificationHighlight = typeof verificationHighlight.$inferSelect;
+export type InsertVerificationHighlight = typeof verificationHighlight.$inferInsert;
+
+// Verification Result Interface
+export interface VerificationResult {
+  id?: number;
+  originalText: string;
+  truthScore: number;
+  overallScore: number;
+  highlights: Array<{
+    startIndex: number;
+    endIndex: number;
+    type: 'factual' | 'speculative' | 'fabricated';
+    confidenceScore: number;
+    message: string;
+    patternName?: string;
+  }>;
+  processingTimeMs: number;
+  summary: {
+    factualCount: number;
+    speculativeCount: number;
+    fabricatedCount: number;
+    totalSentences: number;
+  };
+}
+
+// Zod Schemas for Validation
+export const insertTruthPatternSchema = createInsertSchema(truthPattern);
+export const insertTextVerificationSchema = createInsertSchema(textVerification);
+export const insertVerificationHighlightSchema = createInsertSchema(verificationHighlight);
+
+// Verification Request Schema
+export const verifyTextSchema = z.object({
+  content: z.string().min(10, "Text must be at least 10 characters long").max(10000, "Text cannot exceed 10,000 characters"),
+  options: z.object({
+    includeSummary: z.boolean().optional().default(true),
+    sensitivityLevel: z.number().min(0).max(1).optional().default(0.7)
+  }).optional().default({})
 });
 
-export const insertVerificationHashSchema = createInsertSchema(verificationHashes).pick({
-  hash_value: true,
-  related_file: true,
-  user_id: true,
-});
-
-export const insertTruthPatternSchema = createInsertSchema(truthPatterns).pick({
-  name: true,
-  type: true,
-  icon: true,
-  resonance_level: true,
-  user_id: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
-export type VerificationHash = typeof verificationHashes.$inferSelect;
-export type TruthPattern = typeof truthPatterns.$inferSelect;
-export type InsertTruthPattern = z.infer<typeof insertTruthPatternSchema>;
-export type InsertVerificationHash = z.infer<typeof insertVerificationHashSchema>;
+export type VerifyTextInput = z.infer<typeof verifyTextSchema>;

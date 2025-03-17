@@ -1136,5 +1136,17 @@ if __name__ == '__main__':
     parser.add_argument("--port", type=int, default=8001, help="Port for the API server")
     args = parser.parse_args()
     
+    # Check if a server is already running on this port
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1', args.port))
+    if result == 0:  # Port is open, server is already running
+        print(f"Server already running on port {args.port}")
+        print("Exiting without starting a new instance...")
+        import sys
+        sys.exit(0)
+    sock.close()
+    
+    print(f"Starting TrueAlphaSpiral API Server on port {args.port}")
     # Run Flask app
     app.run(host='0.0.0.0', port=args.port, debug=False, threaded=True)

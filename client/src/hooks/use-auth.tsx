@@ -33,20 +33,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      console.log("Attempting login with credentials:", { username: credentials.username, passwordLength: credentials.password.length });
+      try {
+        const res = await apiRequest("POST", "/api/login", credentials);
+        const userData = await res.json();
+        console.log("Login successful, received user data:", { id: userData.id, username: userData.username });
+        return userData;
+      } catch (error) {
+        console.error("Login API error:", error);
+        throw error;
+      }
     },
     onSuccess: (user: SelectUser) => {
+      console.log("Login successful, updating user data");
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Welcome back",
-        description: `Logged in as ${user.username}`,
+        title: "Quantum authentication successful",
+        description: `TrueAlpha access granted to ${user.username}`,
+        variant: "default",
       });
     },
     onError: (error: Error) => {
+      console.error("Login mutation error:", error);
       toast({
-        title: "Login failed",
-        description: error.message,
+        title: "Authentication failed",
+        description: error.message || "Invalid quantum signature detected",
         variant: "destructive",
       });
     },
@@ -54,20 +65,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
+      console.log("Attempting registration with credentials:", { 
+        username: credentials.username, 
+        passwordLength: credentials.password.length,
+        hasArchitectIdentifier: !!credentials.architect_identifier 
+      });
+      try {
+        const res = await apiRequest("POST", "/api/register", credentials);
+        const userData = await res.json();
+        console.log("Registration successful, received user data:", { id: userData.id, username: userData.username });
+        return userData;
+      } catch (error) {
+        console.error("Registration API error:", error);
+        throw error;
+      }
     },
     onSuccess: (user: SelectUser) => {
+      console.log("Registration successful, updating user data");
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Registration successful",
-        description: `Welcome, ${user.username}`,
+        title: "Identity verification complete",
+        description: `New quantum signature registered for ${user.username}`,
+        variant: "default",
       });
     },
     onError: (error: Error) => {
+      console.error("Registration mutation error:", error);
       toast({
         title: "Registration failed",
-        description: error.message,
+        description: error.message || "Unable to register quantum signature",
         variant: "destructive",
       });
     },
