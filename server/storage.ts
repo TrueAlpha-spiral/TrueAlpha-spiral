@@ -4,7 +4,9 @@ import {
   TextVerification, 
   InsertTextVerification,
   VerificationHighlight,
-  InsertVerificationHighlight
+  InsertVerificationHighlight,
+  AIAudit,
+  InsertAIAudit
 } from '@shared/schema';
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
@@ -29,6 +31,12 @@ export interface IStorage {
   createVerificationHighlight(data: InsertVerificationHighlight): Promise<VerificationHighlight>;
   getVerificationHighlightsByVerificationId(verificationId: number): Promise<VerificationHighlight[]>;
   
+  // AI Audits
+  createAIAudit(data: InsertAIAudit): Promise<AIAudit>;
+  getAIAudits(): Promise<AIAudit[]>;
+  getAIAudit(id: number): Promise<AIAudit | null>;
+  updateAIAudit(id: number, data: Partial<InsertAIAudit>): Promise<AIAudit | null>;
+  
   // Session store
   sessionStore: any;
 }
@@ -38,6 +46,7 @@ export class MemStorage implements IStorage {
   private truthPatterns: TruthPattern[] = [];
   private textVerifications: TextVerification[] = [];
   private verificationHighlights: VerificationHighlight[] = [];
+  private aiAudits: AIAudit[] = [];
   
   public sessionStore: any;
   
@@ -148,6 +157,55 @@ export class MemStorage implements IStorage {
   
   async getVerificationHighlightsByVerificationId(verificationId: number): Promise<VerificationHighlight[]> {
     return this.verificationHighlights.filter(h => h.verificationId === verificationId);
+  }
+  
+  // AI Audit methods
+  async createAIAudit(data: InsertAIAudit): Promise<AIAudit> {
+    const id = this.aiAudits.length > 0 
+      ? Math.max(...this.aiAudits.map(a => a.id)) + 1 
+      : 1;
+    
+    // Ensure all required fields have values
+    const newAudit: AIAudit = {
+      id,
+      clientName: data.clientName,
+      aiSystemName: data.aiSystemName,
+      regulatoryFramework: data.regulatoryFramework ?? 'general',
+      status: data.status ?? 'initialized',
+      auditSummary: data.auditSummary ?? null,
+      riskScore: data.riskScore ?? null,
+      complianceScore: data.complianceScore ?? null,
+      verificationId: data.verificationId ?? null,
+      blockchainRecord: data.blockchainRecord ?? null,
+      auditReport: data.auditReport ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.aiAudits.push(newAudit);
+    return newAudit;
+  }
+  
+  async getAIAudits(): Promise<AIAudit[]> {
+    return [...this.aiAudits];
+  }
+  
+  async getAIAudit(id: number): Promise<AIAudit | null> {
+    return this.aiAudits.find(a => a.id === id) || null;
+  }
+  
+  async updateAIAudit(id: number, data: Partial<InsertAIAudit>): Promise<AIAudit | null> {
+    const index = this.aiAudits.findIndex(a => a.id === id);
+    if (index === -1) return null;
+    
+    const updatedAudit = {
+      ...this.aiAudits[index],
+      ...data,
+      updatedAt: new Date()
+    };
+    
+    this.aiAudits[index] = updatedAudit;
+    return updatedAudit;
   }
   
   // Initialize with seed data

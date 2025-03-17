@@ -17,6 +17,14 @@ export const highlightTypeEnum = pgEnum('highlight_type', [
   'fabricated'
 ]);
 
+export const regulatoryFrameworkEnum = pgEnum('regulatory_framework', [
+  'general',
+  'financial_services',
+  'healthcare',
+  'government',
+  'education'
+]);
+
 // Truth Pattern Table
 export const truthPattern = pgTable('truth_pattern', {
   id: serial('id').primaryKey(),
@@ -52,6 +60,23 @@ export const verificationHighlight = pgTable('verification_highlight', {
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
+// AI Audit Table
+export const aiAudit = pgTable('ai_audit', {
+  id: serial('id').primaryKey(),
+  clientName: text('client_name').notNull(),
+  aiSystemName: text('ai_system_name').notNull(),
+  regulatoryFramework: regulatoryFrameworkEnum('regulatory_framework').notNull().default('general'),
+  status: text('status').notNull().default('initialized'),
+  auditSummary: text('audit_summary'),
+  riskScore: real('risk_score'),
+  complianceScore: real('compliance_score'),
+  verificationId: integer('verification_id'),
+  blockchainRecord: text('blockchain_record'),
+  auditReport: json('audit_report'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+});
+
 // Types
 export type TruthPattern = typeof truthPattern.$inferSelect;
 export type InsertTruthPattern = typeof truthPattern.$inferInsert;
@@ -61,6 +86,9 @@ export type InsertTextVerification = typeof textVerification.$inferInsert;
 
 export type VerificationHighlight = typeof verificationHighlight.$inferSelect;
 export type InsertVerificationHighlight = typeof verificationHighlight.$inferInsert;
+
+export type AIAudit = typeof aiAudit.$inferSelect;
+export type InsertAIAudit = typeof aiAudit.$inferInsert;
 
 // Verification Result Interface
 export interface VerificationResult {
@@ -89,6 +117,7 @@ export interface VerificationResult {
 export const insertTruthPatternSchema = createInsertSchema(truthPattern);
 export const insertTextVerificationSchema = createInsertSchema(textVerification);
 export const insertVerificationHighlightSchema = createInsertSchema(verificationHighlight);
+export const insertAIAuditSchema = createInsertSchema(aiAudit);
 
 // Verification Request Schema
 export const verifyTextSchema = z.object({
@@ -100,3 +129,82 @@ export const verifyTextSchema = z.object({
 });
 
 export type VerifyTextInput = z.infer<typeof verifyTextSchema>;
+
+// Cross Reference Request Schema
+export const crossReferenceSchema = z.object({
+  content: z.string().min(10, "Text must be at least 10 characters long").max(10000, "Text cannot exceed 10,000 characters"),
+  options: z.object({
+    enabledSources: z.array(z.string()).optional(),
+    minConfidenceThreshold: z.number().min(0).max(1).optional().default(0.8),
+    regulatoryFramework: z.enum(['general', 'financial_services', 'healthcare', 'government', 'education']).optional().default('general')
+  }).optional().default({})
+});
+
+export type CrossReferenceInput = z.infer<typeof crossReferenceSchema>;
+
+// AI Audit Request Schema
+export const aiAuditSchema = z.object({
+  clientName: z.string().min(2, "Client name must be at least 2 characters long"),
+  aiSystemName: z.string().min(2, "AI system name must be at least 2 characters long"),
+  content: z.string().min(10, "Content must be at least 10 characters long").max(10000, "Content cannot exceed 10,000 characters"),
+  regulatoryFramework: z.enum(['general', 'financial_services', 'healthcare', 'government', 'education']).default('general'),
+  options: z.object({
+    riskThreshold: z.number().min(0).max(1).optional().default(0.3),
+    confidenceThreshold: z.number().min(0).max(1).optional().default(0.8)
+  }).optional().default({})
+});
+
+export type AIAuditInput = z.infer<typeof aiAuditSchema>;
+
+// Cross Reference Result Interface
+export interface CrossReferenceResult {
+  originalText: string;
+  confidenceScore: number;
+  verificationStatus: 'verified' | 'requires_review' | 'rejected';
+  sourceResults: Record<string, any>;
+  crossReferenceAnalysis: {
+    scoreVariance: number;
+    avgScore: number;
+    discrepancies: Array<{
+      sentence: string;
+      assessments: Array<{
+        sourceId: string;
+        type: 'factual' | 'speculative' | 'fabricated';
+        confidence: number;
+        message: string;
+      }>;
+      recommendation: string;
+    }>;
+    consistencies: Array<{
+      sentence: string;
+      agreedType: 'factual' | 'speculative' | 'fabricated';
+      sources: string[];
+    }>;
+    reliabilityScore: number;
+    sentenceAnalysis: any[];
+  };
+  reconciledResult: any;
+  processingTimeMs: number;
+}
+
+// AI Audit Result Interface
+export interface AIAuditResult {
+  id?: number;
+  clientName: string;
+  aiSystemName: string;
+  regulatoryFramework: string;
+  status: string;
+  auditSummary: string;
+  riskScore: number;
+  complianceScore: number;
+  verificationResult: VerificationResult;
+  crossReferenceResult?: CrossReferenceResult;
+  blockchainRecord?: string;
+  recommendations: Array<{
+    category: string;
+    description: string;
+    priority: 'high' | 'medium' | 'low';
+    impact: string;
+  }>;
+  processingTimeMs: number;
+}

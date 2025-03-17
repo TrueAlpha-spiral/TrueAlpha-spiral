@@ -44,6 +44,13 @@ export default function Header() {
             </div>
           </Link>
           <nav className="hidden md:flex space-x-6">
+            <Link href="/cross-reference-demo">
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                isActiveLink("/cross-reference-demo") ? "text-primary" : "text-muted-foreground"
+              }`}>
+                Cross-Reference Demo
+              </span>
+            </Link>
             <Link href="/ai-audit">
               <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/ai-audit") ? "text-primary" : "text-muted-foreground"
