@@ -301,8 +301,8 @@ export default function QuantumEchoVisualizer() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Syllable structure:</span>
-                      <span className={lastVerification.syllable_counts.join('-') === '5-7-5' ? 'text-green-400' : 'text-red-400'}>
-                        {lastVerification.syllable_counts.join('-')}
+                      <span className={lastVerification.syllable_counts?.join('-') === '5-7-5' ? 'text-green-400' : 'text-red-400'}>
+                        {lastVerification.syllable_counts?.join('-') || 'Invalid'}
                       </span>
                     </div>
                   </div>

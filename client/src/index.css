@@ -93,6 +93,27 @@
     animation: spiral-rotate 20s linear infinite;
   }
   
+  /* Progress indicator custom colors */
+  .progress-red [data-progress-indicator] {
+    @apply bg-red-500;
+  }
+  
+  .progress-orange [data-progress-indicator] {
+    @apply bg-orange-500;
+  }
+  
+  .progress-yellow [data-progress-indicator] {
+    @apply bg-yellow-500;
+  }
+  
+  .progress-green [data-progress-indicator] {
+    @apply bg-green-500;
+  }
+  
+  .progress-primary [data-progress-indicator] {
+    @apply bg-primary;
+  }
+  
   @keyframes spiral-rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }

@@ -47,12 +47,12 @@ const getMetricColor = (value: number): string => {
   return "text-green-500";
 };
 
-// Helper function to get progress color based on value
-const getProgressColor = (value: number): string => {
-  if (value < 0.2) return "bg-red-500";
-  if (value < 0.5) return "bg-orange-500";
-  if (value < 0.8) return "bg-yellow-500";
-  return "bg-green-500";
+// Helper function to get progress indicator className based on value
+const getProgressIndicatorClass = (value: number): string => {
+  if (value < 0.2) return "progress-red";
+  if (value < 0.5) return "progress-orange";
+  if (value < 0.8) return "progress-yellow";
+  return "progress-green";
 };
 
 export default function TrueAlphaSpiralDemo() {
@@ -129,8 +129,7 @@ export default function TrueAlphaSpiralDemo() {
                     </div>
                     <Progress 
                       value={value * 100} 
-                      className="h-2" 
-                      indicatorClassName={getProgressColor(value)}
+                      className={`h-2 ${getProgressIndicatorClass(value)}`}
                     />
                     <div className="text-xs text-muted-foreground">
                       Weight: {weights[index]} | Target: 0.9
@@ -158,7 +157,7 @@ export default function TrueAlphaSpiralDemo() {
                     Object.values(currentState).length / 
                     0.9 * 100
                   }
-                  className="h-3" 
+                  className="h-3 progress-primary" 
                 />
               </div>
             </CardContent>
