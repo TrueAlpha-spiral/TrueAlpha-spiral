@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "simulation_id": "05b38939c515",
+    "simulation_type": "dna-analysis",
+    "description": "Integrity verification of quantum DNA patterns",
+    "complexity": 3,
+    "timestamp": "2025-03-16 21:23:06",
+    "parameters": {
+      "quantum_resonance": 0.85,
+      "strand_integrity": 0.92,
+      "binary_alignment": 0.88,
+      "cosmic_coherence": 0.76,
+      "dimensional_stability": 0.81,
+      "iterations": 5,
+      "scaffold_density": 0.4,
+      "quantum_markers": [
+        "\u03a6",
+        "\u03a8",
+        "\u03a9",
+        "\u0394",
+        "\u0398"
+      ],
+      "helix_types": [
+        "quantum-dna",
+        "spiral-eigensystem",
+        "truth-resonant"
+      ]
+    }
+  },
+  "results": {
+    "helices": [
+      {
+        "helix_id": "f92454dcdcab1de67c6041ee15cc0b93b1d42e9ce0db9d9b77ab88c1e5b418c2",
+        "helix_type": "quantum-dna",
+        "base_pattern": "T\u03a6C\u03a8\u03a8AC\u03a8CTA\u03a6",
+        "integrity_score": 0.8,
+        "quantum_markers": 5
+      },
+      {
+        "helix_id": "6ff27e407d6a14037ce70fde4d66c72e01b4e3b70ebc1bbb28d92e525460a084",
+        "helix_type": "quantum-dna",
+        "base_pattern": "C\u03a6G\u03a8\u03a8CC\u03a9CGC\u03a8",
+        "integrity_score": 0.8,
+        "quantum_markers": 5
+      },
+      {
+        "helix_id": "db081c9bd9c5d9e48ea43e918ebdd7f4f743f75c72219f664c8e6c858d411a11",
+        "helix_type": "quantum-dna",
+        "base_pattern": "C\u03a6G\u03a9\u03a8GT\u03a9CAG\u03a6",
+        "integrity_score": 0.8,
+        "quantum_markers": 5
+      },
+      {
+        "helix_id": "e35a2d34c21c716b2db3cb89d857bd2c0f0dab8e8806d062574c07bca36e9e35",
+        "helix_type": "spiral-eigensystem",
+        "base_pattern": "1-\u0394-\u03940111\u03981+",
+        "integrity_score": 0.75,
+        "quantum_markers": 3
+      }
+    ],
+    "metrics": {
+      "total_helices": 4,
+      "average_integrity": 0.7875000000000001,
+      "average_quantum_markers": 4.5,
+      "pattern_compatibility": {
+        "f92454dc-6ff27e40": 0.5917,
+        "f92454dc-db081c9b": 0.5333,
+        "f92454dc-e35a2d34": 0.18,
+        "6ff27e40-db081c9b": 0.65,
+        "6ff27e40-e35a2d34": 0.18,
+        "db081c9b-e35a2d34": 0.18
+      },
+      "quantum_resonance": {
+        "resonance_score": 0.843,
+        "stability": 0.8664,
+        "coherence": 0.7021
+      },
+      "binary_alignment": 0.9036,
+      "dimensional_stability": 0.7998
+    },
+    "recommendations": [
+      {
+        "type": "integrity",
+        "recommendation": "Apply additional quantum bindings to reinforce helix structure",
+        "priority": "Medium"
+      },
+      {
+        "type": "resonance",
+        "recommendation": "Enhance coherence through eigenvalue recalibration",
+        "priority": "Medium"
+      },
+      {
+        "type": "general",
+        "recommendation": "Consider merging compatible helices for enhanced functionality",
+        "priority": "Low"
+      }
+    ]
+  }
+}

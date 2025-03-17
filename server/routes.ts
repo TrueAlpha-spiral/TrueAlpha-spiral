@@ -252,6 +252,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Quantum Echo Authenticator API routes
+  app.get("/api/quantum-echo/status", async (req, res, next) => {
+    try {
+      const response = await axios.get(`http://localhost:${PYTHON_API_PORT}/api/quantum-echo/status`);
+      res.json(response.data);
+    } catch (error) {
+      console.error("Error getting quantum echo status:", error);
+      res.status(500).json({ 
+        error: "Failed to get quantum echo status",
+        initialized: false,
+        channel_secure: false,
+        haiku_verified: false,
+        echo_resonance: 0,
+        firewall_active: false,
+        threat_level: 1.0,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  app.post("/api/quantum-echo/generate-haiku", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/quantum-echo/generate-haiku`);
+      res.json(response.data);
+    } catch (error) {
+      console.error("Error generating haiku:", error);
+      res.status(500).json({ error: "Failed to generate haiku" });
+    }
+  });
+
+  app.post("/api/quantum-echo/verify-haiku", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/quantum-echo/verify-haiku`, req.body);
+      res.json(response.data);
+    } catch (error) {
+      console.error("Error verifying haiku:", error);
+      res.status(500).json({ error: "Failed to verify haiku" });
+    }
+  });
+
+  app.post("/api/quantum-echo/mint-nft", async (req, res, next) => {
+    try {
+      const response = await axios.post(`http://localhost:${PYTHON_API_PORT}/api/quantum-echo/mint-nft`, req.body);
+      res.json(response.data);
+    } catch (error) {
+      console.error("Error minting NFT:", error);
+      res.status(500).json({ error: "Failed to mint NFT" });
+    }
+  });
+
+  app.get("/api/quantum-echo/nfts", async (req, res, next) => {
+    try {
+      const response = await axios.get(`http://localhost:${PYTHON_API_PORT}/api/quantum-echo/nfts`);
+      res.json(response.data);
+    } catch (error) {
+      console.error("Error getting NFTs:", error);
+      res.status(500).json({ error: "Failed to get NFTs" });
+    }
+  });
+
+  app.get("/api/quantum-echo/verify-nft/:tokenId", async (req, res, next) => {
+    try {
+      const { tokenId } = req.params;
+      const response = await axios.get(`http://localhost:${PYTHON_API_PORT}/api/quantum-echo/verify-nft/${tokenId}`);
+      res.json(response.data);
+    } catch (error) {
+      console.error("Error verifying NFT:", error);
+      res.status(500).json({ error: "Failed to verify NFT" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -7,6 +7,13 @@ It allows the web interface to communicate with the Python-based system.
 Architect: Russell Nordland
 """
 
+import time
+import json
+import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from simulation_interface import SimulationInterface, run_simulation_command
+
 import argparse
 import os
 import time
@@ -27,6 +34,7 @@ try:
     from sovereign_repentance import SovereignRepentanceProgram
     from metaphysical_equation_retrieval import MetaphysicalEquationRetrieval
     from quantum_dna_retrieval import QuantumDNARetrieval
+    from quantum_echo_authenticator import QuantumEchoAuthenticator
 except ImportError as e:
     print(f"ERROR: Failed to import TrueAlphaSpiral components: {str(e)}")
     print("Make sure all component files exist and dependencies are installed.")
@@ -51,6 +59,7 @@ integrity_system = None
 sovereign_program = None
 metaphysical_system = None
 quantum_system = None
+quantum_echo = None
 
 # System status
 system_status = {
@@ -73,7 +82,7 @@ system_status = {
 def initialize_all_systems():
     """Initialize all TrueAlphaSpiral components."""
     global true_alpha_system, shadow_defense, ethical_kernel, integrity_system
-    global sovereign_program, metaphysical_system, quantum_system, system_status
+    global sovereign_program, metaphysical_system, quantum_system, quantum_echo, system_status
     
     try:
         # Initialize True Alpha Spiral
@@ -117,6 +126,11 @@ def initialize_all_systems():
         quantum_system.initialize()
         system_status["components"]["quantum_dna"]["initialized"] = True
         system_status["components"]["quantum_dna"]["status"] = "ready"
+        
+        # Initialize Quantum Echo Authenticator
+        quantum_echo = QuantumEchoAuthenticator()
+        quantum_echo.initialize()
+        system_status["components"]["quantum_echo"] = {"status": "ready", "initialized": True}
         
         # Update overall system status
         system_status["initialized"] = True
@@ -754,7 +768,348 @@ def analyze_thief_pattern():
     else:
         return jsonify({"success": False, "message": "Metaphysical Equation Retrieval system not initialized"})
 
+# Quantum Echo Authenticator API Routes
+@app.route('/api/quantum-echo/status', methods=['GET'])
+def quantum_echo_status():
+    """Get the current status of the Quantum Echo Authenticator."""
+    global quantum_echo
+    
+    if quantum_echo:
+        try:
+            status = quantum_echo.get_status()
+            return jsonify({
+                "success": True,
+                "initialized": status.get("initialized", False),
+                "channel_secure": status.get("channel_secure", False),
+                "haiku_verified": status.get("haiku_verified", False),
+                "echo_resonance": status.get("echo_resonance", 0.0),
+                "firewall_active": status.get("firewall_active", False),
+                "threat_level": status.get("threat_level", 1.0),
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            print(f"Error getting quantum echo status: {str(e)}")
+            return jsonify({
+                "success": False,
+                "message": f"Error getting quantum echo status: {str(e)}",
+                "initialized": False,
+                "channel_secure": False,
+                "haiku_verified": False,
+                "echo_resonance": 0.0,
+                "firewall_active": False,
+                "threat_level": 1.0,
+                "timestamp": datetime.now().isoformat()
+            })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Quantum Echo Authenticator not initialized",
+            "initialized": False,
+            "channel_secure": False,
+            "haiku_verified": False,
+            "echo_resonance": 0.0,
+            "firewall_active": False,
+            "threat_level": 1.0,
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/quantum-echo/generate-haiku', methods=['POST'])
+def generate_haiku():
+    """Generate a secure haiku for authentication."""
+    global quantum_echo
+    
+    if quantum_echo:
+        try:
+            haiku = quantum_echo.generate_haiku()
+            return jsonify({
+                "success": True,
+                "haiku": haiku,
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            print(f"Error generating haiku: {str(e)}")
+            return jsonify({
+                "success": False,
+                "message": f"Error generating haiku: {str(e)}"
+            })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Quantum Echo Authenticator not initialized"
+        })
+
+@app.route('/api/quantum-echo/verify-haiku', methods=['POST'])
+def verify_haiku():
+    """Verify a haiku for authentication."""
+    global quantum_echo
+    
+    if not request.json or 'haiku' not in request.json:
+        return jsonify({
+            "success": False,
+            "message": "Haiku is required"
+        })
+    
+    haiku = request.json['haiku']
+    
+    if quantum_echo:
+        try:
+            is_valid, reason = quantum_echo.verify_haiku(haiku)
+            return jsonify({
+                "success": True,
+                "verified": is_valid,
+                "reason": reason,
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            print(f"Error verifying haiku: {str(e)}")
+            return jsonify({
+                "success": False,
+                "message": f"Error verifying haiku: {str(e)}"
+            })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Quantum Echo Authenticator not initialized"
+        })
+
+@app.route('/api/quantum-echo/mint-nft', methods=['POST'])
+def mint_nft():
+    """Mint an NFT for a verified haiku."""
+    global quantum_echo
+    
+    if not request.json or 'haiku' not in request.json:
+        return jsonify({
+            "success": False,
+            "message": "Haiku is required"
+        })
+    
+    haiku = request.json['haiku']
+    metadata = request.json.get('metadata', {})
+    
+    if quantum_echo:
+        try:
+            # First verify the haiku
+            is_valid, reason = quantum_echo.verify_haiku(haiku)
+            if not is_valid:
+                return jsonify({
+                    "success": False,
+                    "message": f"Invalid haiku: {reason}"
+                })
+            
+            # Then mint the NFT
+            nft = quantum_echo.mint_nft(haiku, metadata)
+            return jsonify({
+                "success": True,
+                "nft": nft,
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            print(f"Error minting NFT: {str(e)}")
+            return jsonify({
+                "success": False,
+                "message": f"Error minting NFT: {str(e)}"
+            })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Quantum Echo Authenticator not initialized"
+        })
+
+@app.route('/api/quantum-echo/nfts', methods=['GET'])
+def get_nfts():
+    """Get all minted NFTs."""
+    global quantum_echo
+    
+    if quantum_echo:
+        try:
+            nfts = quantum_echo.get_nfts()
+            return jsonify({
+                "success": True,
+                "nfts": nfts,
+                "count": len(nfts),
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            print(f"Error getting NFTs: {str(e)}")
+            return jsonify({
+                "success": False,
+                "message": f"Error getting NFTs: {str(e)}"
+            })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Quantum Echo Authenticator not initialized"
+        })
+
+@app.route('/api/quantum-echo/verify-nft/<token_id>', methods=['GET'])
+def verify_nft(token_id):
+    """Verify an NFT by token ID."""
+    global quantum_echo
+    
+    if quantum_echo:
+        try:
+            is_valid, nft = quantum_echo.verify_nft(token_id)
+            return jsonify({
+                "success": True,
+                "verified": is_valid,
+                "nft": nft,
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            print(f"Error verifying NFT: {str(e)}")
+            return jsonify({
+                "success": False,
+                "message": f"Error verifying NFT: {str(e)}"
+            })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Quantum Echo Authenticator not initialized"
+        })
+
 @app.route('/api/restart', methods=['POST'])
+@app.route('/api/simulation/run', methods=['POST'])
+def run_simulation():
+    """Run a simulation with the current parameters."""
+    if not request.json:
+        return jsonify({"success": False, "message": "Request body is required"})
+    
+    simulation_type = request.json.get('simulation_type', 'dna-analysis')
+    description = request.json.get('description', '')
+    complexity = request.json.get('complexity', 3)
+    parameters = request.json.get('parameters', {})
+    
+    # Initialize the simulation interface
+    simulator = SimulationInterface()
+    if not simulator.initialize():
+        return jsonify({
+            "success": False,
+            "message": "Failed to initialize simulation interface"
+        })
+    
+    # Update parameters if provided
+    if parameters:
+        simulator.set_simulation_parameters(parameters)
+    
+    # Run the simulation
+    results = simulator.run_simulation(simulation_type, description, complexity)
+    if not results:
+        return jsonify({
+            "success": False,
+            "message": "Simulation failed"
+        })
+    
+    # Generate report path
+    output_dir = simulator.output_dir
+    output_filename = f"{simulation_type}_{simulator.simulation_id}_report.html"
+    output_path = os.path.join(output_dir, output_filename)
+    
+    # Generate HTML report
+    report_path = simulator.generate_report("html", output_path)
+    
+    # Return response with results and report path
+    return jsonify({
+        "success": True,
+        "message": "Simulation completed successfully",
+        "simulation_id": simulator.simulation_id,
+        "simulation_type": simulation_type,
+        "report_path": report_path,
+        "results": results
+    })
+
+@app.route('/api/simulation/command', methods=['POST'])
+def run_simulation_command_api():
+    """Run a simulation command."""
+    if not request.json or 'command' not in request.json:
+        return jsonify({"success": False, "message": "Command is required"})
+    
+    command = request.json['command']
+    
+    # Run the simulation command
+    try:
+        results = run_simulation_command(command)
+        if not results:
+            return jsonify({
+                "success": False,
+                "message": "Simulation command failed"
+            })
+        
+        # Extract report path from results if available
+        report_path = None
+        simulation_id = results.get("metadata", {}).get("simulation_id")
+        simulation_type = results.get("metadata", {}).get("simulation_type")
+        
+        if simulation_id and simulation_type:
+            output_dir = "simulation_output"
+            output_filename = f"{simulation_type}_{simulation_id}_report.txt"
+            report_path = os.path.join(output_dir, output_filename)
+        
+        # Return response with results and report path
+        return jsonify({
+            "success": True,
+            "message": "Simulation command executed successfully",
+            "report_path": report_path,
+            "results": results
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Error executing simulation command: {str(e)}"
+        })
+
+@app.route('/api/simulation/parameters', methods=['GET'])
+def get_simulation_parameters():
+    """Get default simulation parameters."""
+    simulator = SimulationInterface()
+    if not simulator.initialize():
+        return jsonify({
+            "success": False,
+            "message": "Failed to initialize simulation interface"
+        })
+    
+    parameters = simulator.get_simulation_parameters()
+    
+    return jsonify({
+        "success": True,
+        "parameters": parameters
+    })
+
+@app.route('/api/simulation/types', methods=['GET'])
+def get_simulation_types():
+    """Get available simulation types."""
+    simulation_types = [
+        {
+            "type": "dna-analysis",
+            "description": "Analyze DNA patterns and structures",
+            "complexity_range": [1, 5]
+        },
+        {
+            "type": "pattern-evolution",
+            "description": "Simulate pattern evolution over time",
+            "complexity_range": [1, 5]
+        },
+        {
+            "type": "collaboration",
+            "description": "Simulate collaboration between systems",
+            "complexity_range": [1, 5]
+        },
+        {
+            "type": "integrity-verification",
+            "description": "Verify system integrity and resilience",
+            "complexity_range": [1, 5]
+        },
+        {
+            "type": "quantum-resonance",
+            "description": "Analyze quantum resonance between channels",
+            "complexity_range": [1, 5]
+        }
+    ]
+    
+    return jsonify({
+        "success": True,
+        "simulation_types": simulation_types
+    })
+
 def restart_system():
     """Restart the TrueAlphaSpiral system."""
     global system_status

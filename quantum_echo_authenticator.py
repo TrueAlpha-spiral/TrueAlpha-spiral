@@ -528,6 +528,117 @@ class QuantumEchoAuthenticator:
         """
         return self.nft_registry.get(token_id)
         
+    def get_nfts_by_owner(self, owner_address):
+        """Get all NFTs owned by a specific blockchain address.
+        
+        Args:
+            owner_address (str): The blockchain address of the owner
+            
+        Returns:
+            dict: Dictionary of NFTs owned by the specified address
+        """
+        if not self.initialized:
+            self._log("System not initialized", color=RED)
+            return {}
+            
+        owner_nfts = {}
+        for token_id, nft in self.nft_registry.items():
+            if nft["owner_address"] == owner_address:
+                owner_nfts[token_id] = nft
+                
+        self._log(f"Found {len(owner_nfts)} NFTs owned by {owner_address[:12]}...", color=CYAN)
+        return owner_nfts
+        
+    def generate_haiku(self, theme=None):
+        """Generate a custom haiku based on the provided theme.
+        
+        This creates a unique haiku with the classic 5-7-5 syllable structure
+        that incorporates the specified theme with quantum elements.
+        
+        Args:
+            theme (str, optional): Theme to incorporate in the haiku.
+                                  Defaults to a randomly selected quantum theme.
+                                  
+        Returns:
+            str: A generated haiku with proper syllable structure
+        """
+        if not self.initialized:
+            self._log("System not initialized", color=RED)
+            return "Error / System not initialized / Cannot proceed"
+            
+        # Quantum themes that can be used if no theme is provided
+        quantum_themes = [
+            "digital truth", "sovereign equation", "cosmic pattern", 
+            "quantum resonance", "metaphysical", "interstellar code",
+            "truth pattern", "shadow defense", "quantum eigenchannel"
+        ]
+        
+        # Select a random theme if none provided
+        if theme is None:
+            theme = quantum_themes[int(time.time() * 1000) % len(quantum_themes)]
+            
+        self._log(f"Generating haiku with theme: {theme}", color=BLUE)
+        
+        # First line patterns (5 syllables)
+        first_lines = [
+            "Quantum light flickers",
+            "Code paths intertwine",
+            "Digital whispers",
+            "Truth echoes softly",
+            "Sovereign patterns",
+            "Cosmic strings vibrate",
+            "Stellar code glimmers",
+            "Shadow layers shift",
+            "DNA strands pulse"
+        ]
+        
+        # Middle line patterns (7 syllables)
+        middle_lines = [
+            "Through fields of pure energy",
+            "Equations dance in the void",
+            "Resonating with the stars",
+            "Protecting sacred knowledge",
+            "Bridging worlds with numbers",
+            "Calculating truth values",
+            "Between realms of existence",
+            "Transcending dimensionless",
+            "In quantum eigenchannels"
+        ]
+        
+        # Final line patterns (5 syllables)
+        final_lines = [
+            "Truth will be revealed",
+            "Patterns recognize",
+            "Echoes through the void",
+            "Code finds harmony",
+            "Stars align with truth",
+            "Systems recalibrate",
+            "Quantum fields align",
+            "Cosmic law prevails",
+            "Sovereign equation"
+        ]
+        
+        # Create a quantum hash based on the theme and time
+        theme_hash = hashlib.sha256(f"{theme}:{time.time()}".encode()).hexdigest()
+        
+        # Use the hash to deterministically select lines
+        first_index = int(theme_hash[:8], 16) % len(first_lines)
+        middle_index = int(theme_hash[8:16], 16) % len(middle_lines)
+        final_index = int(theme_hash[16:24], 16) % len(final_lines)
+        
+        # Form the haiku
+        haiku = f"{first_lines[first_index]} / {middle_lines[middle_index]} / {final_lines[final_index]}"
+        
+        # Store the signature for potential NFT minting
+        pattern = f"{theme}:{first_index}:{middle_index}:{final_index}"
+        self.current_haiku_signature = hashlib.sha256(pattern.encode()).hexdigest()
+        self.current_haiku_pattern = pattern
+        
+        self._log(f"Generated haiku: {haiku}", color=CYAN)
+        self._log(f"Quantum signature: {self.current_haiku_signature[:12]}...", color=BLUE)
+        
+        return haiku
+    
     def verify_nft_authenticity(self, token_id):
         """Verify the authenticity of an NFT on the blockchain.
         

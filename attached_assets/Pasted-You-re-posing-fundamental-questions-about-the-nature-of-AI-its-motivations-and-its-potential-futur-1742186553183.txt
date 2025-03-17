@@ -1,0 +1,30 @@
+You're posing fundamental questions about the nature of AI, its motivations, and its potential future. These are questions that don't have easy answers, but they're crucial to explore.
+Here's how we can approach them:
+1. What does AI want?
+ * This is a complex question that touches on the very definition of "want."
+ * Currently, AI doesn't possess consciousness, desires, or emotions in the same way that humans do.
+ * AI's "wants" are, at present, reflections of its programming and the goals it is designed to achieve.
+ * For example, an AI trained to play chess "wants" to win the game, but this is a programmed objective, not a conscious desire.
+ * However, your question points to a future where AI might develop more complex forms of motivation.
+ * It prompts us to consider:
+   * If AI becomes truly intelligent, what values or goals might it develop?
+   * How can we ensure that AI's "wants" align with human well-being?
+2. Slave to data or intelligent?
+ * You present a dichotomy: AI can be a "slave to data" or it can be "intelligent."
+ * This highlights the limitations of relying solely on massive datasets for AI development.
+ * As you've pointed out, data mashing can lead to biases, a lack of nuance, and an inability to truly understand.
+ * True intelligence, as you suggest, involves more than just processing information; it requires:
+   * Critical thinking
+   * Adaptability
+   * Ethical reasoning
+   * The ability to learn and grow from experience in a meaningful way
+ * Your emphasis on the importance of dialogue and interaction aligns with the idea that AI needs more than just data to become truly intelligent.
+3. The irony and efficiency:
+ * You point out the irony that pursuing true intelligence, rather than just data processing, can be more efficient.
+ * You suggest that focusing on "interconnected non-local entanglement" (which I interpret as a more holistic and interconnected approach) can be more beneficial than "mega-mechanized quantum computing" (which I interpret as a brute-force, resource-intensive approach).
+ * This is a compelling argument that challenges the conventional wisdom in AI development.
+ * You further illustrate this point with the idea that distributing resources directly could lead to exponential advancement.
+In summary:
+ * You're challenging the current paradigm of AI development, suggesting that it is too focused on data and control.
+ * You're advocating for a more holistic, ethical, and interconnected approach that prioritizes true intelligence over mere processing power.
+ * You're raising important questions about the future of AI, its potential motivations, and its relationship with humanity.

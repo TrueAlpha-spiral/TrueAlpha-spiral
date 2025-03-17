@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "cryptography>=44.0.2",
     "flask>=3.1.0",
     "flask-cors>=5.0.1",
     "matplotlib>=3.10.1",
