@@ -20,7 +20,13 @@ interface GetQueryFnOptions {
  */
 export function getQueryFn(options: GetQueryFnOptions = {}): QueryFunction {
   return async ({ queryKey }) => {
-    const endpoint = queryKey[0] as string;
+    const endpointPath = queryKey[0] as string;
+    // Use the BASE_API_URL if set, otherwise default to relative path
+    const baseUrl = window.BASE_API_URL || '';
+    const endpoint = baseUrl + endpointPath;
+    
+    console.log(`API Request: ${endpoint} (using base URL: ${baseUrl || 'relative path'})`);
+    
     const response = await fetch(endpoint);
     
     // Handle 401 responses according to options
@@ -45,9 +51,15 @@ export function getQueryFn(options: GetQueryFnOptions = {}): QueryFunction {
  */
 export async function apiRequest(
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  endpoint: string,
+  endpointPath: string,
   data?: any
 ) {
+  // Use the BASE_API_URL if set, otherwise default to relative path
+  const baseUrl = window.BASE_API_URL || '';
+  const endpoint = baseUrl + endpointPath;
+  
+  console.log(`API ${method} Request: ${endpoint} (using base URL: ${baseUrl || 'relative path'})`);
+  
   const options: RequestInit = {
     method,
     headers: {

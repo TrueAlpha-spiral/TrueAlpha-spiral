@@ -221,8 +221,14 @@ export class CrossReferenceService {
         
       case 'python-analysis':
         try {
+          // Use full URL for API call
+          const baseUrl = process.env.API_BASE_URL || 'http://localhost:5000';
+          const apiUrl = new URL('/api/python-system/verify', baseUrl).toString();
+          
+          console.log(`[CrossRef] Calling Python API at: ${apiUrl}`);
+          
           // Call Python API for verification
-          const response = await axios.post('/api/python-system/verify', {
+          const response = await axios.post(apiUrl, {
             content: text,
             framework: regulatoryFramework
           });
