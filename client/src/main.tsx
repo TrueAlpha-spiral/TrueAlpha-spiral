@@ -17,16 +17,24 @@ window.addEventListener('error', (event) => {
 console.log("Starting TrueAlphaSpiral application...");
 console.log("Environment:", import.meta.env.MODE);
 // Detect environment and use appropriate base URL
-const isReplit = window.location.hostname.includes('replit');
+const isReplit = window.location.hostname.includes('replit') || 
+                window.location.hostname.includes('.repl.co') ||
+                window.location.hostname.includes('repl.run') ||
+                window.location.hostname.includes('replit.dev');
 
 // In Replit, we need to detect the correct base URL format
 // Try multiple URL formats for maximum compatibility
 const potentialBaseUrls = [
   window.location.origin, // Default: includes protocol, hostname, and port
-  `https://${window.location.hostname}`,  // Protocol and hostname without port
+  `${window.location.protocol}//${window.location.hostname}`, // Protocol and hostname without port
   window.location.origin.replace(/:\d+$/, ''), // Remove port if present
-  window.location.origin.replace(/:\d+$/, '') + ':5000' // Use explicit port 5000
+  window.location.origin.replace(/:\d+$/, '') + ':5000', // Use explicit port 5000
+  window.location.origin.replace(/:5173$/, ':5000'), // Vite dev port to server port
+  window.location.origin.replace(/:\d+$/, '') // No port at all
 ];
+
+// Global variable to store the working base URL after verification
+window.BASE_API_URL = '';
 
 console.log("Potential base URLs:", potentialBaseUrls);
 console.log("Running in Replit:", isReplit);
@@ -113,31 +121,25 @@ const tryConnect = (urlIndex: number) => {
   const currentBaseUrl = potentialBaseUrls[urlIndex];
   console.log(`Trying base URL: ${currentBaseUrl} (Attempt ${checkAttempts + 1}/${maxAttempts}, URL ${urlIndex + 1}/${potentialBaseUrls.length})`);
   
-  // First try the simpler /api endpoint for connectivity test
-  fetch(currentBaseUrl + "/api", {
+  // First try the simpler /api endpoint for connectivity test - use a specific API endpoint
+  fetch(currentBaseUrl + "/api/truth-patterns", {
     method: "GET",
     headers: {
       "Accept": "application/json",
+      "Content-Type": "application/json",
       "Cache-Control": "no-cache"
     }
   })
     .then(response => {
-      console.log("API endpoint responded with status:", response.status);
+      console.log("Truth patterns API endpoint responded with status:", response.status);
       if (response.ok) {
-        console.log("Server connection verified through /api endpoint");
+        console.log("Server connection verified through /api/truth-patterns endpoint");
         if (window.updateLoadingStatus) {
           window.updateLoadingStatus('Quantum connection established');
         }
         
-        // After verifying basic connectivity, try the main API endpoint
-        return fetch(currentBaseUrl + "/api/truth-patterns", {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-            "Cache-Control": "no-cache"
-          },
-          credentials: "include"
-        });
+        // Basic connectivity verified, proceed with response
+        return response;
       } else {
         throw new Error("Server unavailable");
       }
@@ -152,6 +154,10 @@ const tryConnect = (urlIndex: number) => {
           .then(pythonResponse => {
             if (pythonResponse.ok) {
               console.log("Python API server connection verified");
+              // Save the working base URL for the whole application to use
+              window.BASE_API_URL = currentBaseUrl;
+              console.log("Setting global BASE_API_URL to:", window.BASE_API_URL);
+              
               if (window.updateLoadingStatus) {
                 window.updateLoadingStatus('Quantum DNA integration complete');
               }
@@ -203,6 +209,7 @@ declare global {
   interface Window {
     hideLoadingScreen?: () => void;
     updateLoadingStatus?: (message: string) => void;
+    BASE_API_URL: string;
   }
 }
 
