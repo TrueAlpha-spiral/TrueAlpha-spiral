@@ -13,13 +13,21 @@ const replitDomain = process.env.REPLIT_DOMAINS ?
   `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 
   undefined;
 
+// Allow all origins in development mode for maximum compatibility
+// In production, we would tighten this up
 app.use(cors({
-  origin: [
-    'http://localhost:5000',
-    'http://localhost:3000',
-    replitDomain || 'https://truealphaspiral.replit.app',
-  ].filter(Boolean),
-  credentials: true
+  origin: process.env.NODE_ENV === 'development' ? 
+    true : // Allow any origin in development mode
+    [
+      'http://localhost:5000',
+      'http://localhost:3000',
+      'http://localhost:443',
+      'https://localhost:443',
+      replitDomain || 'https://truealphaspiral.replit.app',
+    ].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -85,17 +93,18 @@ app.use((req, res, next) => {
     }
 
     // Special configuration for Replit environment
-    // In Replit, we'll check for various port configurations
-    let port = 5000; // Default port - this matches Replit's expected port
+    // In Replit, we'll use the port Replit expects for webview access
+    let port = 443; // Default port for HTTPS access
     
     // Check environment variables in order of precedence
     if (process.env.PORT) {
       port = parseInt(process.env.PORT);
       log(`Using PORT environment variable: ${port}`);
+    } else if (process.env.REPL_ID && process.env.REPLIT_CLUSTER) {
+      // For Replit environment
+      port = 5000; // This is the recommended port for Replit's webview
+      log(`Using Replit-specific port for webview access: ${port}`);
     }
-    
-    // Note: We're going with port 5000 even in Replit to match workflow expectations
-    log(`Using workflow-compatible port: ${port}`);
     
     // Log port decision
     log(`Selected port: ${port}`);

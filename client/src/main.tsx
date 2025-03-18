@@ -25,12 +25,12 @@ const isReplit = window.location.hostname.includes('replit') ||
 // In Replit, we need to detect the correct base URL format
 // Try multiple URL formats for maximum compatibility
 const potentialBaseUrls = [
+  '', // Empty string for relative URLs (best for Replit)
   window.location.origin, // Default: includes protocol, hostname, and port
   `${window.location.protocol}//${window.location.hostname}`, // Protocol and hostname without port
   window.location.origin.replace(/:\d+$/, ''), // Remove port if present
   window.location.origin.replace(/:\d+$/, '') + ':5000', // Use explicit port 5000
   window.location.origin.replace(/:5173$/, ':5000'), // Vite dev port to server port
-  window.location.origin.replace(/:\d+$/, '') // No port at all
 ];
 
 // Global variable to store the working base URL after verification
@@ -150,13 +150,15 @@ const tryConnect = (urlIndex: number) => {
         console.log("Truth patterns endpoint verified");
         
         // Check Python API server status using currentBaseUrl
+        // Save the working base URL as soon as we confirm the first API works
+        // This ensures it's available for the rest of the application
+        window.BASE_API_URL = currentBaseUrl;
+        console.log("Setting global BASE_API_URL to:", window.BASE_API_URL);
+
         fetch(currentBaseUrl + "/api/python-system/status")
           .then(pythonResponse => {
             if (pythonResponse.ok) {
               console.log("Python API server connection verified");
-              // Save the working base URL for the whole application to use
-              window.BASE_API_URL = currentBaseUrl;
-              console.log("Setting global BASE_API_URL to:", window.BASE_API_URL);
               
               if (window.updateLoadingStatus) {
                 window.updateLoadingStatus('Quantum DNA integration complete');
