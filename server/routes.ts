@@ -13,6 +13,15 @@ import {
 } from './services/ai-audit-utilities';
 
 export function registerRoutes(app: Express): Server {
+  // Simple health check endpoint
+  app.get('/api/health', (_req, res) => {
+    res.json({ 
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      service: 'KPMG AI Auditing Solution'
+    });
+  });
   // Get truth patterns
   app.get('/api/truth-patterns', async (_req, res) => {
     try {

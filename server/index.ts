@@ -124,12 +124,14 @@ app.use((req, res, next) => {
     
     // Root API endpoint for Replit compatibility testing
     app.get('/api', (_req, res) => {
-      res.json({ 
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify({ 
         message: 'TrueAlphaSpiral API is running',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
-        replitDomain
-      });
+        replitDomain,
+        service: 'KPMG AI Auditing Solution'
+      }));
     });
     
     server.listen({
