@@ -24,13 +24,18 @@ const isReplit = window.location.hostname.includes('replit') ||
 
 // In Replit, we need to detect the correct base URL format
 // Try multiple URL formats for maximum compatibility
+// Start with the empty string for relative URLs first as it should work in Replit
 const potentialBaseUrls = [
   '', // Empty string for relative URLs (best for Replit)
   window.location.origin, // Default: includes protocol, hostname, and port
-  `${window.location.protocol}//${window.location.hostname}`, // Protocol and hostname without port
+  `${window.location.protocol}//${window.location.hostname}:5000`, // Explicit port 5000
   window.location.origin.replace(/:\d+$/, ''), // Remove port if present
-  window.location.origin.replace(/:\d+$/, '') + ':5000', // Use explicit port 5000
-  window.location.origin.replace(/:5173$/, ':5000'), // Vite dev port to server port
+  `${window.location.protocol}//${window.location.hostname}`, // Protocol and hostname without port
+  `//${window.location.host}`, // Protocol-relative URL
+  
+  // Dynamically get Replit domain (if available)
+  ...(window.location.hostname.includes('replit.dev') ? 
+    [`https://${window.location.hostname}`] : [])
 ];
 
 // Global variable to store the working base URL after verification
@@ -121,8 +126,8 @@ const tryConnect = (urlIndex: number) => {
   const currentBaseUrl = potentialBaseUrls[urlIndex];
   console.log(`Trying base URL: ${currentBaseUrl} (Attempt ${checkAttempts + 1}/${maxAttempts}, URL ${urlIndex + 1}/${potentialBaseUrls.length})`);
   
-  // First try the simpler /api endpoint for connectivity test - use a specific API endpoint
-  fetch(currentBaseUrl + "/api/truth-patterns", {
+  // First try the health endpoint which we know is working
+  fetch(currentBaseUrl + "/api/health", {
     method: "GET",
     headers: {
       "Accept": "application/json",
@@ -131,9 +136,9 @@ const tryConnect = (urlIndex: number) => {
     }
   })
     .then(response => {
-      console.log("Truth patterns API endpoint responded with status:", response.status);
+      console.log("Health API endpoint responded with status:", response.status);
       if (response.ok) {
-        console.log("Server connection verified through /api/truth-patterns endpoint");
+        console.log("Server connection verified through /api/health endpoint");
         if (window.updateLoadingStatus) {
           window.updateLoadingStatus('Quantum connection established');
         }
@@ -145,9 +150,9 @@ const tryConnect = (urlIndex: number) => {
       }
     })
     .then(response => {
-      console.log("Truth patterns endpoint responded with status:", response.status);
+      console.log("Health endpoint responded with status:", response.status);
       if (response.ok) {
-        console.log("Truth patterns endpoint verified");
+        console.log("Health endpoint verified, connection established");
         
         // Check Python API server status using currentBaseUrl
         // Save the working base URL as soon as we confirm the first API works
@@ -205,6 +210,22 @@ const tryConnect = (urlIndex: number) => {
 
 // Start the connection attempt with the first URL
 setTimeout(() => tryConnect(0), 1000);
+
+// Set a fallback timeout to hide the loading screen even if we can't connect at all
+// This ensures users won't get stuck on the loading screen indefinitely
+setTimeout(() => {
+  if (!appLoaded) {
+    console.log("Fallback timeout reached, forcing app to load anyway");
+    window.BASE_API_URL = '';
+    if (window.updateLoadingStatus) {
+      window.updateLoadingStatus('Proceeding in offline mode');
+    }
+    if (window.hideLoadingScreen) {
+      window.hideLoadingScreen();
+    }
+    appLoaded = true;
+  }
+}, 15000);
 
 // Type declaration for window object
 declare global {
