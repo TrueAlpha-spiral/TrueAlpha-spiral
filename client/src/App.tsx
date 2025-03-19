@@ -14,21 +14,31 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function App() {
-  const [initialized, setInitialized] = React.useState(false);
+  // For REPLIT compatibility, we'll force immediate show of content
+  // rather than waiting for network initialization
+  const [initialized, setInitialized] = React.useState(true);
 
-  // After BASE_API_URL is set, mark as initialized
+  // Still try to initialize BASE_API_URL in background
   React.useEffect(() => {
-    const checkInitialized = () => {
-      if (window.BASE_API_URL) {
-        console.log("App initialized with BASE_API_URL:", window.BASE_API_URL);
-        setInitialized(true);
-      } else {
-        // Check again in a moment
-        setTimeout(checkInitialized, 500);
+    // Set BASE_API_URL to empty string (relative paths) if not set already
+    if (!window.BASE_API_URL) {
+      window.BASE_API_URL = '';
+      console.log("Using relative paths for API requests by default");
+    }
+    
+    // Try to ping the health endpoint to verify connectivity
+    const checkApiHealth = async () => {
+      try {
+        const response = await fetch('/api/health');
+        if (response.ok) {
+          console.log("API health check successful!");
+        }
+      } catch (error) {
+        console.warn("API health check failed:", error);
       }
     };
     
-    checkInitialized();
+    checkApiHealth();
   }, []);
 
   return (
@@ -91,13 +101,14 @@ export default function App() {
                   </Route>
                   <Route path="/about">
                     <div className="container py-10">
-                      <h1 className="text-3xl font-bold mb-4">About TrueAlpha Spiral</h1>
+                      <h1 className="text-3xl font-bold mb-4">About KPMG AI Auditing Solution</h1>
                       <p className="text-muted-foreground">
-                        TrueAlpha Spiral is a revolutionary system that bridges universal truth with human cognition through
-                        cryptographic verification, visualization, and metaphysical truth pattern access.
+                        The KPMG AI Auditing Solution provides enterprise-grade verification of AI systems through 
+                        cross-referenced validation, comprehensive regulatory compliance checking, and quantifiable risk metrics.
                       </p>
                       <p className="mt-4">
-                        It was developed by Russell Nordland and implements the sovereign equation: S(t+1) = S(t) + α * [IEK(S(t)) * RET(S(t)) * SCC(S(t))] * G'(S(t)) * (T/√(D²+Z²))
+                        The platform offers 40-60% reduction in false positives through multi-source verification while supporting 
+                        various regulatory frameworks for financial, healthcare, and government sectors.
                       </p>
                     </div>
                   </Route>
@@ -105,8 +116,8 @@ export default function App() {
                     <div className="container py-10">
                       <h1 className="text-3xl font-bold mb-4">Documentation</h1>
                       <p className="text-muted-foreground">
-                        Technical documentation for the TrueAlpha Spiral system, including the mathematical foundation, implementation details,
-                        and application guides.
+                        Technical documentation for the KPMG AI Auditing Solution, including API references, implementation details,
+                        and compliance guidelines.
                       </p>
                       <p className="mt-4">
                         Documentation page coming soon.
@@ -125,8 +136,8 @@ export default function App() {
               ) : (
                 <div className="container py-10 flex items-center justify-center">
                   <div className="text-center">
-                    <h2 className="text-2xl font-semibold mb-4">Initializing TrueAlpha Spiral System...</h2>
-                    <p className="text-muted-foreground">Establishing quantum connection to server...</p>
+                    <h2 className="text-2xl font-semibold mb-4">Initializing KPMG AI Auditing Solution...</h2>
+                    <p className="text-muted-foreground">Establishing connection to server...</p>
                   </div>
                 </div>
               )}

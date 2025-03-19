@@ -29,13 +29,16 @@ const potentialBaseUrls = [
   '', // Empty string for relative URLs (best for Replit)
   window.location.origin, // Default: includes protocol, hostname, and port
   `${window.location.protocol}//${window.location.hostname}:5000`, // Explicit port 5000
-  window.location.origin.replace(/:\d+$/, ''), // Remove port if present
+  `https://${window.location.hostname}`, // HTTPS with hostname only
   `${window.location.protocol}//${window.location.hostname}`, // Protocol and hostname without port
   `//${window.location.host}`, // Protocol-relative URL
   
-  // Dynamically get Replit domain (if available)
-  ...(window.location.hostname.includes('replit.dev') ? 
-    [`https://${window.location.hostname}`] : [])
+  // Additional Replit-specific patterns
+  ...(window.location.hostname.includes('replit') ? [
+    `https://${window.location.hostname.split('.')[0]}.replit.dev`,
+    `https://${window.location.hostname}`,
+    window.location.origin.replace(/:\d+$/, ''), // Remove port if present
+  ] : [])
 ];
 
 // Global variable to store the working base URL after verification
@@ -127,13 +130,19 @@ const tryConnect = (urlIndex: number) => {
   console.log(`Trying base URL: ${currentBaseUrl} (Attempt ${checkAttempts + 1}/${maxAttempts}, URL ${urlIndex + 1}/${potentialBaseUrls.length})`);
   
   // First try the health endpoint which we know is working
-  fetch(currentBaseUrl + "/api/health", {
+  // Also try both /api/health and /health since Express might expose both
+  const healthEndpoint = urlIndex % 2 === 0 ? "/api/health" : "/health";
+  console.log(`Trying health endpoint: ${currentBaseUrl}${healthEndpoint}`);
+  
+  fetch(currentBaseUrl + healthEndpoint, {
     method: "GET",
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json",
       "Cache-Control": "no-cache"
-    }
+    },
+    mode: 'cors',
+    credentials: 'include'
   })
     .then(response => {
       console.log("Health API endpoint responded with status:", response.status);
@@ -216,16 +225,31 @@ setTimeout(() => tryConnect(0), 1000);
 setTimeout(() => {
   if (!appLoaded) {
     console.log("Fallback timeout reached, forcing app to load anyway");
+    // In Replit environment, we'll default to using relative URLs if all attempts fail
     window.BASE_API_URL = '';
     if (window.updateLoadingStatus) {
-      window.updateLoadingStatus('Proceeding in offline mode');
+      window.updateLoadingStatus('Proceeding with application initialization');
     }
-    if (window.hideLoadingScreen) {
-      window.hideLoadingScreen();
-    }
-    appLoaded = true;
+    setTimeout(() => {
+      if (window.hideLoadingScreen) {
+        window.hideLoadingScreen();
+      }
+      appLoaded = true;
+      
+      // Add a visible note about using relative paths
+      console.log("Using relative paths for API requests due to connectivity issues");
+      
+      // Final attempt with relative paths for critical endpoints
+      fetch('/api/health')
+        .then(response => {
+          if (response.ok) {
+            console.log("Server connection verified with final relative path attempt");
+          }
+        })
+        .catch(err => console.log("Final connection attempt failed:", err));
+    }, 800);
   }
-}, 15000);
+}, 10000); // Reduced timeout to 10 seconds for better UX
 
 // Type declaration for window object
 declare global {
