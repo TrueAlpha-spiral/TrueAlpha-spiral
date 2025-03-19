@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -40,7 +40,7 @@ export default function Header() {
           <Link href="/">
             <div className="flex items-center space-x-2 cursor-pointer">
               <Shield className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">TrueAlphaSpiral</span>
+              <span className="font-bold text-xl">KPMG AI Auditing</span>
             </div>
           </Link>
           <nav className="hidden md:flex space-x-6">
@@ -48,13 +48,15 @@ export default function Header() {
               <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/ai-audit") ? "text-primary font-bold" : "text-primary"
               }`}>
-                KPMG AI Auditing Solution
+                <BarChart4 className="h-4 w-4 inline-block mr-1" />
+                Dashboard
               </span>
             </Link>
             <Link href="/cross-reference-demo">
               <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/cross-reference-demo") ? "text-primary" : "text-muted-foreground"
               }`}>
+                <Activity className="h-4 w-4 inline-block mr-1" />
                 Cross-Reference Demo
               </span>
             </Link>
@@ -62,38 +64,37 @@ export default function Header() {
               <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/resource-allocation") ? "text-primary" : "text-muted-foreground"
               }`}>
-                Resource Allocation
+                <FileText className="h-4 w-4 inline-block mr-1" />
+                Compliance Reports
               </span>
             </Link>
             <Link href="/ethical-ai">
               <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 isActiveLink("/ethical-ai") ? "text-primary" : "text-muted-foreground"
               }`}>
-                Ethical AI
-              </span>
-            </Link>
-            <Link href="/ip-protection">
-              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
-                isActiveLink("/ip-protection") ? "text-primary" : "text-muted-foreground"
-              }`}>
-                IP Protection
+                <AlertTriangle className="h-4 w-4 inline-block mr-1" />
+                Risk Assessment
               </span>
             </Link>
           </nav>
         </div>
         <div className="flex items-center space-x-4">
           <Button variant="ghost" asChild>
-            <Link href="/documentation">Documentation</Link>
+            <Link href="/documentation">
+              <FileText className="mr-2 h-4 w-4" />
+              Documentation
+            </Link>
           </Button>
           <Button variant="outline" className="hidden sm:inline-flex" asChild>
             <Link href="/verification">
               <Shield className="mr-2 h-4 w-4" />
-              Verification
+              Compliance Check
             </Link>
           </Button>
           <Button variant="default" className="hidden sm:inline-flex" asChild>
             <Link href="/pricing">
-              Pricing
+              <BarChart4 className="mr-2 h-4 w-4" />
+              Enterprise Plans
             </Link>
           </Button>
           <ThemeToggle />

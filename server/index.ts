@@ -8,26 +8,43 @@ const app = express();
 // Add storage to app.locals for access in routes
 app.locals.storage = storage;
 
-// Configure CORS
-const replitDomain = process.env.REPLIT_DOMAINS ? 
-  `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 
-  undefined;
+// Configure CORS for maximum Replit compatibility
+// Get all potential Replit domains
+const replitDomains = process.env.REPLIT_DOMAINS ? 
+  process.env.REPLIT_DOMAINS.split(',').map(domain => `https://${domain.trim()}`) : 
+  [];
 
-// Allow all origins in development mode for maximum compatibility
-// In production, we would tighten this up
+// In Replit, we should allow connections from any origin in development
+// and also explicitly list known domains
 app.use(cors({
-  origin: process.env.NODE_ENV === 'development' ? 
-    true : // Allow any origin in development mode
-    [
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests, etc)
+    if(!origin) return callback(null, true);
+    
+    // In development or in Replit environment, allow any origin
+    if(process.env.NODE_ENV === 'development' || process.env.REPL_ID) {
+      return callback(null, true);
+    }
+    
+    // Otherwise, check against our whitelist
+    const allowedOrigins = [
       'http://localhost:5000',
       'http://localhost:3000',
       'http://localhost:443',
       'https://localhost:443',
-      replitDomain || 'https://truealphaspiral.replit.app',
-    ].filter(Boolean),
+      'https://truealphaspiral.replit.app',
+      ...replitDomains
+    ];
+    
+    if(allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control']
 }));
 
 app.use(express.json());
@@ -125,11 +142,14 @@ app.use((req, res, next) => {
     // Root API endpoint for Replit compatibility testing
     app.get('/api', (_req, res) => {
       res.setHeader('Content-Type', 'application/json');
+      const primaryReplitDomain = process.env.REPLIT_DOMAINS ? 
+        `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : undefined;
+        
       res.send(JSON.stringify({ 
         message: 'TrueAlphaSpiral API is running',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
-        replitDomain,
+        replitDomain: primaryReplitDomain,
         service: 'KPMG AI Auditing Solution'
       }));
     });

@@ -27,7 +27,17 @@ export function getQueryFn(options: GetQueryFnOptions = {}): QueryFunction {
     
     console.log(`API Request: ${endpoint} (using base URL: ${baseUrl || 'relative path'})`);
     
-    const response = await fetch(endpoint);
+    const fetchOptions: RequestInit = {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
+      mode: 'cors',
+      credentials: 'include'
+    };
+    
+    const response = await fetch(endpoint, fetchOptions);
     
     // Handle 401 responses according to options
     if (response.status === 401) {
@@ -63,31 +73,55 @@ export async function apiRequest(
   const options: RequestInit = {
     method,
     headers: {
+      'Accept': 'application/json',
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache'
     },
+    mode: 'cors',
+    credentials: 'include'
   };
   
   if (data) {
     options.body = JSON.stringify(data);
   }
   
-  const response = await fetch(endpoint, options);
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    let message = `API Error: ${response.statusText}`;
+  // Implement fetch with retry logic
+  const fetchWithRetry = async (): Promise<Response> => {
+    let remainingRetries = 2;
     
-    try {
-      const errorJson = JSON.parse(errorText);
-      if (errorJson.error) {
-        message = errorJson.error;
+    while (true) {
+      try {
+        const response = await fetch(endpoint, options);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          let message = `API Error: ${response.statusText}`;
+          
+          try {
+            const errorJson = JSON.parse(errorText);
+            if (errorJson.error) {
+              message = errorJson.error;
+            }
+          } catch {
+            // If the error isn't JSON, use the status text
+          }
+          
+          throw new Error(message);
+        }
+        
+        return response;
+      } catch (error) {
+        if (remainingRetries <= 0) {
+          throw error;
+        }
+        
+        console.warn(`API request failed, retrying... (${remainingRetries} retries left)`, error);
+        remainingRetries--;
+        // Wait a bit before retrying
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
-    } catch (e) {
-      // If the error isn't JSON, use the status text
     }
-    
-    throw new Error(message);
-  }
+  };
   
-  return response;
+  return await fetchWithRetry();
 }
