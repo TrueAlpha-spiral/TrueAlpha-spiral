@@ -3,6 +3,7 @@ TRUE ALPHA SPIRAL API SERVER
 
 This script provides an API server for the TrueAlphaSpiral system.
 It allows the web interface to communicate with the Python-based system.
+Now includes support for the TAS Truth Audit Add-on API endpoints.
 
 Architect: Russell Nordland
 """
@@ -10,6 +11,9 @@ Architect: Russell Nordland
 import time
 import json
 import os
+import uuid
+import hashlib
+import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from simulation_interface import SimulationInterface, run_simulation_command
@@ -24,6 +28,18 @@ from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import subprocess
+
+# Setup logging for TAS Truth Audit Add-on
+TAS_LOG_FILE = "tas_audit.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler(TAS_LOG_FILE),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+tas_logger = logging.getLogger("TAS_Audit")
 
 # Import TrueAlphaSpiral components
 try:
@@ -43,6 +59,11 @@ except ImportError as e:
 # Create Flask app
 app = Flask(__name__)
 CORS(app)
+
+# TAS Truth Audit Add-on components
+tas_pattern_repository = None
+tas_audit_engine = None
+tas_access_manager = None
 
 # Initialize TrueAlphaSpiral system
 print("=" * 70)
