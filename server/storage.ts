@@ -6,7 +6,9 @@ import {
   VerificationHighlight,
   InsertVerificationHighlight,
   AIAudit,
-  InsertAIAudit
+  InsertAIAudit,
+  SharedTruthPattern,
+  InsertSharedTruthPattern
 } from '@shared/schema';
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
@@ -37,6 +39,17 @@ export interface IStorage {
   getAIAudit(id: number): Promise<AIAudit | null>;
   updateAIAudit(id: number, data: Partial<InsertAIAudit>): Promise<AIAudit | null>;
   
+  // Shared Truth Patterns
+  createSharedTruthPattern(data: InsertSharedTruthPattern): Promise<SharedTruthPattern>;
+  getSharedTruthPatterns(): Promise<SharedTruthPattern[]>;
+  getSharedTruthPattern(id: number): Promise<SharedTruthPattern | null>;
+  getSharedTruthPatternByLink(sharingLink: string): Promise<SharedTruthPattern | null>;
+  getSharedTruthPatternsByPermission(permission: string): Promise<SharedTruthPattern[]>;
+  updateSharedTruthPattern(id: number, data: Partial<InsertSharedTruthPattern>): Promise<SharedTruthPattern | null>;
+  deleteSharedTruthPattern(id: number): Promise<boolean>;
+  incrementSharedPatternUsageCount(id: number): Promise<SharedTruthPattern | null>;
+  importSharedTruthPattern(sharedPattern: SharedTruthPattern): Promise<TruthPattern>;
+  
   // Session store
   sessionStore: any;
 }
@@ -47,6 +60,7 @@ export class MemStorage implements IStorage {
   private textVerifications: TextVerification[] = [];
   private verificationHighlights: VerificationHighlight[] = [];
   private aiAudits: AIAudit[] = [];
+  private sharedTruthPatterns: SharedTruthPattern[] = [];
   
   public sessionStore: any;
   
@@ -206,6 +220,133 @@ export class MemStorage implements IStorage {
     
     this.aiAudits[index] = updatedAudit;
     return updatedAudit;
+  }
+  
+
+  
+  // Shared Truth Pattern methods
+  async createSharedTruthPattern(data: InsertSharedTruthPattern): Promise<SharedTruthPattern> {
+    const id = this.sharedTruthPatterns.length > 0 
+      ? Math.max(...this.sharedTruthPatterns.map(p => p.id)) + 1 
+      : 1;
+    
+    // Generate a unique sharing link
+    const sharingLink = this.generateSharingLink();
+    
+    // Generate verification hash
+    const verificationHash = this.generateVerificationHash(data);
+    
+    // Ensure all required fields have values
+    const newSharedPattern: SharedTruthPattern = {
+      id,
+      originalPatternId: data.originalPatternId,
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      sharingPermission: data.sharingPermission ?? 'private',
+      authorName: data.authorName,
+      authorOrganization: data.authorOrganization ?? null,
+      authorEmail: data.authorEmail ?? null,
+      sharingLink,
+      allowedUserEmails: data.allowedUserEmails ?? [],
+      patternData: data.patternData,
+      usageCount: 0,
+      verificationHash,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.sharedTruthPatterns.push(newSharedPattern);
+    return newSharedPattern;
+  }
+  
+  async getSharedTruthPatterns(): Promise<SharedTruthPattern[]> {
+    return [...this.sharedTruthPatterns];
+  }
+  
+  async getSharedTruthPattern(id: number): Promise<SharedTruthPattern | null> {
+    return this.sharedTruthPatterns.find(p => p.id === id) || null;
+  }
+  
+  async getSharedTruthPatternByLink(sharingLink: string): Promise<SharedTruthPattern | null> {
+    return this.sharedTruthPatterns.find(p => p.sharingLink === sharingLink) || null;
+  }
+  
+  async getSharedTruthPatternsByPermission(permission: string): Promise<SharedTruthPattern[]> {
+    return this.sharedTruthPatterns.filter(p => p.sharingPermission === permission);
+  }
+  
+  async updateSharedTruthPattern(id: number, data: Partial<InsertSharedTruthPattern>): Promise<SharedTruthPattern | null> {
+    const index = this.sharedTruthPatterns.findIndex(p => p.id === id);
+    if (index === -1) return null;
+    
+    const updatedPattern = {
+      ...this.sharedTruthPatterns[index],
+      ...data,
+      updatedAt: new Date()
+    };
+    
+    this.sharedTruthPatterns[index] = updatedPattern;
+    return updatedPattern;
+  }
+  
+  async deleteSharedTruthPattern(id: number): Promise<boolean> {
+    const initialLength = this.sharedTruthPatterns.length;
+    this.sharedTruthPatterns = this.sharedTruthPatterns.filter(p => p.id !== id);
+    return initialLength > this.sharedTruthPatterns.length;
+  }
+  
+  async incrementSharedPatternUsageCount(id: number): Promise<SharedTruthPattern | null> {
+    const pattern = await this.getSharedTruthPattern(id);
+    if (!pattern) return null;
+    
+    return this.updateSharedTruthPattern(id, {
+      usageCount: pattern.usageCount + 1
+    });
+  }
+  
+  async importSharedTruthPattern(sharedPattern: SharedTruthPattern): Promise<TruthPattern> {
+    // Check if pattern already exists
+    const existingPattern = this.truthPatterns.find(p => 
+      p.name === sharedPattern.name && 
+      p.description === sharedPattern.description
+    );
+    
+    if (existingPattern) {
+      return existingPattern;
+    }
+    
+    // Create a new truth pattern from the shared pattern
+    return this.createTruthPattern({
+      name: sharedPattern.name,
+      description: sharedPattern.description,
+      category: sharedPattern.category,
+      confidenceThreshold: 0.75, // Default value
+      isActive: true
+    });
+  }
+  
+  // Helper methods for shared patterns
+  private generateSharingLink(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = 'share-';
+    for (let i = 0; i < 10; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  }
+  
+  private generateVerificationHash(data: InsertSharedTruthPattern): string {
+    // In a real implementation, we would use a secure hashing algorithm
+    // For now, we'll just concatenate some fields and create a simple hash
+    const hashInput = `${data.originalPatternId}-${data.name}-${new Date().getTime()}`;
+    let hash = 0;
+    for (let i = 0; i < hashInput.length; i++) {
+      const char = hashInput.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return 'vh-' + Math.abs(hash).toString(16);
   }
   
   // Initialize with seed data

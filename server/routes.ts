@@ -2,7 +2,14 @@ import type { Express } from 'express';
 import { createServer, type Server } from 'http';
 import express from 'express';
 import { storage } from './storage';
-import { verifyTextSchema, aiAuditSchema, crossReferenceSchema } from '@shared/schema';
+import { 
+  verifyTextSchema, 
+  aiAuditSchema, 
+  crossReferenceSchema,
+  sharePatternSchema,
+  exportPatternSchema,
+  importPatternSchema
+} from '@shared/schema';
 import { verificationEngine } from './services/verification-engine';
 import { crossReferenceService } from './services/cross-reference-service';
 import { 
@@ -733,6 +740,225 @@ export function registerRoutes(app: Express): Server {
       ],
       audit_type: "standard"
     });
+  });
+
+  // *** Universal Truth Pattern Sharing Widget API Endpoints ***
+  
+  // Get all shared truth patterns
+  app.get('/api/shared-patterns', async (_req, res) => {
+    try {
+      const patterns = await storage.getSharedTruthPatterns();
+      res.json(patterns);
+    } catch (error) {
+      console.error('Error fetching shared truth patterns:', error);
+      res.status(500).json({ error: 'Failed to fetch shared truth patterns' });
+    }
+  });
+
+  // Get a specific shared truth pattern
+  app.get('/api/shared-patterns/:id', async (req, res) => {
+    try {
+      const pattern = await storage.getSharedTruthPattern(Number(req.params.id));
+      if (!pattern) {
+        return res.status(404).json({ error: 'Shared pattern not found' });
+      }
+      res.json(pattern);
+    } catch (error) {
+      console.error('Error fetching shared truth pattern:', error);
+      res.status(500).json({ error: 'Failed to fetch shared truth pattern' });
+    }
+  });
+
+  // Get a shared truth pattern by sharing link
+  app.get('/api/shared-patterns/link/:sharingLink', async (req, res) => {
+    try {
+      const pattern = await storage.getSharedTruthPatternByLink(req.params.sharingLink);
+      if (!pattern) {
+        return res.status(404).json({ error: 'Shared pattern not found' });
+      }
+      
+      // Increment usage count
+      await storage.incrementSharedPatternUsageCount(pattern.id);
+      
+      res.json(pattern);
+    } catch (error) {
+      console.error('Error fetching shared truth pattern by link:', error);
+      res.status(500).json({ error: 'Failed to fetch shared truth pattern' });
+    }
+  });
+
+  // Get shared truth patterns by permission
+  app.get('/api/shared-patterns/permission/:permission', async (req, res) => {
+    try {
+      const patterns = await storage.getSharedTruthPatternsByPermission(req.params.permission);
+      res.json(patterns);
+    } catch (error) {
+      console.error('Error fetching shared truth patterns by permission:', error);
+      res.status(500).json({ error: 'Failed to fetch shared truth patterns' });
+    }
+  });
+
+  // Share a truth pattern
+  app.post('/api/shared-patterns', async (req, res) => {
+    try {
+      // Validate request body
+      const validation = sharePatternSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: validation.error });
+      }
+
+      const input = validation.data;
+      
+      // Get the original pattern
+      const originalPattern = await storage.getTruthPattern(input.patternId);
+      if (!originalPattern) {
+        return res.status(404).json({ error: 'Original pattern not found' });
+      }
+      
+      // Create shared pattern
+      const sharedPattern = await storage.createSharedTruthPattern({
+        originalPatternId: originalPattern.id,
+        name: originalPattern.name,
+        description: originalPattern.description,
+        category: originalPattern.category,
+        sharingPermission: input.sharingPermission,
+        authorName: input.authorName,
+        authorOrganization: input.authorOrganization,
+        authorEmail: input.authorEmail,
+        allowedUserEmails: input.allowedUserEmails || [],
+        patternData: {
+          originalPattern,
+          confidenceThreshold: originalPattern.confidenceThreshold,
+          category: originalPattern.category,
+          metadata: {
+            createdAt: new Date().toISOString(),
+            source: 'TrueAlphaSpiral'
+          }
+        }
+      });
+      
+      res.status(201).json(sharedPattern);
+    } catch (error) {
+      console.error('Error sharing truth pattern:', error);
+      res.status(500).json({ error: 'Failed to share truth pattern' });
+    }
+  });
+
+  // Update a shared truth pattern
+  app.patch('/api/shared-patterns/:id', async (req, res) => {
+    try {
+      const updatedPattern = await storage.updateSharedTruthPattern(Number(req.params.id), req.body);
+      if (!updatedPattern) {
+        return res.status(404).json({ error: 'Shared pattern not found' });
+      }
+      res.json(updatedPattern);
+    } catch (error) {
+      console.error('Error updating shared truth pattern:', error);
+      res.status(500).json({ error: 'Failed to update shared truth pattern' });
+    }
+  });
+
+  // Delete a shared truth pattern
+  app.delete('/api/shared-patterns/:id', async (req, res) => {
+    try {
+      const success = await storage.deleteSharedTruthPattern(Number(req.params.id));
+      if (!success) {
+        return res.status(404).json({ error: 'Shared pattern not found' });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting shared truth pattern:', error);
+      res.status(500).json({ error: 'Failed to delete shared truth pattern' });
+    }
+  });
+
+  // Export a truth pattern
+  app.post('/api/shared-patterns/export', async (req, res) => {
+    try {
+      // Validate request body
+      const validation = exportPatternSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: validation.error });
+      }
+
+      const input = validation.data;
+      
+      // Get the pattern
+      const pattern = await storage.getTruthPattern(input.patternId);
+      if (!pattern) {
+        return res.status(404).json({ error: 'Pattern not found' });
+      }
+      
+      // Create export data
+      const exportData: any = {
+        pattern: {
+          name: pattern.name,
+          description: pattern.description,
+          category: pattern.category,
+          confidenceThreshold: pattern.confidenceThreshold
+        },
+        format: input.format,
+        exportedAt: new Date().toISOString(),
+        exportVersion: '1.0'
+      };
+      
+      // Add metadata if requested
+      if (input.includeMetadata) {
+        exportData.metadata = {
+          createdAt: pattern.createdAt,
+          updatedAt: pattern.updatedAt,
+          isActive: pattern.isActive,
+          exportedBy: 'TrueAlphaSpiral System'
+        };
+      }
+      
+      // Return the export data
+      res.json({
+        success: true,
+        exportData
+      });
+    } catch (error) {
+      console.error('Error exporting truth pattern:', error);
+      res.status(500).json({ error: 'Failed to export truth pattern' });
+    }
+  });
+
+  // Import a shared truth pattern
+  app.post('/api/shared-patterns/import', async (req, res) => {
+    try {
+      // Validate request body
+      const validation = importPatternSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: validation.error });
+      }
+
+      const input = validation.data;
+      
+      // Get pattern data from import
+      const patternData = input.patternData;
+      
+      // Validate pattern data structure
+      if (!patternData || !patternData.pattern || !patternData.pattern.name) {
+        return res.status(400).json({ error: 'Invalid pattern data structure' });
+      }
+      
+      // Create new pattern from import
+      const newPattern = await storage.createTruthPattern({
+        name: patternData.pattern.name,
+        description: patternData.pattern.description || 'Imported pattern',
+        category: patternData.pattern.category || 'Technical',
+        confidenceThreshold: patternData.pattern.confidenceThreshold || 0.75,
+        isActive: true
+      });
+      
+      res.status(201).json({
+        success: true,
+        importedPattern: newPattern
+      });
+    } catch (error) {
+      console.error('Error importing truth pattern:', error);
+      res.status(500).json({ error: 'Failed to import truth pattern' });
+    }
   });
 
   const httpServer = createServer(app);

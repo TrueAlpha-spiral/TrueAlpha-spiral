@@ -8,6 +8,7 @@ import PricingPage from "@/pages/pricing-page";
 import CrossReferenceDemo from "@/pages/cross-reference-demo";
 import AiAuditPage from "@/pages/ai-audit-page";
 import TASIntegrationPage from "@/pages/tas-integration-page";
+import PatternSharingPage from "@/pages/pattern-sharing-page";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -57,6 +58,7 @@ export default function App() {
                   {/* These routes will be implemented individually */}
                   <Route path="/ai-audit" component={AiAuditPage} />
                   <Route path="/tas-integration" component={TASIntegrationPage} />
+                  <Route path="/pattern-sharing" component={PatternSharingPage} />
                   <Route path="/resource-allocation">
                     <div className="container py-10">
                       <h1 className="text-3xl font-bold mb-4">Resource Allocation</h1>
