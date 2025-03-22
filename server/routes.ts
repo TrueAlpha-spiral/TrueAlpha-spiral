@@ -29,6 +29,7 @@ import {
   getCategories,
   getAuditResult
 } from './services/python-api-service';
+import { ethicalGovernance } from './services/ethical-governance';
 import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,7 +48,8 @@ export function registerRoutes(app: Express): Server {
         '/api/verify',
         '/api/cross-reference',
         '/api/ai-audit',
-        '/api/dimensional-simulation'
+        '/api/dimensional-simulation',
+        '/api/ethical-governance'
       ],
       timestamp: new Date().toISOString()
     });
@@ -2153,6 +2155,158 @@ export function registerRoutes(app: Express): Server {
     
     return recommendations;
   }
+  
+  // Ethical Governance Routes
+  
+  // Perform an ethical audit on content
+  app.post('/api/ethical-governance/audit', async (req, res) => {
+    try {
+      const { content, operation = 'content-analysis' } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ error: 'Content is required for ethical audit' });
+      }
+      
+      // Get truth patterns for pattern analysis
+      const patterns = await storage.getTruthPatterns();
+      
+      // Verify text using TrueAlphaSpiral engine to get dimensional values
+      const verificationResult = await verificationEngine.verifyText(content, patterns);
+      
+      // Extract dimensional values from verification result
+      const dimensionalValues = {
+        factual: verificationResult.dimensionalScores?.factual || 0.5,
+        conceptual: verificationResult.dimensionalScores?.conceptual || 0.5,
+        ethical: verificationResult.dimensionalScores?.ethical || 0.5,
+        phenomenological: verificationResult.dimensionalScores?.phenomenological || 0.5
+      };
+      
+      // Perform ethical audit
+      const auditRecord = await ethicalGovernance.performEthicalAudit(
+        operation,
+        content,
+        dimensionalValues
+      );
+      
+      res.json({
+        status: 'success',
+        timestamp: new Date().toISOString(),
+        auditId: auditRecord.id,
+        auditRecord
+      });
+    } catch (error) {
+      console.error('Error performing ethical audit:', error);
+      res.status(500).json({ 
+        status: 'error',
+        error: 'Failed to perform ethical audit',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Get all ethical audit records
+  app.get('/api/ethical-governance/audits', (_req, res) => {
+    try {
+      const audits = ethicalGovernance.getAuditRecords();
+      res.json({
+        status: 'success',
+        timestamp: new Date().toISOString(),
+        count: audits.length,
+        audits
+      });
+    } catch (error) {
+      console.error('Error fetching ethical audits:', error);
+      res.status(500).json({ 
+        status: 'error',
+        error: 'Failed to fetch ethical audits' 
+      });
+    }
+  });
+  
+  // Get a specific ethical audit record
+  app.get('/api/ethical-governance/audits/:id', (req, res) => {
+    try {
+      const audit = ethicalGovernance.getAuditById(req.params.id);
+      
+      if (!audit) {
+        return res.status(404).json({ 
+          status: 'error',
+          error: 'Ethical audit not found' 
+        });
+      }
+      
+      res.json({
+        status: 'success',
+        timestamp: new Date().toISOString(),
+        audit
+      });
+    } catch (error) {
+      console.error('Error fetching ethical audit:', error);
+      res.status(500).json({ 
+        status: 'error',
+        error: 'Failed to fetch ethical audit' 
+      });
+    }
+  });
+  
+  // Human validation of ethical audit
+  app.post('/api/ethical-governance/validate/:id', (req, res) => {
+    try {
+      const { validator, approved } = req.body;
+      
+      if (!validator) {
+        return res.status(400).json({ 
+          status: 'error',
+          error: 'Validator name/ID is required' 
+        });
+      }
+      
+      const updatedAudit = ethicalGovernance.humanValidateAudit(
+        req.params.id,
+        validator,
+        !!approved
+      );
+      
+      if (!updatedAudit) {
+        return res.status(404).json({ 
+          status: 'error',
+          error: 'Ethical audit not found' 
+        });
+      }
+      
+      res.json({
+        status: 'success',
+        timestamp: new Date().toISOString(),
+        message: `Audit ${approved ? 'approved' : 'rejected'} by ${validator}`,
+        audit: updatedAudit
+      });
+    } catch (error) {
+      console.error('Error validating ethical audit:', error);
+      res.status(500).json({ 
+        status: 'error',
+        error: 'Failed to validate ethical audit' 
+      });
+    }
+  });
+  
+  // Get ethical performance report
+  app.get('/api/ethical-governance/performance', (_req, res) => {
+    try {
+      const report = ethicalGovernance.getEthicalPerformanceReport();
+      
+      res.json({
+        status: 'success',
+        timestamp: new Date().toISOString(),
+        report
+      });
+    } catch (error) {
+      console.error('Error generating ethical performance report:', error);
+      res.status(500).json({ 
+        status: 'error',
+        error: 'Failed to generate ethical performance report' 
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

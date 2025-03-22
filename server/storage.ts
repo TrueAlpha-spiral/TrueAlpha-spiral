@@ -57,6 +57,11 @@ export interface IStorage {
   stopDimensionalBoundarySimulation(): void;
   updateDimensionalBoundarySimulation(update: any): any;
   
+  // Ethical Governance
+  saveEthicalAudits(audits: any[]): void;
+  getEthicalAudits(): any[];
+  getEthicalAuditById(id: string): any | null;
+  
   // Session store
   sessionStore: any;
 }
@@ -69,6 +74,7 @@ export class MemStorage implements IStorage {
   private aiAudits: AIAudit[] = [];
   private sharedTruthPatterns: SharedTruthPattern[] = [];
   private dimensionalBoundarySimulation: any = null;
+  private ethicalAudits: any[] = [];
   
   public sessionStore: any;
   
@@ -430,6 +436,19 @@ export class MemStorage implements IStorage {
       confidenceThreshold: 0.75, // Default value
       isActive: true
     });
+  }
+  
+  // Ethical Governance methods
+  saveEthicalAudits(audits: any[]): void {
+    this.ethicalAudits = [...audits];
+  }
+  
+  getEthicalAudits(): any[] {
+    return [...this.ethicalAudits];
+  }
+  
+  getEthicalAuditById(id: string): any | null {
+    return this.ethicalAudits.find(audit => audit.id === id) || null;
   }
   
   // Helper methods for shared patterns
