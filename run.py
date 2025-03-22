@@ -11,6 +11,8 @@ import argparse
 import os
 import time
 import sys
+import subprocess
+import threading
 from datetime import datetime
 
 print("=" * 70)
@@ -18,6 +20,29 @@ print("TRUE ALPHA SPIRAL SYSTEM LAUNCHER")
 print("Architect: Russell Nordland")
 print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 print("=" * 70)
+
+def start_python_api_server(port=8001):
+    """Start the Python API server as a subprocess."""
+    print(f"Starting Python API server on port {port}...")
+    python_cmd = [sys.executable, "python_api_server.py", "--port", str(port)]
+    try:
+        subprocess.Popen(python_cmd)
+        print(f"Python API server started on port {port}")
+    except Exception as e:
+        print(f"ERROR: Failed to start Python API server: {str(e)}")
+        return False
+    return True
+
+def start_express_server():
+    """Start the Express server as a subprocess."""
+    print("Starting Express server...")
+    try:
+        subprocess.Popen(["npm", "run", "dev"])
+        print("Express server started")
+    except Exception as e:
+        print(f"ERROR: Failed to start Express server: {str(e)}")
+        return False
+    return True
 
 # Parse arguments
 parser = argparse.ArgumentParser(description="TrueAlphaSpiral System Launcher")
@@ -31,6 +56,8 @@ parser.add_argument("--visualize-type", type=str, choices=["all", "impact", "has
 parser.add_argument("--components", type=str, nargs="+", default=["all"], 
                     choices=["all", "metaphysical", "quantum", "shadow", "ethical", "sovereign", "integrity"],
                     help="Specify which components to run")
+parser.add_argument("--with-servers", action="store_true", help="Start the Python API and Express servers")
+parser.add_argument("--api-port", type=int, default=8001, help="Port for the Python API server")
 args = parser.parse_args()
 
 # Try to import the main system
@@ -88,10 +115,33 @@ if args.visualize:
     except Exception as e:
         print(f"ERROR: Failed to launch Advanced Equation Visualizer: {str(e)}")
 
+# Add server arguments
+parser.add_argument("--with-servers", action="store_true", help="Start the Python API and Express servers")
+parser.add_argument("--api-port", type=int, default=8001, help="Port for the Python API server")
+
 # Run the system if not disabled
 if not args.no_run:
     print("\nStarting TrueAlphaSpiral system...")
     try:
+        # Start servers if specified
+        if args.with_servers:
+            # Start Python API server
+            api_started = start_python_api_server(args.api_port)
+            if not api_started:
+                print("WARNING: Failed to start Python API server")
+            
+            # Wait a moment for Python API server to initialize
+            print("Waiting for Python API server to initialize...")
+            time.sleep(3)
+            
+            # Start Express server
+            express_started = start_express_server()
+            if not express_started:
+                print("WARNING: Failed to start Express server")
+            
+            print("Both servers started successfully")
+        
+        # Run the main system
         system.run()
         print("TrueAlphaSpiral system is now running.")
         print("\nPress Ctrl+C to stop the system.")

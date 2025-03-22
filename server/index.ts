@@ -9,42 +9,12 @@ const app = express();
 app.locals.storage = storage;
 
 // Configure CORS for maximum Replit compatibility
-// Get all potential Replit domains
-const replitDomains = process.env.REPLIT_DOMAINS ? 
-  process.env.REPLIT_DOMAINS.split(',').map(domain => `https://${domain.trim()}`) : 
-  [];
-
-// In Replit, we should allow connections from any origin in development
-// and also explicitly list known domains
+// Enable CORS for all origins in development and Replit environments
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests, etc)
-    if(!origin) return callback(null, true);
-    
-    // In development or in Replit environment, allow any origin
-    if(process.env.NODE_ENV === 'development' || process.env.REPL_ID) {
-      return callback(null, true);
-    }
-    
-    // Otherwise, check against our whitelist
-    const allowedOrigins = [
-      'http://localhost:5000',
-      'http://localhost:3000',
-      'http://localhost:443',
-      'https://localhost:443',
-      'https://truealphaspiral.replit.app',
-      ...replitDomains
-    ];
-    
-    if(allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
-    }
-    
-    callback(new Error('Not allowed by CORS'));
-  },
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control', 'X-Requested-With']
 }));
 
 app.use(express.json());
@@ -110,8 +80,8 @@ app.use((req, res, next) => {
     }
 
     // Special configuration for Replit environment
-    // In Replit, we'll use the port Replit expects for webview access
-    let port = 443; // Default port for HTTPS access
+    // In Replit, we'll use port 5000 as that's what the workflow expects
+    let port = 5000; // Use port 5000 to match workflow configuration
     
     // Check environment variables in order of precedence
     if (process.env.PORT) {
@@ -119,8 +89,8 @@ app.use((req, res, next) => {
       log(`Using PORT environment variable: ${port}`);
     } else if (process.env.REPL_ID && process.env.REPLIT_CLUSTER) {
       // For Replit environment
-      port = 5000; // This is the recommended port for Replit's webview
-      log(`Using Replit-specific port for webview access: ${port}`);
+      port = 5000; // Use port 5000 to match workflow configuration
+      log(`Using port 5000 to match workflow configuration`);
     }
     
     // Log port decision
