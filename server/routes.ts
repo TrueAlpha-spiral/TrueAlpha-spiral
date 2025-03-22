@@ -41,6 +41,37 @@ export function registerRoutes(app: Express): Server {
     });
   });
   
+  // Serve documentation files
+  app.get('/api/documentation/:filename', (req, res) => {
+    const { filename } = req.params;
+    const path = require('path');
+    const fs = require('fs');
+    
+    // Whitelist of allowed documentation files
+    const allowedFiles = [
+      'SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md',
+      'INDEPENDENT_VERIFICATION_LAYER.md',
+      'SOVEREIGNTY_PRINCIPLES.md',
+      'TARSI_ARCHITECTURAL_BLUEPRINT.md'
+    ];
+    
+    if (!allowedFiles.includes(filename)) {
+      return res.status(404).json({ error: 'Documentation file not found' });
+    }
+    
+    const filePath = path.resolve(process.cwd(), filename);
+    
+    fs.readFile(filePath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
+      if (err) {
+        console.error(`Error reading documentation file ${filename}:`, err);
+        return res.status(500).json({ error: 'Failed to read documentation file' });
+      }
+      
+      res.setHeader('Content-Type', 'text/markdown');
+      res.send(data);
+    });
+  });
+  
   // Python API status endpoint
   app.get('/api/python-status', async (_req, res) => {
     try {

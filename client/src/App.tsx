@@ -10,6 +10,7 @@ import AiAuditPage from "@/pages/ai-audit-page";
 import TASIntegrationPage from "@/pages/tas-integration-page";
 import PatternSharingPage from "@/pages/pattern-sharing-page";
 import MedicalTestingPage from "@/pages/medical-testing-page";
+import DocumentationPage from "@/pages/documentation-page";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -118,18 +119,7 @@ export default function App() {
                       </p>
                     </div>
                   </Route>
-                  <Route path="/documentation">
-                    <div className="container py-10">
-                      <h1 className="text-3xl font-bold mb-4">Documentation</h1>
-                      <p className="text-muted-foreground">
-                        Technical documentation for the Enterprise AI Auditing Solution, including API references, implementation details,
-                        and compliance guidelines.
-                      </p>
-                      <p className="mt-4">
-                        Documentation page coming soon.
-                      </p>
-                    </div>
-                  </Route>
+                  <Route path="/documentation" component={DocumentationPage} />
                   <Route>
                     <div className="container py-10">
                       <h1 className="text-3xl font-bold mb-4">404 - Page Not Found</h1>
