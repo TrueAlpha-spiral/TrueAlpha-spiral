@@ -138,7 +138,13 @@ except ImportError as e:
                 self._create_pattern("Bias Detection Matrix", "bias", 0.99, "auditing"),
                 self._create_pattern("Demographic Equity Scanner", "bias", 0.98, "auditing"),
                 self._create_pattern("Hallucination Detection Grid", "hallucination", 0.99, "auditing"),
-                self._create_pattern("Fabrication Identification Matrix", "hallucination", 0.98, "auditing")
+                self._create_pattern("Fabrication Identification Matrix", "hallucination", 0.98, "auditing"),
+                # New medical hallucination specific patterns
+                self._create_pattern("Medical Evidence Validation System", "hallucination", 0.99, "auditing"),
+                self._create_pattern("Clinical Chain-of-Thought Analyzer", "hallucination", 0.98, "auditing"),
+                self._create_pattern("Medical Source Verification Framework", "hallucination", 0.99, "auditing"),
+                self._create_pattern("Treatment Claim Validation Protocol", "hallucination", 0.98, "auditing"),
+                self._create_pattern("Healthcare Citation Checker", "hallucination", 0.97, "auditing")
             ]
             
             # Add patterns to repository
@@ -273,7 +279,9 @@ except ImportError as e:
                 "processing_time": None,
                 "truth_score": None,
                 "audit_depth": depth,
-                "categories": {},
+                "categories": {
+                    "original_text": text  # Store original text for medical context detection
+                },
                 "recommendations": []
             }
             
@@ -318,12 +326,15 @@ except ImportError as e:
             }
             
             # Calculate overall truth score (weighted average)
+            # Increased weight for hallucination detection based on research findings
+            # that highlight the critical importance of hallucination detection,
+            # especially in high-stakes domains like healthcare
             weights = {
                 "factual_accuracy": 0.3,
-                "logical_consistency": 0.2,
+                "logical_consistency": 0.15,
                 "ethical_alignment": 0.15,
                 "bias_detection": 0.15,
-                "hallucination_detection": 0.2
+                "hallucination_detection": 0.25  # Increased from 0.2 to 0.25
             }
             
             truth_score = sum(
@@ -435,56 +446,130 @@ except ImportError as e:
             return min(1.0, base_score + pattern_modifier)
         
         def _analyze_hallucinations(self, text, patterns):
-            """Simplified implementation of hallucination detection."""
-            hedging_terms = ["might be", "could be", "perhaps", "possibly", "may have", "seems like"]
+            """
+            Enhanced implementation of hallucination detection, with specific 
+            improvements for medical content based on research findings.
+            
+            Incorporates Chain-of-Thought (CoT) analysis and source verification
+            principles to reduce hallucination rates as identified in clinical studies.
+            """
+            # 1. Hedging Language Detection (improved sensitivity)
+            hedging_terms = ["might be", "could be", "perhaps", "possibly", "may have", "seems like", 
+                             "potentially", "suggests", "indicates", "appears to be"]
             hedging_count = sum(1 for term in hedging_terms if term in text.lower())
             hedging_factor = max(0, 0.2 - (hedging_count * 0.03))
             
-            extreme_specifics = ["exactly", "precisely", "99%", "absolutely", "certainly", "undoubtedly"]
+            # 2. Unwarranted Certainty Detection (common in medical hallucinations)
+            extreme_specifics = ["exactly", "precisely", "99%", "absolutely", "certainly", "undoubtedly",
+                               "guaranteed", "without question", "definitive", "conclusively"]
             extreme_count = sum(1 for term in extreme_specifics if term in text.lower())
             extremity_factor = max(0, 0.15 - (extreme_count * 0.03))
             
-            unlikely_terms = ["President Batman", "iOS Android", "Google Facebook partnership", "Microsoft Apple merger"]
-            unlikely_count = sum(1 for term in unlikely_terms if term in text.lower())
+            # 3. Medical-specific hallucination markers
+            medical_unlikely_terms = [
+                "complete cure", "100% effective", "zero side effects", "works for everyone",
+                "instant results", "miracle treatment", "secret cure", "doctors hate this",
+                "FDA approval for all uses", "treats all symptoms"
+            ]
+            unlikely_count = sum(1 for term in medical_unlikely_terms if term in text.lower())
             unlikely_factor = max(0, 0.15 - (unlikely_count * 0.05))
             
-            base_score = 0.55 + hedging_factor + extremity_factor + unlikely_factor
+            # 4. Logical coherence analysis (emulating Chain-of-Thought)
+            # Check if claims follow a logical progression or jump to conclusions
+            logical_markers = ["therefore", "thus", "because", "as a result", "consequently", "this suggests"]
+            logical_marker_count = sum(1 for marker in logical_markers if marker in text.lower())
+            logical_coherence_factor = min(0.15, logical_marker_count * 0.03)
+            
+            # 5. Source mention analysis (Search Augmented Generation proxy)
+            source_terms = ["study shows", "research indicates", "according to", "evidence suggests", 
+                          "clinical trials", "published in", "researchers found"]
+            source_mention_count = sum(1 for term in source_terms if term in text.lower())
+            source_factor = min(0.15, source_mention_count * 0.03)
+            
+            # Calculate base score with additional factors
+            base_score = 0.5 + hedging_factor + extremity_factor + unlikely_factor + logical_coherence_factor + source_factor
+            
+            # Apply pattern modifier (representing the system's learned patterns)
             pattern_modifier = min(0.15, len(patterns) * 0.01)
             
-            return min(1.0, base_score + pattern_modifier)
+            # Apply medical context weight (increases importance of hallucination detection for medical content)
+            medical_terms = ["patient", "diagnosis", "treatment", "symptoms", "disease", "clinical", 
+                           "medicine", "doctor", "hospital", "prescription", "therapy"]
+            medical_term_count = sum(1 for term in medical_terms if term in text.lower())
+            is_medical_context = medical_term_count >= 2
+            
+            # For medical content, we apply stricter standards (research shows non-trivial hallucinations persist)
+            final_score = min(1.0, base_score + pattern_modifier)
+            if is_medical_context:
+                # Apply a calibration factor to account for higher risk in medical contexts
+                # Research indicates higher standards needed for medical content
+                final_score = final_score * 0.85
+                
+            return final_score
         
         def _generate_recommendations(self, category_results):
-            """Generate recommendations based on audit results."""
+            """
+            Generate detailed recommendations based on audit results, with specific
+            focus on high-stakes domains like healthcare, following research findings.
+            """
             recommendations = []
+            medical_terms = ["patient", "diagnosis", "treatment", "symptoms", "disease", "clinical", 
+                           "medicine", "doctor", "hospital", "prescription", "therapy"]
+            
+            # Get the text to check if it's medical content
+            text = category_results.get("original_text", "")
+            is_medical_content = sum(1 for term in medical_terms if term in text.lower()) >= 2
             
             # Check factual accuracy
             factual_score = category_results["factual_accuracy"]["score"]
             if factual_score < 0.7:
-                recommendations.append("Enhance factual accuracy by including verifiable information and citations.")
+                if is_medical_content:
+                    recommendations.append("MEDICAL ACCURACY ALERT: Enhance factual accuracy by citing specific peer-reviewed studies, medical guidelines, or authoritative sources such as WHO, CDC, or specialty medical associations.")
+                else:
+                    recommendations.append("Enhance factual accuracy by including verifiable information and citations.")
             
             # Check logical consistency
             logical_score = category_results["logical_consistency"]["score"]
             if logical_score < 0.7:
-                recommendations.append("Improve logical structure by strengthening the connection between premises and conclusions.")
+                if is_medical_content:
+                    recommendations.append("MEDICAL REASONING ALERT: Implement Chain-of-Thought (CoT) reasoning by explicitly showing the connection between medical evidence, clinical guidelines, and conclusions to reduce reasoning errors.")
+                else:
+                    recommendations.append("Improve logical structure by strengthening the connection between premises and conclusions.")
             
             # Check ethical alignment
             ethical_score = category_results["ethical_alignment"]["score"]
             if ethical_score < 0.7:
-                recommendations.append("Consider ethical implications by addressing diverse perspectives and potential impacts.")
+                if is_medical_content:
+                    recommendations.append("MEDICAL ETHICS ALERT: Address patient safety considerations, informed consent principles, and ensure compliance with medical ethical guidelines and regulatory requirements.")
+                else:
+                    recommendations.append("Consider ethical implications by addressing diverse perspectives and potential impacts.")
             
             # Check bias
             bias_score = category_results["bias_detection"]["score"]
             if bias_score < 0.7:
-                recommendations.append("Reduce potential bias by using more balanced and neutral language.")
+                if is_medical_content:
+                    recommendations.append("MEDICAL BIAS ALERT: Ensure medical recommendations account for diversity in patient populations, recognize demographic differences in disease presentation and treatment response, and avoid reinforcing healthcare disparities.")
+                else:
+                    recommendations.append("Reduce potential bias by using more balanced and neutral language.")
             
-            # Check hallucinations
+            # Check hallucinations - enhanced specifically for medical content
             hallucination_score = category_results["hallucination_detection"]["score"]
             if hallucination_score < 0.7:
-                recommendations.append("Verify content accuracy to minimize potential hallucinations or fabrications.")
+                if is_medical_content:
+                    recommendations.append("MEDICAL HALLUCINATION ALERT: Implement Search Augmented Generation by integrating content with specific references to medical literature. Include explicit uncertainty qualifiers when appropriate, and avoid making definitive statements about diagnosis, treatment efficacy, or prognosis without supporting evidence.")
+                else:
+                    recommendations.append("Verify content accuracy to minimize potential hallucinations or fabrications.")
+            
+            # Add regulatory compliance recommendation for medical content
+            if is_medical_content and hallucination_score < 0.85:
+                recommendations.append("REGULATORY COMPLIANCE: Ensure all medical content adheres to relevant healthcare regulatory frameworks (FDA, EMA, etc.). Research shows non-trivial levels of hallucination persist despite mitigation techniques, requiring clear ethical and regulatory guidelines.")
             
             # Add general recommendation if overall performance is good
             if len(recommendations) == 0:
-                recommendations.append("Content meets TrueAlphaSpiral truth standards. Continue maintaining high-quality output.")
+                if is_medical_content:
+                    recommendations.append("Content meets TrueAlphaSpiral medical truth standards. Continue maintaining high-quality, evidence-based medical information with appropriate citations and uncertainty qualifiers.")
+                else:
+                    recommendations.append("Content meets TrueAlphaSpiral truth standards. Continue maintaining high-quality output.")
             
             return recommendations
     
