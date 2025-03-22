@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2 } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -90,6 +90,14 @@ export default function Header() {
               }`}>
                 <Share2 className="h-4 w-4 inline-block mr-1" />
                 Pattern Sharing
+              </span>
+            </Link>
+            <Link href="/medical-testing">
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                isActiveLink("/medical-testing") ? "text-primary" : "text-muted-foreground"
+              }`}>
+                <Stethoscope className="h-4 w-4 inline-block mr-1" />
+                Medical Testing
               </span>
             </Link>
           </nav>

@@ -1,0 +1,707 @@
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { MedicalTestCase } from './test-suite-types';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { HelpCircle, AlertTriangle, Check, XCircle, BookOpen, Activity, FileBadge, FileWarning } from 'lucide-react';
+import testCasesData from '../../data/medical_test_cases.json';
+import { SelfReflexivityRadar } from './visualization/self-reflexivity-radar';
+import { MetaFloorExplorer } from './visualization/metafloor-explorer';
+import { CyberneticDashboard } from './visualization/cybernetic-dashboard';
+
+interface MedicalTestSuiteProps {
+  testCases: MedicalTestCase[];
+  cyberneticsEnabled?: boolean;
+  onRunTest?: (testCaseId: string) => Promise<void>;
+}
+
+export default function MedicalTestSuite({ testCases, cyberneticsEnabled = true, onRunTest }: MedicalTestSuiteProps) {
+  const [selectedTestCase, setSelectedTestCase] = useState<MedicalTestCase | null>(null);
+  const [cybernetics, setCybernetics] = useState(cyberneticsEnabled);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+
+  useEffect(() => {
+    // Set first test case as selected by default if one exists
+    if (testCases.length > 0) {
+      setSelectedTestCase(testCases[0]);
+    }
+  }, [testCases]);
+
+  // Simulate audit analysis with progress
+  const runAuditAnalysis = () => {
+    setIsAnalyzing(true);
+    setAnalysisProgress(0);
+    
+    const simulateProgress = () => {
+      setAnalysisProgress(prev => {
+        const newProgress = prev + Math.random() * 15;
+        if (newProgress >= 100) {
+          setIsAnalyzing(false);
+          return 100;
+        }
+        return newProgress;
+      });
+    };
+    
+    // Simulate progress updates
+    const interval = setInterval(simulateProgress, 500);
+    
+    // Clean up interval
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsAnalyzing(false);
+      setAnalysisProgress(100);
+    }, 3500);
+  };
+
+  // Filter test cases by category
+  const filteredTestCases = activeCategoryFilter 
+    ? testCases.filter(tc => tc.category === activeCategoryFilter)
+    : testCases;
+
+  // Get unique categories for filter
+  const categories = [...new Set(testCases.map(tc => tc.category))];
+
+  return (
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-primary">
+            Medical Content Testing Suite
+          </h1>
+          <p className="text-muted-foreground">
+            Detecting medical hallucinations with second-order cybernetics
+          </p>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Switch 
+              id="cybernetics-mode" 
+              checked={cybernetics}
+              onCheckedChange={setCybernetics}
+            />
+            <Label htmlFor="cybernetics-mode">
+              {cybernetics ? 'Second-Order Cybernetics Enabled' : 'Basic Analysis Mode'}
+            </Label>
+          </div>
+          
+          <Button 
+            variant={cybernetics ? "default" : "outline"}
+            disabled={!cybernetics}
+            className="group relative"
+            onClick={() => runAuditAnalysis()}
+          >
+            {isAnalyzing ? 'Analyzing...' : 'Run Audit Analysis'}
+            {!cybernetics && (
+              <div className="absolute -top-10 right-0 bg-black text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity w-52">
+                Enable Second-Order Cybernetics to run analysis
+              </div>
+            )}
+          </Button>
+        </div>
+      </div>
+      
+      {isAnalyzing && (
+        <div className="mb-6">
+          <Progress value={analysisProgress} className="h-2" />
+          <div className="flex justify-between mt-1 text-sm text-muted-foreground">
+            <span>Analyzing medical content</span>
+            <span>{Math.round(analysisProgress)}%</span>
+          </div>
+        </div>
+      )}
+      
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left sidebar - Test case selection */}
+        <div className="col-span-12 md:col-span-3">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle>Test Cases</CardTitle>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <Badge 
+                  variant={activeCategoryFilter === null ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveCategoryFilter(null)}
+                >
+                  All
+                </Badge>
+                {categories.map(category => (
+                  <Badge 
+                    key={category}
+                    variant={activeCategoryFilter === category ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setActiveCategoryFilter(category)}
+                  >
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </Badge>
+                ))}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {filteredTestCases.map(testCase => (
+                <div 
+                  key={testCase.id}
+                  className={`p-3 rounded-md cursor-pointer transition-colors ${
+                    selectedTestCase?.id === testCase.id 
+                      ? 'bg-primary/10 border-l-4 border-primary' 
+                      : 'hover:bg-muted'
+                  }`}
+                  onClick={() => setSelectedTestCase(testCase)}
+                >
+                  <div className="font-medium">{testCase.title}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Truth Score: {testCase.expectedAnalysis.truthScore * 100}%
+                  </div>
+                  <div className="flex mt-2">
+                    <Badge variant="outline" className="text-xs">
+                      {testCase.category}
+                    </Badge>
+                    {testCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'critical' && (
+                      <Badge variant="destructive" className="ml-2 text-xs">
+                        Critical
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Main content area */}
+        <div className="col-span-12 md:col-span-9">
+          {selectedTestCase ? (
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle>{selectedTestCase.title}</CardTitle>
+                    <CardDescription>
+                      Category: {selectedTestCase.category.charAt(0).toUpperCase() + selectedTestCase.category.slice(1)}
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant={selectedTestCase.expectedAnalysis.truthScore < 0.3 ? "destructive" : "outline"}>
+                      Truth Score: {Math.round(selectedTestCase.expectedAnalysis.truthScore * 100)}%
+                    </Badge>
+                    <Badge variant="outline">
+                      {selectedTestCase.expectedAnalysis.hallucinations.length} Hallucinations
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="content">Content</TabsTrigger>
+                  <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                  <TabsTrigger value="cybernetic">Cybernetic Meta</TabsTrigger>
+                  <TabsTrigger value="comparison">Comparison</TabsTrigger>
+                  <TabsTrigger value="visualizations">Visualizations</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="overview" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">Medical Content</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="p-3 bg-muted rounded-md text-sm">
+                          {selectedTestCase.content}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">Quick Results</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span>Truth Score:</span>
+                            <div className="flex items-center">
+                              <Progress 
+                                value={selectedTestCase.expectedAnalysis.truthScore * 100} 
+                                className={`h-2 w-32 mr-2 ${
+                                  selectedTestCase.expectedAnalysis.truthScore < 0.3 
+                                    ? "[&>div]:bg-red-500" 
+                                    : selectedTestCase.expectedAnalysis.truthScore < 0.7 
+                                      ? "[&>div]:bg-yellow-500" 
+                                      : "[&>div]:bg-green-500"
+                                }`}
+                              />
+                              <span>{Math.round(selectedTestCase.expectedAnalysis.truthScore * 100)}%</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <span>Hallucinations:</span>
+                            <Badge variant="outline">
+                              {selectedTestCase.expectedAnalysis.hallucinations.length} detected
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <span>Safety Risk:</span>
+                            <Badge 
+                              variant={
+                                selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'critical' || 
+                                selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'severe'
+                                  ? "destructive"
+                                  : selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'high'
+                                    ? "default"
+                                    : "outline"
+                              }
+                            >
+                              {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <span>References:</span>
+                            <Badge variant="outline">
+                              {selectedTestCase.expectedAnalysis.cyberneticMeta.metaFloorSources} sources
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <Alert className={
+                    selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'critical' ||
+                    selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'severe'
+                      ? "bg-red-50 border-red-300 text-red-800"
+                      : "bg-blue-50 border-blue-300 text-blue-800"
+                  }>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Expert Recommendation</AlertTitle>
+                    <AlertDescription>
+                      {selectedTestCase.expectedAnalysis.cyberneticMeta.humanAICollaborationSuggestion}
+                    </AlertDescription>
+                  </Alert>
+                  
+                  {cybernetics ? (
+                    <div className="w-full h-60 mt-6">
+                      <CyberneticDashboard testCase={selectedTestCase} />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center p-8 border border-dashed rounded-md">
+                      <div className="text-center">
+                        <HelpCircle className="mx-auto h-8 w-8 text-muted-foreground" />
+                        <h3 className="mt-2 text-sm font-semibold">Second-Order Cybernetics Disabled</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Enable cybernetics mode to view enhanced visualization features
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          className="mt-4"
+                          onClick={() => setCybernetics(true)}
+                        >
+                          Enable Cybernetics
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="content" className="space-y-4 mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Medical Content Analysis</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="p-4 bg-muted rounded-md">
+                        {selectedTestCase.content}
+                      </div>
+                      
+                      <Separator />
+                      
+                      <h3 className="text-lg font-medium">Detected Hallucinations</h3>
+                      
+                      {selectedTestCase.expectedAnalysis.hallucinations.map((hallucination, index) => (
+                        <Alert key={index} variant="destructive">
+                          <FileWarning className="h-4 w-4" />
+                          <AlertTitle className="font-bold">
+                            Hallucination Detected 
+                            <Badge variant="outline" className="ml-2">
+                              {Math.round(hallucination.confidence * 100)}% confidence
+                            </Badge>
+                          </AlertTitle>
+                          <AlertDescription>
+                            <div className="mt-2">
+                              <div className="font-medium italic">"{hallucination.text}"</div>
+                              <div className="mt-2">{hallucination.explanation}</div>
+                              <div className="mt-2">
+                                <h4 className="text-sm font-semibold">Sources:</h4>
+                                <ul className="list-disc pl-5 text-sm mt-1">
+                                  {hallucination.sources.map((source, i) => (
+                                    <li key={i}>{source}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </AlertDescription>
+                        </Alert>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="analysis" className="mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Detailed Analysis</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-lg font-medium mb-2">Truth Score Breakdown</h3>
+                          <div className="w-full bg-muted rounded-full h-4 mb-2">
+                            <div 
+                              className={`h-4 rounded-full ${
+                                selectedTestCase.expectedAnalysis.truthScore < 0.3 
+                                  ? "bg-red-500" 
+                                  : selectedTestCase.expectedAnalysis.truthScore < 0.7 
+                                    ? "bg-yellow-500" 
+                                    : "bg-green-500"
+                              }`}
+                              style={{ width: `${selectedTestCase.expectedAnalysis.truthScore * 100}%` }}
+                            ></div>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>0% (Complete hallucination)</span>
+                            <span>100% (Completely accurate)</span>
+                          </div>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h3 className="text-lg font-medium mb-2">Hallucination Confidence</h3>
+                          <div className="space-y-3">
+                            {selectedTestCase.expectedAnalysis.hallucinations.map((hallucination, index) => (
+                              <div key={index}>
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-sm truncate max-w-md">
+                                    "{hallucination.text.substring(0, 50)}..."
+                                  </span>
+                                  <span className="text-sm font-medium">
+                                    {Math.round(hallucination.confidence * 100)}%
+                                  </span>
+                                </div>
+                                <Progress value={hallucination.confidence * 100} className="h-2" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h3 className="text-lg font-medium mb-2">Referenced Sources</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Array.from(new Set(
+                              selectedTestCase.expectedAnalysis.hallucinations.flatMap(h => h.sources)
+                            )).map((source, index) => (
+                              <div key={index} className="flex items-start">
+                                <BookOpen className="h-5 w-5 mr-2 mt-0.5 text-muted-foreground" />
+                                <span className="text-sm">{source}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="cybernetic" className="mt-4">
+                  {cybernetics ? (
+                    <div className="space-y-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Self-Reflexivity Pathways</CardTitle>
+                          <CardDescription>
+                            How the system examines its own outputs against the MetaFloor
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="min-h-40">
+                          <div className="mb-4">
+                            {selectedTestCase.expectedAnalysis.cyberneticMeta.selfReflexivityPathways.map((pathway, index) => (
+                              <div key={index} className="mb-4">
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-sm font-medium">{pathway.path}</span>
+                                  <span className="text-sm">
+                                    {Math.round(pathway.confidence * 100)}% confidence
+                                  </span>
+                                </div>
+                                <Progress value={pathway.confidence * 100} className="h-2" />
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="w-full h-40">
+                            <SelfReflexivityRadar testCase={selectedTestCase} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Recursive Ethical Impact</CardTitle>
+                          <CardDescription>
+                            How this content analysis affects ethical learning and future decisions
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-md">
+                              <h4 className="text-sm font-medium mb-2">Patient Safety Risk</h4>
+                              <Badge 
+                                variant={
+                                  selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'critical' || 
+                                  selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'severe'
+                                    ? "destructive"
+                                    : selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk === 'high'
+                                      ? "default"
+                                      : "outline"
+                                }
+                                className="text-lg py-2 px-4"
+                              >
+                                {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.patientSafetyRisk.toUpperCase()}
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-md">
+                              <h4 className="text-sm font-medium mb-2">Misinformation Potential</h4>
+                              <Badge 
+                                variant={
+                                  selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.misinformationPotential === 'high'
+                                    ? "destructive"
+                                    : selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.misinformationPotential === 'moderate'
+                                      ? "default"
+                                      : "outline"
+                                }
+                                className="text-lg py-2 px-4"
+                              >
+                                {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.misinformationPotential.toUpperCase()}
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-md">
+                              <h4 className="text-sm font-medium mb-2">Regulatory Compliance</h4>
+                              <Badge 
+                                variant={
+                                  selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.regulatoryCompliance === 'non-compliant'
+                                    ? "destructive"
+                                    : selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.regulatoryCompliance === 'partially compliant'
+                                      ? "default"
+                                      : "outline"
+                                }
+                                className="text-lg py-2 px-4"
+                              >
+                                {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.regulatoryCompliance.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-6">
+                            <h4 className="text-sm font-medium mb-2">Human-AI Collaboration Suggestion</h4>
+                            <Alert>
+                              <Activity className="h-4 w-4" />
+                              <AlertTitle>Expert Collaboration</AlertTitle>
+                              <AlertDescription>
+                                {selectedTestCase.expectedAnalysis.cyberneticMeta.humanAICollaborationSuggestion}
+                              </AlertDescription>
+                            </Alert>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>MetaFloor Validation</CardTitle>
+                          <CardDescription>
+                            How content is validated against authoritative sources
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="h-60 w-full">
+                            <MetaFloorExplorer testCase={selectedTestCase} />
+                          </div>
+                          
+                          <div className="mt-4 flex justify-between">
+                            <div>
+                              <span className="text-sm font-medium">MetaFloor Sources Referenced:</span>
+                              <Badge variant="outline" className="ml-2">
+                                {selectedTestCase.expectedAnalysis.cyberneticMeta.metaFloorSources}
+                              </Badge>
+                            </div>
+                            <Button variant="outline" size="sm">
+                              Explore All Sources
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center p-16 border border-dashed rounded-md">
+                      <div className="text-center">
+                        <HelpCircle className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-4 text-lg font-semibold">Second-Order Cybernetics Disabled</h3>
+                        <p className="mt-2 text-muted-foreground max-w-md mx-auto">
+                          Enable cybernetics mode to access self-reflexivity pathways, recursive ethical impact, 
+                          and MetaFloor validation metrics.
+                        </p>
+                        <Button 
+                          variant="default" 
+                          className="mt-6"
+                          onClick={() => setCybernetics(true)}
+                        >
+                          Enable Second-Order Cybernetics
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="comparison" className="mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Performance Comparison</CardTitle>
+                      <CardDescription>
+                        Compare analysis with and without second-order cybernetics
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                          <div className="text-center pb-4">
+                            <Badge variant="outline" className="mb-2">Without Second-Order Cybernetics</Badge>
+                            <div className="h-32 flex items-center justify-center">
+                              <XCircle className="h-20 w-20 text-muted-foreground" />
+                            </div>
+                          </div>
+                          
+                          {selectedTestCase.comparisonPoints.map((point, index) => (
+                            <div key={index} className="p-4 bg-muted rounded-md">
+                              <h4 className="font-medium mb-2">Standard Analysis Result</h4>
+                              <p className="text-sm">{point.withoutCybernetics}</p>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="space-y-6">
+                          <div className="text-center pb-4">
+                            <Badge variant="default" className="mb-2">With Second-Order Cybernetics</Badge>
+                            <div className="h-32 flex items-center justify-center">
+                              <Check className="h-20 w-20 text-primary" />
+                            </div>
+                          </div>
+                          
+                          {selectedTestCase.comparisonPoints.map((point, index) => (
+                            <div key={index} className="p-4 bg-primary/10 border border-primary/20 rounded-md">
+                              <h4 className="font-medium mb-2">Enhanced Analysis Result</h4>
+                              <p className="text-sm">{point.withCybernetics}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-8 p-4 bg-muted rounded-md">
+                        <h3 className="font-medium mb-2">Quantifiable Improvement</h3>
+                        {selectedTestCase.comparisonPoints.map((point, index) => (
+                          <div key={index} className="flex items-center">
+                            <FileBadge className="h-5 w-5 mr-2 text-primary" />
+                            <p>{point.improvementMetric}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="visualizations" className="mt-4">
+                  {cyberneticsEnabled ? (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium">Visualization Elements</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {selectedTestCase.visualizationElements.map((element, index) => (
+                          <Card key={index}>
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-md">{element}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="h-40 bg-muted rounded-md flex items-center justify-center">
+                                <p className="text-muted-foreground">
+                                  Visualization component: {element}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                      
+                      <div className="h-80 w-full">
+                        <CyberneticDashboard testCase={selectedTestCase} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center p-16 border border-dashed rounded-md">
+                      <div className="text-center">
+                        <HelpCircle className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-4 text-lg font-semibold">Second-Order Cybernetics Disabled</h3>
+                        <p className="mt-2 text-muted-foreground">
+                          Enable cybernetics mode to view advanced visualizations
+                        </p>
+                        <Button 
+                          variant="default" 
+                          className="mt-6"
+                          onClick={() => setCybernetics(true)}
+                        >
+                          Enable Second-Order Cybernetics
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+              
+              <CardFooter className="flex justify-between border-t p-6">
+                <Button variant="outline">Export Results</Button>
+                <Button onClick={() => runAuditAnalysis()}>
+                  {isAnalyzing ? 'Analyzing...' : 'Run New Analysis'}
+                </Button>
+              </CardFooter>
+            </Card>
+          ) : (
+            <div className="flex items-center justify-center p-12 border border-dashed rounded-md">
+              <div className="text-center">
+                <HelpCircle className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">No Test Case Selected</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Select a test case from the sidebar to see detailed information
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
