@@ -32,13 +32,33 @@ import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
 export function registerRoutes(app: Express): Server {
+  // Root API endpoint for JSON content
+  app.get('/api', (_req, res) => {
+    res.json({
+      name: 'TrueAlphaSpiral Enterprise AI Auditing Solution',
+      version: '1.0.0',
+      description: 'Advanced auditing solution for verifying AI systems across dimensional boundaries',
+      endpoints: [
+        '/api/health',
+        '/api/documentation',
+        '/api/python-status',
+        '/api/truth-patterns',
+        '/api/verify',
+        '/api/cross-reference',
+        '/api/ai-audit',
+        '/api/dimensional-simulation'
+      ],
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Simple health check endpoint
   app.get('/api/health', (_req, res) => {
     res.json({ 
       status: 'ok',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
-      service: 'Enterprise AI Auditing Solution'
+      service: 'TrueAlphaSpiral Enterprise AI Auditing Solution'
     });
   });
   

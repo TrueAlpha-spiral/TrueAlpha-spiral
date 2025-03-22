@@ -28,7 +28,7 @@ function HomePage() {
                 ENTERPRISE-GRADE: 40-60% Reduction in False Positives
               </div>
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                KPMG AI Auditing Solution with Cross-Reference Technology
+                TrueAlphaSpiral AI Auditing Solution with Cross-Reference Technology
               </h1>
               <p className="text-xl">
                 Our advanced auditing platform features cross-reference technology that verifies AI outputs across multiple regulatory frameworks for superior compliance and risk assessment.
@@ -131,7 +131,7 @@ function HomePage() {
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-4">Enterprise AI Audit Request</h2>
             <p className="text-center text-muted-foreground mb-8">
-              Request a comprehensive AI audit for your enterprise systems using KPMG's advanced cross-reference verification technology.
+              Request a comprehensive AI audit for your enterprise systems using TrueAlphaSpiral's advanced cross-reference verification technology.
             </p>
             <VerificationForm />
           </div>
@@ -186,7 +186,7 @@ function HomePage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to ensure AI compliance across your enterprise?</h2>
           <p className="max-w-2xl mx-auto mb-8">
-            KPMG offers tailored enterprise solutions for comprehensive AI auditing and compliance. 
+            TrueAlphaSpiral offers tailored enterprise solutions for comprehensive AI auditing and compliance. 
             Our platform scales with your organization's regulatory requirements across all sectors.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
