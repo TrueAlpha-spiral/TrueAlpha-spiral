@@ -30,6 +30,7 @@ import {
   getAuditResult
 } from './services/python-api-service';
 import { ethicalGovernance } from './services/ethical-governance';
+import { shadowDefense } from './services/shadow-defense';
 import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -49,7 +50,8 @@ export function registerRoutes(app: Express): Server {
         '/api/cross-reference',
         '/api/ai-audit',
         '/api/dimensional-simulation',
-        '/api/ethical-governance'
+        '/api/ethical-governance',
+        '/api/shadow-defense'
       ],
       timestamp: new Date().toISOString()
     });
@@ -2305,6 +2307,221 @@ export function registerRoutes(app: Express): Server {
         status: 'error',
         error: 'Failed to generate ethical performance report' 
       });
+    }
+  });
+
+  // Shadow Defense System Routes
+  
+  // Initialize the shadow defense service
+  try {
+    shadowDefense.initialize();
+  } catch (error) {
+    console.error('Failed to initialize Shadow Defense System:', error);
+  }
+  
+  // Get system status
+  app.get('/api/shadow-defense/status', async (_req, res) => {
+    try {
+      const status = await storage.getSystemSecurityStatus();
+      res.json({
+        status: 'active',
+        systemStatus: status,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error getting Shadow Defense status:', error);
+      res.status(500).json({ error: 'Failed to get Shadow Defense status' });
+    }
+  });
+  
+  // Get drift history
+  app.get('/api/shadow-defense/drift-history', async (_req, res) => {
+    try {
+      const driftHistory = await storage.getDriftHistory();
+      res.json({
+        count: driftHistory.length,
+        driftHistory
+      });
+    } catch (error) {
+      console.error('Error getting drift history:', error);
+      res.status(500).json({ error: 'Failed to get drift history' });
+    }
+  });
+
+  // Get security events
+  app.get('/api/shadow-defense/security-events', async (_req, res) => {
+    try {
+      const securityEvents = await storage.getSecurityEvents();
+      res.json({
+        count: securityEvents.length,
+        securityEvents
+      });
+    } catch (error) {
+      console.error('Error getting security events:', error);
+      res.status(500).json({ error: 'Failed to get security events' });
+    }
+  });
+
+  // Get security events by type
+  app.get('/api/shadow-defense/security-events/:eventType', async (req, res) => {
+    try {
+      const eventType = req.params.eventType;
+      const securityEvents = await storage.getSecurityEventsByType(eventType);
+      res.json({
+        eventType,
+        count: securityEvents.length,
+        securityEvents
+      });
+    } catch (error) {
+      console.error('Error getting security events by type:', error);
+      res.status(500).json({ error: 'Failed to get security events by type' });
+    }
+  });
+
+  // Detect drift in content
+  app.post('/api/shadow-defense/detect-drift', async (req, res) => {
+    try {
+      const { content, context } = req.body;
+      
+      if (!content || typeof content !== 'string') {
+        return res.status(400).json({ error: 'Invalid content provided' });
+      }
+      
+      // Detect drift in the content
+      const driftResult = await storage.detectDrift(content, context || {});
+      
+      if (driftResult) {
+        res.json({
+          detected: true,
+          driftResult
+        });
+      } else {
+        res.json({
+          detected: false,
+          message: 'No drift detected',
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error detecting drift:', error);
+      res.status(500).json({ error: 'Failed to detect drift' });
+    }
+  });
+
+  // Learn security pattern
+  app.post('/api/shadow-defense/learn-pattern', async (req, res) => {
+    try {
+      const { pattern, layer } = req.body;
+      
+      if (!pattern || !layer) {
+        return res.status(400).json({ error: 'Invalid pattern or layer provided' });
+      }
+      
+      // Learn the new pattern
+      const success = await storage.learnPattern(pattern, layer);
+      
+      res.json({
+        success,
+        pattern,
+        layer,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error learning pattern:', error);
+      res.status(500).json({ error: 'Failed to learn pattern' });
+    }
+  });
+
+  // Security event endpoints
+  app.post('/api/shadow-defense/log-event', async (req, res) => {
+    try {
+      const { eventType, data, severity, sourceIp, userId, sessionId } = req.body;
+      
+      if (!eventType || !data) {
+        return res.status(400).json({ error: 'Invalid event data provided' });
+      }
+      
+      // Get current system status
+      const systemStatus = await storage.getSystemSecurityStatus();
+      
+      // Log the security event
+      const event = await storage.logSecurityEvent({
+        eventType,
+        data,
+        systemStatus,
+        severity,
+        sourceIp,
+        userId,
+        sessionId
+      });
+      
+      res.json({
+        success: true,
+        event,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error logging security event:', error);
+      res.status(500).json({ error: 'Failed to log security event' });
+    }
+  });
+
+  // Get security recommendations based on current system state
+  app.get('/api/shadow-defense/recommendations', async (_req, res) => {
+    try {
+      const systemStatus = await storage.getSystemSecurityStatus();
+      const driftHistory = await storage.getDriftHistory();
+      
+      // Generate recommendations based on system status and recent drift history
+      const recentDrifts = driftHistory.slice(-5); // Get the 5 most recent drifts
+      
+      // Collect all recommendations from recent drifts
+      const allRecommendations = recentDrifts.flatMap(drift => drift.recommendations || []);
+      
+      // Create a map to count recommendation frequencies
+      const recommendationCounts = new Map();
+      allRecommendations.forEach(rec => {
+        recommendationCounts.set(rec, (recommendationCounts.get(rec) || 0) + 1);
+      });
+      
+      // Sort recommendations by frequency
+      const sortedRecommendations = [...recommendationCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([recommendation, count]) => ({ recommendation, frequency: count }));
+      
+      // Add system-level recommendations based on overall status
+      const systemRecommendations = [];
+      
+      if (systemStatus.overallIntegrity < 0.7) {
+        systemRecommendations.push({
+          recommendation: 'Perform a full system integrity verification',
+          priority: 'high'
+        });
+      }
+      
+      if (systemStatus.shieldStrength < 0.6) {
+        systemRecommendations.push({
+          recommendation: 'Reinforce security shields by updating security patterns',
+          priority: 'high'
+        });
+      }
+      
+      if (systemStatus.learningEfficiency < 0.5) {
+        systemRecommendations.push({
+          recommendation: 'Enhance pattern learning by providing more diverse training examples',
+          priority: 'medium'
+        });
+      }
+      
+      res.json({
+        systemStatus,
+        driftBasedRecommendations: sortedRecommendations,
+        systemRecommendations,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error generating security recommendations:', error);
+      res.status(500).json({ error: 'Failed to generate security recommendations' });
     }
   });
 

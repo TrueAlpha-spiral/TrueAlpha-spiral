@@ -406,6 +406,277 @@ Retrieves documentation content for specific system aspects.
 
 Returns the content of the requested documentation file.
 
+### Shadow Defense System
+
+#### GET /api/shadow-defense/status
+
+Retrieves the current status of the Shadow Defense System.
+
+**Response:**
+
+```json
+{
+  "status": "active",
+  "systemStatus": {
+    "overallIntegrity": 1,
+    "driftDetectionRate": 0.5,
+    "neutralizationSuccessRate": 1,
+    "learningEfficiency": 0.01,
+    "shieldStrength": 0.91,
+    "securityScore": 0.783
+  },
+  "timestamp": "2025-03-22T21:01:45.166Z"
+}
+```
+
+#### GET /api/shadow-defense/drift-history
+
+Retrieves the history of detected content drifts.
+
+**Response:**
+
+```json
+{
+  "count": 1,
+  "driftHistory": [
+    {
+      "detected": true,
+      "score": 0.189,
+      "pattern": {
+        "id": "pat-iulJ1Db9dP",
+        "content": "This is a test content that might have drift.",
+        "source": "test",
+        "timestamp": "2025-03-22T21:01:09.561Z"
+      },
+      "layer": "epsilon",
+      "timestamp": "2025-03-22T21:01:09.561Z",
+      "neutralizationSuccess": true,
+      "recommendations": ["Continue normal monitoring operations"]
+    }
+  ]
+}
+```
+
+#### GET /api/shadow-defense/security-events
+
+Retrieves all logged security events.
+
+**Response:**
+
+```json
+{
+  "count": 2,
+  "securityEvents": [
+    {
+      "id": 1,
+      "eventType": "drift-detected",
+      "timestamp": "2025-03-22T21:01:09.562Z",
+      "data": {
+        "patternId": "pat-iulJ1Db9dP",
+        "layer": "epsilon",
+        "driftScore": 0.189,
+        "neutralizationSuccess": true
+      },
+      "systemStatus": {
+        "overallIntegrity": 1,
+        "driftDetectionRate": 0.5,
+        "neutralizationSuccessRate": 1,
+        "learningEfficiency": 0,
+        "shieldStrength": 0.91,
+        "securityScore": 0.782
+      },
+      "severity": "info",
+      "processed": false
+    }
+  ]
+}
+```
+
+#### GET /api/shadow-defense/security-events/:eventType
+
+Retrieves security events of a specific type.
+
+**Parameters:**
+- `eventType` (path parameter): The type of security events to retrieve
+
+**Response:**
+
+```json
+{
+  "eventType": "unauthorized_access",
+  "count": 1,
+  "securityEvents": [
+    {
+      "id": 2,
+      "eventType": "unauthorized_access",
+      "timestamp": "2025-03-22T21:01:16.777Z",
+      "data": {
+        "ip": "192.168.1.1",
+        "endpoint": "/admin"
+      },
+      "systemStatus": {
+        "overallIntegrity": 1,
+        "driftDetectionRate": 0.5,
+        "neutralizationSuccessRate": 1,
+        "learningEfficiency": 0,
+        "shieldStrength": 0.91,
+        "securityScore": 0.782
+      },
+      "severity": "high",
+      "sourceIp": "192.168.1.1",
+      "userId": 123,
+      "sessionId": "sess_123456",
+      "processed": false
+    }
+  ]
+}
+```
+
+#### GET /api/shadow-defense/recommendations
+
+Retrieves security recommendations based on system status and drift history.
+
+**Response:**
+
+```json
+{
+  "systemStatus": {
+    "overallIntegrity": 1,
+    "driftDetectionRate": 0.5,
+    "neutralizationSuccessRate": 1,
+    "learningEfficiency": 0.01,
+    "shieldStrength": 0.91,
+    "securityScore": 0.783
+  },
+  "driftBasedRecommendations": [
+    {
+      "recommendation": "Continue normal monitoring operations",
+      "frequency": 1
+    }
+  ],
+  "systemRecommendations": [
+    {
+      "recommendation": "Enhance pattern learning by providing more diverse training examples",
+      "priority": "medium"
+    }
+  ],
+  "timestamp": "2025-03-22T21:01:45.166Z"
+}
+```
+
+#### POST /api/shadow-defense/detect-drift
+
+Detects drift in the provided content.
+
+**Request Body:**
+
+```json
+{
+  "content": "Content to analyze for drift",
+  "context": {
+    "source": "application_name",
+    "userId": 123
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "detected": true,
+  "driftResult": {
+    "detected": true,
+    "score": 0.189,
+    "pattern": {
+      "id": "pat-iulJ1Db9dP",
+      "content": "This is a test content that might have drift.",
+      "source": "test",
+      "timestamp": "2025-03-22T21:01:09.561Z"
+    },
+    "layer": "epsilon",
+    "timestamp": "2025-03-22T21:01:09.561Z",
+    "neutralizationSuccess": true,
+    "recommendations": ["Continue normal monitoring operations"]
+  }
+}
+```
+
+#### POST /api/shadow-defense/log-event
+
+Logs a new security event.
+
+**Request Body:**
+
+```json
+{
+  "eventType": "unauthorized_access",
+  "data": {
+    "ip": "192.168.1.1",
+    "endpoint": "/admin"
+  },
+  "severity": "high",
+  "sourceIp": "192.168.1.1",
+  "userId": 123,
+  "sessionId": "sess_123456"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "event": {
+    "id": 2,
+    "eventType": "unauthorized_access",
+    "timestamp": "2025-03-22T21:01:16.777Z",
+    "data": {
+      "ip": "192.168.1.1",
+      "endpoint": "/admin"
+    },
+    "systemStatus": {
+      "overallIntegrity": 1,
+      "driftDetectionRate": 0.5,
+      "neutralizationSuccessRate": 1,
+      "learningEfficiency": 0,
+      "shieldStrength": 0.91,
+      "securityScore": 0.782
+    },
+    "severity": "high",
+    "sourceIp": "192.168.1.1",
+    "userId": 123,
+    "sessionId": "sess_123456",
+    "processed": false
+  },
+  "timestamp": "2025-03-22T21:01:16.777Z"
+}
+```
+
+#### POST /api/shadow-defense/learn-pattern
+
+Learns a new security pattern.
+
+**Request Body:**
+
+```json
+{
+  "pattern": "Secure pattern for API access",
+  "layer": "gamma"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "pattern": "Secure pattern for API access",
+  "layer": "gamma",
+  "timestamp": "2025-03-22T21:01:34.781Z"
+}
+```
+
 ## Error Codes
 
 - `INVALID_REQUEST`: The request format is invalid
