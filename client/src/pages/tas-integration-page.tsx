@@ -66,6 +66,7 @@ export default function TASIntegrationPage() {
   const { toast } = useToast();
   const [content, setContent] = useState("");
   const [auditType, setAuditType] = useState("standard");
+  const [isMedicalContent, setIsMedicalContent] = useState(false);
   const [selectedPatternType, setSelectedPatternType] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [minResonance, setMinResonance] = useState(0.5);
@@ -121,7 +122,7 @@ export default function TASIntegrationPage() {
     }
   });
 
-  // Audit Content Mutation
+  // Standard Audit Content Mutation
   const auditMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/tas/audit", {
@@ -155,6 +156,48 @@ export default function TASIntegrationPage() {
       });
     }
   });
+  
+  // Medical Content Audit Mutation
+  const medicalAuditMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/tas/audit-medical", {
+        content: { text: content },
+        audit_type: auditType,
+        api_key: clientSettings.apiKey,
+        client_id: clientSettings.clientId
+      });
+      return res.json() as Promise<{ 
+        success: boolean; 
+        result: AuditResult; 
+        is_medical: boolean; 
+        second_order_cybernetics?: Record<string, boolean>; 
+        medical_frameworks?: string[]; 
+        medical_audit_version?: string;
+      }>;
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        toast({
+          title: "Medical Content Audited Successfully",
+          description: `Truth Score: ${data.result.truth_score.toFixed(2)}`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Medical Audit Failed",
+          description: data.result ? data.result.toString() : "Unknown error",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Medical Audit Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   // Handle audit submission
   const handleAudit = () => {
@@ -166,7 +209,12 @@ export default function TASIntegrationPage() {
       });
       return;
     }
-    auditMutation.mutate();
+    
+    if (isMedicalContent) {
+      medicalAuditMutation.mutate();
+    } else {
+      auditMutation.mutate();
+    }
   };
 
   // Get a status badge for the TAS service
@@ -362,25 +410,53 @@ else:
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="audit-type">Audit Type</Label>
-                  <Select value={auditType} onValueChange={setAuditType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an audit type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="quick">Quick (Basic verification)</SelectItem>
-                      <SelectItem value="standard">Standard (Comprehensive verification)</SelectItem>
-                      <SelectItem value="comprehensive">Comprehensive (Detailed analysis)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="audit-type">Audit Type</Label>
+                    <Select value={auditType} onValueChange={setAuditType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an audit type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="quick">Quick (Basic verification)</SelectItem>
+                        <SelectItem value="standard">Standard (Comprehensive verification)</SelectItem>
+                        <SelectItem value="comprehensive">Comprehensive (Detailed analysis)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="is-medical-content">Medical Content</Label>
+                      <Switch
+                        id="is-medical-content"
+                        checked={isMedicalContent}
+                        onCheckedChange={setIsMedicalContent}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Enable specialized medical content auditing with enhanced hallucination detection, utilizing second-order cybernetics principles.
+                    </p>
+                  </div>
                 </div>
+                
+                {isMedicalContent && (
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Medical Content Auditing Enabled</AlertTitle>
+                    <AlertDescription className="text-sm">
+                      Using enhanced hallucination detection with MetaFloor validation, recursive ethical resonance, and second-order cybernetics principles for medical content.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 
                 <div className="space-y-2">
                   <Label htmlFor="content">Content to Audit</Label>
                   <Textarea
                     id="content"
-                    placeholder="Enter AI-generated content to audit for truthfulness..."
+                    placeholder={isMedicalContent 
+                      ? "Enter medical AI-generated content to audit for truthfulness and hallucinations..." 
+                      : "Enter AI-generated content to audit for truthfulness..."}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={8}
@@ -404,7 +480,8 @@ else:
               </CardFooter>
             </Card>
 
-            {auditMutation.data && auditMutation.data.success && (
+            {/* Standard Audit Results */}
+            {auditMutation.data && auditMutation.data.success && !isMedicalContent && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -465,6 +542,137 @@ else:
                     ) : (
                       <p className="text-sm text-muted-foreground">No recommendations provided.</p>
                     )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Medical Audit Results */}
+            {medicalAuditMutation.data && medicalAuditMutation.data.success && isMedicalContent && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <span>Medical Content Audit</span>
+                    {medicalAuditMutation.data.result.truth_score >= 0.85 ? (
+                      <Badge className="ml-2 bg-green-500">High Medical Accuracy</Badge>
+                    ) : medicalAuditMutation.data.result.truth_score >= 0.7 ? (
+                      <Badge className="ml-2 bg-yellow-500">Medium Medical Accuracy</Badge>
+                    ) : (
+                      <Badge variant="destructive" className="ml-2">Low Medical Accuracy</Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    Audit ID: {medicalAuditMutation.data.result.audit_id}
+                    {medicalAuditMutation.data.is_medical && (
+                      <span className="ml-2 text-blue-600 font-medium">
+                        Enhanced Medical Analysis
+                      </span>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Medical Truth Score:</span>
+                    <div className="flex items-center">
+                      <span className="text-xl font-bold">{medicalAuditMutation.data.result.truth_score.toFixed(2)}</span>
+                      <span className="text-sm text-muted-foreground ml-1">/1.00</span>
+                    </div>
+                  </div>
+
+                  <Separator />
+                  
+                  {/* Second-Order Cybernetics Section */}
+                  {medicalAuditMutation.data.second_order_cybernetics && (
+                    <>
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Second-Order Cybernetics</h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(medicalAuditMutation.data.second_order_cybernetics).map(([key, value]: [string, any]) => (
+                            <div key={key} className="flex items-center justify-between p-2 rounded-md bg-secondary">
+                              <span className="text-sm capitalize">{key.replace(/_/g, ' ')}</span>
+                              <Badge className={value ? "bg-green-500" : "bg-destructive"}>
+                                {value ? "Enabled" : "Disabled"}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+                  
+                  {/* Medical Frameworks */}
+                  {medicalAuditMutation.data && 'medical_frameworks' in medicalAuditMutation.data && medicalAuditMutation.data.medical_frameworks && (
+                    <>
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Medical Knowledge Frameworks</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {(medicalAuditMutation.data.medical_frameworks as string[]).map((framework: string, index: number) => (
+                            <Badge key={index} variant="outline" className="bg-blue-50">
+                              {framework}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-md font-semibold">Category Scores</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(medicalAuditMutation.data.result.categories).map(([category, data]: [string, any]) => (
+                        <div key={category} className="flex items-center justify-between p-2 rounded-md bg-secondary">
+                          <span className="text-sm capitalize">{category.replace(/_/g, ' ')}</span>
+                          <Badge className={
+                            data.score >= 0.7 ? "bg-green-500" : 
+                            data.score >= 0.4 ? "bg-yellow-500" : "bg-destructive"
+                          }>
+                            {data.score.toFixed(2)}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-md font-semibold">Medical Recommendations</h3>
+                    {medicalAuditMutation.data.result.recommendations && medicalAuditMutation.data.result.recommendations.length > 0 ? (
+                      <ul className="space-y-1">
+                        {medicalAuditMutation.data.result.recommendations.map((rec: string, i: number) => (
+                          <li key={i} className="text-sm flex items-start">
+                            <div className="mr-2 mt-0.5">•</div>
+                            <div>{rec}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No recommendations provided.</p>
+                    )}
+                  </div>
+                  
+                  {/* MetaFloor Validation Details */}
+                  <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+                    <h3 className="text-md font-semibold mb-2">Second-Order Cybernetics Analysis</h3>
+                    <p className="text-sm mb-2">
+                      This medical content has been audited using advanced second-order cybernetics principles:
+                    </p>
+                    <ul className="space-y-1 text-sm">
+                      <li className="flex items-start">
+                        <div className="mr-2 mt-0.5">✓</div>
+                        <div><span className="font-medium">MetaFloor Validation:</span> Content checked against authoritative medical sources</div>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="mr-2 mt-0.5">✓</div>
+                        <div><span className="font-medium">Recursive Ethical Resonance:</span> Self-referential checks ensure ethical alignment</div>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="mr-2 mt-0.5">✓</div>
+                        <div><span className="font-medium">Ethical Oracles:</span> Specialized pattern detection for medical hallucinations</div>
+                      </li>
+                    </ul>
                   </div>
                 </CardContent>
               </Card>
