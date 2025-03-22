@@ -1826,5 +1826,15 @@ if __name__ == '__main__':
             }), 404
     
     print(f"Starting TrueAlphaSpiral API Server on port {args.port}")
+    
+    # Set up logging to a file
+    api_log_file = "python_api.log"
+    import logging
+    file_handler = logging.FileHandler(api_log_file)
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info(f"Starting TrueAlphaSpiral API Server on port {args.port}")
+    
     # Run Flask app
     app.run(host='0.0.0.0', port=args.port, debug=False, threaded=True)
