@@ -499,7 +499,8 @@ export default function MedicalTestSuite({ testCases, cyberneticsEnabled = true,
                                 }
                                 className="text-lg py-2 px-4"
                               >
-                                {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.misinformationPotential.toUpperCase()}
+                                {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.misinformationPotential ? 
+                                  selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.misinformationPotential.toUpperCase() : 'UNKNOWN'}
                               </Badge>
                             </div>
                             
@@ -515,7 +516,8 @@ export default function MedicalTestSuite({ testCases, cyberneticsEnabled = true,
                                 }
                                 className="text-lg py-2 px-4"
                               >
-                                {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.regulatoryCompliance.toUpperCase()}
+                                {selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.regulatoryCompliance ? 
+                                  selectedTestCase.expectedAnalysis.cyberneticMeta.recursiveEthicalImpact.regulatoryCompliance.toUpperCase() : 'UNKNOWN'}
                               </Badge>
                             </div>
                           </div>

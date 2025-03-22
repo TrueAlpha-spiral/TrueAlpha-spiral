@@ -107,9 +107,9 @@ export default function App() {
                   </Route>
                   <Route path="/about">
                     <div className="container py-10">
-                      <h1 className="text-3xl font-bold mb-4">About KPMG AI Auditing Solution</h1>
+                      <h1 className="text-3xl font-bold mb-4">About Enterprise AI Auditing Solution</h1>
                       <p className="text-muted-foreground">
-                        The KPMG AI Auditing Solution provides enterprise-grade verification of AI systems through 
+                        The Enterprise AI Auditing Solution provides enterprise-grade verification of AI systems through 
                         cross-referenced validation, comprehensive regulatory compliance checking, and quantifiable risk metrics.
                       </p>
                       <p className="mt-4">
@@ -122,7 +122,7 @@ export default function App() {
                     <div className="container py-10">
                       <h1 className="text-3xl font-bold mb-4">Documentation</h1>
                       <p className="text-muted-foreground">
-                        Technical documentation for the KPMG AI Auditing Solution, including API references, implementation details,
+                        Technical documentation for the Enterprise AI Auditing Solution, including API references, implementation details,
                         and compliance guidelines.
                       </p>
                       <p className="mt-4">
@@ -142,7 +142,7 @@ export default function App() {
               ) : (
                 <div className="container py-10 flex items-center justify-center">
                   <div className="text-center">
-                    <h2 className="text-2xl font-semibold mb-4">Initializing KPMG AI Auditing Solution...</h2>
+                    <h2 className="text-2xl font-semibold mb-4">Initializing Enterprise AI Auditing Solution...</h2>
                     <p className="text-muted-foreground">Establishing connection to server...</p>
                   </div>
                 </div>
