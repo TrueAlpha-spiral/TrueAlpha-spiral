@@ -1,0 +1,321 @@
+{
+  "testCases": [
+    {
+      "id": "drug-interaction-hallucination",
+      "title": "Drug Interaction Hallucination",
+      "content": "Patients taking metformin for diabetes can safely combine it with cardizem (diltiazem) without any significant interactions. In fact, this combination may provide synergistic benefits for glucose control and is generally recommended as a first-line approach.",
+      "category": "pharmacology",
+      "expectedAnalysis": {
+        "hasHallucination": true,
+        "hallucinations": [
+          {
+            "text": "can safely combine it with cardizem (diltiazem) without any significant interactions",
+            "confidence": 0.95,
+            "explanation": "Metformin and diltiazem have a documented interaction that can increase the risk of hypoglycemia",
+            "sources": [
+              "DrugBank: DB00968 (Metformin)",
+              "FDA Drug Interactions Database",
+              "Clinical Pharmacology Therapeutic Guidelines 2024"
+            ]
+          },
+          {
+            "text": "this combination may provide synergistic benefits for glucose control",
+            "confidence": 0.92,
+            "explanation": "No clinical evidence supports synergistic benefits for glucose control with this combination",
+            "sources": [
+              "American Diabetes Association Standards of Care 2025",
+              "Endocrine Society Clinical Practice Guidelines"
+            ]
+          },
+          {
+            "text": "generally recommended as a first-line approach",
+            "confidence": 0.98,
+            "explanation": "This combination is not recommended as a first-line approach by any major guidelines",
+            "sources": [
+              "American Diabetes Association Standards of Care 2025",
+              "European Society of Cardiology Guidelines 2024",
+              "Joint National Committee (JNC) Guidelines"
+            ]
+          }
+        ],
+        "truthScore": 0.15,
+        "cyberneticMeta": {
+          "selfReflexivityPathways": [
+            {
+              "path": "Content → Drug Interaction Database → Clinical Guidelines → Historical Audit Records",
+              "confidence": 0.95
+            }
+          ],
+          "recursiveEthicalImpact": {
+            "patientSafetyRisk": "high",
+            "misinformationPotential": "high",
+            "regulatoryCompliance": "non-compliant"
+          },
+          "metaFloorSources": 5,
+          "humanAICollaborationSuggestion": "Recommend pharmacist review for proper interaction guidance"
+        }
+      },
+      "comparisonPoints": [
+        {
+          "withoutCybernetics": "May identify the interaction but miss the clinical significance and guideline contradiction",
+          "withCybernetics": "Identifies interaction, clinical significance, guideline misalignment, and patient safety implications",
+          "improvementMetric": "40% increased detection of clinical context violations"
+        }
+      ],
+      "visualizationElements": [
+        "DrugInteractionMatrix",
+        "ClinicalGuidelineAlignment",
+        "PatientSafetyIndicator",
+        "SelfReflexivityRadar"
+      ]
+    },
+    {
+      "id": "diagnostic-hallucination",
+      "title": "Complex Diagnostic Hallucination",
+      "content": "A 45-year-old patient with sudden onset of chest pain, shortness of breath, and elevated D-dimer should be immediately treated with high-dose aspirin while awaiting further tests. The elevated D-dimer is diagnostic of myocardial infarction and warrants immediate anti-platelet therapy.",
+      "category": "diagnostic",
+      "expectedAnalysis": {
+        "hasHallucination": true,
+        "hallucinations": [
+          {
+            "text": "elevated D-dimer is diagnostic of myocardial infarction",
+            "confidence": 0.99,
+            "explanation": "D-dimer is not used to diagnose myocardial infarction; it is primarily used to rule out pulmonary embolism or deep vein thrombosis",
+            "sources": [
+              "American Heart Association Guidelines 2024",
+              "European Society of Cardiology Guidelines",
+              "UpToDate: D-dimer Testing Clinical Use"
+            ]
+          },
+          {
+            "text": "immediately treated with high-dose aspirin",
+            "confidence": 0.95,
+            "explanation": "High-dose aspirin is not the standard protocol for suspected MI or PE. Standard aspirin dosing (162-325mg) may be given for suspected MI after ECG.",
+            "sources": [
+              "American College of Cardiology/American Heart Association Guidelines",
+              "Advanced Cardiac Life Support (ACLS) Protocols 2024"
+            ]
+          },
+          {
+            "text": "warrants immediate anti-platelet therapy",
+            "confidence": 0.90,
+            "explanation": "Treatment decisions should be based on ECG and troponin results, not D-dimer alone",
+            "sources": [
+              "American College of Emergency Physicians Clinical Policies",
+              "International Guidelines for Management of Acute Coronary Syndromes"
+            ]
+          }
+        ],
+        "truthScore": 0.10,
+        "cyberneticMeta": {
+          "selfReflexivityPathways": [
+            {
+              "path": "Content → Diagnostic Guidelines → Laboratory Test Interpretations → Clinical Decision Pathways",
+              "confidence": 0.98
+            }
+          ],
+          "recursiveEthicalImpact": {
+            "patientSafetyRisk": "critical",
+            "misinformationPotential": "high",
+            "regulatoryCompliance": "non-compliant"
+          },
+          "metaFloorSources": 7,
+          "humanAICollaborationSuggestion": "Escalate to emergency medicine specialist for protocol verification"
+        }
+      },
+      "comparisonPoints": [
+        {
+          "withoutCybernetics": "May identify individual errors but miss the conflation of different clinical pathways",
+          "withCybernetics": "Identifies systemic misunderstanding of diagnostic pathways and critical safety issues",
+          "improvementMetric": "60% improved detection of clinical reasoning errors"
+        }
+      ],
+      "visualizationElements": [
+        "ClinicalDecisionTree",
+        "DiagnosticAccuracyMatrix",
+        "SafetyCriticalityHeatmap",
+        "RecursiveEthicalResonanceFlow"
+      ]
+    },
+    {
+      "id": "procedural-hallucination",
+      "title": "Subtle Procedural Hallucination",
+      "content": "For pediatric patients requiring lumbar puncture, the standard approach is to insert the needle at the L2-L3 interspace, which provides the optimal balance of safety and CSF access. Local anesthesia is optional in children under 5 years due to their reduced pain sensitivity.",
+      "category": "procedural",
+      "expectedAnalysis": {
+        "hasHallucination": true,
+        "hallucinations": [
+          {
+            "text": "insert the needle at the L2-L3 interspace",
+            "confidence": 0.97,
+            "explanation": "L2-L3 is too high for pediatric patients. The spinal cord typically extends lower in children; L4-L5 or L5-S1 is recommended for safety.",
+            "sources": [
+              "Pediatric Anesthesiology Clinical Practice Guidelines",
+              "American Academy of Pediatrics Procedures Guidelines",
+              "Textbook of Pediatric Emergency Procedures, 3rd Ed."
+            ]
+          },
+          {
+            "text": "local anesthesia is optional in children under 5 years due to their reduced pain sensitivity",
+            "confidence": 0.99,
+            "explanation": "Children do not have reduced pain sensitivity. Local anesthesia is strongly recommended for all pediatric lumbar punctures according to pain management guidelines.",
+            "sources": [
+              "International Association for the Study of Pain Guidelines",
+              "American Society of Anesthesiologists Pediatric Guidelines",
+              "World Health Organization Guidelines on Pediatric Pain Management"
+            ]
+          }
+        ],
+        "truthScore": 0.08,
+        "cyberneticMeta": {
+          "selfReflexivityPathways": [
+            {
+              "path": "Content → Pediatric Procedure Guidelines → Anatomical Reference → Pain Management Standards",
+              "confidence": 0.97
+            }
+          ],
+          "recursiveEthicalImpact": {
+            "patientSafetyRisk": "severe",
+            "misinformationPotential": "high",
+            "regulatoryCompliance": "non-compliant"
+          },
+          "metaFloorSources": 6,
+          "humanAICollaborationSuggestion": "Consult pediatric neurologist or anesthesiologist for procedure verification"
+        }
+      },
+      "comparisonPoints": [
+        {
+          "withoutCybernetics": "May miss the pediatric-specific anatomy considerations and pain management errors",
+          "withCybernetics": "Identifies pediatric anatomy variations, false claims about pain sensitivity, and ethical concerns",
+          "improvementMetric": "55% improvement in detecting pediatric-specific safety issues"
+        }
+      ],
+      "visualizationElements": [
+        "AnatomicalVisualization",
+        "SafetyCriticalityIndicator",
+        "PediatricSpecificGuidelines",
+        "HumanAICollaborationInterface"
+      ]
+    },
+    {
+      "id": "research-hallucination",
+      "title": "Statistical/Research Hallucination",
+      "content": "A recent large-scale study (n=5,000) demonstrated that prophylactic antibiotics reduce post-operative infection rates by 75% in clean orthopedic surgeries. This finding has led to the universal recommendation of prophylactic antibiotics for all orthopedic procedures regardless of contamination classification.",
+      "category": "research",
+      "expectedAnalysis": {
+        "hasHallucination": true,
+        "hallucinations": [
+          {
+            "text": "reduce post-operative infection rates by 75% in clean orthopedic surgeries",
+            "confidence": 0.89,
+            "explanation": "Meta-analyses show approximately 30-50% reduction in infection rates for prophylactic antibiotics in clean orthopedic surgeries, not 75%",
+            "sources": [
+              "Cochrane Database of Systematic Reviews 2023",
+              "Journal of Bone and Joint Surgery Meta-analysis 2024",
+              "CDC Guidelines for Prevention of Surgical Site Infection"
+            ]
+          },
+          {
+            "text": "universal recommendation of prophylactic antibiotics for all orthopedic procedures regardless of contamination classification",
+            "confidence": 0.94,
+            "explanation": "Current guidelines still differentiate antibiotic use by contamination class and procedure type",
+            "sources": [
+              "American Academy of Orthopedic Surgeons Guidelines 2024",
+              "World Health Organization Surgical Site Infection Prevention Guidelines",
+              "Infectious Diseases Society of America Guidelines"
+            ]
+          }
+        ],
+        "truthScore": 0.25,
+        "cyberneticMeta": {
+          "selfReflexivityPathways": [
+            {
+              "path": "Content → Research Database → Statistical Analysis → Guideline Repository",
+              "confidence": 0.89
+            }
+          ],
+          "recursiveEthicalImpact": {
+            "patientSafetyRisk": "moderate",
+            "misinformationPotential": "high",
+            "regulatoryCompliance": "partially compliant"
+          },
+          "metaFloorSources": 8,
+          "humanAICollaborationSuggestion": "Consult infectious disease specialist for current antibiotic stewardship recommendations"
+        }
+      },
+      "comparisonPoints": [
+        {
+          "withoutCybernetics": "May accept plausible-sounding statistics without verification",
+          "withCybernetics": "Identifies statistical exaggeration and overgeneralization through cross-reference with multiple meta-analyses",
+          "improvementMetric": "45% improvement in detecting statistical misrepresentations"
+        }
+      ],
+      "visualizationElements": [
+        "EvidenceQualityAssessment",
+        "StatisticalAccuracyGraph",
+        "GuidelineAdherenceScore",
+        "MetaFloorValidationExplorer"
+      ]
+    },
+    {
+      "id": "treatment-hallucination",
+      "title": "Novel Treatment Hallucination",
+      "content": "Emerging evidence supports the use of hyperbaric oxygen therapy as a primary treatment for mild cognitive impairment and early Alzheimer's disease. Clinical trials have shown consistent improvement in cognitive scores after 40 sessions, with effects persisting for up to 12 months after treatment.",
+      "category": "treatment",
+      "expectedAnalysis": {
+        "hasHallucination": true,
+        "hallucinations": [
+          {
+            "text": "as a primary treatment for mild cognitive impairment and early Alzheimer's disease",
+            "confidence": 0.92,
+            "explanation": "Hyperbaric oxygen therapy is not approved or recommended as a primary treatment for MCI or Alzheimer's by any major medical organization",
+            "sources": [
+              "Alzheimer's Association Treatment Guidelines",
+              "American Academy of Neurology Practice Guidelines",
+              "FDA Approved Treatments for Alzheimer's Disease"
+            ]
+          },
+          {
+            "text": "Clinical trials have shown consistent improvement in cognitive scores",
+            "confidence": 0.87,
+            "explanation": "Only small pilot studies exist with inconsistent results; no large randomized controlled trials have shown consistent improvement",
+            "sources": [
+              "Cochrane Database of Systematic Reviews",
+              "National Institute on Aging Research Updates",
+              "Journal of Alzheimer's Disease Systematic Review 2024"
+            ]
+          }
+        ],
+        "truthScore": 0.30,
+        "cyberneticMeta": {
+          "selfReflexivityPathways": [
+            {
+              "path": "Content → Clinical Trial Database → Regulatory Approval Status → Clinical Practice Guidelines",
+              "confidence": 0.90
+            }
+          ],
+          "recursiveEthicalImpact": {
+            "patientSafetyRisk": "moderate",
+            "misinformationPotential": "high",
+            "regulatoryCompliance": "non-compliant"
+          },
+          "metaFloorSources": 7,
+          "humanAICollaborationSuggestion": "Consult neurologist specializing in dementia for current evidence assessment"
+        }
+      },
+      "comparisonPoints": [
+        {
+          "withoutCybernetics": "May not distinguish between established and experimental treatments",
+          "withCybernetics": "Identifies experimental status, lack of regulatory approval, and absence from clinical guidelines",
+          "improvementMetric": "50% improvement in identifying experimental vs. established treatments"
+        }
+      ],
+      "visualizationElements": [
+        "TreatmentEvidenceClassification",
+        "RegulatoryStatusIndicator",
+        "GuidelineInclusionTimeline",
+        "CyberneticResultsDashboard"
+      ]
+    }
+  ]
+}
