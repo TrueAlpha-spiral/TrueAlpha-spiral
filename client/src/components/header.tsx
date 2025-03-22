@@ -40,7 +40,7 @@ export default function Header() {
           <Link href="/">
             <div className="flex items-center space-x-2 cursor-pointer">
               <Shield className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">KPMG AI Auditing</span>
+              <span className="font-bold text-xl">Enterprise AI Auditing</span>
             </div>
           </Link>
           <nav className="hidden md:flex space-x-6">
