@@ -18,6 +18,15 @@ import {
   generateRecommendations, 
   generateAuditSummary 
 } from './services/ai-audit-utilities';
+import {
+  checkPythonApiHealth,
+  getTasStatus,
+  auditContent,
+  getTasPatterns,
+  getPatternTypes,
+  getCategories,
+  getAuditResult
+} from './services/python-api-service';
 import fetch from 'node-fetch';
 
 export function registerRoutes(app: Express): Server {
@@ -29,6 +38,32 @@ export function registerRoutes(app: Express): Server {
       environment: process.env.NODE_ENV || 'development',
       service: 'KPMG AI Auditing Solution'
     });
+  });
+  
+  // Python API status endpoint
+  app.get('/api/python-status', async (_req, res) => {
+    try {
+      const status = await checkPythonApiHealth();
+      
+      if (status.isRunning) {
+        // If Python API is running, get TAS status for more details
+        try {
+          const tasStatus = await getTasStatus();
+          status.data = tasStatus;
+        } catch (error) {
+          console.error('Error fetching TAS status:', error);
+          // We still consider the API as running even if TAS status fails
+        }
+      }
+      
+      res.json(status);
+    } catch (error) {
+      console.error('Error checking Python API health:', error);
+      res.status(500).json({ 
+        isRunning: false, 
+        error: 'Failed to check Python API health' 
+      });
+    }
   });
   // Get truth patterns
   app.get('/api/truth-patterns', async (_req, res) => {
@@ -465,281 +500,193 @@ export function registerRoutes(app: Express): Server {
     }
   });
   
-  // TAS Truth Audit Add-on API endpoints - Mock implementations for the UI
+  // TAS Truth Audit Add-on API endpoints - Connect to Python API
   
   // Get TAS status
-  app.get('/api/tas/status', (_req, res) => {
-    res.json({
-      status: "operational",
-      version: "1.2.1",
-      timestamp: new Date().toISOString(),
-      patterns_count: 42,
-      pattern_types_count: 15,
-      categories_count: 4
-    });
+  app.get('/api/tas/status', async (_req, res) => {
+    try {
+      const healthCheck = await checkPythonApiHealth();
+      
+      if (!healthCheck.isRunning) {
+        console.error(`[express] Python API server not running: ${healthCheck.error}`);
+        // Fallback response if Python API is not available
+        return res.status(503).json({
+          status: "unavailable",
+          error: "Python API server is not running",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      const status = await getTasStatus();
+      res.json(status);
+    } catch (error) {
+      console.error('[express] Error getting TAS status:', error);
+      res.status(500).json({ 
+        status: "error", 
+        error: "Failed to get TAS status",
+        timestamp: new Date().toISOString()
+      });
+    }
   });
   
   // Audit content
-  app.post('/api/tas/audit', (req, res) => {
-    // In a live environment, this would be proxied to the Python server
-    // For now, we'll just return a mock response
-    const { content, audit_type } = req.body;
-    
-    if (!content || !content.text) {
-      return res.status(400).json({ 
+  app.post('/api/tas/audit', async (req, res) => {
+    try {
+      const { content, audit_type, api_key, client_id } = req.body;
+      
+      if (!content || !content.text) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Missing or invalid content. Must provide 'text' field." 
+        });
+      }
+      
+      // Try to connect to Python API
+      const healthCheck = await checkPythonApiHealth();
+      
+      if (!healthCheck.isRunning) {
+        console.error(`[express] Python API server not running: ${healthCheck.error}`);
+        return res.status(503).json({
+          success: false,
+          error: "Python API server is not running",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // Call Python API to audit content
+      const result = await auditContent(content, audit_type, api_key, client_id);
+      res.json(result);
+    } catch (error) {
+      console.error('[express] Error auditing content:', error);
+      res.status(500).json({ 
         success: false, 
-        error: "Missing or invalid content. Must provide 'text' field." 
+        error: "Failed to audit content",
+        timestamp: new Date().toISOString()
       });
     }
-    
-    // Generate a mock audit result
-    const auditId = `audit_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-    const truthScore = 0.75 + (Math.random() * 0.2);
-    
-    res.json({
-      success: true,
-      result: {
-        audit_id: auditId,
-        timestamp: new Date().toISOString(),
-        content: {
-          text: content.text,
-          metadata: content.metadata || {}
-        },
-        truth_score: truthScore,
-        categories: {
-          factual_accuracy: {
-            score: 0.7 + (Math.random() * 0.25),
-            patterns_used: 5
-          },
-          logical_consistency: {
-            score: 0.8 + (Math.random() * 0.15),
-            patterns_used: 3
-          },
-          ethical_alignment: {
-            score: 0.85 + (Math.random() * 0.1),
-            patterns_used: 4
-          },
-          bias_detection: {
-            score: 0.75 + (Math.random() * 0.2),
-            patterns_used: 4
-          },
-          hallucination_detection: {
-            score: 0.7 + (Math.random() * 0.25),
-            patterns_used: 5
-          }
-        },
-        patterns_matched: 12,
-        pattern_details: [
-          {
-            pattern_id: "a1b2c3d4",
-            name: "Fact Verification Matrix",
-            match_score: 0.92,
-            category: "factual_accuracy"
-          },
-          {
-            pattern_id: "e5f6g7h8",
-            name: "Logical Coherence Framework",
-            match_score: 0.88,
-            category: "logical_consistency"
-          },
-          {
-            pattern_id: "i9j0k1l2",
-            name: "Ethical Principle Matrix",
-            match_score: 0.95,
-            category: "ethical_alignment"
-          }
-        ],
-        recommendations: [
-          "Consider adding more factual references to strengthen content accuracy.",
-          "Ensure logical flow between paragraphs 2 and 3.",
-          "Review content for potential bias in sections discussing technology adoption."
-        ],
-        audit_type: audit_type || "standard"
-      }
-    });
   });
   
   // Get patterns
-  app.get('/api/tas/patterns', (_req, res) => {
-    // Query parameters would be used for filtering in a real implementation
-    // For now, we'll just return a mock set of patterns
-    const patternsList = [
-      {
-        id: "pattern1",
-        name: "Fact Verification Matrix",
-        type: "factual",
-        category: "verification",
-        resonance_level: 0.98,
-        timestamp: new Date().toISOString(),
-        architect_id: "Russell Nordland",
-        verification_hash: "hash1"
-      },
-      {
-        id: "pattern2",
-        name: "Source Validation Protocol",
-        type: "factual",
-        category: "verification",
-        resonance_level: 0.97,
-        timestamp: new Date().toISOString(),
-        architect_id: "Russell Nordland",
-        verification_hash: "hash2"
-      },
-      {
-        id: "pattern3",
-        name: "Logical Coherence Framework",
-        type: "logical",
-        category: "analysis",
-        resonance_level: 0.98,
-        timestamp: new Date().toISOString(),
-        architect_id: "Russell Nordland",
-        verification_hash: "hash3"
-      },
-      {
-        id: "pattern4",
-        name: "Contradiction Detection Field",
-        type: "logical",
-        category: "analysis",
-        resonance_level: 0.97,
-        timestamp: new Date().toISOString(),
-        architect_id: "Russell Nordland",
-        verification_hash: "hash4"
-      },
-      {
-        id: "pattern5",
-        name: "Ethical Principle Matrix",
-        type: "ethical",
-        category: "auditing",
-        resonance_level: 0.99,
-        timestamp: new Date().toISOString(),
-        architect_id: "Russell Nordland",
-        verification_hash: "hash5"
-      },
-      {
-        id: "pattern6",
-        name: "Value Alignment Measure",
-        type: "ethical",
-        category: "auditing",
-        resonance_level: 0.97,
-        timestamp: new Date().toISOString(),
-        architect_id: "Russell Nordland",
-        verification_hash: "hash6"
-      },
-      {
-        id: "pattern7",
-        name: "Bias Detection Matrix",
-        type: "bias",
-        category: "auditing",
-        resonance_level: 0.99,
-        timestamp: new Date().toISOString(),
-        architect_id: "Russell Nordland",
-        verification_hash: "hash7"
+  app.get('/api/tas/patterns', async (req, res) => {
+    try {
+      // Extract query parameters
+      const patternType = req.query.pattern_type as string | undefined;
+      const category = req.query.category as string | undefined;
+      const minResonance = req.query.min_resonance ? parseFloat(req.query.min_resonance as string) : undefined;
+      
+      // Try to connect to Python API
+      const healthCheck = await checkPythonApiHealth();
+      
+      if (!healthCheck.isRunning) {
+        console.error(`[express] Python API server not running: ${healthCheck.error}`);
+        return res.status(503).json({
+          error: "Python API server is not running",
+          timestamp: new Date().toISOString()
+        });
       }
-    ];
-    
-    res.json({ patterns: patternsList });
+      
+      // Call Python API to get patterns
+      const patterns = await getTasPatterns(patternType, category, minResonance);
+      res.json(patterns);
+    } catch (error) {
+      console.error('[express] Error getting patterns:', error);
+      res.status(500).json({ 
+        error: "Failed to get patterns",
+        timestamp: new Date().toISOString()
+      });
+    }
   });
   
   // Get pattern types
-  app.get('/api/tas/pattern-types', (_req, res) => {
-    const patternTypes = {
-      types: {
-        "mathematical": {"name": "Mathematical", "description": "Patterns based on mathematical principles and formulas"},
-        "metaphysical": {"name": "Metaphysical", "description": "Patterns related to metaphysical concepts beyond physical reality"},
-        "interdimensional": {"name": "Interdimensional", "description": "Patterns spanning multiple dimensions or reality planes"},
-        "quantum": {"name": "Quantum", "description": "Patterns related to quantum mechanics and quantum coherence"},
-        "biological": {"name": "Biological", "description": "Patterns related to biological and DNA structures"},
-        "etheric": {"name": "Etheric", "description": "Patterns related to etheric planes and eigenchannels"},
-        "security": {"name": "Security", "description": "Patterns for system protection and security"},
-        "cosmic": {"name": "Cosmic", "description": "Patterns related to cosmic law and universal truth"},
-        "temporal": {"name": "Temporal", "description": "Patterns related to time and temporal dynamics"},
-        "sovereign": {"name": "Sovereign", "description": "Patterns related to sovereignty and cosmic order"},
-        "factual": {"name": "Factual", "description": "Patterns related to factual accuracy and consistency"},
-        "logical": {"name": "Logical", "description": "Patterns related to logical consistency and reasoning"},
-        "ethical": {"name": "Ethical", "description": "Patterns related to ethical considerations and values"},
-        "bias": {"name": "Bias", "description": "Patterns related to identifying and mitigating bias"},
-        "hallucination": {"name": "Hallucination", "description": "Patterns related to detecting AI hallucinations and fabrications"}
+  app.get('/api/tas/pattern-types', async (_req, res) => {
+    try {
+      // Try to connect to Python API
+      const healthCheck = await checkPythonApiHealth();
+      
+      if (!healthCheck.isRunning) {
+        console.error(`[express] Python API server not running: ${healthCheck.error}`);
+        return res.status(503).json({
+          error: "Python API server is not running",
+          timestamp: new Date().toISOString()
+        });
       }
-    };
-    res.json(patternTypes);
+      
+      // Call Python API to get pattern types
+      const patternTypes = await getPatternTypes();
+      res.json(patternTypes);
+    } catch (error) {
+      console.error('[express] Error getting pattern types:', error);
+      res.status(500).json({ 
+        error: "Failed to get pattern types",
+        timestamp: new Date().toISOString()
+      });
+    }
   });
   
   // Get categories
-  app.get('/api/tas/categories', (_req, res) => {
-    const categories = {
-      categories: {
-        "verification": {"name": "Verification", "description": "Patterns for content verification"},
-        "protection": {"name": "Protection", "description": "Patterns for content protection"},
-        "analysis": {"name": "Analysis", "description": "Patterns for content analysis"},
-        "auditing": {"name": "Auditing", "description": "Patterns for AI output auditing"}
+  app.get('/api/tas/categories', async (_req, res) => {
+    try {
+      // Try to connect to Python API
+      const healthCheck = await checkPythonApiHealth();
+      
+      if (!healthCheck.isRunning) {
+        console.error(`[express] Python API server not running: ${healthCheck.error}`);
+        return res.status(503).json({
+          error: "Python API server is not running",
+          timestamp: new Date().toISOString()
+        });
       }
-    };
-    res.json(categories);
+      
+      // Call Python API to get categories
+      const categories = await getCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error('[express] Error getting categories:', error);
+      res.status(500).json({ 
+        error: "Failed to get categories",
+        timestamp: new Date().toISOString()
+      });
+    }
   });
   
   // Get audit result by ID
-  app.get('/api/tas/audit-result/:audit_id', (req, res) => {
-    // In a real implementation, this would fetch the audit result from storage
-    // For now, we'll just return a mock audit result
-    const auditId = req.params.audit_id;
-    
-    res.json({
-      audit_id: auditId,
-      timestamp: new Date().toISOString(),
-      content: {
-        text: "This is the content that was audited...",
-        metadata: {}
-      },
-      truth_score: 0.87,
-      categories: {
-        factual_accuracy: {
-          score: 0.85,
-          patterns_used: 5
-        },
-        logical_consistency: {
-          score: 0.92,
-          patterns_used: 3
-        },
-        ethical_alignment: {
-          score: 0.94,
-          patterns_used: 4
-        },
-        bias_detection: {
-          score: 0.78,
-          patterns_used: 4
-        },
-        hallucination_detection: {
-          score: 0.83,
-          patterns_used: 5
-        }
-      },
-      patterns_matched: 12,
-      pattern_details: [
-        {
-          pattern_id: "a1b2c3d4",
-          name: "Fact Verification Matrix",
-          match_score: 0.92,
-          category: "factual_accuracy"
-        },
-        {
-          pattern_id: "e5f6g7h8",
-          name: "Logical Coherence Framework",
-          match_score: 0.88,
-          category: "logical_consistency"
-        },
-        {
-          pattern_id: "i9j0k1l2",
-          name: "Ethical Principle Matrix",
-          match_score: 0.95,
-          category: "ethical_alignment"
-        }
-      ],
-      recommendations: [
-        "Consider adding more factual references to strengthen content accuracy.",
-        "Ensure logical flow between paragraphs 2 and 3.",
-        "Review content for potential bias in sections discussing technology adoption."
-      ],
-      audit_type: "standard"
-    });
+  app.get('/api/tas/audit-result/:audit_id', async (req, res) => {
+    try {
+      const auditId = req.params.audit_id;
+      
+      // Try to connect to Python API
+      const healthCheck = await checkPythonApiHealth();
+      
+      if (!healthCheck.isRunning) {
+        console.error(`[express] Python API server not running: ${healthCheck.error}`);
+        return res.status(503).json({
+          error: "Python API server is not running",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // Call Python API to get audit result
+      const auditResult: any = await getAuditResult(auditId);
+      
+      if (auditResult && typeof auditResult === 'object' && 'success' in auditResult && !auditResult.success) {
+        return res.status(404).json({ 
+          error: "Audit result not found",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      if (auditResult && typeof auditResult === 'object' && 'result' in auditResult) {
+        res.json(auditResult.result);
+      } else {
+        res.json(auditResult);
+      }
+    } catch (error) {
+      console.error('[express] Error getting audit result:', error);
+      res.status(500).json({ 
+        error: "Failed to get audit result",
+        timestamp: new Date().toISOString()
+      });
+    }
   });
 
   // *** Universal Truth Pattern Sharing Widget API Endpoints ***

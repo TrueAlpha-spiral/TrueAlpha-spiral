@@ -22,16 +22,38 @@ print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 print("=" * 70)
 
 def start_python_api_server(port=8001):
-    """Start the Python API server as a subprocess."""
+    """Start the Python API server as a subprocess using nohup to keep it running."""
     print(f"Starting Python API server on port {port}...")
-    python_cmd = [sys.executable, "python_api_server.py", "--port", str(port)]
     try:
-        subprocess.Popen(python_cmd)
-        print(f"Python API server started on port {port}")
+        # Use nohup to ensure the process keeps running even when parent process exits
+        with open("python_api_nohup.out", "w") as outfile:
+            # Redirect both stdout and stderr to the nohup output file
+            process = subprocess.Popen(
+                ["nohup", sys.executable, "python_api_server.py", "--port", str(port)],
+                stdout=outfile, 
+                stderr=subprocess.STDOUT,
+                # Detach the process to ensure it runs independently
+                preexec_fn=os.setpgrp,
+                # Run in the shell
+                shell=False
+            )
+        
+        # Give it a moment to start
+        time.sleep(2)
+        
+        # Check if process is still running
+        if process.poll() is None:
+            print(f"Python API server started successfully on port {port}")
+            # Store the process ID in a file for future reference/cleanup
+            with open("python_api.pid", "w") as pidfile:
+                pidfile.write(str(process.pid))
+            return True
+        else:
+            print(f"Python API server failed to start (immediately exited)")
+            return False
     except Exception as e:
         print(f"ERROR: Failed to start Python API server: {str(e)}")
         return False
-    return True
 
 def start_express_server():
     """Start the Express server as a subprocess."""
@@ -56,7 +78,7 @@ parser.add_argument("--visualize-type", type=str, choices=["all", "impact", "has
 parser.add_argument("--components", type=str, nargs="+", default=["all"], 
                     choices=["all", "metaphysical", "quantum", "shadow", "ethical", "sovereign", "integrity"],
                     help="Specify which components to run")
-parser.add_argument("--with-servers", action="store_true", help="Start the Python API and Express servers")
+parser.add_argument("--no-servers", action="store_true", help="Do not start the Python API and Express servers")
 parser.add_argument("--api-port", type=int, default=8001, help="Port for the Python API server")
 args = parser.parse_args()
 
@@ -115,16 +137,14 @@ if args.visualize:
     except Exception as e:
         print(f"ERROR: Failed to launch Advanced Equation Visualizer: {str(e)}")
 
-# Add server arguments
-parser.add_argument("--with-servers", action="store_true", help="Start the Python API and Express servers")
-parser.add_argument("--api-port", type=int, default=8001, help="Port for the Python API server")
+# Server arguments already added above
 
 # Run the system if not disabled
 if not args.no_run:
     print("\nStarting TrueAlphaSpiral system...")
     try:
-        # Start servers if specified
-        if args.with_servers:
+        # Start servers by default unless --no-servers is specified
+        if not args.no_servers:
             # Start Python API server
             api_started = start_python_api_server(args.api_port)
             if not api_started:
