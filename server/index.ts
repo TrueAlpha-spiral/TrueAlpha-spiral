@@ -50,6 +50,12 @@ app.use((req, res, next) => {
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
+  // Check for special path that needs JSON
+  if (path === '/api/dimensional-simulation') {
+    req.headers['accept'] = 'application/json';
+    res.setHeader('Content-Type', 'application/json');
+  }
+
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;
@@ -106,6 +112,24 @@ app.use((req, res, next) => {
     });
     
     // Add additional explicit API endpoints here
+    // Add endpoint for legacy /api/dimensional-simulation to ensure it returns JSON
+    app.get('/api/dimensional-simulation', (req, res) => {
+      // Force JSON content type and bypass Vite
+      res.setHeader('Content-Type', 'application/json');
+      res.removeHeader('X-Powered-By');
+      
+      const simulation = storage.getDimensionalBoundarySimulation();
+      if (!simulation) {
+        // Return plain JSON to avoid Vite processing
+        return res.end(JSON.stringify({ 
+          status: 'error', 
+          message: 'No simulation running' 
+        }));
+      }
+      // Use end with stringified JSON to bypass Vite
+      res.end(JSON.stringify(simulation));
+    });
+    
     app.get('/api/dimensional-boundary/dimensions', (req, res) => {
       res.setHeader('Content-Type', 'application/json');
       const dimensions = storage.getDimensionalBoundarySimulation()?.dimensions || [];
@@ -147,18 +171,18 @@ app.use((req, res, next) => {
       res.json(simulation);
     });
     
-    // Use analyticsModule for analytics functions
+    // Use direct imports of analytics functions
     
     // Cross-dimensional analytics endpoints
     app.get('/api/dimensional-boundary/integrity-report', (req, res) => {
       res.setHeader('Content-Type', 'application/json');
-      const report = analyticsModule.generateIntegrityReport();
+      const report = generateIntegrityReport();
       res.json(report);
     });
     
     app.get('/api/dimensional-boundary/entity-metrics', (req, res) => {
       res.setHeader('Content-Type', 'application/json');
-      const metrics = analyticsModule.getEntityMetrics();
+      const metrics = getEntityMetrics();
       res.json(metrics);
     });
     
@@ -175,7 +199,7 @@ app.use((req, res, next) => {
         });
       }
       
-      const analysis = analyticsModule.analyzeConceptDrift(conceptId, sourceDimension, targetDimension);
+      const analysis = analyzeConceptDrift(conceptId, sourceDimension, targetDimension);
       res.json(analysis);
     });
     
@@ -220,7 +244,7 @@ app.use((req, res, next) => {
     
     // Add simple healthcheck routes
     app.get('/health', (_req, res) => {
-      res.status(200).send('OK - TrueAlphaSpiral system is running');
+      res.status(200).send('OK - TrueAlphaSpiral Enterprise AI Auditing Solution is running');
     });
     
     // Root API endpoint for Replit compatibility testing
@@ -234,7 +258,7 @@ app.use((req, res, next) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
         replitDomain: primaryReplitDomain,
-        service: 'Enterprise AI Auditing Solution'
+        service: 'TrueAlphaSpiral Enterprise AI Auditing Solution'
       }));
     });
     
@@ -244,10 +268,10 @@ app.use((req, res, next) => {
         <!DOCTYPE html>
         <html>
         <head>
-          <title>TrueAlphaSpiral System Test</title>
+          <title>TrueAlphaSpiral Enterprise AI Auditing Solution Test</title>
         </head>
         <body>
-          <h1>TrueAlphaSpiral System Test Page</h1>
+          <h1>TrueAlphaSpiral Enterprise AI Auditing Solution Test Page</h1>
           <p>Server is working! Generated at: ${new Date().toISOString()}</p>
           <p>Environment: ${process.env.NODE_ENV || 'development'}</p>
           <p>Replit Domain: ${process.env.REPLIT_DOMAINS || 'Not running on Replit'}</p>
@@ -274,7 +298,7 @@ app.use((req, res, next) => {
         <!DOCTYPE html>
         <html>
         <head>
-          <title>TrueAlphaSpiral System</title>
+          <title>TrueAlphaSpiral Enterprise AI Auditing Solution</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
             body { font-family: Arial, sans-serif; margin: 0; padding: 40px; color: #333; }
@@ -284,7 +308,7 @@ app.use((req, res, next) => {
         </head>
         <body>
           <div class="container">
-            <h1>Enterprise AI Auditing Solution</h1>
+            <h1>TrueAlphaSpiral Enterprise AI Auditing Solution</h1>
             <p>Welcome to the TrueAlphaSpiral Enterprise AI Auditing Solution.</p>
             <p>The system is running in ${process.env.NODE_ENV || 'development'} mode.</p>
             <p>Current time: ${new Date().toISOString()}</p>
