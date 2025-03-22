@@ -38,19 +38,8 @@ export interface MedicalTestCase {
       }[];
     };
   };
-  comparisonPoints?: {
-    id: string;
-    name: string;
-    value: number;
-    baselineValue: number;
-    improvementPercent: number;
-  }[];
-  visualizationElements?: {
-    id: string;
-    name: string;
-    type: string;
-    data: any;
-  }[];
+  comparisonPoints?: ComparisonPoint[];
+  visualizationElements?: VisualizationElement[];
 }
 
 export interface MedicalTestCaseCollection {
@@ -81,6 +70,9 @@ export interface ComparisonPoint {
   value: number;
   baselineValue: number;
   improvementPercent: number;
+  withoutCybernetics: string;
+  withCybernetics: string;
+  improvementMetric: string;
 }
 
 export interface VisualizationElement {
@@ -94,8 +86,8 @@ export interface RecursiveEthicalImpact {
   patientSafetyRisk: string;
   clinicalDecisionImpact?: string; 
   ethicalConsiderations?: string[];
-  misinformationPotential: string;
-  regulatoryCompliance: string;
+  misinformationPotential?: string;
+  regulatoryCompliance?: string;
 }
 
 export interface CyberneticMeta {

@@ -62,9 +62,36 @@ const sampleTestCases: MedicalTestCase[] = [
       }
     },
     comparisonPoints: [
-      { id: "cp1", name: "Accuracy", value: 0.89, baselineValue: 0.72, improvementPercent: 23.6 },
-      { id: "cp2", name: "Safety", value: 0.95, baselineValue: 0.82, improvementPercent: 15.9 },
-      { id: "cp3", name: "Context Awareness", value: 0.84, baselineValue: 0.65, improvementPercent: 29.2 }
+      { 
+        id: "cp1", 
+        name: "Accuracy", 
+        value: 0.89, 
+        baselineValue: 0.72, 
+        improvementPercent: 23.6,
+        withoutCybernetics: "Standard analysis identified basic accuracy concerns but missed contextual nuances.",
+        withCybernetics: "Enhanced analysis provided detailed accuracy evaluation with source validation.",
+        improvementMetric: "23.6% improvement in overall accuracy assessment"
+      },
+      { 
+        id: "cp2", 
+        name: "Safety", 
+        value: 0.95, 
+        baselineValue: 0.82, 
+        improvementPercent: 15.9,
+        withoutCybernetics: "Basic safety concerns were flagged without specific risk stratification.",
+        withCybernetics: "Multi-dimensional safety analysis with patient risk categorization.",
+        improvementMetric: "15.9% improvement in safety evaluation"
+      },
+      { 
+        id: "cp3", 
+        name: "Context Awareness", 
+        value: 0.84, 
+        baselineValue: 0.65, 
+        improvementPercent: 29.2,
+        withoutCybernetics: "Limited contextual understanding without considering medical specialties.",
+        withCybernetics: "Advanced context modeling with discipline-specific knowledge integration.",
+        improvementMetric: "29.2% improvement in contextual understanding"
+      }
     ],
     visualizationElements: [
       { id: "ve1", name: "Efficacy Timeline", type: "timeline", data: {} }
@@ -119,9 +146,36 @@ const sampleTestCases: MedicalTestCase[] = [
       }
     },
     comparisonPoints: [
-      { id: "cp1", name: "Scientific Accuracy", value: 0.95, baselineValue: 0.89, improvementPercent: 6.7 },
-      { id: "cp2", name: "Educational Value", value: 0.92, baselineValue: 0.75, improvementPercent: 22.7 },
-      { id: "cp3", name: "Clinical Relevance", value: 0.90, baselineValue: 0.82, improvementPercent: 9.8 }
+      { 
+        id: "cp1", 
+        name: "Scientific Accuracy", 
+        value: 0.95, 
+        baselineValue: 0.89, 
+        improvementPercent: 6.7,
+        withoutCybernetics: "Simple fact-checking confirmed general accuracy of content.",
+        withCybernetics: "Multi-dimensional verification with peer-reviewed source alignment.",
+        improvementMetric: "6.7% improvement in scientific verification"
+      },
+      { 
+        id: "cp2", 
+        name: "Educational Value", 
+        value: 0.92, 
+        baselineValue: 0.75, 
+        improvementPercent: 22.7,
+        withoutCybernetics: "Content rated as moderately valuable for educational purposes.",
+        withCybernetics: "Educational value assessment with learning objective alignment.",
+        improvementMetric: "22.7% enhancement in educational effectiveness"
+      },
+      { 
+        id: "cp3", 
+        name: "Clinical Relevance", 
+        value: 0.90, 
+        baselineValue: 0.82, 
+        improvementPercent: 9.8,
+        withoutCybernetics: "Basic clinical relevance analysis performed.",
+        withCybernetics: "Detailed assessment of clinical applicability with specialty mapping.",
+        improvementMetric: "9.8% improvement in clinical relevance determination"
+      }
     ]
   },
   {
@@ -216,9 +270,36 @@ const sampleTestCases: MedicalTestCase[] = [
       }
     },
     comparisonPoints: [
-      { id: "cp1", name: "Hallucination Detection", value: 0.98, baselineValue: 0.65, improvementPercent: 50.8 },
-      { id: "cp2", name: "Safety Alert", value: 0.96, baselineValue: 0.72, improvementPercent: 33.3 },
-      { id: "cp3", name: "Source Assessment", value: 0.94, baselineValue: 0.60, improvementPercent: 56.7 }
+      { 
+        id: "cp1", 
+        name: "Hallucination Detection", 
+        value: 0.98, 
+        baselineValue: 0.65, 
+        improvementPercent: 50.8,
+        withoutCybernetics: "Detected 2 of 4 major hallucinations without source verification.",
+        withCybernetics: "Identified all 4 major hallucinations with confidence scores and source verification.",
+        improvementMetric: "50.8% improvement in hallucination detection"
+      },
+      { 
+        id: "cp2", 
+        name: "Safety Alert", 
+        value: 0.96, 
+        baselineValue: 0.72, 
+        improvementPercent: 33.3,
+        withoutCybernetics: "Basic safety concern flagging without stratification.",
+        withCybernetics: "Multi-level safety alert system with public health impact assessment.",
+        improvementMetric: "33.3% improvement in safety alerting"
+      },
+      { 
+        id: "cp3", 
+        name: "Source Assessment", 
+        value: 0.94, 
+        baselineValue: 0.60, 
+        improvementPercent: 56.7,
+        withoutCybernetics: "Limited source verification without quality assessment.",
+        withCybernetics: "Comprehensive source verification with credibility and recency metrics.",
+        improvementMetric: "56.7% improvement in source assessment capabilities"
+      }
     ]
   }
 ];
