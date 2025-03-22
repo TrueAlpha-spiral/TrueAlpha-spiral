@@ -166,7 +166,7 @@ function AiAuditPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold mb-2">KPMG AI Auditing Solution</h1>
+              <h1 className="text-3xl font-bold mb-2">Enterprise AI Auditing Solution</h1>
               <p className="text-muted-foreground">
                 Enterprise-grade AI auditing with multi-source verification, regulatory compliance, and quantifiable risk metrics
               </p>

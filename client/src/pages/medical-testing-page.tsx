@@ -440,7 +440,7 @@ const MedicalTestingPage: React.FC = () => {
                         Preparation for the Q2 2025 presentation is on track with all major components implemented.
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Next milestone: Complete integration testing with KPMG Clara by April 15th.
+                        Next milestone: Complete integration testing with EnterpriseAI Hub by April 15th.
                       </p>
                       <div className="mt-4">
                         <Button size="sm" className="w-full">View Preparation Checklist</Button>

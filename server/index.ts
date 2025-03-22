@@ -120,7 +120,7 @@ app.use((req, res, next) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
         replitDomain: primaryReplitDomain,
-        service: 'KPMG AI Auditing Solution'
+        service: 'Enterprise AI Auditing Solution'
       }));
     });
     
