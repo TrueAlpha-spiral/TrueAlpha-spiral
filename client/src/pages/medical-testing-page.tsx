@@ -451,60 +451,103 @@ const MedicalTestingPage: React.FC = () => {
               </div>
               
               <div className="mt-6">
-                <h3 className="text-lg font-medium mb-4">Second-order Cybernetics Integration</h3>
+                <h3 className="text-lg font-medium mb-4">TARSI Blueprint Implementation</h3>
                 <p className="mb-4">
-                  The TrueAlpha Spiral Framework has been enhanced with second-order cybernetics principles,
-                  enabling self-reflexive analysis and meta-corrections of medical content. This approach
-                  significantly reduces hallucinations by continuously examining its own assessment processes.
+                  The TrueAlpha Spiral Framework has been enhanced with the TARSI architectural blueprint 
+                  for ethical AI systems, powered by second-order cybernetics. This approach enables self-reflexive 
+                  analysis and meta-corrections of medical content, significantly reducing hallucinations through
+                  systems that reflect on their decisions, learn from performance, and ensure transparency.
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                   <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Without Second-order Cybernetics</h4>
+                    <h4 className="font-medium mb-2">Self-Reflexive Validation</h4>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-start gap-2">
-                        <div className="h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mt-0.5">
-                          <span className="text-white text-xs">✕</span>
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs">✓</span>
                         </div>
-                        <span>Limited to explicit knowledge sources</span>
+                        <span>AI self-monitors outputs against ethical benchmarks</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <div className="h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mt-0.5">
-                          <span className="text-white text-xs">✕</span>
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs">✓</span>
                         </div>
-                        <span>Unable to validate own feedback loops</span>
+                        <span>Uses LIME and SHAP for explainable validation</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <div className="h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mt-0.5">
-                          <span className="text-white text-xs">✕</span>
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs">✓</span>
                         </div>
-                        <span>Hierarchical pattern assessment only</span>
+                        <span>Cybernetic metafloor validation with medical databases</span>
                       </li>
                     </ul>
                   </div>
                   
                   <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">With Second-order Cybernetics</h4>
+                    <h4 className="font-medium mb-2">Recursive Learning</h4>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-start gap-2">
                         <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
                           <span className="text-white text-xs">✓</span>
                         </div>
-                        <span>Self-reflexive validation pathways</span>
+                        <span>System learns from performance metrics</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
                           <span className="text-white text-xs">✓</span>
                         </div>
-                        <span>Dynamic MetaFloor knowledge integration</span>
+                        <span>Adjusts based on ethical fairness metrics</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
                           <span className="text-white text-xs">✓</span>
                         </div>
-                        <span>Recursive ethical impact assessment</span>
+                        <span>Implements reinforcement learning with ethical rewards</span>
                       </li>
                     </ul>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <h4 className="font-medium mb-2">Transparency & Accountability</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                        <span>Immutable audit logs for traceability</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                        <span>OpenPolicyAgent for policy enforcement</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                        <span>Grafana dashboards for ethical monitoring</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-muted rounded-lg mt-4">
+                  <h4 className="font-medium mb-2">Enterprise Integration Stack</h4>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <span className="font-semibold block">Core API</span>
+                      <span className="text-muted-foreground">Node.js + Python</span>
+                    </div>
+                    <div>
+                      <span className="font-semibold block">Authentication</span>
+                      <span className="text-muted-foreground">Keycloak + OAuth2</span>
+                    </div>
+                    <div>
+                      <span className="font-semibold block">Compliance</span>
+                      <span className="text-muted-foreground">Elasticsearch + OpenPolicyAgent</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -535,9 +578,163 @@ const MedicalTestingPage: React.FC = () => {
                 Learn about second-order cybernetics in medical content validation
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p>Educational content to be implemented for Q2 presentation</p>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-3">Second-Order Cybernetics Fundamentals</h3>
+                <p className="text-sm mb-4">
+                  Second-order cybernetics, developed in the late 1960s by Heinz von Foerster and others, focuses on the 
+                  "cybernetics of observing systems" rather than "observed systems." When applied to AI, it enables systems 
+                  to observe and reflect on their own processes.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  <div className="border rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2">Core Principles</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center mt-0.5 shrink-0">
+                          <span className="text-white text-xs">1</span>
+                        </div>
+                        <span><span className="font-medium">Self-reflexivity:</span> Systems that can observe and reflect on their own processes</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center mt-0.5 shrink-0">
+                          <span className="text-white text-xs">2</span>
+                        </div>
+                        <span><span className="font-medium">Recursive ethics:</span> Continuous ethical questioning and improvement</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center mt-0.5 shrink-0">
+                          <span className="text-white text-xs">3</span>
+                        </div>
+                        <span><span className="font-medium">Observer inclusion:</span> Recognizing the role of the observer in system function</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2">Real-world Applications</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5 shrink-0">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                        <span><span className="font-medium">Medical content validation:</span> Self-critiquing medical knowledge systems</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5 shrink-0">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                        <span><span className="font-medium">Financial compliance:</span> Self-auditing regulatory systems</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5 shrink-0">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                        <span><span className="font-medium">Education:</span> Learning systems that adapt to student understanding</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-medium mb-3">Implementation in the TARSI Blueprint</h3>
+                <p className="text-sm mb-4">
+                  The TARSI Architectural Blueprint leverages second-order cybernetics to build ethical AI systems
+                  that are self-aware and can reflect on their decisions, enhancing medical content validation.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div className="border rounded-lg p-4 bg-primary/5">
+                    <h4 className="text-sm font-semibold mb-2">MetaFloor Knowledge</h4>
+                    <p className="text-xs">
+                      An implementation of second-order cybernetics that enables the AI system to evaluate medical content
+                      against a dynamic repository of validated knowledge. The system can detect when information contradicts
+                      established medical consensus.
+                    </p>
+                    <div className="mt-3">
+                      <span className="inline-block px-2 py-1 rounded bg-primary/10 text-xs">
+                        Used in: Hallucination detection
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4 bg-primary/5">
+                    <h4 className="text-sm font-semibold mb-2">Recursive Ethical Resonance</h4>
+                    <p className="text-xs">
+                      A process where the system continuously evaluates its own evaluation methods, creating a feedback
+                      loop that improves accuracy over time and adapts to new medical information as it becomes available.
+                    </p>
+                    <div className="mt-3">
+                      <span className="inline-block px-2 py-1 rounded bg-primary/10 text-xs">
+                        Used in: Compliance verification
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4 bg-primary/5">
+                    <h4 className="text-sm font-semibold mb-2">Human-AI Collaboration</h4>
+                    <p className="text-xs">
+                      Integration of human oversight into the system's self-reflexive process, allowing for expert
+                      validation of edge cases and continuous improvement through human feedback mechanisms.
+                    </p>
+                    <div className="mt-3">
+                      <span className="inline-block px-2 py-1 rounded bg-primary/10 text-xs">
+                        Used in: Decision support
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-medium mb-3">Learning Resources</h3>
+                <div className="space-y-3">
+                  <div className="border rounded-lg p-3 flex items-start gap-3">
+                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                      <GraduationCapIcon className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium">Second-order Cybernetics Introduction</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Comprehensive introduction to second-order cybernetics principles and applications in AI systems.
+                      </p>
+                      <Button size="sm" variant="link" className="h-auto p-0 mt-1">View Course</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-3 flex items-start gap-3">
+                    <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                      <HeartPulseIcon className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium">Medical Content Validation Workshop</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Hands-on workshop focusing on applying second-order cybernetics to medical content validation.
+                      </p>
+                      <Button size="sm" variant="link" className="h-auto p-0 mt-1">Register</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-3 flex items-start gap-3">
+                    <div className="h-10 w-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
+                      <DnaIcon className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium">TARSI Blueprint Implementation Guide</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Technical guide for implementing the TARSI Blueprint in existing AI auditing systems.
+                      </p>
+                      <Button size="sm" variant="link" className="h-auto p-0 mt-1">Download PDF</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
+            <CardFooter>
+              <Button className="w-full">Explore All Resources</Button>
+            </CardFooter>
           </Card>
         </TabsContent>
         
@@ -546,12 +743,203 @@ const MedicalTestingPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Technical Implementation</CardTitle>
               <CardDescription>
-                Technical details of the TrueAlpha Spiral Framework
+                TARSI Blueprint Technical Integration with TrueAlpha Spiral Framework
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p>Technical documentation to be implemented for Q2 presentation</p>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-3">Implementation Architecture</h3>
+                <div className="border p-4 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="text-sm font-semibold mb-2">Core Components</h4>
+                      <ul className="space-y-1 text-sm">
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>Node.js Express Server (Port 5000)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>Python API Server (Port 8001)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>React/TypeScript Frontend</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>Keycloak Authentication</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>Elasticsearch for Logging</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold mb-2">Cybernetic Components</h4>
+                      <ul className="space-y-1 text-sm">
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>Self-Reflexivity Radar (D3.js)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>MetaFloor Explorer (WebGL)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>Cybernetic Dashboard (React)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>LIME/SHAP Integration (Python)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                          <span>OpenPolicyAgent Rules Engine</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-3">API Endpoints</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-3 font-medium">Endpoint</th>
+                        <th className="text-left py-2 px-3 font-medium">Purpose</th>
+                        <th className="text-left py-2 px-3 font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-mono text-xs">/api/health</td>
+                        <td className="py-2 px-3">System health check</td>
+                        <td className="py-2 px-3"><span className="text-green-500">Implemented</span></td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-mono text-xs">/api/python-system/status</td>
+                        <td className="py-2 px-3">Python API status</td>
+                        <td className="py-2 px-3"><span className="text-green-500">Implemented</span></td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-mono text-xs">/api/tas/audit-medical</td>
+                        <td className="py-2 px-3">Medical content auditing</td>
+                        <td className="py-2 px-3"><span className="text-green-500">Implemented</span></td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-mono text-xs">/api/verify</td>
+                        <td className="py-2 px-3">Content verification</td>
+                        <td className="py-2 px-3"><span className="text-green-500">Implemented</span></td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-mono text-xs">/api/cross-reference</td>
+                        <td className="py-2 px-3">Cross-reference verification</td>
+                        <td className="py-2 px-3"><span className="text-green-500">Implemented</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-3">Performance Metrics</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="border rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2">Response Time</h4>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold">387ms</span>
+                      <span className="text-xs text-muted-foreground">Average API response time</span>
+                      <div className="mt-2 w-full h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '77%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2">Query Throughput</h4>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold">120/s</span>
+                      <span className="text-xs text-muted-foreground">Concurrent requests supported</span>
+                      <div className="mt-2 w-full h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2">Uptime SLA</h4>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold">99.9%</span>
+                      <span className="text-xs text-muted-foreground">System availability</span>
+                      <div className="mt-2 w-full h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '99.9%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border rounded-lg p-4 bg-muted/20">
+                <h3 className="text-lg font-medium mb-3">Implementation Status</h3>
+                <p className="text-sm mb-4">The TARSI Blueprint implementation is currently at 92% completion with the following components ready for the Q2 presentation:</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Completed Components</h4>
+                    <ul className="space-y-1 text-sm">
+                      <li className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Core API Integration</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Self-Reflexive Validation</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Medical Content Auditing</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Cybernetic Dashboard</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Hallucination Detection</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Pending Components</h4>
+                    <ul className="space-y-1 text-sm">
+                      <li className="flex items-center gap-2">
+                        <span className="text-yellow-500">◯</span>
+                        <span>Grafana Dashboard Integration</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-yellow-500">◯</span>
+                        <span>Keycloak SSO Implementation</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-yellow-500">◯</span>
+                        <span>Deployment Automation</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline">Download Technical Specs</Button>
+              <Button variant="default">View API Documentation</Button>
+            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
