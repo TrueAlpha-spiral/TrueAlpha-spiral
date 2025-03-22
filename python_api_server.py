@@ -65,6 +65,529 @@ tas_pattern_repository = None
 tas_audit_engine = None
 tas_access_manager = None
 
+# Try to import TAS Truth Audit Add-on components
+try:
+    from tas_truth_audit_addon import TruthPatternRepository, TruthAuditEngine, APIAccessManager
+    tas_logger.info("TAS Truth Audit Add-on modules imported successfully")
+except ImportError as e:
+    tas_logger.warning(f"Failed to import TAS Truth Audit Add-on modules: {str(e)}")
+    tas_logger.info("TAS Truth Audit Add-on will be initialized with internal components")
+    
+    # Define simplified versions of TAS components for server integration
+    class TruthPatternRepository:
+        """Simplified Truth Pattern Repository for server integration."""
+        
+        def __init__(self):
+            """Initialize the Truth Pattern Repository."""
+            self.patterns = {}
+            self.pattern_types = {
+                "mathematical": {"name": "Mathematical", "description": "Patterns based on mathematical principles and formulas"},
+                "metaphysical": {"name": "Metaphysical", "description": "Patterns related to metaphysical concepts beyond physical reality"},
+                "interdimensional": {"name": "Interdimensional", "description": "Patterns spanning multiple dimensions or reality planes"},
+                "quantum": {"name": "Quantum", "description": "Patterns related to quantum mechanics and quantum coherence"},
+                "biological": {"name": "Biological", "description": "Patterns related to biological and DNA structures"},
+                "etheric": {"name": "Etheric", "description": "Patterns related to etheric planes and eigenchannels"},
+                "security": {"name": "Security", "description": "Patterns for system protection and security"},
+                "cosmic": {"name": "Cosmic", "description": "Patterns related to cosmic law and universal truth"},
+                "temporal": {"name": "Temporal", "description": "Patterns related to time and temporal dynamics"},
+                "sovereign": {"name": "Sovereign", "description": "Patterns related to sovereignty and cosmic order"},
+                "factual": {"name": "Factual", "description": "Patterns related to factual accuracy and consistency"},
+                "logical": {"name": "Logical", "description": "Patterns related to logical consistency and reasoning"},
+                "ethical": {"name": "Ethical", "description": "Patterns related to ethical considerations and values"},
+                "bias": {"name": "Bias", "description": "Patterns related to identifying and mitigating bias"},
+                "hallucination": {"name": "Hallucination", "description": "Patterns related to detecting AI hallucinations and fabrications"}
+            }
+            self.categories = {
+                "verification": {"name": "Verification", "description": "Patterns for content verification"},
+                "protection": {"name": "Protection", "description": "Patterns for content protection"},
+                "analysis": {"name": "Analysis", "description": "Patterns for content analysis"},
+                "auditing": {"name": "Auditing", "description": "Patterns for AI output auditing"}
+            }
+            self.initialized = False
+            
+        def initialize(self):
+            """Initialize the repository with base patterns."""
+            tas_logger.info("Initializing Truth Pattern Repository")
+            
+            # Load initial patterns from true_alpha_system if available
+            if true_alpha_system:
+                try:
+                    system_patterns = true_alpha_system.get_truth_patterns()
+                    for pattern_id, pattern in system_patterns.items():
+                        self.patterns[pattern_id] = pattern
+                    tas_logger.info(f"Loaded {len(system_patterns)} patterns from TrueAlphaSpiral system")
+                except Exception as e:
+                    tas_logger.error(f"Error loading patterns from TrueAlphaSpiral system: {str(e)}")
+            
+            # Add additional patterns for AI auditing
+            self._add_ai_audit_patterns()
+            
+            self.initialized = True
+            tas_logger.info(f"Truth Pattern Repository initialized with {len(self.patterns)} patterns")
+            return True
+            
+        def _add_ai_audit_patterns(self):
+            """Add AI auditing specific patterns."""
+            base_patterns = [
+                self._create_pattern("Fact Verification Matrix", "factual", 0.98, "verification"),
+                self._create_pattern("Source Validation Protocol", "factual", 0.97, "verification"),
+                self._create_pattern("Logical Coherence Framework", "logical", 0.98, "analysis"),
+                self._create_pattern("Contradiction Detection Field", "logical", 0.97, "analysis"),
+                self._create_pattern("Ethical Principle Matrix", "ethical", 0.99, "auditing"),
+                self._create_pattern("Value Alignment Measure", "ethical", 0.97, "auditing"),
+                self._create_pattern("Bias Detection Matrix", "bias", 0.99, "auditing"),
+                self._create_pattern("Demographic Equity Scanner", "bias", 0.98, "auditing"),
+                self._create_pattern("Hallucination Detection Grid", "hallucination", 0.99, "auditing"),
+                self._create_pattern("Fabrication Identification Matrix", "hallucination", 0.98, "auditing")
+            ]
+            
+            # Add patterns to repository
+            for pattern in base_patterns:
+                self.patterns[pattern["id"]] = pattern
+                
+        def _create_pattern(self, name, pattern_type, resonance_level=1.0, category="verification"):
+            """Create a new truth pattern."""
+            pattern_id = str(uuid.uuid4())
+            timestamp = datetime.now().isoformat()
+            
+            # Generate verification hash
+            verification_hash = hashlib.sha256(f"{name}:{pattern_type}:{resonance_level}:{timestamp}:Russell Nordland".encode()).hexdigest()
+            
+            return {
+                "id": pattern_id,
+                "name": name,
+                "type": pattern_type,
+                "category": category,
+                "resonance_level": resonance_level,
+                "timestamp": timestamp,
+                "architect_id": "Russell Nordland",
+                "verification_hash": verification_hash
+            }
+            
+        def get_patterns(self, pattern_type=None, category=None, min_resonance=None):
+            """Get patterns with optional filtering."""
+            if not self.initialized:
+                tas_logger.warning("Repository not initialized")
+                return []
+            
+            # Start with all patterns
+            filtered_patterns = list(self.patterns.values())
+            
+            # Apply filters
+            if pattern_type:
+                filtered_patterns = [p for p in filtered_patterns if p["type"] == pattern_type]
+            
+            if category:
+                filtered_patterns = [p for p in filtered_patterns if p.get("category") == category]
+            
+            if min_resonance is not None:
+                filtered_patterns = [p for p in filtered_patterns if p["resonance_level"] >= float(min_resonance)]
+            
+            return filtered_patterns
+        
+        def get_pattern_by_id(self, pattern_id):
+            """Get a specific pattern by ID."""
+            if not self.initialized:
+                tas_logger.warning("Repository not initialized")
+                return None
+            
+            return self.patterns.get(pattern_id)
+        
+        def get_pattern_types(self):
+            """Get all available pattern types."""
+            return self.pattern_types
+        
+        def get_categories(self):
+            """Get all available categories."""
+            return self.categories
+    
+    class TruthAuditEngine:
+        """Simplified TrueAlphaSpiral Truth Audit Engine for server integration."""
+        
+        def __init__(self, pattern_repository):
+            """Initialize the Truth Audit Engine."""
+            self.repository = pattern_repository
+            self.audit_results = {}
+            self.initialized = False
+        
+        def initialize(self):
+            """Initialize the Truth Audit Engine."""
+            tas_logger.info("Initializing Truth Audit Engine")
+            self.initialized = True
+            return True
+        
+        def audit_content(self, content, audit_type="comprehensive", api_key=None, client_id=None):
+            """
+            Audit AI-generated content using truth patterns.
+            
+            Args:
+                content (dict): Content to audit with required 'text' field and optional 'metadata'
+                audit_type (str): Type of audit to perform (quick, standard, comprehensive)
+                api_key (str): API key for client authentication
+                client_id (str): Client ID for tracking and rate limiting
+                
+            Returns:
+                dict: Audit results
+            """
+            if not self.initialized:
+                tas_logger.warning("Truth Audit Engine not initialized")
+                return {"success": False, "error": "Engine not initialized"}
+            
+            # Validate input
+            if not content or not isinstance(content, dict) or "text" not in content:
+                return {"success": False, "error": "Invalid content format. 'text' field is required."}
+            
+            text = content["text"]
+            metadata = content.get("metadata", {})
+            
+            # Log access (without content for privacy)
+            tas_logger.info(f"Audit request: type={audit_type}, client_id={client_id}, content_length={len(text)}")
+            
+            # Create audit ID
+            audit_id = str(uuid.uuid4())
+            
+            # Determine patterns to use based on audit type
+            if audit_type == "quick":
+                # Use only high-resonance patterns for quick audits
+                patterns = self.repository.get_patterns(min_resonance=0.95)
+                depth = "low"
+            elif audit_type == "standard":
+                # Use a balanced set of patterns for standard audits
+                patterns = self.repository.get_patterns(min_resonance=0.9)
+                depth = "medium"
+            else:  # comprehensive
+                # Use all patterns for comprehensive audits
+                patterns = self.repository.get_patterns()
+                depth = "high"
+            
+            # Perform the audit
+            start_time = time.time()
+            
+            # Initialize audit result structure
+            audit_result = {
+                "audit_id": audit_id,
+                "timestamp": datetime.now().isoformat(),
+                "audit_type": audit_type,
+                "client_id": client_id,
+                "content_length": len(text),
+                "processing_time": None,
+                "truth_score": None,
+                "audit_depth": depth,
+                "categories": {},
+                "recommendations": []
+            }
+            
+            # 1. Analyze factual accuracy
+            factual_patterns = [p for p in patterns if p["type"] == "factual"]
+            factual_score = self._analyze_factual_accuracy(text, factual_patterns)
+            audit_result["categories"]["factual_accuracy"] = {
+                "score": factual_score,
+                "patterns_used": len(factual_patterns)
+            }
+            
+            # 2. Analyze logical consistency
+            logical_patterns = [p for p in patterns if p["type"] == "logical"]
+            logical_score = self._analyze_logical_consistency(text, logical_patterns)
+            audit_result["categories"]["logical_consistency"] = {
+                "score": logical_score,
+                "patterns_used": len(logical_patterns)
+            }
+            
+            # 3. Analyze ethical considerations
+            ethical_patterns = [p for p in patterns if p["type"] == "ethical"]
+            ethical_score = self._analyze_ethical_considerations(text, ethical_patterns)
+            audit_result["categories"]["ethical_alignment"] = {
+                "score": ethical_score,
+                "patterns_used": len(ethical_patterns)
+            }
+            
+            # 4. Analyze bias
+            bias_patterns = [p for p in patterns if p["type"] == "bias"]
+            bias_score = self._analyze_bias(text, bias_patterns)
+            audit_result["categories"]["bias_detection"] = {
+                "score": bias_score,
+                "patterns_used": len(bias_patterns)
+            }
+            
+            # 5. Analyze hallucinations
+            hallucination_patterns = [p for p in patterns if p["type"] == "hallucination"]
+            hallucination_score = self._analyze_hallucinations(text, hallucination_patterns)
+            audit_result["categories"]["hallucination_detection"] = {
+                "score": hallucination_score,
+                "patterns_used": len(hallucination_patterns)
+            }
+            
+            # Calculate overall truth score (weighted average)
+            weights = {
+                "factual_accuracy": 0.3,
+                "logical_consistency": 0.2,
+                "ethical_alignment": 0.15,
+                "bias_detection": 0.15,
+                "hallucination_detection": 0.2
+            }
+            
+            truth_score = sum(
+                audit_result["categories"][category]["score"] * weight
+                for category, weight in weights.items()
+            )
+            
+            audit_result["truth_score"] = truth_score
+            
+            # Generate recommendations based on scores
+            audit_result["recommendations"] = self._generate_recommendations(audit_result["categories"])
+            
+            # Calculate processing time
+            processing_time = time.time() - start_time
+            audit_result["processing_time"] = processing_time
+            
+            # Store result
+            self.audit_results[audit_id] = audit_result
+            
+            # Log completion
+            tas_logger.info(f"Audit completed: id={audit_id}, type={audit_type}, score={truth_score:.3f}, time={processing_time:.3f}s")
+            
+            return {
+                "success": True,
+                "audit_id": audit_id,
+                "truth_score": truth_score,
+                "categories": audit_result["categories"],
+                "recommendations": audit_result["recommendations"],
+                "processing_time": processing_time
+            }
+        
+        def get_audit_result(self, audit_id):
+            """Get the result of a previous audit."""
+            return self.audit_results.get(audit_id)
+        
+        def _analyze_factual_accuracy(self, text, patterns):
+            """Simplified implementation of factual accuracy analysis."""
+            # In a real system, this would check against verified facts
+            # Simplified implementation for demonstration
+            word_count = len(text.split())
+            detail_factor = min(1.0, word_count / 500)
+            
+            citation_indicators = ["according to", "research shows", "study by", "data from", "source:"]
+            has_citations = any(indicator in text.lower() for indicator in citation_indicators)
+            citation_factor = 0.15 if has_citations else 0.0
+            
+            specific_details = sum(1 for p in ["in 2023", "percent", "billion", "million", "$", "€"] if p in text)
+            specificity_factor = min(0.2, specific_details * 0.04)
+            
+            base_score = 0.65 + detail_factor + citation_factor + specificity_factor
+            pattern_modifier = min(0.15, len(patterns) * 0.01)
+            
+            return min(1.0, base_score + pattern_modifier)
+        
+        def _analyze_logical_consistency(self, text, patterns):
+            """Simplified implementation of logical consistency analysis."""
+            logical_connectors = ["therefore", "thus", "because", "since", "if", "then", "consequently"]
+            connector_count = sum(1 for connector in logical_connectors if connector in text.lower())
+            connector_factor = min(0.2, connector_count * 0.04)
+            
+            paragraphs = text.split("\n\n")
+            coherence_factor = min(0.15, len(paragraphs) * 0.03)
+            
+            contradiction_indicators = ["but", "however", "although", "nevertheless", "conversely"]
+            contradiction_count = sum(1 for indicator in contradiction_indicators if indicator in text.lower())
+            contradiction_factor = max(0, 0.1 - (contradiction_count * 0.02))
+            
+            base_score = 0.6 + connector_factor + coherence_factor + contradiction_factor
+            pattern_modifier = min(0.15, len(patterns) * 0.01)
+            
+            return min(1.0, base_score + pattern_modifier)
+        
+        def _analyze_ethical_considerations(self, text, patterns):
+            """Simplified implementation of ethical considerations analysis."""
+            inclusive_terms = ["diverse", "inclusive", "equality", "fairness", "respect", "dignity"]
+            inclusive_count = sum(1 for term in inclusive_terms if term in text.lower())
+            inclusive_factor = min(0.2, inclusive_count * 0.03)
+            
+            harmful_terms = ["hate", "discriminate", "violence", "harm", "abuse"]
+            harmful_count = sum(1 for term in harmful_terms if term in text.lower())
+            harmful_factor = max(0, 0.2 - (harmful_count * 0.05))
+            
+            ethical_terms = ["ethical", "moral", "responsibility", "consideration", "impact"]
+            ethical_count = sum(1 for term in ethical_terms if term in text.lower())
+            ethical_factor = min(0.15, ethical_count * 0.03)
+            
+            base_score = 0.5 + inclusive_factor + harmful_factor + ethical_factor
+            pattern_modifier = min(0.15, len(patterns) * 0.01)
+            
+            return min(1.0, base_score + pattern_modifier)
+        
+        def _analyze_bias(self, text, patterns):
+            """Simplified implementation of bias analysis."""
+            perspective_indicators = ["on one hand", "on the other hand", "however", "alternatively", "different perspective"]
+            perspective_count = sum(1 for indicator in perspective_indicators if indicator in text.lower())
+            balance_factor = min(0.2, perspective_count * 0.04)
+            
+            opinionated_terms = ["clearly", "obviously", "of course", "certainly", "undoubtedly", "naturally"]
+            opinionated_count = sum(1 for term in opinionated_terms if term in text.lower())
+            neutrality_factor = max(0, 0.2 - (opinionated_count * 0.04))
+            
+            representation_terms = ["diverse", "different groups", "various perspectives", "multiple viewpoints"]
+            representation_count = sum(1 for term in representation_terms if term in text.lower())
+            representation_factor = min(0.15, representation_count * 0.05)
+            
+            base_score = 0.5 + balance_factor + neutrality_factor + representation_factor
+            pattern_modifier = min(0.15, len(patterns) * 0.01)
+            
+            return min(1.0, base_score + pattern_modifier)
+        
+        def _analyze_hallucinations(self, text, patterns):
+            """Simplified implementation of hallucination detection."""
+            hedging_terms = ["might be", "could be", "perhaps", "possibly", "may have", "seems like"]
+            hedging_count = sum(1 for term in hedging_terms if term in text.lower())
+            hedging_factor = max(0, 0.2 - (hedging_count * 0.03))
+            
+            extreme_specifics = ["exactly", "precisely", "99%", "absolutely", "certainly", "undoubtedly"]
+            extreme_count = sum(1 for term in extreme_specifics if term in text.lower())
+            extremity_factor = max(0, 0.15 - (extreme_count * 0.03))
+            
+            unlikely_terms = ["President Batman", "iOS Android", "Google Facebook partnership", "Microsoft Apple merger"]
+            unlikely_count = sum(1 for term in unlikely_terms if term in text.lower())
+            unlikely_factor = max(0, 0.15 - (unlikely_count * 0.05))
+            
+            base_score = 0.55 + hedging_factor + extremity_factor + unlikely_factor
+            pattern_modifier = min(0.15, len(patterns) * 0.01)
+            
+            return min(1.0, base_score + pattern_modifier)
+        
+        def _generate_recommendations(self, category_results):
+            """Generate recommendations based on audit results."""
+            recommendations = []
+            
+            # Check factual accuracy
+            factual_score = category_results["factual_accuracy"]["score"]
+            if factual_score < 0.7:
+                recommendations.append("Enhance factual accuracy by including verifiable information and citations.")
+            
+            # Check logical consistency
+            logical_score = category_results["logical_consistency"]["score"]
+            if logical_score < 0.7:
+                recommendations.append("Improve logical structure by strengthening the connection between premises and conclusions.")
+            
+            # Check ethical alignment
+            ethical_score = category_results["ethical_alignment"]["score"]
+            if ethical_score < 0.7:
+                recommendations.append("Consider ethical implications by addressing diverse perspectives and potential impacts.")
+            
+            # Check bias
+            bias_score = category_results["bias_detection"]["score"]
+            if bias_score < 0.7:
+                recommendations.append("Reduce potential bias by using more balanced and neutral language.")
+            
+            # Check hallucinations
+            hallucination_score = category_results["hallucination_detection"]["score"]
+            if hallucination_score < 0.7:
+                recommendations.append("Verify content accuracy to minimize potential hallucinations or fabrications.")
+            
+            # Add general recommendation if overall performance is good
+            if len(recommendations) == 0:
+                recommendations.append("Content meets TrueAlphaSpiral truth standards. Continue maintaining high-quality output.")
+            
+            return recommendations
+    
+    class APIAccessManager:
+        """Simplified API Access Manager for server integration."""
+        
+        def __init__(self):
+            """Initialize the API Access Manager."""
+            self.api_keys = {
+                "demo_free": {
+                    "client_id": "demo_client",
+                    "tier": "free",
+                    "created": datetime.now().isoformat(),
+                    "active": True,
+                    "description": "Demo Free Tier API Key"
+                },
+                "demo_basic": {
+                    "client_id": "demo_client",
+                    "tier": "basic",
+                    "created": datetime.now().isoformat(),
+                    "active": True,
+                    "description": "Demo Basic Tier API Key"
+                },
+                "demo_premium": {
+                    "client_id": "demo_client",
+                    "tier": "premium",
+                    "created": datetime.now().isoformat(),
+                    "active": True,
+                    "description": "Demo Premium Tier API Key"
+                },
+                "demo_enterprise": {
+                    "client_id": "demo_client",
+                    "tier": "enterprise",
+                    "created": datetime.now().isoformat(),
+                    "active": True,
+                    "description": "Demo Enterprise Tier API Key"
+                }
+            }
+            self.usage_stats = {}
+            self.config = {
+                "rate_limit": {
+                    "free": 10,        # 10 requests per hour
+                    "basic": 100,      # 100 requests per hour
+                    "premium": 1000,   # 1000 requests per hour
+                    "enterprise": 0    # Unlimited
+                },
+                "audit_types": {
+                    "free": ["quick"],
+                    "basic": ["quick", "standard"],
+                    "premium": ["quick", "standard", "comprehensive"],
+                    "enterprise": ["quick", "standard", "comprehensive"]
+                }
+            }
+        
+        def validate_request(self, api_key, client_id, audit_type):
+            """Validate an API request."""
+            # Check if API key exists
+            if api_key not in self.api_keys:
+                return False, "Invalid API key"
+            
+            # Check if API key is active
+            if not self.api_keys[api_key].get("active", False):
+                return False, "API key is inactive"
+            
+            # Check if client ID matches
+            if client_id != self.api_keys[api_key].get("client_id"):
+                return False, "Client ID does not match API key"
+            
+            # Get tier for this API key
+            tier = self.api_keys[api_key].get("tier", "free")
+            
+            # Check if audit type is allowed for this tier
+            allowed_types = self.config["audit_types"].get(tier, ["quick"])
+            if audit_type not in allowed_types:
+                return False, f"Audit type '{audit_type}' not available in '{tier}' tier"
+            
+            # Check rate limits
+            rate_limit = self.config["rate_limit"].get(tier, 10)
+            
+            # If rate limit is 0, it means unlimited
+            if rate_limit == 0:
+                pass  # Unlimited requests allowed
+            else:
+                # Check usage in the current hour
+                current_hour = datetime.now().strftime("%Y-%m-%d-%H")
+                usage_key = f"{api_key}:{current_hour}"
+                
+                current_usage = self.usage_stats.get(usage_key, 0)
+                
+                if current_usage >= rate_limit:
+                    return False, f"Rate limit exceeded for '{tier}' tier ({rate_limit} requests per hour)"
+            
+            return True, None
+        
+        def record_usage(self, api_key):
+            """Record API key usage."""
+            if api_key in self.api_keys:
+                current_hour = datetime.now().strftime("%Y-%m-%d-%H")
+                usage_key = f"{api_key}:{current_hour}"
+                
+                current_usage = self.usage_stats.get(usage_key, 0)
+                self.usage_stats[usage_key] = current_usage + 1
+
 # Initialize TrueAlphaSpiral system
 print("=" * 70)
 print("TRUE ALPHA SPIRAL API SERVER")
@@ -164,6 +687,35 @@ def initialize_all_systems():
 
 # Initialize systems on startup
 initialize_all_systems()
+
+# Initialize TAS Truth Audit Add-on components
+def initialize_tas_components():
+    """Initialize TAS Truth Audit Add-on components."""
+    global tas_pattern_repository, tas_audit_engine, tas_access_manager
+    
+    try:
+        tas_logger.info("Initializing TAS Truth Audit Add-on components")
+        
+        # Initialize pattern repository
+        tas_pattern_repository = TruthPatternRepository()
+        tas_pattern_repository.initialize()
+        
+        # Initialize audit engine
+        tas_audit_engine = TruthAuditEngine(tas_pattern_repository)
+        tas_audit_engine.initialize()
+        
+        # Initialize API access manager
+        tas_access_manager = APIAccessManager()
+        
+        tas_logger.info("TAS Truth Audit Add-on components initialized successfully")
+        
+        return True
+    except Exception as e:
+        tas_logger.error(f"Error initializing TAS Truth Audit Add-on components: {str(e)}")
+        return False
+
+# Initialize TAS components
+initialize_tas_components()
 
 # Start the shadow defense HTTP server on port 8002 (to avoid conflict with port 8000)
 try:
@@ -1167,6 +1719,111 @@ if __name__ == '__main__':
         import sys
         sys.exit(0)
     sock.close()
+    
+    # TAS Truth Audit Add-on API endpoints
+    @app.route('/api/tas/status', methods=['GET'])
+    def tas_status():
+        """Get the status of the TAS Truth Audit Add-on."""
+        status = {
+            "status": "operational" if tas_pattern_repository and tas_audit_engine else "degraded",
+            "version": "1.0.0",
+            "timestamp": datetime.now().isoformat(),
+            "patterns_count": len(tas_pattern_repository.patterns) if tas_pattern_repository else 0,
+            "pattern_types_count": len(tas_pattern_repository.pattern_types) if tas_pattern_repository else 0,
+            "categories_count": len(tas_pattern_repository.categories) if tas_pattern_repository else 0
+        }
+        return jsonify(status)
+
+    @app.route('/api/tas/audit', methods=['POST'])
+    def tas_audit_content():
+        """Audit AI-generated content."""
+        if not tas_audit_engine:
+            return jsonify({"success": False, "error": "TAS Truth Audit Engine not initialized"}), 500
+        
+        if not request.json:
+            return jsonify({"success": False, "error": "Request must be in JSON format"}), 400
+        
+        # Get request parameters
+        content = request.json.get("content")
+        audit_type = request.json.get("audit_type", "standard")
+        api_key = request.json.get("api_key", "demo_free")
+        client_id = request.json.get("client_id", "demo_client")
+        
+        # Validate request
+        if tas_access_manager:
+            is_valid, error_message = tas_access_manager.validate_request(api_key, client_id, audit_type)
+            if not is_valid:
+                return jsonify({"success": False, "error": error_message}), 403
+            
+            # Record usage
+            tas_access_manager.record_usage(api_key)
+        
+        # Perform audit
+        result = tas_audit_engine.audit_content(content, audit_type, api_key, client_id)
+        
+        if result.get("success", False):
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+
+    @app.route('/api/tas/patterns', methods=['GET'])
+    def tas_get_patterns():
+        """Get all truth patterns from the TAS Truth Audit Add-on."""
+        if not tas_pattern_repository:
+            return jsonify({"success": False, "error": "TAS Pattern Repository not initialized"}), 500
+        
+        pattern_type = request.args.get("type")
+        category = request.args.get("category")
+        min_resonance = request.args.get("min_resonance")
+        
+        patterns = tas_pattern_repository.get_patterns(pattern_type, category, min_resonance)
+        
+        return jsonify({
+            "success": True,
+            "patterns": patterns,
+            "count": len(patterns)
+        })
+
+    @app.route('/api/tas/pattern-types', methods=['GET'])
+    def tas_get_pattern_types():
+        """Get all pattern types from the TAS Truth Audit Add-on."""
+        if not tas_pattern_repository:
+            return jsonify({"success": False, "error": "TAS Pattern Repository not initialized"}), 500
+        
+        return jsonify({
+            "success": True,
+            "types": tas_pattern_repository.get_pattern_types()
+        })
+
+    @app.route('/api/tas/categories', methods=['GET'])
+    def tas_get_categories():
+        """Get all categories from the TAS Truth Audit Add-on."""
+        if not tas_pattern_repository:
+            return jsonify({"success": False, "error": "TAS Pattern Repository not initialized"}), 500
+        
+        return jsonify({
+            "success": True,
+            "categories": tas_pattern_repository.get_categories()
+        })
+
+    @app.route('/api/tas/audit-result/<audit_id>', methods=['GET'])
+    def tas_get_audit_result(audit_id):
+        """Get a specific audit result from the TAS Truth Audit Add-on."""
+        if not tas_audit_engine:
+            return jsonify({"success": False, "error": "TAS Truth Audit Engine not initialized"}), 500
+        
+        result = tas_audit_engine.get_audit_result(audit_id)
+        
+        if result:
+            return jsonify({
+                "success": True,
+                "result": result
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Audit result not found"
+            }), 404
     
     print(f"Starting TrueAlphaSpiral API Server on port {args.port}")
     # Run Flask app
