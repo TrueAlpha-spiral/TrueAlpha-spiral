@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -74,6 +74,14 @@ export default function Header() {
               }`}>
                 <AlertTriangle className="h-4 w-4 inline-block mr-1" />
                 Risk Assessment
+              </span>
+            </Link>
+            <Link href="/tas-integration">
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                isActiveLink("/tas-integration") ? "text-primary" : "text-muted-foreground"
+              }`}>
+                <Zap className="h-4 w-4 inline-block mr-1" />
+                TAS Integration
               </span>
             </Link>
           </nav>
