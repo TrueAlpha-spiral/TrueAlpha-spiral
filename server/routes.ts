@@ -29,6 +29,7 @@ import {
   getAuditResult
 } from './services/python-api-service';
 import fetch from 'node-fetch';
+import { v4 as uuidv4 } from 'uuid';
 
 export function registerRoutes(app: Express): Server {
   // Simple health check endpoint
@@ -44,31 +45,37 @@ export function registerRoutes(app: Express): Server {
   // Serve documentation files
   app.get('/api/documentation/:filename', (req, res) => {
     const { filename } = req.params;
-    const path = require('path');
-    const fs = require('fs');
-    
-    // Whitelist of allowed documentation files
-    const allowedFiles = [
-      'SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md',
-      'INDEPENDENT_VERIFICATION_LAYER.md',
-      'SOVEREIGNTY_PRINCIPLES.md',
-      'TARSI_ARCHITECTURAL_BLUEPRINT.md'
-    ];
-    
-    if (!allowedFiles.includes(filename)) {
-      return res.status(404).json({ error: 'Documentation file not found' });
-    }
-    
-    const filePath = path.resolve(process.cwd(), filename);
-    
-    fs.readFile(filePath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
-      if (err) {
-        console.error(`Error reading documentation file ${filename}:`, err);
-        return res.status(500).json({ error: 'Failed to read documentation file' });
-      }
-      
-      res.setHeader('Content-Type', 'text/markdown');
-      res.send(data);
+    import('path').then(path => {
+      import('fs/promises').then(async fs => {
+        // Whitelist of allowed documentation files
+        const allowedFiles = [
+          'SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md',
+          'INDEPENDENT_VERIFICATION_LAYER.md',
+          'SOVEREIGNTY_PRINCIPLES.md',
+          'TARSI_ARCHITECTURAL_BLUEPRINT.md'
+        ];
+        
+        if (!allowedFiles.includes(filename)) {
+          return res.status(404).json({ error: 'Documentation file not found' });
+        }
+        
+        const filePath = path.resolve(process.cwd(), filename);
+        
+        try {
+          const data = await fs.readFile(filePath, 'utf8');
+          res.setHeader('Content-Type', 'text/markdown');
+          res.send(data);
+        } catch (err) {
+          console.error(`Error reading documentation file ${filename}:`, err);
+          return res.status(500).json({ error: 'Failed to read documentation file' });
+        }
+      }).catch(err => {
+        console.error('Error importing fs module:', err);
+        res.status(500).json({ error: 'Server configuration error' });
+      });
+    }).catch(err => {
+      console.error('Error importing path module:', err);
+      res.status(500).json({ error: 'Server configuration error' });
     });
   });
   
@@ -991,6 +998,492 @@ export function registerRoutes(app: Express): Server {
       console.error('Error importing truth pattern:', error);
       res.status(500).json({ error: 'Failed to import truth pattern' });
     }
+  });
+
+  // Dimensional Boundary Simulation API
+  
+  // Simulation state - in-memory for now
+  let simulationState = {
+    id: 'sim-' + uuidv4().substring(0, 8),
+    status: 'idle',
+    dimensions: [
+      { 
+        id: "dim-truth", 
+        name: "Truth Domain", 
+        description: "The fundamental domain where objective truths reside",
+        integrity: 0.95,
+        color: "#6e44ff",
+        rules: [
+          "All statements must be verifiable",
+          "Logical consistency is mandatory",
+          "No contradictions allowed"
+        ]
+      },
+      { 
+        id: "dim-ethical", 
+        name: "Ethical Domain", 
+        description: "The domain of moral principles and ethical frameworks",
+        integrity: 0.88,
+        color: "#00e5ff",
+        rules: [
+          "Actions must consider all stakeholders",
+          "Harm minimization is prioritized",
+          "Transparency is required"
+        ]
+      },
+      { 
+        id: "dim-regulatory", 
+        name: "Regulatory Domain", 
+        description: "The domain of legal and regulatory frameworks",
+        integrity: 0.92,
+        color: "#00ff9d",
+        rules: [
+          "Compliance with applicable laws",
+          "Documentation of all processes",
+          "Auditability of all actions"
+        ]
+      }
+    ],
+    entities: [],
+    crossingEvents: [],
+    config: {
+      speed: 0.5,
+      boundaryStrength: 0.7,
+      allowMultipleCrossings: false,
+      dimensionalDecayRate: 0.02,
+    }
+  };
+  
+  // Function to generate a random entity for the simulation
+  function generateEntity() {
+    const dimensions = simulationState.dimensions;
+    if (dimensions.length < 2) return null;
+    
+    // Select random dimensions for start and target (must be different)
+    const startDimIndex = Math.floor(Math.random() * dimensions.length);
+    let targetDimIndex = startDimIndex;
+    while (targetDimIndex === startDimIndex) {
+      targetDimIndex = Math.floor(Math.random() * dimensions.length);
+    }
+    
+    const startDim = dimensions[startDimIndex];
+    const targetDim = dimensions[targetDimIndex];
+    
+    // Calculate canvas position based on dimension
+    const canvasWidth = 800;
+    const canvasHeight = 500;
+    const dimensionWidth = canvasWidth / dimensions.length;
+    
+    const x = (dimensionWidth * startDimIndex) + (dimensionWidth * 0.5) + (Math.random() * dimensionWidth * 0.5 - dimensionWidth * 0.25);
+    const y = 100 + Math.random() * (canvasHeight - 200);
+    
+    // Generate a color based on a blend of start and target dimensions
+    const blendedColor = blendColors(startDim.color, targetDim.color, 0.3);
+    
+    return {
+      id: 'entity-' + uuidv4().substring(0, 8),
+      name: getEntityName(),
+      startDimension: startDim.id,
+      targetDimension: targetDim.id,
+      integrityImpact: 0.01 + Math.random() * 0.09, // 0.01 to 0.1
+      crossingProbability: 0.4 + Math.random() * 0.5, // 0.4 to 0.9
+      currentPosition: {
+        x,
+        y,
+        dimension: startDim.id
+      },
+      size: 5 + Math.random() * 15, // 5 to 20
+      color: blendedColor,
+      status: "waiting",
+      path: [{x, y, dimension: startDim.id}]
+    };
+  }
+  
+  // Helper function to blend colors
+  function blendColors(color1, color2, ratio) {
+    // Convert hex to RGB
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    };
+    
+    // Convert rgb to hex
+    const rgbToHex = (r, g, b) => {
+      return '#' + [r, g, b].map(x => {
+        const hex = Math.round(x).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      }).join('');
+    };
+    
+    const rgb1 = hexToRgb(color1);
+    const rgb2 = hexToRgb(color2);
+    
+    // Blend the colors
+    const r = rgb1.r * (1 - ratio) + rgb2.r * ratio;
+    const g = rgb1.g * (1 - ratio) + rgb2.g * ratio;
+    const b = rgb1.b * (1 - ratio) + rgb2.b * ratio;
+    
+    return rgbToHex(r, g, b);
+  }
+  
+  // Generate creative names for entities
+  function getEntityName() {
+    const prefixes = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Theta', 'Omega', 'Sigma', 'Quantum', 'Meta', 'Flux', 'Core', 'Eigen'];
+    const types = ['Concept', 'Principle', 'Statement', 'Theory', 'Axiom', 'Postulate', 'Theorem', 'Proposition', 'Rule', 'Law'];
+    
+    return prefixes[Math.floor(Math.random() * prefixes.length)] + ' ' + types[Math.floor(Math.random() * types.length)];
+  }
+  
+  // Simulation step function
+  let simulationInterval = null;
+  function simulationStep() {
+    if (simulationState.status !== 'running') return;
+    
+    // Update timestamp
+    simulationState.currentTime = new Date().toISOString();
+    
+    // Process entities
+    for (const entity of simulationState.entities) {
+      if (entity.status === 'waiting' || entity.status === 'crossing') {
+        // If entity is waiting or actively crossing, determine if it should start/continue crossing
+        if (entity.currentPosition.dimension === entity.targetDimension) {
+          // Already reached target dimension
+          entity.status = 'succeeded';
+          continue;
+        }
+        
+        // Get current and target dimensions
+        const currentDimIndex = simulationState.dimensions.findIndex(d => d.id === entity.currentPosition.dimension);
+        const targetDimIndex = simulationState.dimensions.findIndex(d => d.id === entity.targetDimension);
+        
+        if (currentDimIndex === -1 || targetDimIndex === -1) continue;
+        
+        // Determine direction (left or right)
+        const direction = targetDimIndex > currentDimIndex ? 1 : -1;
+        
+        // Calculate boundary position
+        const canvasWidth = 800;
+        const dimensionWidth = canvasWidth / simulationState.dimensions.length;
+        const boundaryX = (currentDimIndex + (direction > 0 ? 1 : 0)) * dimensionWidth;
+        
+        // Move towards boundary if crossing or close enough to start
+        const distanceToBoundary = Math.abs(entity.currentPosition.x - boundaryX);
+        
+        if (entity.status === 'crossing' || distanceToBoundary < 50) {
+          // Start or continue crossing
+          entity.status = 'crossing';
+          
+          // Move towards boundary
+          const speed = 1 + (simulationState.config.speed * 2); // 1-3 pixels per step
+          const moveX = Math.min(speed, distanceToBoundary) * direction;
+          
+          // Add some random vertical movement
+          const moveY = (Math.random() - 0.5) * 4;
+          
+          // Update position
+          entity.currentPosition.x += moveX;
+          entity.currentPosition.y += moveY;
+          
+          // Clamp Y position to stay within canvas
+          entity.currentPosition.y = Math.max(30, Math.min(470, entity.currentPosition.y));
+          
+          // Add to path
+          entity.path.push({...entity.currentPosition});
+          
+          // Check if crossed boundary
+          if ((direction > 0 && entity.currentPosition.x >= boundaryX) || 
+              (direction < 0 && entity.currentPosition.x <= boundaryX)) {
+            
+            // Prepare for crossing attempt
+            const boundaryStrengthFactor = simulationState.config.boundaryStrength;
+            const currentDimension = simulationState.dimensions[currentDimIndex];
+            const targetDimension = simulationState.dimensions[targetDimIndex];
+            
+            // Calculate crossing success probability
+            let successProbability = entity.crossingProbability;
+            
+            // Adjust probability based on boundary strength
+            successProbability -= boundaryStrengthFactor * 0.5;
+            
+            // Adjust based on integrity of current dimension
+            successProbability += (currentDimension.integrity - 0.5) * 0.2;
+            
+            // Determine if crossing successful
+            const success = Math.random() < successProbability;
+            
+            // Generate anomalies list
+            const anomalies = [];
+            if (Math.random() < 0.3) {
+              const anomalyCount = Math.floor(Math.random() * 3) + 1;
+              const possibleAnomalies = [
+                "Truth degradation detected",
+                "Dimensional ripple effect",
+                "Coherence fluctuation",
+                "Integrity wavefront distortion",
+                "Boundary membrane instability",
+                "Conceptual drift anomaly",
+                "Validation echo detected",
+                "Pattern recognition fault"
+              ];
+              
+              for (let i = 0; i < anomalyCount; i++) {
+                const randomAnomaly = possibleAnomalies[Math.floor(Math.random() * possibleAnomalies.length)];
+                if (!anomalies.includes(randomAnomaly)) {
+                  anomalies.push(randomAnomaly);
+                }
+              }
+            }
+            
+            // Create crossing event
+            const crossingEvent = {
+              id: 'cross-' + uuidv4().substring(0, 8),
+              entityId: entity.id,
+              fromDimension: currentDimension.id,
+              toDimension: targetDimension.id,
+              timestamp: new Date().toISOString(),
+              success,
+              integrityImpact: entity.integrityImpact,
+              anomalies
+            };
+            
+            simulationState.crossingEvents.push(crossingEvent);
+            
+            if (success) {
+              // Update entity position to new dimension
+              entity.currentPosition.dimension = targetDimension.id;
+              
+              // If target reached, mark as succeeded
+              if (targetDimension.id === entity.targetDimension) {
+                entity.status = 'succeeded';
+              } else if (!simulationState.config.allowMultipleCrossings) {
+                // If multiple crossings not allowed, mark as succeeded anyway
+                entity.status = 'succeeded';
+              } else {
+                // Otherwise continue in crossing state
+                entity.status = 'crossing';
+              }
+              
+              // Update dimension integrity
+              targetDimension.integrity = Math.max(
+                0.1, 
+                targetDimension.integrity - (entity.integrityImpact * simulationState.config.dimensionalDecayRate)
+              );
+            } else {
+              // Failed crossing
+              entity.status = 'failed';
+              
+              // Move back to original dimension but close to boundary
+              entity.currentPosition.x = boundaryX - (direction * 10);
+              entity.path.push({...entity.currentPosition});
+            }
+          }
+        }
+      }
+    }
+    
+    // Add new entities occasionally if we have less than 10
+    if (simulationState.entities.length < 10 && Math.random() < 0.05) {
+      const newEntity = generateEntity();
+      if (newEntity) {
+        simulationState.entities.push(newEntity);
+      }
+    }
+  }
+  
+  // Get current simulation state
+  app.get('/api/simulation/state', (_req, res) => {
+    res.json(simulationState);
+  });
+  
+  // Start simulation
+  app.post('/api/simulation/start', (_req, res) => {
+    // Only start if not already running
+    if (simulationState.status !== 'running') {
+      simulationState.status = 'running';
+      
+      // Set start time if not set
+      if (!simulationState.startTime) {
+        simulationState.startTime = new Date().toISOString();
+      }
+      
+      simulationState.currentTime = new Date().toISOString();
+      
+      // Generate initial entities if none exist
+      if (simulationState.entities.length === 0) {
+        for (let i = 0; i < 3; i++) {
+          const entity = generateEntity();
+          if (entity) {
+            simulationState.entities.push(entity);
+          }
+        }
+      }
+      
+      // Start simulation interval
+      clearInterval(simulationInterval);
+      simulationInterval = setInterval(simulationStep, 100);
+    }
+    
+    res.json({ status: simulationState.status });
+  });
+  
+  // Pause simulation
+  app.post('/api/simulation/pause', (_req, res) => {
+    if (simulationState.status === 'running') {
+      simulationState.status = 'paused';
+      clearInterval(simulationInterval);
+    }
+    
+    res.json({ status: simulationState.status });
+  });
+  
+  // Reset simulation
+  app.post('/api/simulation/reset', (_req, res) => {
+    // Stop current simulation
+    clearInterval(simulationInterval);
+    
+    // Reset state
+    simulationState = {
+      id: 'sim-' + uuidv4().substring(0, 8),
+      status: 'idle',
+      dimensions: [
+        { 
+          id: "dim-truth", 
+          name: "Truth Domain", 
+          description: "The fundamental domain where objective truths reside",
+          integrity: 0.95,
+          color: "#6e44ff",
+          rules: [
+            "All statements must be verifiable",
+            "Logical consistency is mandatory",
+            "No contradictions allowed"
+          ]
+        },
+        { 
+          id: "dim-ethical", 
+          name: "Ethical Domain", 
+          description: "The domain of moral principles and ethical frameworks",
+          integrity: 0.88,
+          color: "#00e5ff",
+          rules: [
+            "Actions must consider all stakeholders",
+            "Harm minimization is prioritized",
+            "Transparency is required"
+          ]
+        },
+        { 
+          id: "dim-regulatory", 
+          name: "Regulatory Domain", 
+          description: "The domain of legal and regulatory frameworks",
+          integrity: 0.92,
+          color: "#00ff9d",
+          rules: [
+            "Compliance with applicable laws",
+            "Documentation of all processes",
+            "Auditability of all actions"
+          ]
+        }
+      ],
+      entities: [],
+      crossingEvents: [],
+      config: {
+        speed: 0.5,
+        boundaryStrength: 0.7,
+        allowMultipleCrossings: false,
+        dimensionalDecayRate: 0.02,
+      }
+    };
+    
+    res.json({ status: 'reset' });
+  });
+  
+  // Update simulation config
+  app.post('/api/simulation/config', (req, res) => {
+    const config = req.body;
+    
+    // Update valid config properties
+    if (typeof config.speed === 'number') {
+      simulationState.config.speed = Math.max(0.1, Math.min(2, config.speed));
+    }
+    
+    if (typeof config.boundaryStrength === 'number') {
+      simulationState.config.boundaryStrength = Math.max(0.1, Math.min(1, config.boundaryStrength));
+    }
+    
+    if (typeof config.allowMultipleCrossings === 'boolean') {
+      simulationState.config.allowMultipleCrossings = config.allowMultipleCrossings;
+    }
+    
+    if (typeof config.dimensionalDecayRate === 'number') {
+      simulationState.config.dimensionalDecayRate = Math.max(0, Math.min(0.1, config.dimensionalDecayRate));
+    }
+    
+    res.json(simulationState.config);
+  });
+  
+  // Add a new entity
+  app.post('/api/simulation/entity', (req, res) => {
+    const entityData = req.body;
+    
+    // Validate required fields
+    if (!entityData.name || !entityData.startDimension || !entityData.targetDimension) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    // Create new entity
+    const startDim = simulationState.dimensions.find(d => d.id === entityData.startDimension);
+    if (!startDim) {
+      return res.status(400).json({ error: 'Invalid start dimension' });
+    }
+    
+    // Find dimension index
+    const startDimIndex = simulationState.dimensions.findIndex(d => d.id === entityData.startDimension);
+    
+    // Calculate position
+    const canvasWidth = 800;
+    const canvasHeight = 500;
+    const dimensionWidth = canvasWidth / simulationState.dimensions.length;
+    
+    const x = (dimensionWidth * startDimIndex) + (dimensionWidth * 0.5) + (Math.random() * dimensionWidth * 0.5 - dimensionWidth * 0.25);
+    const y = 100 + Math.random() * (canvasHeight - 200);
+    
+    // Convert size to number if provided as string
+    let size = entityData.size || 10;
+    if (typeof size === 'string') {
+      size = parseInt(size);
+    }
+    
+    // Convert integrityImpact to number if provided as string
+    let integrityImpact = entityData.integrityImpact || 0.05;
+    if (typeof integrityImpact === 'string') {
+      integrityImpact = parseFloat(integrityImpact);
+    }
+    
+    const entity = {
+      id: 'entity-' + uuidv4().substring(0, 8),
+      name: entityData.name,
+      startDimension: entityData.startDimension,
+      targetDimension: entityData.targetDimension,
+      integrityImpact,
+      crossingProbability: 0.5 + Math.random() * 0.3, // 0.5 to 0.8
+      currentPosition: {
+        x,
+        y,
+        dimension: entityData.startDimension
+      },
+      size,
+      color: entityData.color || '#' + Math.floor(Math.random()*16777215).toString(16),
+      status: "waiting",
+      path: [{x, y, dimension: entityData.startDimension}]
+    };
+    
+    // Add to simulation
+    simulationState.entities.push(entity);
+    
+    res.status(201).json(entity);
   });
 
   const httpServer = createServer(app);

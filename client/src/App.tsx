@@ -11,6 +11,7 @@ import TASIntegrationPage from "@/pages/tas-integration-page";
 import PatternSharingPage from "@/pages/pattern-sharing-page";
 import MedicalTestingPage from "@/pages/medical-testing-page";
 import DocumentationPage from "@/pages/documentation-page";
+import DimensionalBoundaryPage from "@/pages/dimensional-boundary-page";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -120,6 +121,7 @@ export default function App() {
                     </div>
                   </Route>
                   <Route path="/documentation" component={DocumentationPage} />
+                  <Route path="/dimensional-boundary" component={DimensionalBoundaryPage} />
                   <Route>
                     <div className="container py-10">
                       <h1 className="text-3xl font-bold mb-4">404 - Page Not Found</h1>

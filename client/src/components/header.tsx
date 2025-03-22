@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -98,6 +98,14 @@ export default function Header() {
               }`}>
                 <Stethoscope className="h-4 w-4 inline-block mr-1" />
                 Medical Testing
+              </span>
+            </Link>
+            <Link href="/dimensional-boundary">
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                isActiveLink("/dimensional-boundary") ? "text-primary" : "text-muted-foreground"
+              }`}>
+                <Layers className="h-4 w-4 inline-block mr-1" />
+                Dimension Simulation
               </span>
             </Link>
           </nav>
