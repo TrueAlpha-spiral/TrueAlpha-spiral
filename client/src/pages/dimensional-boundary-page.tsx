@@ -116,21 +116,21 @@ export default function DimensionalBoundaryPage() {
   
   // Use query to get simulation state
   const { data: simulation, isLoading, error } = useQuery<SimulationState>({
-    queryKey: ['/api/simulation/state'],
+    queryKey: ['/api/dimensional-boundary/simulation'],
     refetchInterval: 1000, // Poll for updates
   });
   
   // Mutation for starting the simulation
   const startSimulationMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/simulation/start', {
+      const response = await fetch('/api/dimensional-boundary/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/simulation/state'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dimensional-boundary/simulation'] });
       toast({
         title: "Simulation Started",
         description: "Dimensional boundary crossing simulation is now running",
@@ -148,14 +148,14 @@ export default function DimensionalBoundaryPage() {
   // Mutation for pausing the simulation
   const pauseSimulationMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/simulation/pause', {
+      const response = await fetch('/api/dimensional-boundary/pause', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/simulation/state'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dimensional-boundary/simulation'] });
       toast({
         title: "Simulation Paused",
         description: "You can resume the simulation at any time",
@@ -166,14 +166,14 @@ export default function DimensionalBoundaryPage() {
   // Mutation for resetting the simulation
   const resetSimulationMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/simulation/reset', {
+      const response = await fetch('/api/dimensional-boundary/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/simulation/state'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dimensional-boundary/simulation'] });
       toast({
         title: "Simulation Reset",
         description: "Simulation has been reset to initial state",
@@ -186,7 +186,7 @@ export default function DimensionalBoundaryPage() {
   // Mutation for updating simulation config
   const updateConfigMutation = useMutation({
     mutationFn: async (config: SimulationState['config']) => {
-      const response = await fetch('/api/simulation/config', {
+      const response = await fetch('/api/dimensional-boundary/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
@@ -194,7 +194,7 @@ export default function DimensionalBoundaryPage() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/simulation/state'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dimensional-boundary/simulation'] });
       toast({
         title: "Configuration Updated",
         description: "Simulation parameters have been updated",
@@ -205,7 +205,7 @@ export default function DimensionalBoundaryPage() {
   // Mutation for adding a new entity
   const addEntityMutation = useMutation({
     mutationFn: async (entity: Partial<Entity>) => {
-      const response = await fetch('/api/simulation/entity', {
+      const response = await fetch('/api/dimensional-boundary/entity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entity),
@@ -213,7 +213,7 @@ export default function DimensionalBoundaryPage() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/simulation/state'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dimensional-boundary/simulation'] });
       toast({
         title: "Entity Added",
         description: "New entity has been added to the simulation",
