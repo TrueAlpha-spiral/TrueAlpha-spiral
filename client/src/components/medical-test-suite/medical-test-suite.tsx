@@ -598,7 +598,7 @@ export default function MedicalTestSuite({ testCases, cyberneticsEnabled = true,
                             </div>
                           </div>
                           
-                          {selectedTestCase.comparisonPoints.map((point, index) => (
+                          {selectedTestCase.comparisonPoints?.map((point, index) => (
                             <div key={index} className="p-4 bg-muted rounded-md">
                               <h4 className="font-medium mb-2">Standard Analysis Result</h4>
                               <p className="text-sm">{point.withoutCybernetics}</p>
@@ -614,7 +614,7 @@ export default function MedicalTestSuite({ testCases, cyberneticsEnabled = true,
                             </div>
                           </div>
                           
-                          {selectedTestCase.comparisonPoints.map((point, index) => (
+                          {selectedTestCase.comparisonPoints?.map((point, index) => (
                             <div key={index} className="p-4 bg-primary/10 border border-primary/20 rounded-md">
                               <h4 className="font-medium mb-2">Enhanced Analysis Result</h4>
                               <p className="text-sm">{point.withCybernetics}</p>
@@ -625,7 +625,7 @@ export default function MedicalTestSuite({ testCases, cyberneticsEnabled = true,
                       
                       <div className="mt-8 p-4 bg-muted rounded-md">
                         <h3 className="font-medium mb-2">Quantifiable Improvement</h3>
-                        {selectedTestCase.comparisonPoints.map((point, index) => (
+                        {selectedTestCase.comparisonPoints?.map((point, index) => (
                           <div key={index} className="flex items-center">
                             <FileBadge className="h-5 w-5 mr-2 text-primary" />
                             <p>{point.improvementMetric}</p>
@@ -641,15 +641,15 @@ export default function MedicalTestSuite({ testCases, cyberneticsEnabled = true,
                     <div className="space-y-6">
                       <h3 className="text-lg font-medium">Visualization Elements</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {selectedTestCase.visualizationElements.map((element, index) => (
+                        {selectedTestCase.visualizationElements?.map((element, index) => (
                           <Card key={index}>
                             <CardHeader className="pb-2">
-                              <CardTitle className="text-md">{element}</CardTitle>
+                              <CardTitle className="text-md">{element.name}</CardTitle>
                             </CardHeader>
                             <CardContent>
                               <div className="h-40 bg-muted rounded-md flex items-center justify-center">
                                 <p className="text-muted-foreground">
-                                  Visualization component: {element}
+                                  Visualization type: {element.type}
                                 </p>
                               </div>
                             </CardContent>
