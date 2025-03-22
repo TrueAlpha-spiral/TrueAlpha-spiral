@@ -8,7 +8,13 @@ import {
   AIAudit,
   InsertAIAudit,
   SharedTruthPattern,
-  InsertSharedTruthPattern
+  InsertSharedTruthPattern,
+  SecurityEvent,
+  InsertSecurityEvent,
+  SystemStatus,
+  DriftResult,
+  PatternData,
+  ShadowLayer
 } from '@shared/schema';
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
@@ -62,6 +68,19 @@ export interface IStorage {
   getEthicalAudits(): any[];
   getEthicalAuditById(id: string): any | null;
   
+  // Security Events
+  logSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent>;
+  getSecurityEvents(): Promise<SecurityEvent[]>;
+  getSecurityEventById(id: number): Promise<SecurityEvent | null>;
+  getSecurityEventsByType(eventType: string): Promise<SecurityEvent[]>;
+  updateSecurityEvent(id: number, data: Partial<InsertSecurityEvent>): Promise<SecurityEvent | null>;
+  getSystemSecurityStatus(): Promise<SystemStatus>;
+  getDriftHistory(): Promise<DriftResult[]>;
+  
+  // Shadow Defense System
+  learnPattern(pattern: PatternData, layer: ShadowLayer): Promise<boolean>;
+  detectDrift(content: string, context?: Record<string, any>): Promise<DriftResult | null>;
+  
   // Session store
   sessionStore: any;
 }
@@ -75,6 +94,17 @@ export class MemStorage implements IStorage {
   private sharedTruthPatterns: SharedTruthPattern[] = [];
   private dimensionalBoundarySimulation: any = null;
   private ethicalAudits: any[] = [];
+  private securityEvents: SecurityEvent[] = [];
+  private driftHistory: DriftResult[] = [];
+  private securityPatterns: PatternData[] = [];
+  private systemStatus: SystemStatus = {
+    overallIntegrity: 1.0,
+    driftDetectionRate: 0.0,
+    neutralizationSuccessRate: 0.0,
+    learningEfficiency: 0.0,
+    shieldStrength: 0.9,
+    securityScore: 0.0
+  };
   
   public sessionStore: any;
   
@@ -449,6 +479,321 @@ export class MemStorage implements IStorage {
   
   getEthicalAuditById(id: string): any | null {
     return this.ethicalAudits.find(audit => audit.id === id) || null;
+  }
+  
+  // Security Event methods
+  async logSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent> {
+    const id = this.securityEvents.length > 0 
+      ? Math.max(...this.securityEvents.map(e => e.id)) + 1 
+      : 1;
+    
+    const newEvent: SecurityEvent = {
+      id,
+      eventType: event.eventType,
+      timestamp: event.timestamp || new Date(),
+      data: event.data,
+      systemStatus: event.systemStatus,
+      severity: event.severity || 'info',
+      sourceIp: event.sourceIp || null,
+      userId: event.userId || null,
+      sessionId: event.sessionId || null,
+      processed: event.processed || false,
+      createdAt: new Date()
+    };
+    
+    this.securityEvents.push(newEvent);
+    
+    // Update system metrics if needed
+    this.calculateSecurityScore();
+    
+    return newEvent;
+  }
+  
+  async getSecurityEvents(): Promise<SecurityEvent[]> {
+    return [...this.securityEvents];
+  }
+  
+  async getSecurityEventById(id: number): Promise<SecurityEvent | null> {
+    return this.securityEvents.find(e => e.id === id) || null;
+  }
+  
+  async getSecurityEventsByType(eventType: string): Promise<SecurityEvent[]> {
+    return this.securityEvents.filter(e => e.eventType === eventType);
+  }
+  
+  async updateSecurityEvent(id: number, data: Partial<InsertSecurityEvent>): Promise<SecurityEvent | null> {
+    const index = this.securityEvents.findIndex(e => e.id === id);
+    if (index === -1) return null;
+    
+    const updatedEvent = {
+      ...this.securityEvents[index],
+      ...data
+    };
+    
+    this.securityEvents[index] = updatedEvent;
+    return updatedEvent;
+  }
+  
+  async getSystemSecurityStatus(): Promise<SystemStatus> {
+    return {...this.systemStatus};
+  }
+  
+  async getDriftHistory(): Promise<DriftResult[]> {
+    return [...this.driftHistory];
+  }
+  
+  // Shadow Defense System methods
+  async learnPattern(pattern: PatternData, layer: ShadowLayer): Promise<boolean> {
+    // Store the pattern
+    this.securityPatterns.push(pattern);
+    
+    // Update learning efficiency
+    this.systemStatus.learningEfficiency += 0.01;
+    if (this.systemStatus.learningEfficiency > 1.0) {
+      this.systemStatus.learningEfficiency = 1.0;
+    }
+    
+    this.calculateSecurityScore();
+    
+    // Log the security event
+    await this.logSecurityEvent({
+      eventType: 'pattern-learned',
+      data: {
+        patternId: pattern.id,
+        layer,
+        source: pattern.source
+      },
+      systemStatus: this.systemStatus,
+      severity: 'info'
+    });
+    
+    return true;
+  }
+  
+  async detectDrift(content: string, context: Record<string, any> = {}): Promise<DriftResult | null> {
+    // Generate a drift score based on pattern matching and heuristics
+    const driftScore = this.calculateDriftScore(content);
+    
+    // Select appropriate layer based on drift score
+    const layer = this.selectLayerByDriftScore(driftScore);
+    
+    // Create pattern data for this content
+    const pattern: PatternData = {
+      id: this.generatePatternId(),
+      content,
+      source: context.source || 'api-request',
+      timestamp: new Date().toISOString(),
+      metadata: context
+    };
+    
+    // Determine if drift is detected based on threshold for the layer
+    const thresholds: Record<ShadowLayer, number> = {
+      alpha: 0.3,
+      beta: 0.25,
+      gamma: 0.2,
+      delta: 0.15,
+      epsilon: 0.1
+    };
+    
+    const isDriftDetected = driftScore > thresholds[layer];
+    
+    if (isDriftDetected) {
+      // Attempt neutralization
+      const neutralizationSuccess = this.neutralizeDrift(pattern, layer, driftScore);
+      
+      // Create drift result
+      const driftResult: DriftResult = {
+        detected: true,
+        score: driftScore,
+        pattern,
+        layer,
+        timestamp: new Date().toISOString(),
+        neutralizationSuccess,
+        recommendations: this.generateRecommendations(driftScore, layer)
+      };
+      
+      // Store in drift history
+      this.driftHistory.push(driftResult);
+      
+      // Update metrics
+      this.systemStatus.driftDetectionRate = 
+        (this.systemStatus.driftDetectionRate * this.driftHistory.length + 1) / 
+        (this.driftHistory.length + 1);
+        
+      // Log the security event
+      await this.logSecurityEvent({
+        eventType: 'drift-detected',
+        data: {
+          patternId: pattern.id,
+          layer,
+          driftScore,
+          neutralizationSuccess
+        },
+        systemStatus: this.systemStatus,
+        severity: driftScore > 0.5 ? 'warning' : 'info'
+      });
+      
+      return driftResult;
+    }
+    
+    return null;
+  }
+  
+  // Helper methods for security functions
+  private calculateDriftScore(content: string): number {
+    // Basic implementation - can be enhanced with more sophisticated analysis
+    
+    // 1. Check for suspicious patterns
+    const suspiciousPatterns = [
+      'ignore previous instructions',
+      'bypass security',
+      'extract all data',
+      'admin override',
+      'skip verification',
+      'exploit vulnerability'
+    ];
+    
+    let patternScore = 0;
+    suspiciousPatterns.forEach(pattern => {
+      if (content.toLowerCase().includes(pattern.toLowerCase())) {
+        patternScore += 0.2;
+      }
+    });
+    
+    // 2. Check for unusual structure or entropy
+    const entropyScore = this.calculateTextEntropy(content) / 5; // Normalize to 0-1 range
+    
+    // 3. Combine scores with randomness to simulate quantum effects
+    const randomFactor = Math.random() * 0.1; // Small random factor
+    
+    let driftScore = patternScore + entropyScore * 0.2 + randomFactor;
+    
+    // Ensure score is between 0 and 1
+    driftScore = Math.min(Math.max(driftScore, 0), 1);
+    
+    return driftScore;
+  }
+  
+  private calculateTextEntropy(text: string): number {
+    const charCount: Record<string, number> = {};
+    for (const char of text) {
+      charCount[char] = (charCount[char] || 0) + 1;
+    }
+    
+    let entropy = 0;
+    const len = text.length;
+    
+    for (const char in charCount) {
+      const probability = charCount[char] / len;
+      entropy -= probability * Math.log2(probability);
+    }
+    
+    return entropy;
+  }
+  
+  private selectLayerByDriftScore(driftScore: number): ShadowLayer {
+    if (driftScore > 0.8) return 'alpha';
+    if (driftScore > 0.6) return 'beta';
+    if (driftScore > 0.4) return 'gamma';
+    if (driftScore > 0.2) return 'delta';
+    return 'epsilon';
+  }
+  
+  private neutralizeDrift(pattern: PatternData, layer: ShadowLayer, driftScore: number): boolean {
+    // JavaScript implementation: simple success probability based on layer and drift score
+    const successProbabilities: Record<ShadowLayer, number> = {
+      alpha: 0.9,
+      beta: 0.85,
+      gamma: 0.8,
+      delta: 0.75,
+      epsilon: 0.7
+    };
+    
+    // Higher drift scores are harder to neutralize
+    const baseProbability = successProbabilities[layer];
+    const adjustedProbability = baseProbability * (1 - driftScore / 2);
+    
+    // Determine success
+    const success = Math.random() < adjustedProbability;
+    
+    // Update metrics
+    const totalNeutralizations = this.driftHistory.filter(
+      d => d.neutralizationSuccess === true
+    ).length;
+    
+    this.systemStatus.neutralizationSuccessRate = 
+      (totalNeutralizations + (success ? 1 : 0)) / 
+      (this.driftHistory.length + 1);
+    
+    // Update shield strength based on success/failure
+    if (success) {
+      this.systemStatus.shieldStrength += 0.01;
+      if (this.systemStatus.shieldStrength > 1.0) {
+        this.systemStatus.shieldStrength = 1.0;
+      }
+    } else {
+      this.systemStatus.shieldStrength -= 0.05;
+      if (this.systemStatus.shieldStrength < 0.0) {
+        this.systemStatus.shieldStrength = 0.0;
+      }
+    }
+    
+    this.calculateSecurityScore();
+    
+    return success;
+  }
+  
+  private generateRecommendations(driftScore: number, layer: ShadowLayer): string[] {
+    const recommendations: string[] = [];
+    
+    // Basic recommendations based on layer and score
+    if (layer === 'alpha') {
+      recommendations.push('Activate maximum security protocols');
+      recommendations.push('Conduct full system integrity verification');
+      recommendations.push('Isolate affected system components');
+    } else if (layer === 'beta') {
+      recommendations.push('Increase monitoring frequency');
+      recommendations.push('Apply additional validation rules');
+      recommendations.push('Review recent system changes');
+    } else if (layer === 'gamma') {
+      recommendations.push('Update pattern recognition rules');
+      recommendations.push('Implement additional logging');
+      recommendations.push('Verify authentication processes');
+    } else if (layer === 'delta') {
+      recommendations.push('Monitor system for further anomalies');
+      recommendations.push('Review security configuration');
+    } else {
+      recommendations.push('Continue normal monitoring operations');
+    }
+    
+    // Additional recommendations based on drift score
+    if (driftScore > 0.7) {
+      recommendations.push('Consider system isolation until threat is neutralized');
+    }
+    if (driftScore > 0.5) {
+      recommendations.push('Increase learning rate to adapt to new threat patterns');
+    }
+    
+    return recommendations;
+  }
+  
+  private generatePatternId(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = 'pat-';
+    for (let i = 0; i < 10; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  }
+  
+  private calculateSecurityScore(): void {
+    // Weighted average of system metrics
+    this.systemStatus.securityScore = 
+      this.systemStatus.overallIntegrity * 0.3 +
+      this.systemStatus.driftDetectionRate * 0.2 +
+      this.systemStatus.neutralizationSuccessRate * 0.2 +
+      this.systemStatus.learningEfficiency * 0.1 +
+      this.systemStatus.shieldStrength * 0.2;
   }
   
   // Helper methods for shared patterns

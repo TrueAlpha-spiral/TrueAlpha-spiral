@@ -232,6 +232,74 @@ export const importPatternSchema = z.object({
 
 export type ImportPatternInput = z.infer<typeof importPatternSchema>;
 
+// Security Event Table
+export const securityEvent = pgTable('security_event', {
+  id: serial('id').primaryKey(),
+  eventType: text('event_type').notNull(),
+  timestamp: timestamp('timestamp').defaultNow().notNull(),
+  data: json('data').notNull(),
+  systemStatus: json('system_status').notNull(),
+  severity: text('severity').notNull().default('info'),
+  sourceIp: text('source_ip'),
+  userId: integer('user_id'),
+  sessionId: text('session_id'),
+  processed: boolean('processed').notNull().default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+export type SecurityEvent = typeof securityEvent.$inferSelect;
+export type InsertSecurityEvent = typeof securityEvent.$inferInsert;
+
+export const insertSecurityEventSchema = createInsertSchema(securityEvent).omit({
+  id: true,
+  createdAt: true
+});
+
+// Security Log Schema
+export const securityLogSchema = z.object({
+  eventType: z.string().min(2, "Event type must be at least 2 characters long"),
+  data: z.record(z.any()),
+  severity: z.enum(['info', 'warning', 'error', 'critical']).default('info'),
+  sourceIp: z.string().optional(),
+  userId: z.number().optional(),
+  sessionId: z.string().optional()
+});
+
+export type SecurityLogInput = z.infer<typeof securityLogSchema>;
+
+// Shadow Layer Type
+export type ShadowLayer = 'alpha' | 'beta' | 'gamma' | 'delta' | 'epsilon';
+
+// Pattern Data Interface
+export interface PatternData {
+  id: string;
+  content: string;
+  source: string;
+  timestamp: string;
+  metadata?: Record<string, any>;
+}
+
+// Drift Detection Result Interface
+export interface DriftResult {
+  detected: boolean;
+  score: number;
+  pattern: PatternData;
+  layer: ShadowLayer;
+  timestamp: string;
+  neutralizationSuccess?: boolean;
+  recommendations?: string[];
+}
+
+// System Status Interface
+export interface SystemStatus {
+  overallIntegrity: number;
+  driftDetectionRate: number;
+  neutralizationSuccessRate: number;
+  learningEfficiency: number;
+  shieldStrength: number;
+  securityScore: number;
+}
+
 // Cross Reference Result Interface
 export interface CrossReferenceResult {
   originalText: string;
