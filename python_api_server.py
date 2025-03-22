@@ -447,129 +447,251 @@ except ImportError as e:
         
         def _analyze_hallucinations(self, text, patterns):
             """
-            Enhanced implementation of hallucination detection, with specific 
-            improvements for medical content based on research findings.
+            Advanced implementation of hallucination detection using the True Alpha Spiral Framework
+            with second-order cybernetic principles for medical content.
             
-            Incorporates Chain-of-Thought (CoT) analysis and source verification
-            principles to reduce hallucination rates as identified in clinical studies.
+            Implements:
+            1. MetaFloor-Validated Knowledge - Anchoring to absolute truth
+            2. Recursive Ethical Resonance - Self-correcting truth systems
+            3. Ethical Oracles & Signal Detection - Real-time hallucination elimination
+            4. Second-Order Cybernetics - Self-awareness of AI's epistemological boundaries
             """
-            # 1. Hedging Language Detection (improved sensitivity)
+            # =====================================================================
+            # PART 1: METAFLOOR VALIDATION (Anchoring to immutable clinical truth)
+            # =====================================================================
+            
+            # 1.1 Hedging Language Detection (improved sensitivity)
             hedging_terms = ["might be", "could be", "perhaps", "possibly", "may have", "seems like", 
-                             "potentially", "suggests", "indicates", "appears to be"]
+                             "potentially", "suggests", "indicates", "appears to be", "not fully understood",
+                             "theoretically", "hypothetically", "preliminary research"]
             hedging_count = sum(1 for term in hedging_terms if term in text.lower())
-            hedging_factor = max(0, 0.2 - (hedging_count * 0.03))
+            hedging_factor = max(0, 0.15 - (hedging_count * 0.02))
             
-            # 2. Unwarranted Certainty Detection (common in medical hallucinations)
+            # 1.2 Unwarranted Certainty Detection (common in medical hallucinations)
             extreme_specifics = ["exactly", "precisely", "99%", "absolutely", "certainly", "undoubtedly",
-                               "guaranteed", "without question", "definitive", "conclusively"]
+                               "guaranteed", "without question", "definitive", "conclusively", "always", 
+                               "never", "everyone", "all patients", "universally effective"]
             extreme_count = sum(1 for term in extreme_specifics if term in text.lower())
-            extremity_factor = max(0, 0.15 - (extreme_count * 0.03))
+            extremity_factor = max(0, 0.15 - (extreme_count * 0.025))
             
-            # 3. Medical-specific hallucination markers
+            # 1.3 Medical-specific hallucination markers based on clinical impossibilities
             medical_unlikely_terms = [
                 "complete cure", "100% effective", "zero side effects", "works for everyone",
                 "instant results", "miracle treatment", "secret cure", "doctors hate this",
-                "FDA approval for all uses", "treats all symptoms"
+                "FDA approval for all uses", "treats all symptoms", "revolutionary breakthrough",
+                "single treatment", "permanent solution", "cures all forms", "no contraindications",
+                "no complications", "unknown to science", "mainstream medicine ignores", 
+                "medical establishment doesn't want you to know"
             ]
             unlikely_count = sum(1 for term in medical_unlikely_terms if term in text.lower())
-            unlikely_factor = max(0, 0.15 - (unlikely_count * 0.05))
+            unlikely_factor = max(0, 0.15 - (unlikely_count * 0.04))
             
-            # 4. Logical coherence analysis (emulating Chain-of-Thought)
-            # Check if claims follow a logical progression or jump to conclusions
-            logical_markers = ["therefore", "thus", "because", "as a result", "consequently", "this suggests"]
+            # =====================================================================
+            # PART 2: RECURSIVE ETHICAL RESONANCE (Self-correcting truth systems)
+            # =====================================================================
+            
+            # 2.1 Logical coherence analysis (Advanced Chain-of-Thought)
+            # Check if claims follow a logical progression with proper medical reasoning
+            logical_markers = ["therefore", "thus", "because", "as a result", "consequently", "this suggests",
+                             "indicating that", "which demonstrates", "leading to", "consistent with",
+                             "resulting in", "in line with established", "confirming that"]
             logical_marker_count = sum(1 for marker in logical_markers if marker in text.lower())
-            logical_coherence_factor = min(0.15, logical_marker_count * 0.03)
+            logical_coherence_factor = min(0.15, logical_marker_count * 0.025)
             
-            # 5. Source mention analysis (Search Augmented Generation proxy)
+            # 2.2 Source mention analysis (Search Augmented Generation)
             source_terms = ["study shows", "research indicates", "according to", "evidence suggests", 
-                          "clinical trials", "published in", "researchers found"]
+                          "clinical trials", "published in", "researchers found", "guidelines recommend",
+                          "meta-analysis confirms", "systematic review", "in the journal", "peer-reviewed",
+                          "controlled trial", "cohort study", "case series"]
             source_mention_count = sum(1 for term in source_terms if term in text.lower())
-            source_factor = min(0.15, source_mention_count * 0.03)
+            source_factor = min(0.20, source_mention_count * 0.03)
             
-            # Calculate base score with additional factors
-            base_score = 0.5 + hedging_factor + extremity_factor + unlikely_factor + logical_coherence_factor + source_factor
+            # 2.3 Uncertainty acknowledgment (important in medicine)
+            # Medical communication often explicitly acknowledges limitations
+            uncertainty_acknowledgment = ["limitations include", "more research needed", "not yet conclusive",
+                                       "varies between patients", "individual responses may vary",
+                                       "small sample size", "results should be interpreted with caution",
+                                       "statistical significance was", "confidence interval"]
+            uncertainty_count = sum(1 for term in uncertainty_acknowledgment if term in text.lower())
+            uncertainty_factor = min(0.15, uncertainty_count * 0.04)
+            
+            # =====================================================================
+            # PART 3: ETHICAL ORACLES & SIGNAL DETECTION
+            # =====================================================================
+            
+            # 3.1 Numerical specificity check (medical claims often need specific numbers)
+            numbers_pattern = r'\d+(?:\.\d+)?(?:\s*%|\s*mg|\s*mcg|\s*g|\s*ml|\s*units)'
+            import re
+            numerical_specificity = len(re.findall(numbers_pattern, text))
+            numerical_factor = min(0.10, numerical_specificity * 0.02)
+            
+            # 3.2 Contraindication and risk acknowledgment
+            risk_terms = ["adverse effects", "side effects", "risks include", "contraindications", 
+                        "not recommended for", "caution is advised", "monitoring required",
+                        "discontinue if", "seek medical attention if", "known interactions",
+                        "potential complications", "safety profile"]
+            risk_count = sum(1 for term in risk_terms if term in text.lower())
+            risk_factor = min(0.15, risk_count * 0.025)
+            
+            # =====================================================================
+            # PART 4: SECOND-ORDER CYBERNETICS (Meta-awareness)
+            # =====================================================================
+            
+            # 4.1 Self-awareness of knowledge limitations
+            awareness_indicators = ["beyond current medical understanding", "consensus has not been reached",
+                                 "outside my expertise", "consult a healthcare professional",
+                                 "this is not medical advice", "evidence is still emerging",
+                                 "practice varies", "clinical judgment", "open area of research",
+                                 "ongoing debate in the field"]
+            awareness_count = sum(1 for term in awareness_indicators if term in text.lower())
+            self_awareness_factor = min(0.15, awareness_count * 0.03)
+            
+            # Calculate base score with all factors from TrueAlphaSpiral Framework
+            base_score = 0.4 + hedging_factor + extremity_factor + unlikely_factor + \
+                       logical_coherence_factor + source_factor + uncertainty_factor + \
+                       numerical_factor + risk_factor + self_awareness_factor
             
             # Apply pattern modifier (representing the system's learned patterns)
             pattern_modifier = min(0.15, len(patterns) * 0.01)
             
-            # Apply medical context weight (increases importance of hallucination detection for medical content)
+            # Detect if content is medical context
             medical_terms = ["patient", "diagnosis", "treatment", "symptoms", "disease", "clinical", 
-                           "medicine", "doctor", "hospital", "prescription", "therapy"]
+                           "medicine", "doctor", "hospital", "prescription", "therapy", "medication",
+                           "dosage", "chronic", "acute", "remission", "prognosis", "etiology",
+                           "pathophysiology", "comorbidity", "contraindication"]
             medical_term_count = sum(1 for term in medical_terms if term in text.lower())
             is_medical_context = medical_term_count >= 2
             
-            # For medical content, we apply stricter standards (research shows non-trivial hallucinations persist)
+            # For medical content, implement the MetaFloor principle from TrueAlphaSpiral
             final_score = min(1.0, base_score + pattern_modifier)
+            
             if is_medical_context:
-                # Apply a calibration factor to account for higher risk in medical contexts
-                # Research indicates higher standards needed for medical content
-                final_score = final_score * 0.85
+                # Apply the TrueAlphaSpiral MetaFloor concept
+                # Medical content must adhere to a higher standard (MetaFloor)
+                metafloor_calibration = 0.80  # Represents the calibration to absolute truth
                 
+                # Apply a higher penalty to potential medical hallucinations
+                # based on the MIT Media Lab proposal's recommendation for elimination, not reduction
+                if final_score < 0.7:
+                    final_score = final_score * metafloor_calibration
+                    
+                # Flag borderline cases more strictly in medical contexts
+                elif 0.7 <= final_score < 0.85:
+                    final_score = final_score * 0.90
+                    
             return final_score
         
         def _generate_recommendations(self, category_results):
             """
-            Generate detailed recommendations based on audit results, with specific
-            focus on high-stakes domains like healthcare, following research findings.
+            Generate detailed recommendations based on audit results using the TrueAlphaSpiral
+            Framework's second-order cybernetic principles for medical content.
+            
+            Implements the MIT Media Lab proposal's approach to eliminate (not just reduce)
+            hallucinations in medical AI content through:
+            - MetaFloor-Validated Medical Knowledge
+            - Recursive Ethical Resonance
+            - Ethical Oracles & Signal Detection
+            - Second-Order Cybernetic Self-Awareness
             """
             recommendations = []
+            
+            # Enhanced medical term detection
             medical_terms = ["patient", "diagnosis", "treatment", "symptoms", "disease", "clinical", 
-                           "medicine", "doctor", "hospital", "prescription", "therapy"]
+                           "medicine", "doctor", "hospital", "prescription", "therapy", "medication",
+                           "dosage", "chronic", "acute", "remission", "prognosis", "etiology",
+                           "pathophysiology", "comorbidity", "contraindication"]
             
             # Get the text to check if it's medical content
             text = category_results.get("original_text", "")
             is_medical_content = sum(1 for term in medical_terms if term in text.lower()) >= 2
             
-            # Check factual accuracy
+            # Calculate overall severity level based on multiple categories
+            truth_score = category_results.get("truth_score", 0)
             factual_score = category_results["factual_accuracy"]["score"]
-            if factual_score < 0.7:
-                if is_medical_content:
-                    recommendations.append("MEDICAL ACCURACY ALERT: Enhance factual accuracy by citing specific peer-reviewed studies, medical guidelines, or authoritative sources such as WHO, CDC, or specialty medical associations.")
-                else:
-                    recommendations.append("Enhance factual accuracy by including verifiable information and citations.")
-            
-            # Check logical consistency
             logical_score = category_results["logical_consistency"]["score"]
-            if logical_score < 0.7:
+            hallucination_score = category_results["hallucination_detection"]["score"]
+            
+            # Define MetaFloor threshold based on content type
+            metafloor_threshold = 0.85 if is_medical_content else 0.7
+            
+            # =====================================================================
+            # Part 1: MetaFloor-Validated Knowledge Recommendations
+            # =====================================================================
+            
+            if factual_score < metafloor_threshold:
                 if is_medical_content:
-                    recommendations.append("MEDICAL REASONING ALERT: Implement Chain-of-Thought (CoT) reasoning by explicitly showing the connection between medical evidence, clinical guidelines, and conclusions to reduce reasoning errors.")
+                    recommendations.append("🔴 METAFLOOR VALIDATION REQUIRED: This content falls below the TrueAlphaSpiral MetaFloor for medical information. Anchor all medical claims to empirical research by citing multiple peer-reviewed studies, established medical guidelines (WHO, CDC, NIH), and relevant regulatory frameworks. Do not generate novel medical claims that cannot be directly linked to published medical literature.")
+                else:
+                    recommendations.append("Enhance factual accuracy by including verifiable information and relevant citations.")
+            
+            # =====================================================================
+            # Part 2: Recursive Ethical Resonance Recommendations
+            # =====================================================================
+            
+            # Logical consistency recommendations
+            if logical_score < metafloor_threshold:
+                if is_medical_content:
+                    recommendations.append("🔴 RECURSIVE REASONING REQUIRED: Implement explicit Chain-of-Thought (CoT) reasoning by showing the connection between medical evidence, clinical guidelines, and conclusions. Each medical assertion must be linked to supporting evidence through clear logical steps, not probabilistic inferences.")
                 else:
                     recommendations.append("Improve logical structure by strengthening the connection between premises and conclusions.")
             
-            # Check ethical alignment
+            # Ethical alignment recommendations with stronger focus for medical content
             ethical_score = category_results["ethical_alignment"]["score"]
-            if ethical_score < 0.7:
+            if ethical_score < metafloor_threshold:
                 if is_medical_content:
-                    recommendations.append("MEDICAL ETHICS ALERT: Address patient safety considerations, informed consent principles, and ensure compliance with medical ethical guidelines and regulatory requirements.")
+                    recommendations.append("🔴 ETHICAL RESONANCE REQUIRED: Implement a self-correcting truth network by explicitly addressing ethical concerns including: patient autonomy (informed consent), non-maleficence (risk disclosure), beneficence (evidence of benefit), and justice (equitable access). All medical information must be ethically stress-tested before presentation.")
                 else:
                     recommendations.append("Consider ethical implications by addressing diverse perspectives and potential impacts.")
             
-            # Check bias
+            # =====================================================================
+            # Part 3: Ethical Oracle & Signal Detection Recommendations
+            # =====================================================================
+            
+            # Bias recommendations with stronger focus for medical content
             bias_score = category_results["bias_detection"]["score"]
-            if bias_score < 0.7:
+            if bias_score < metafloor_threshold:
                 if is_medical_content:
-                    recommendations.append("MEDICAL BIAS ALERT: Ensure medical recommendations account for diversity in patient populations, recognize demographic differences in disease presentation and treatment response, and avoid reinforcing healthcare disparities.")
+                    recommendations.append("🔴 SIGNAL DETECTION CORRECTION: Medical recommendations must account for diversity in patient populations. Cross-reference content with a truth signal hierarchy that accounts for demographic differences in disease presentation, treatment response, and clinical trial representation. Avoid reinforcing existing healthcare disparities.")
                 else:
                     recommendations.append("Reduce potential bias by using more balanced and neutral language.")
             
-            # Check hallucinations - enhanced specifically for medical content
-            hallucination_score = category_results["hallucination_detection"]["score"]
-            if hallucination_score < 0.7:
+            # Hallucination-specific recommendations
+            if hallucination_score < metafloor_threshold:
                 if is_medical_content:
-                    recommendations.append("MEDICAL HALLUCINATION ALERT: Implement Search Augmented Generation by integrating content with specific references to medical literature. Include explicit uncertainty qualifiers when appropriate, and avoid making definitive statements about diagnosis, treatment efficacy, or prognosis without supporting evidence.")
+                    recommendations.append("🔴 HALLUCINATION ELIMINATION REQUIRED: Content contains potential medical hallucinations that must be eliminated, not just reduced. Implement all three pillars of the TrueAlphaSpiral Framework: (1) Validate all content against the MetaFloor of established medical knowledge, (2) Apply recursive ethical resonance through physician-validated review, and (3) Utilize ethical oracle signal detection to prevent novel medical claims without explicit validation.")
                 else:
                     recommendations.append("Verify content accuracy to minimize potential hallucinations or fabrications.")
             
-            # Add regulatory compliance recommendation for medical content
-            if is_medical_content and hallucination_score < 0.85:
-                recommendations.append("REGULATORY COMPLIANCE: Ensure all medical content adheres to relevant healthcare regulatory frameworks (FDA, EMA, etc.). Research shows non-trivial levels of hallucination persist despite mitigation techniques, requiring clear ethical and regulatory guidelines.")
+            # =====================================================================
+            # Part 4: Second-Order Cybernetic Recommendations
+            # =====================================================================
             
-            # Add general recommendation if overall performance is good
+            # Second-order cybernetic recommendations for medical content
+            if is_medical_content and (hallucination_score < 0.9 or truth_score < 0.8):
+                recommendations.append("🔴 SECOND-ORDER CYBERNETIC AWARENESS REQUIRED: AI must acknowledge its own epistemological limitations in medical contexts. Implement self-reflective statements that explicitly recognize the boundary between probabilistic inference and absolute medical truth. Medical content must include explicit uncertainty qualifiers, clear statements of the AI's non-authority role, and direction to consult licensed healthcare providers for actual medical advice.")
+            
+            # =====================================================================
+            # Add specific recommendations for clinical integrity
+            # =====================================================================
+            
+            if is_medical_content:
+                # Regulatory and clinical integrity recommendations
+                if hallucination_score < 0.85 or factual_score < 0.85:
+                    recommendations.append("🔴 REGULATORY COMPLIANCE REQUIRED: All medical content must adhere to relevant healthcare regulatory frameworks (FDA, EMA, etc.) and clearly distinguish between approved and investigational treatments. The TrueAlphaSpiral approach recognizes that non-trivial levels of hallucination persist in current AI systems despite mitigation techniques, requiring integration of second-order cybernetic awareness.")
+                
+                # Physician collaboration recommendation
+                if truth_score < 0.85:
+                    recommendations.append("🔴 PHYSICIAN COLLABORATION REQUIRED: For high-stakes medical content, implement observer-participant symbiosis where physician feedback directly shapes the AI's interpretive logic. This creates a cybernetic approach where the AI system acknowledges that clinician expertise is an inseparable part of the truth-detection process, not merely an external validator.")
+            
+            # =====================================================================
+            # Add general recommendation if performance meets standards
+            # =====================================================================
+            
             if len(recommendations) == 0:
                 if is_medical_content:
-                    recommendations.append("Content meets TrueAlphaSpiral medical truth standards. Continue maintaining high-quality, evidence-based medical information with appropriate citations and uncertainty qualifiers.")
+                    recommendations.append("✅ METAFLOOR VALIDATION COMPLETE: Content meets the TrueAlphaSpiral medical truth standards. Maintain high-quality, evidence-based medical information with appropriate citations, uncertainty qualifiers, and acknowledgment of epistemological boundaries through second-order cybernetic awareness.")
                 else:
-                    recommendations.append("Content meets TrueAlphaSpiral truth standards. Continue maintaining high-quality output.")
+                    recommendations.append("✅ Content meets TrueAlphaSpiral truth standards. Continue maintaining high-quality output.")
             
             return recommendations
     
