@@ -6,6 +6,9 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
 
+// Import analytics functions
+import { analyzeConceptDrift, generateIntegrityReport, getEntityMetrics } from './services/cross-dimensional-analytics';
+
 const app = express();
 // Add storage to app.locals for access in routes
 app.locals.storage = storage;
@@ -142,6 +145,38 @@ app.use((req, res, next) => {
         });
       }
       res.json(simulation);
+    });
+    
+    // Use analyticsModule for analytics functions
+    
+    // Cross-dimensional analytics endpoints
+    app.get('/api/dimensional-boundary/integrity-report', (req, res) => {
+      res.setHeader('Content-Type', 'application/json');
+      const report = analyticsModule.generateIntegrityReport();
+      res.json(report);
+    });
+    
+    app.get('/api/dimensional-boundary/entity-metrics', (req, res) => {
+      res.setHeader('Content-Type', 'application/json');
+      const metrics = analyticsModule.getEntityMetrics();
+      res.json(metrics);
+    });
+    
+    app.post('/api/dimensional-boundary/analyze-drift', (req, res) => {
+      res.setHeader('Content-Type', 'application/json');
+      const { conceptId, sourceDimension, targetDimension } = req.body || {};
+      
+      // Validate required parameters
+      if (!conceptId || !sourceDimension || !targetDimension) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Missing required parameters: conceptId, sourceDimension, targetDimension',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      const analysis = analyticsModule.analyzeConceptDrift(conceptId, sourceDimension, targetDimension);
+      res.json(analysis);
     });
     
     log("Setting up Vite or static files...");
