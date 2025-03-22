@@ -50,6 +50,13 @@ export interface IStorage {
   incrementSharedPatternUsageCount(id: number): Promise<SharedTruthPattern | null>;
   importSharedTruthPattern(sharedPattern: SharedTruthPattern): Promise<TruthPattern>;
   
+  // Dimensional Boundary Simulation
+  getDimensionalBoundaryStatus(): any;
+  getDimensionalBoundarySimulation(): any;
+  startDimensionalBoundarySimulation(config?: any): any;
+  stopDimensionalBoundarySimulation(): void;
+  updateDimensionalBoundarySimulation(update: any): any;
+  
   // Session store
   sessionStore: any;
 }
@@ -61,6 +68,7 @@ export class MemStorage implements IStorage {
   private verificationHighlights: VerificationHighlight[] = [];
   private aiAudits: AIAudit[] = [];
   private sharedTruthPatterns: SharedTruthPattern[] = [];
+  private dimensionalBoundarySimulation: any = null;
   
   public sessionStore: any;
   
@@ -71,6 +79,104 @@ export class MemStorage implements IStorage {
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // prune expired entries every 24h
     });
+  }
+  
+  // Dimensional Boundary Simulation methods
+  getDimensionalBoundaryStatus(): any {
+    if (!this.dimensionalBoundarySimulation) {
+      return { 
+        status: 'idle',
+        message: 'Simulation not running',
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    return {
+      status: this.dimensionalBoundarySimulation.status || 'running',
+      dimensions: this.dimensionalBoundarySimulation.dimensions?.length || 0,
+      entities: this.dimensionalBoundarySimulation.entities?.length || 0,
+      config: this.dimensionalBoundarySimulation.config || {},
+      timestamp: new Date().toISOString()
+    };
+  }
+  
+  getDimensionalBoundarySimulation(): any {
+    return this.dimensionalBoundarySimulation;
+  }
+  
+  startDimensionalBoundarySimulation(config: any = {}): any {
+    const defaultConfig = {
+      speed: 1.0,
+      boundaryStrength: 0.7,
+      allowMultipleCrossings: true,
+      dimensionalDecayRate: 0.05
+    };
+    
+    const defaultDimensions = [
+      {
+        id: 'dim-1',
+        name: 'Factual Domain',
+        description: 'Domain of objective, verifiable facts and empirical data',
+        integrity: 0.95,
+        color: '#4285f4',
+        rules: ['Must be empirically verifiable', 'Must have clear attribution']
+      },
+      {
+        id: 'dim-2',
+        name: 'Conceptual Domain',
+        description: 'Domain of abstract concepts, theories, and models',
+        integrity: 0.85,
+        color: '#34a853',
+        rules: ['Must have internal consistency', 'Must have clear definitions']
+      },
+      {
+        id: 'dim-3',
+        name: 'Ethical Domain',
+        description: 'Domain of moral principles, values, and ethics',
+        integrity: 0.9,
+        color: '#fbbc05',
+        rules: ['Must respect universal human values', 'Must consider consequences']
+      },
+      {
+        id: 'dim-4',
+        name: 'Phenomenological Domain',
+        description: 'Domain of experiential first-person perspectives',
+        integrity: 0.75,
+        color: '#ea4335',
+        rules: ['Must acknowledge subjectivity', 'Must avoid generalizations']
+      }
+    ];
+    
+    this.dimensionalBoundarySimulation = {
+      id: `sim-${Date.now()}`,
+      status: 'running',
+      dimensions: config.dimensions || defaultDimensions,
+      entities: [],
+      crossingEvents: [],
+      config: { ...defaultConfig, ...config }
+    };
+    
+    return this.dimensionalBoundarySimulation;
+  }
+  
+  stopDimensionalBoundarySimulation(): void {
+    if (this.dimensionalBoundarySimulation) {
+      this.dimensionalBoundarySimulation.status = 'stopped';
+    }
+  }
+  
+  updateDimensionalBoundarySimulation(update: any): any {
+    if (!this.dimensionalBoundarySimulation) {
+      return null;
+    }
+    
+    this.dimensionalBoundarySimulation = {
+      ...this.dimensionalBoundarySimulation,
+      ...update,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    return this.dimensionalBoundarySimulation;
   }
   
   // Truth pattern methods
