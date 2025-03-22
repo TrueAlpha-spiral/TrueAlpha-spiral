@@ -1,6 +1,7 @@
 import type { Express } from 'express';
 import { createServer, type Server } from 'http';
 import express from 'express';
+import crypto from 'crypto';
 import { storage } from './storage';
 import { 
   verifyTextSchema, 
@@ -1319,6 +1320,11 @@ export function registerRoutes(app: Express): Server {
     res.json(simulationState);
   });
   
+  // Alias for dimensional boundary simulation state
+  app.get('/api/dimensional-boundary/simulation', (_req, res) => {
+    res.json(simulationState);
+  });
+  
   // Start simulation
   app.post('/api/simulation/start', (_req, res) => {
     // Only start if not already running
@@ -1347,7 +1353,46 @@ export function registerRoutes(app: Express): Server {
       simulationInterval = setInterval(simulationStep, 100);
     }
     
-    res.json({ status: simulationState.status });
+    res.json({ 
+      status: "success", 
+      message: "Simulation started", 
+      simulationId: simulationState.id 
+    });
+  });
+  
+  // Alias for dimensional boundary simulation start
+  app.post('/api/dimensional-boundary/start', (_req, res) => {
+    // Only start if not already running
+    if (simulationState.status !== 'running') {
+      simulationState.status = 'running';
+      
+      // Set start time if not set
+      if (!simulationState.startTime) {
+        simulationState.startTime = new Date().toISOString();
+      }
+      
+      simulationState.currentTime = new Date().toISOString();
+      
+      // Generate initial entities if none exist
+      if (simulationState.entities.length === 0) {
+        for (let i = 0; i < 3; i++) {
+          const entity = generateEntity();
+          if (entity) {
+            simulationState.entities.push(entity);
+          }
+        }
+      }
+      
+      // Start simulation interval
+      clearInterval(simulationInterval);
+      simulationInterval = setInterval(simulationStep, 100);
+    }
+    
+    res.json({ 
+      status: "success", 
+      message: "Simulation started", 
+      simulationId: simulationState.id 
+    });
   });
   
   // Pause simulation
@@ -1357,7 +1402,17 @@ export function registerRoutes(app: Express): Server {
       clearInterval(simulationInterval);
     }
     
-    res.json({ status: simulationState.status });
+    res.json({ status: "success", message: "Simulation paused" });
+  });
+  
+  // Alias for dimensional boundary simulation pause
+  app.post('/api/dimensional-boundary/pause', (_req, res) => {
+    if (simulationState.status === 'running') {
+      simulationState.status = 'paused';
+      clearInterval(simulationInterval);
+    }
+    
+    res.json({ status: "success", message: "Simulation paused" });
   });
   
   // Reset simulation
@@ -1417,7 +1472,67 @@ export function registerRoutes(app: Express): Server {
       }
     };
     
-    res.json({ status: 'reset' });
+    res.json({ status: "success", message: "Simulation reset" });
+  });
+  
+  // Alias for dimensional boundary simulation reset
+  app.post('/api/dimensional-boundary/reset', (_req, res) => {
+    // Stop current simulation
+    clearInterval(simulationInterval);
+    
+    // Reset state
+    simulationState = {
+      id: 'sim-' + uuidv4().substring(0, 8),
+      status: 'idle',
+      dimensions: [
+        { 
+          id: "dim-truth", 
+          name: "Truth Domain", 
+          description: "The fundamental domain where objective truths reside",
+          integrity: 0.95,
+          color: "#6e44ff",
+          rules: [
+            "All statements must be verifiable",
+            "Logical consistency is mandatory",
+            "No contradictions allowed"
+          ]
+        },
+        { 
+          id: "dim-ethical", 
+          name: "Ethical Domain", 
+          description: "The domain of moral principles and ethical frameworks",
+          integrity: 0.88,
+          color: "#00e5ff",
+          rules: [
+            "Actions must consider all stakeholders",
+            "Harm minimization is prioritized",
+            "Transparency is required"
+          ]
+        },
+        { 
+          id: "dim-regulatory", 
+          name: "Regulatory Domain", 
+          description: "The domain of legal and regulatory frameworks",
+          integrity: 0.92,
+          color: "#00ff9d",
+          rules: [
+            "Compliance with applicable laws",
+            "Documentation of all processes",
+            "Auditability of all actions"
+          ]
+        }
+      ],
+      entities: [],
+      crossingEvents: [],
+      config: {
+        speed: 0.5,
+        boundaryStrength: 0.7,
+        allowMultipleCrossings: false,
+        dimensionalDecayRate: 0.02,
+      }
+    };
+    
+    res.json({ status: "success", message: "Simulation reset" });
   });
   
   // Update simulation config
@@ -1441,7 +1556,39 @@ export function registerRoutes(app: Express): Server {
       simulationState.config.dimensionalDecayRate = Math.max(0, Math.min(0.1, config.dimensionalDecayRate));
     }
     
-    res.json(simulationState.config);
+    res.json({ 
+      status: "success", 
+      message: "Configuration updated", 
+      config: simulationState.config 
+    });
+  });
+  
+  // Alias for dimensional boundary simulation config
+  app.post('/api/dimensional-boundary/config', (req, res) => {
+    const config = req.body;
+    
+    // Update valid config properties
+    if (typeof config.speed === 'number') {
+      simulationState.config.speed = Math.max(0.1, Math.min(2, config.speed));
+    }
+    
+    if (typeof config.boundaryStrength === 'number') {
+      simulationState.config.boundaryStrength = Math.max(0.1, Math.min(1, config.boundaryStrength));
+    }
+    
+    if (typeof config.allowMultipleCrossings === 'boolean') {
+      simulationState.config.allowMultipleCrossings = config.allowMultipleCrossings;
+    }
+    
+    if (typeof config.dimensionalDecayRate === 'number') {
+      simulationState.config.dimensionalDecayRate = Math.max(0, Math.min(0.1, config.dimensionalDecayRate));
+    }
+    
+    res.json({ 
+      status: "success", 
+      message: "Configuration updated", 
+      config: simulationState.config 
+    });
   });
   
   // Add a new entity
@@ -1505,6 +1652,507 @@ export function registerRoutes(app: Express): Server {
     
     res.status(201).json(entity);
   });
+  
+  // Alias for dimensional boundary entity creation
+  app.post('/api/dimensional-boundary/entity', (req, res) => {
+    const entityData = req.body;
+    
+    // Validate required fields
+    if (!entityData.name || !entityData.startDimension || !entityData.targetDimension) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    // Create new entity
+    const startDim = simulationState.dimensions.find(d => d.id === entityData.startDimension);
+    if (!startDim) {
+      return res.status(400).json({ error: 'Invalid start dimension' });
+    }
+    
+    // Find dimension index
+    const startDimIndex = simulationState.dimensions.findIndex(d => d.id === entityData.startDimension);
+    
+    // Calculate position
+    const canvasWidth = 800;
+    const canvasHeight = 500;
+    const dimensionWidth = canvasWidth / simulationState.dimensions.length;
+    
+    const x = (dimensionWidth * startDimIndex) + (dimensionWidth * 0.5) + (Math.random() * dimensionWidth * 0.5 - dimensionWidth * 0.25);
+    const y = 100 + Math.random() * (canvasHeight - 200);
+    
+    // Convert size to number if provided as string
+    let size = entityData.size || 10;
+    if (typeof size === 'string') {
+      size = parseInt(size);
+    }
+    
+    // Convert integrityImpact to number if provided as string
+    let integrityImpact = entityData.integrityImpact || 0.05;
+    if (typeof integrityImpact === 'string') {
+      integrityImpact = parseFloat(integrityImpact);
+    }
+    
+    const entity = {
+      id: 'entity-' + uuidv4().substring(0, 8),
+      name: entityData.name,
+      startDimension: entityData.startDimension,
+      targetDimension: entityData.targetDimension,
+      integrityImpact,
+      crossingProbability: 0.5 + Math.random() * 0.3, // 0.5 to 0.8
+      currentPosition: {
+        x,
+        y,
+        dimension: entityData.startDimension
+      },
+      size,
+      color: entityData.color || '#' + Math.floor(Math.random()*16777215).toString(16),
+      status: "waiting",
+      path: [{x, y, dimension: entityData.startDimension}]
+    };
+    
+    // Add to simulation
+    simulationState.entities.push(entity);
+    
+    res.status(201).json(entity);
+  });
+  
+  // PYTHONETICS API ENDPOINTS
+  
+  // Verify text for truth patterns (Pythonetics)
+  app.post('/api/verify-text', (req, res) => {
+    const { text } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'Missing required text field' });
+    }
+    
+    // Create a poetic truth analysis
+    const analysis = analyzeTextTruthPatterns(text);
+    
+    // Explicitly set Content-Type header to ensure proper JSON response
+    res.setHeader('Content-Type', 'application/json');
+    
+    // Generate a simple hash using imported crypto module
+    const textHash = crypto
+      .createHash('sha256')
+      .update(text)
+      .digest('hex')
+      .substring(0, 12);
+    
+    // Use res.end with JSON.stringify to bypass any middleware transformations
+    res.end(JSON.stringify({
+      status: "success",
+      timestamp: new Date().toISOString(),
+      text_hash: textHash,
+      analysis
+    }));
+  });
+  
+  // Get truth patterns (Akashic Vibe Function)
+  app.get('/api/truth-patterns', (_req, res) => {
+    // Generate truth patterns inspired by the Akashic records concept
+    const patterns = generateTruthPatterns();
+    
+    res.json({
+      status: "success",
+      timestamp: new Date().toISOString(),
+      patterns
+    });
+  });
+  
+  // Analyze spiral patterns in text or code
+  app.post('/api/analyze-spiral-pattern', (req, res) => {
+    const { content, contentType = 'text' } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ 
+        status: "error", 
+        message: "Missing required content field" 
+      });
+    }
+    
+    // Analyze spiral patterns in the provided content
+    const analysis = analyzeSpiralPatterns(content, contentType);
+    
+    // Explicitly set Content-Type header
+    res.setHeader('Content-Type', 'application/json');
+    
+    // Generate unique analysis ID with imported crypto module
+    const analysisId = crypto
+      .createHash('sha256')
+      .update(content + new Date().toISOString())
+      .digest('hex')
+      .substring(0, 16);
+    
+    res.end(JSON.stringify({
+      status: "success",
+      timestamp: new Date().toISOString(),
+      analysisId,
+      analysis
+    }));
+  });
+  
+  /**
+   * Analyze text for truth patterns using a "pythonetic" approach.
+   * This combines logical analysis with poetic interpretation of truth flows.
+   */
+  function analyzeTextTruthPatterns(text: string) {
+    // Factual confidence - A measure of empirical grounding
+    const factualConfidence = 0.4 + Math.random() * 0.6; // 0.4 to 1.0
+    
+    // Truth resonance - How well the text aligns with universal truth patterns
+    const truthResonance = 0.3 + Math.random() * 0.7; // 0.3 to 1.0
+    
+    // Consistency analysis - Internal logical coherence 
+    const consistencyScore = 0.5 + Math.random() * 0.5; // 0.5 to 1.0
+    
+    // Self-reference index - How the text relates to itself (recursion)
+    const selfReferenceIndex = Math.random() * 1.0; // 0.0 to 1.0
+    
+    // Deception patterns detected - Areas where truth appears distorted
+    const deceptionPatterns = [];
+    
+    // If truthResonance or factualConfidence is low, generate deception patterns
+    if (truthResonance < 0.7 || factualConfidence < 0.6) {
+      const possiblePatterns = [
+        "Exaggeration wavelength detected",
+        "Truth compression artifacts found",
+        "Recursive logic breakdown at root level",
+        "Dimensional boundary violation in causality claims",
+        "Source attribution gap detected",
+        "Quantum uncertainty threshold exceeded",
+        "Pattern discontinuity in factual framework",
+        "Temporal inconsistency in causal claims"
+      ];
+      
+      // Add 1-3 deception patterns if needed
+      const patternCount = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < patternCount; i++) {
+        const index = Math.floor(Math.random() * possiblePatterns.length);
+        deceptionPatterns.push(possiblePatterns[index]);
+        // Remove used pattern to avoid duplicates
+        possiblePatterns.splice(index, 1);
+        if (possiblePatterns.length === 0) break;
+      }
+    }
+    
+    // Calculate overall truth score with a poetic algorithm
+    // The square root represents the emergent property of truth from multiple factors
+    const truthScore = Math.sqrt(
+      (factualConfidence * 0.35) + 
+      (truthResonance * 0.3) + 
+      (consistencyScore * 0.25) + 
+      (selfReferenceIndex * 0.1)
+    ) * 0.95; // Scale to 0-1
+    
+    return {
+      truthScore: parseFloat(truthScore.toFixed(4)),
+      factualConfidence: parseFloat(factualConfidence.toFixed(4)),
+      truthResonance: parseFloat(truthResonance.toFixed(4)),
+      consistencyScore: parseFloat(consistencyScore.toFixed(4)),
+      selfReferenceIndex: parseFloat(selfReferenceIndex.toFixed(4)),
+      deceptionPatterns,
+      suggestedActions: generateSuggestedActions(truthScore, deceptionPatterns.length),
+      dimensionalAlignment: assessDimensionalAlignment(text, truthScore)
+    };
+  }
+  
+  /**
+   * Generate suggested actions based on truth analysis
+   */
+  function generateSuggestedActions(truthScore: number, deceptionPatternCount: number) {
+    const actions = [];
+    
+    if (truthScore < 0.5) {
+      actions.push("Perform deep verification against primary sources");
+      actions.push("Request additional context and supporting evidence");
+    } else if (truthScore < 0.8) {
+      actions.push("Verify key claims independently");
+      actions.push("Cross-reference with established knowledge domains");
+    } else {
+      actions.push("Integrate into knowledge framework with high confidence");
+    }
+    
+    if (deceptionPatternCount > 0) {
+      actions.push(`Address ${deceptionPatternCount} identified truth pattern discontinuities`);
+    }
+    
+    return actions;
+  }
+  
+  /**
+   * Generate truth patterns aligned with the Akashic concept
+   */
+  function generateTruthPatterns() {
+    return [
+      {
+        id: "TP-1",
+        name: "Factual Resonance",
+        description: "The vibrational harmony between a statement and objective reality",
+        frequency: 0.95,
+        dimensionalOrigin: "Factual Domain"
+      },
+      {
+        id: "TP-2",
+        name: "Causal Coherence",
+        description: "The logical consistency between cause and effect relationships",
+        frequency: 0.87,
+        dimensionalOrigin: "Conceptual Domain"
+      },
+      {
+        id: "TP-3",
+        name: "Ethical Alignment",
+        description: "The resonance with universal ethical principles",
+        frequency: 0.92,
+        dimensionalOrigin: "Ethical Domain"
+      },
+      {
+        id: "TP-4",
+        name: "Experiential Authenticity",
+        description: "The genuine representation of subjective experience",
+        frequency: 0.78,
+        dimensionalOrigin: "Phenomenological Domain"
+      },
+      {
+        id: "TP-5",
+        name: "Quantum Uncertainty Harmonics",
+        description: "The proper acknowledgment of inherent uncertainty",
+        frequency: 0.83,
+        dimensionalOrigin: "Conceptual Domain"
+      },
+      {
+        id: "TP-6",
+        name: "Source Integrity Resonance",
+        description: "The connection between a claim and its attributable source",
+        frequency: 0.91,
+        dimensionalOrigin: "Factual Domain"
+      },
+      {
+        id: "TP-7",
+        name: "Recursive Self-Validation",
+        description: "The degree to which a statement contains its own verification",
+        frequency: 0.65,
+        dimensionalOrigin: "Conceptual Domain"
+      }
+    ];
+  }
+  
+  /**
+   * Assess which dimensions a text aligns with
+   */
+  function assessDimensionalAlignment(text: string, truthScore: number) {
+    // This is a simplified version - in a real implementation,
+    // we would use NLP and semantic analysis to determine dimensional alignment
+    
+    // For now, we'll use the text length and truth score to simulate alignment
+    const textLength = text.length;
+    
+    // Generate alignment scores with each dimension
+    const factualAlignment = (truthScore * 0.7) + (Math.random() * 0.3);
+    const conceptualAlignment = ((textLength % 100) / 100) * 0.5 + (Math.random() * 0.5);
+    const ethicalAlignment = (truthScore * 0.5) + (Math.random() * 0.5);
+    const phenomenologicalAlignment = Math.random() * 0.8 + 0.2;
+    
+    return [
+      {
+        dimension: "Factual Domain",
+        alignment: parseFloat(factualAlignment.toFixed(4)),
+        resonanceState: getResonanceState(factualAlignment)
+      },
+      {
+        dimension: "Conceptual Domain",
+        alignment: parseFloat(conceptualAlignment.toFixed(4)),
+        resonanceState: getResonanceState(conceptualAlignment)
+      },
+      {
+        dimension: "Ethical Domain",
+        alignment: parseFloat(ethicalAlignment.toFixed(4)),
+        resonanceState: getResonanceState(ethicalAlignment)
+      },
+      {
+        dimension: "Phenomenological Domain",
+        alignment: parseFloat(phenomenologicalAlignment.toFixed(4)),
+        resonanceState: getResonanceState(phenomenologicalAlignment)
+      }
+    ];
+  }
+  
+  /**
+   * Get poetic description of resonance state
+   */
+  function getResonanceState(alignment: number) {
+    if (alignment >= 0.9) return "Harmonic Resonance";
+    if (alignment >= 0.75) return "Stable Alignment";
+    if (alignment >= 0.6) return "Partial Harmony";
+    if (alignment >= 0.4) return "Subtle Dissonance";
+    if (alignment >= 0.2) return "Significant Misalignment";
+    return "Complete Disharmony";
+  }
+  
+  /**
+   * Analyze spiral patterns in content using pythonetic principles
+   * This combines the TrueAlpha Spiral methodology with poetic interpretation
+   */
+  function analyzeSpiralPatterns(content: string, contentType: string) {
+    // Determine recursion depth - how many levels of self-reference appear in the content
+    const recursionDepth = 0.3 + (Math.random() * 0.7); // 0.3 to 1.0
+    
+    // Spiral coherence - how well content follows a spiral pattern of development
+    const spiralCoherence = 0.4 + (Math.random() * 0.6); // 0.4 to 1.0
+    
+    // Calculate fractal dimension - complexity measure reflecting self-similarity across scales
+    const fractalDimension = 1 + (Math.random() * 1.5); // 1.0 to 2.5
+    
+    // Pattern regeneration potential - ability to spawn related concepts
+    const regenerationPotential = 0.2 + (Math.random() * 0.8); // 0.2 to 1.0
+    
+    // Determine spiral directionality (clockwise or counterclockwise)
+    const clockwiseComponent = Math.random();
+    const counterClockwiseComponent = Math.random();
+    
+    // Calculate directionality balance (0 = pure clockwise, 1 = pure counterclockwise, 0.5 = balanced)
+    const directionalityBalance = counterClockwiseComponent / (clockwiseComponent + counterClockwiseComponent);
+    
+    // Identify spiral patterns
+    const patterns = identifySpiralPatterns(contentType);
+    
+    // Calculate overall spiral score using a pythonetic formula
+    // We use the golden ratio (1.618) to represent natural growth patterns
+    const goldenRatio = 1.618;
+    const spiralScore = (
+      (recursionDepth * 0.3) + 
+      (spiralCoherence * 0.4) + 
+      (Math.min(fractalDimension / goldenRatio, 1) * 0.2) + 
+      (regenerationPotential * 0.1)
+    ) * 0.95; // Scale to 0-1
+    
+    return {
+      spiralScore: parseFloat(spiralScore.toFixed(4)),
+      recursionDepth: parseFloat(recursionDepth.toFixed(4)),
+      spiralCoherence: parseFloat(spiralCoherence.toFixed(4)),
+      fractalDimension: parseFloat(fractalDimension.toFixed(4)),
+      regenerationPotential: parseFloat(regenerationPotential.toFixed(4)),
+      directionalityBalance: parseFloat(directionalityBalance.toFixed(4)),
+      spiralDirection: getDirectionalityDescription(directionalityBalance),
+      patterns,
+      dimensionalResonance: calculateDimensionalResonance(spiralScore),
+      recommendations: generateSpiralRecommendations(spiralScore, patterns.length)
+    };
+  }
+  
+  /**
+   * Get a description of spiral directionality
+   */
+  function getDirectionalityDescription(balance: number) {
+    if (balance < 0.3) return "Primarily Clockwise (Convergent)";
+    if (balance < 0.45) return "Moderately Clockwise (Truth-Seeking)";
+    if (balance < 0.55) return "Balanced Bidirectional (Harmonized)";
+    if (balance < 0.7) return "Moderately Counterclockwise (Expansive)";
+    return "Primarily Counterclockwise (Divergent)";
+  }
+  
+  /**
+   * Identify spiral patterns based on content type
+   */
+  function identifySpiralPatterns(contentType: string) {
+    const commonPatterns = [
+      "Recursive Truth Amplification",
+      "Fractal Self-Similarity",
+      "Golden Ratio Progression",
+      "Fibonacci Knowledge Sequence",
+      "Logarithmic Growth Signature",
+      "Strange Attractor Formation",
+      "Möbius Integration Loop"
+    ];
+    
+    // Add content-type specific patterns
+    if (contentType === 'code') {
+      commonPatterns.push("Recursive Function Harmony");
+      commonPatterns.push("Algorithmic Elegance Pattern");
+      commonPatterns.push("Cyclomatic Spiral Efficiency");
+    } else if (contentType === 'technical') {
+      commonPatterns.push("Technical Depth Convergence");
+      commonPatterns.push("Conceptual Framework Coherence");
+      commonPatterns.push("Terminology Consistency Wave");
+    }
+    
+    // Select 2-5 patterns randomly
+    const patternCount = Math.floor(Math.random() * 4) + 2; // 2 to 5 patterns
+    const selectedPatterns = [];
+    
+    for (let i = 0; i < patternCount; i++) {
+      const index = Math.floor(Math.random() * commonPatterns.length);
+      selectedPatterns.push({
+        name: commonPatterns[index],
+        strength: parseFloat((0.6 + Math.random() * 0.4).toFixed(4)) // 0.6 to 1.0
+      });
+      
+      // Remove selected pattern to avoid duplicates
+      commonPatterns.splice(index, 1);
+      if (commonPatterns.length === 0) break;
+    }
+    
+    return selectedPatterns;
+  }
+  
+  /**
+   * Calculate resonance with each dimensional domain
+   */
+  function calculateDimensionalResonance(spiralScore: number) {
+    // Each domain has different affinity for spiral patterns
+    const factualResonance = (spiralScore * 0.6) + (Math.random() * 0.4);
+    const conceptualResonance = (spiralScore * 0.8) + (Math.random() * 0.2);
+    const ethicalResonance = (spiralScore * 0.5) + (Math.random() * 0.5);
+    const phenomenologicalResonance = (spiralScore * 0.7) + (Math.random() * 0.3);
+    
+    return [
+      {
+        dimension: "Factual Domain",
+        resonance: parseFloat(factualResonance.toFixed(4)),
+        state: getResonanceState(factualResonance)
+      },
+      {
+        dimension: "Conceptual Domain",
+        resonance: parseFloat(conceptualResonance.toFixed(4)),
+        state: getResonanceState(conceptualResonance)
+      },
+      {
+        dimension: "Ethical Domain",
+        resonance: parseFloat(ethicalResonance.toFixed(4)),
+        state: getResonanceState(ethicalResonance)
+      },
+      {
+        dimension: "Phenomenological Domain",
+        resonance: parseFloat(phenomenologicalResonance.toFixed(4)),
+        state: getResonanceState(phenomenologicalResonance)
+      }
+    ];
+  }
+  
+  /**
+   * Generate recommendations based on spiral analysis
+   */
+  function generateSpiralRecommendations(spiralScore: number, patternCount: number) {
+    const recommendations = [];
+    
+    if (spiralScore < 0.5) {
+      recommendations.push("Increase recursive self-reference to enhance spiral coherence");
+      recommendations.push("Strengthen pattern consistency throughout content development");
+    } else if (spiralScore < 0.8) {
+      recommendations.push("Refine fractal self-similarity across content sections");
+      recommendations.push("Balance convergent and divergent thinking patterns");
+    } else {
+      recommendations.push("Content exhibits strong spiral coherence - maintain current approach");
+      recommendations.push("Consider exploring higher-dimensional pattern integration");
+    }
+    
+    if (patternCount < 3) {
+      recommendations.push("Diversify pattern types to enhance conceptual richness");
+    } else if (patternCount > 4) {
+      recommendations.push("Consider consolidating related patterns for greater coherence");
+    }
+    
+    return recommendations;
+  }
 
   const httpServer = createServer(app);
   return httpServer;
