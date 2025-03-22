@@ -25,6 +25,20 @@ export const regulatoryFrameworkEnum = pgEnum('regulatory_framework', [
   'education'
 ]);
 
+export const sharingPermissionEnum = pgEnum('sharing_permission', [
+  'private',
+  'organization',
+  'public',
+  'specific_users'
+]);
+
+export const exportFormatEnum = pgEnum('export_format', [
+  'json',
+  'csv',
+  'xml',
+  'pdf'
+]);
+
 // Truth Pattern Table
 export const truthPattern = pgTable('truth_pattern', {
   id: serial('id').primaryKey(),
@@ -77,6 +91,26 @@ export const aiAudit = pgTable('ai_audit', {
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
+// Shared Truth Pattern Table
+export const sharedTruthPattern = pgTable('shared_truth_pattern', {
+  id: serial('id').primaryKey(),
+  originalPatternId: integer('original_pattern_id').notNull(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  category: truthPatternCategoryEnum('category').notNull(),
+  sharingPermission: sharingPermissionEnum('sharing_permission').notNull().default('private'),
+  authorName: text('author_name').notNull(),
+  authorOrganization: text('author_organization'),
+  authorEmail: text('author_email'),
+  sharingLink: text('sharing_link'),
+  allowedUserEmails: text('allowed_user_emails').array(),
+  patternData: json('pattern_data').notNull(),
+  usageCount: integer('usage_count').notNull().default(0),
+  verificationHash: text('verification_hash'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+});
+
 // Types
 export type TruthPattern = typeof truthPattern.$inferSelect;
 export type InsertTruthPattern = typeof truthPattern.$inferInsert;
@@ -89,6 +123,9 @@ export type InsertVerificationHighlight = typeof verificationHighlight.$inferIns
 
 export type AIAudit = typeof aiAudit.$inferSelect;
 export type InsertAIAudit = typeof aiAudit.$inferInsert;
+
+export type SharedTruthPattern = typeof sharedTruthPattern.$inferSelect;
+export type InsertSharedTruthPattern = typeof sharedTruthPattern.$inferInsert;
 
 // Verification Result Interface
 export interface VerificationResult {
@@ -118,6 +155,14 @@ export const insertTruthPatternSchema = createInsertSchema(truthPattern);
 export const insertTextVerificationSchema = createInsertSchema(textVerification);
 export const insertVerificationHighlightSchema = createInsertSchema(verificationHighlight);
 export const insertAIAuditSchema = createInsertSchema(aiAudit);
+export const insertSharedTruthPatternSchema = createInsertSchema(sharedTruthPattern).omit({
+  id: true,
+  sharingLink: true,
+  usageCount: true,
+  verificationHash: true,
+  createdAt: true,
+  updatedAt: true
+});
 
 // Verification Request Schema
 export const verifyTextSchema = z.object({
@@ -155,6 +200,37 @@ export const aiAuditSchema = z.object({
 });
 
 export type AIAuditInput = z.infer<typeof aiAuditSchema>;
+
+// Truth Pattern Sharing Schema
+export const sharePatternSchema = z.object({
+  patternId: z.number().positive("Pattern ID must be positive"),
+  sharingPermission: z.enum(['private', 'organization', 'public', 'specific_users']),
+  allowedUserEmails: z.array(z.string().email("Invalid email")).optional(),
+  authorName: z.string().min(2, "Author name must be at least 2 characters long"),
+  authorOrganization: z.string().optional(),
+  authorEmail: z.string().email("Invalid email").optional()
+});
+
+export type SharePatternInput = z.infer<typeof sharePatternSchema>;
+
+// Pattern Export Schema
+export const exportPatternSchema = z.object({
+  patternId: z.number().positive("Pattern ID must be positive"),
+  format: z.enum(['json', 'csv', 'xml', 'pdf']).default('json'),
+  includeMetadata: z.boolean().optional().default(true),
+  includeSensitiveData: z.boolean().optional().default(false)
+});
+
+export type ExportPatternInput = z.infer<typeof exportPatternSchema>;
+
+// Pattern Import Schema
+export const importPatternSchema = z.object({
+  patternData: z.any(),
+  overwriteExisting: z.boolean().optional().default(false),
+  validateIntegrity: z.boolean().optional().default(true)
+});
+
+export type ImportPatternInput = z.infer<typeof importPatternSchema>;
 
 // Cross Reference Result Interface
 export interface CrossReferenceResult {

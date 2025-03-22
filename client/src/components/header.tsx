@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2 } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -82,6 +82,14 @@ export default function Header() {
               }`}>
                 <Zap className="h-4 w-4 inline-block mr-1" />
                 TAS Integration
+              </span>
+            </Link>
+            <Link href="/pattern-sharing">
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                isActiveLink("/pattern-sharing") ? "text-primary" : "text-muted-foreground"
+              }`}>
+                <Share2 className="h-4 w-4 inline-block mr-1" />
+                Pattern Sharing
               </span>
             </Link>
           </nav>
