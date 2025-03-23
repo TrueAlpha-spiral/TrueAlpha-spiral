@@ -239,6 +239,34 @@ export const importPatternSchema = z.object({
 
 export type ImportPatternInput = z.infer<typeof importPatternSchema>;
 
+// TARSI Pilot Application Table
+export const tarsiPilotApplication = pgTable('tarsi_pilot_application', {
+  id: serial('id').primaryKey(),
+  companyName: text('company_name').notNull(),
+  contactName: text('contact_name').notNull(),
+  contactEmail: text('contact_email').notNull(),
+  contactPhone: text('contact_phone'),
+  companySize: text('company_size').notNull(),
+  industry: text('industry').notNull(),
+  aiSystems: text('ai_systems').notNull(),
+  useCase: text('use_case').notNull(),
+  pilotTier: pilotTierEnum('pilot_tier').notNull().default('standard'),
+  expectedVolume: text('expected_volume'),
+  additionalInfo: text('additional_info'),
+  status: text('status').notNull().default('pending'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+export type TarsiPilotApplication = typeof tarsiPilotApplication.$inferSelect;
+export type InsertTarsiPilotApplication = typeof tarsiPilotApplication.$inferInsert;
+
+// TARSI Pilot Application Schema
+export const insertTarsiPilotApplicationSchema = createInsertSchema(tarsiPilotApplication).omit({
+  id: true,
+  status: true,
+  createdAt: true
+});
+
 // Security Event Table
 export const securityEvent = pgTable('security_event', {
   id: serial('id').primaryKey(),

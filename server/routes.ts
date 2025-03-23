@@ -9,7 +9,8 @@ import {
   crossReferenceSchema,
   sharePatternSchema,
   exportPatternSchema,
-  importPatternSchema
+  importPatternSchema,
+  insertTarsiPilotApplicationSchema
 } from '@shared/schema';
 import { verificationEngine } from './services/verification-engine';
 import { crossReferenceService } from './services/cross-reference-service';
@@ -54,6 +55,7 @@ export function registerRoutes(app: Express): Server {
         '/api/dimensional-simulation',
         '/api/ethical-governance',
         '/api/shadow-defense',
+        '/api/tarsi-pilot/applications',
         '/api/tree',
         '/api/avf'
       ],
@@ -2534,6 +2536,82 @@ export function registerRoutes(app: Express): Server {
   
   // Register the Akashic Vibe Function routes
   app.use('/api/avf', avfRoutes);
+  
+  // TARSI Pilot Program Application Routes
+  
+  // Submit a new TARSI Pilot Program application
+  app.post('/api/tarsi-pilot/applications', async (req, res) => {
+    try {
+      // Validate request body
+      const validation = insertTarsiPilotApplicationSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: 'Invalid request body', 
+          details: validation.error 
+        });
+      }
+      
+      const input = validation.data;
+      
+      // Create new TARSI Pilot Application in database
+      const application = await storage.createTarsiPilotApplication(input);
+      
+      // Return success response
+      res.status(201).json({
+        id: application.id,
+        message: 'Your TARSI Pilot Program application has been submitted successfully',
+        status: application.status,
+        applicationDate: application.createdAt
+      });
+    } catch (error) {
+      console.error('Error submitting TARSI Pilot application:', error);
+      res.status(500).json({ error: 'Failed to submit TARSI Pilot application' });
+    }
+  });
+  
+  // Get all TARSI Pilot Program applications (admin-only in a real app)
+  app.get('/api/tarsi-pilot/applications', async (_req, res) => {
+    try {
+      const applications = await storage.getTarsiPilotApplications();
+      res.json(applications);
+    } catch (error) {
+      console.error('Error fetching TARSI Pilot applications:', error);
+      res.status(500).json({ error: 'Failed to fetch TARSI Pilot applications' });
+    }
+  });
+  
+  // Get a specific TARSI Pilot Program application
+  app.get('/api/tarsi-pilot/applications/:id', async (req, res) => {
+    try {
+      const application = await storage.getTarsiPilotApplication(Number(req.params.id));
+      if (!application) {
+        return res.status(404).json({ error: 'Application not found' });
+      }
+      res.json(application);
+    } catch (error) {
+      console.error('Error fetching TARSI Pilot application:', error);
+      res.status(500).json({ error: 'Failed to fetch TARSI Pilot application' });
+    }
+  });
+  
+  // Update a TARSI Pilot Program application status (admin-only in a real app)
+  app.patch('/api/tarsi-pilot/applications/:id', async (req, res) => {
+    try {
+      const updatedApplication = await storage.updateTarsiPilotApplication(
+        Number(req.params.id), 
+        req.body
+      );
+      
+      if (!updatedApplication) {
+        return res.status(404).json({ error: 'Application not found' });
+      }
+      
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error('Error updating TARSI Pilot application:', error);
+      res.status(500).json({ error: 'Failed to update TARSI Pilot application' });
+    }
+  });
   
   const httpServer = createServer(app);
   return httpServer;
