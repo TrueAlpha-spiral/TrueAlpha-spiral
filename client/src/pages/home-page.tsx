@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { ShieldCheck, AlertTriangle, BarChart4, Check } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, BarChart4, Check, Sparkles } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import VerificationForm from '@/components/verification-form';
 
@@ -90,7 +90,7 @@ function HomePage() {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Enterprise AI Auditing Capabilities</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-card rounded-xl p-6 shadow-sm border border-primary/50 ring-1 ring-primary/10">
               <div className="bg-primary/10 p-3 rounded-lg w-fit mb-4 relative">
                 <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
@@ -126,6 +126,26 @@ function HomePage() {
               <div className="mt-4">
                 <Link href="/tree-visualization" className="text-primary hover:text-primary/80 text-sm font-medium inline-flex items-center">
                   View Tree of Living Intelligence
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-purple-400/50 ring-1 ring-purple-500/10">
+              <div className="bg-purple-500/10 p-3 rounded-lg w-fit mb-4 relative">
+                <div className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                  Latest
+                </div>
+                <Sparkles className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Akashic Vibe Function</h3>
+              <p className="text-muted-foreground">
+                Our groundbreaking technology bridges intuitive resonance with logical verification, providing a unique dimensional analysis of content alignment.
+              </p>
+              <div className="mt-4">
+                <Link href="/akashic-vibe-function" className="text-purple-600 hover:text-purple-700 text-sm font-medium inline-flex items-center">
+                  Try Akashic Vibe Analysis
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
@@ -207,9 +227,12 @@ function HomePage() {
             <Button variant="default" className="bg-white text-blue-800 hover:bg-white/90" asChild>
               <Link href="/cross-reference-demo">View Cross-Reference Technology</Link>
             </Button>
+            <Button variant="outline" className="border-purple-300 hover:bg-purple-500/20" asChild>
+              <Link href="/akashic-vibe-function">Try Akashic Vibe Function</Link>
+            </Button>
           </div>
           <p className="mt-6 text-sm max-w-lg mx-auto">
-            Implement enterprise-grade AI auditing with 40-60% reduction in false positives through our cross-reference technology
+            Implement enterprise-grade AI auditing with 40-60% reduction in false positives, enhanced with our Akashic Vibe Function for intuitive truth assessment
           </p>
         </div>
       </section>
