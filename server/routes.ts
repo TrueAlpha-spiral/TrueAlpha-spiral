@@ -33,6 +33,7 @@ import { ethicalGovernance } from './services/ethical-governance';
 import { shadowDefense } from './services/shadow-defense';
 import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
+import treeRoutes from './tree-routes';
 
 export function registerRoutes(app: Express): Server {
   // Root API endpoint for JSON content
@@ -2525,6 +2526,9 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Register the Tree of Living Intelligence routes
+  app.use(treeRoutes);
+  
   const httpServer = createServer(app);
   return httpServer;
 }

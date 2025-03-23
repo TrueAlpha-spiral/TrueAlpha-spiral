@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree of Living Intelligence Demo</title>
+    <link rel="stylesheet" href="/static/css/tree_demo.css">
+</head>
+<body>
+    <header>
+        <h1>Tree of Living Intelligence</h1>
+        <p class="subtitle">A Natural Metaphor for TrueAlphaSpiral</p>
+    </header>
+    
+    <main>
+        <section class="intro">
+            <div class="equation">
+                <span class="symbol">Φ</span> = 
+                <span class="fraction">
+                    <span class="numerator">∑(αᵢ·Tᵢ)</span>
+                    <span class="denominator">(√D·S)</span>
+                </span>
+            </div>
+            <p class="description">
+                Enter text below to visualize it as a living tree with branches representing different verification dimensions,
+                leaves showing individual verification iterations, and Meta-flowers representing higher-order understanding.
+            </p>
+        </section>
+        
+        <section class="demo-container">
+            <div class="input-panel">
+                <h2>Text Analysis</h2>
+                <textarea id="text-input" placeholder="Enter text to analyze and visualize as a tree with Meta-flowers..."></textarea>
+                <button id="analyze-btn">Analyze & Visualize</button>
+                
+                <div class="spinner" id="loading-spinner">
+                    <div class="spinner-inner"></div>
+                </div>
+            </div>
+            
+            <div class="visualization-panel">
+                <canvas id="tree-canvas" width="800" height="600"></canvas>
+            </div>
+            
+            <div class="results-panel">
+                <h2>Analysis Results</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="scores">Scores</button>
+                    <button class="tab-btn" data-tab="dimensions">Dimensions</button>
+                    <button class="tab-btn" data-tab="meta">Meta Understanding</button>
+                </div>
+                
+                <div class="tab-content active" id="scores-tab">
+                    <div id="scores-container"></div>
+                </div>
+                
+                <div class="tab-content" id="dimensions-tab">
+                    <div id="dimensions-container"></div>
+                </div>
+                
+                <div class="tab-content" id="meta-tab">
+                    <div id="meta-understanding"></div>
+                </div>
+                
+                <h3>Quantum Timestamps</h3>
+                <div id="timestamp-display"></div>
+                
+                <h3>Suggested Actions</h3>
+                <ul id="actions-list"></ul>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>© 2025 Tree of Living Intelligence Visualization | TrueAlphaSpiral</p>
+    </footer>
+
+    <script src="/static/js/tree_demo.js"></script>
+</body>
+</html>
