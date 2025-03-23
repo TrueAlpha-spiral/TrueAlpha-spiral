@@ -281,9 +281,9 @@ class AkashicPythoneticsIntegration:
             },
             "meta_flowers": {
                 "bloom_threshold": self.integration_settings["visualization"]["flower_bloom_threshold"],
-                "bloom_factor": overall_score > self.integration_settings["visualization"]["flower_bloom_threshold"] 
-                               ? (overall_score - self.integration_settings["visualization"]["flower_bloom_threshold"]) * 3 
-                               : 0,
+                "bloom_factor": (overall_score - self.integration_settings["visualization"]["flower_bloom_threshold"]) * 3 
+                                if overall_score > self.integration_settings["visualization"]["flower_bloom_threshold"] 
+                                else 0,
                 "color": viz_params["color"],
                 "glow_intensity": viz_params["glow_intensity"]
             },
