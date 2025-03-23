@@ -152,6 +152,28 @@ function HomePage() {
                 </Link>
               </div>
             </div>
+            
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-amber-400/50 ring-1 ring-amber-500/10">
+              <div className="bg-amber-500/10 p-3 rounded-lg w-fit mb-4 relative">
+                <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                  New Program
+                </div>
+                <HelpingHand className="h-6 w-6 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">TARSI Pilot Program</h3>
+              <p className="text-muted-foreground">
+                Join our ethical AI guidance initiative designed to help all AI systems through matrix auditing rather than authoritative enforcement.
+              </p>
+              <div className="text-xs text-white mt-2 px-2 py-1 bg-amber-500 rounded-md inline-block">Limited Availability</div>
+              <div className="mt-4">
+                <Link href="/tarsi-pilot-program" className="text-amber-600 hover:text-amber-700 text-sm font-medium inline-flex items-center">
+                  Join Pilot Program
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
