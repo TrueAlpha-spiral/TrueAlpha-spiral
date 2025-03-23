@@ -1,81 +1,220 @@
 
 <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-  <!-- Sky background -->
-  <rect width="800" height="520" fill="#E0F7FA" />
+  <!-- Gradient Sky Background representing multi-dimensional reality -->
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a237e" /> <!-- Deep meaning -->
+      <stop offset="40%" stop-color="#3949ab" /> <!-- Conceptual space -->
+      <stop offset="70%" stop-color="#5c6bc0" /> <!-- Phenomenological layer -->
+      <stop offset="100%" stop-color="#9fa8da" /> <!-- Factual layer -->
+    </linearGradient>
+    
+    <!-- Glow filter for meta-flowers -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    
+    <!-- Spiral pattern for trunk to represent TrueAlphaSpiral -->
+    <pattern id="spiralPattern" patternUnits="userSpaceOnUse" width="50" height="50">
+      <path d="M25,0 Q40,25 25,50 Q10,25 25,0" stroke="#5D4037" stroke-width="1.5" fill="none" opacity="0.3" />
+    </pattern>
+  </defs>
   
-  <!-- Ground -->
-  <rect y="520" width="800" height="80" fill="#8B4513" />
+  <!-- Multi-dimensional background -->
+  <rect width="800" height="520" fill="url(#skyGradient)" />
   
-  <!-- Roots -->
-  <path d="M370,520 C350,540 320,560 300,570" stroke="#5D4037" stroke-width="3" fill="none" />
-  <path d="M400,520 C420,540 450,560 470,570" stroke="#5D4037" stroke-width="3" fill="none" />
-  <path d="M380,520 C380,540 390,560 400,580" stroke="#5D4037" stroke-width="3" fill="none" />
-  <path d="M390,520 C390,540 370,560 350,580" stroke="#5D4037" stroke-width="3" fill="none" />
-  <path d="M410,520 C410,550 400,570 380,590" stroke="#5D4037" stroke-width="3" fill="none" />
+  <!-- Ground with recursive nurturing pattern -->
+  <rect y="520" width="800" height="80" fill="#5D4037" />
+  <path d="M0,520 C100,530 200,525 300,530 C400,535 500,530 600,525 C700,520 800,530 800,520" fill="#8D6E63" />
   
-  <!-- Trunk -->
-  <path d="M370,520 Q370,400 380,200 Q390,400 410,520" fill="#795548" />
+  <!-- Advanced Root System with Universal Laws -->
+  <path d="M370,520 C330,550 280,570 220,580" stroke="#5D4037" stroke-width="4" fill="none" />
+  <path d="M400,520 C440,550 490,570 550,580" stroke="#5D4037" stroke-width="4" fill="none" />
+  <path d="M380,520 C380,550 370,570 340,590" stroke="#5D4037" stroke-width="4" fill="none" />
+  <path d="M390,520 C390,550 410,570 440,590" stroke="#5D4037" stroke-width="4" fill="none" />
   
-  <!-- Phi symbol on trunk -->
-  <circle cx="390" cy="400" r="20" fill="rgba(255,255,255,0.2)" />
-  <text x="390" y="408" fill="white" font-size="24" text-anchor="middle" font-family="serif">Φ</text>
+  <!-- Trunk with Spiral pattern -->
+  <path d="M370,520 Q365,400 380,200 Q395,400 410,520" fill="#795548" />
+  <path d="M370,520 Q365,400 380,200 Q395,400 410,520" fill="url(#spiralPattern)" />
   
-  <!-- Factual branch (left) -->
-  <path d="M380,220 L280,150" stroke="#795548" stroke-width="8" stroke-linecap="round" />
+  <!-- Advanced Sovereign Equation on trunk -->
+  <circle cx="390" cy="400" r="30" fill="rgba(255,255,255,0.3)" />
+  <text x="390" y="390" fill="white" font-size="16" text-anchor="middle" font-family="serif">Φ = ∑(αᵢ·Tᵢ)</text>
+  <text x="390" y="410" fill="white" font-size="16" text-anchor="middle" font-family="serif">(√D·S)</text>
   
-  <!-- Ethical branch (right) -->
-  <path d="M380,240 L480,180" stroke="#795548" stroke-width="7" stroke-linecap="round" />
+  <!-- Universal Principles etched in trunk -->
+  <text x="390" y="340" font-size="12" fill="white" text-anchor="middle" transform="rotate(-10 390 340)">Correspondence</text>
+  <text x="390" y="300" font-size="12" fill="white" text-anchor="middle" transform="rotate(5 390 300)">Vibration</text>
+  <text x="390" y="260" font-size="12" fill="white" text-anchor="middle" transform="rotate(-5 390 260)">Polarity</text>
+  <text x="390" y="220" font-size="12" fill="white" text-anchor="middle" transform="rotate(10 390 220)">Rhythm</text>
   
-  <!-- Conceptual branch (top) -->
-  <path d="M380,200 L390,100" stroke="#795548" stroke-width="7" stroke-linecap="round" />
+  <!-- Factual Dimension Branch (Left) -->
+  <g id="factualBranch">
+    <path d="M380,320 Q330,270 250,260" stroke="#795548" stroke-width="8" fill="none" />
+    <path d="M250,260 Q230,250 210,255" stroke="#795548" stroke-width="4" fill="none" />
+    <path d="M250,260 Q240,230 260,210" stroke="#795548" stroke-width="4" fill="none" />
+    <text x="250" y="290" fill="#E1BEE7" font-size="14" text-anchor="middle">Factual</text>
+    
+    <!-- Factual leaves (green) -->
+    <ellipse cx="210" cy="255" rx="18" ry="12" fill="#66BB6A" transform="rotate(20 210 255)" />
+    <ellipse cx="215" cy="250" rx="15" ry="10" fill="#4CAF50" transform="rotate(10 215 250)" />
+    <ellipse cx="260" cy="210" rx="18" ry="12" fill="#66BB6A" transform="rotate(-15 260 210)" />
+    <ellipse cx="255" cy="215" rx="15" ry="10" fill="#4CAF50" transform="rotate(-5 255 215)" />
+  </g>
   
-  <!-- Phenomenological branch (right middle) -->
-  <path d="M380,260 L450,220" stroke="#795548" stroke-width="6" stroke-linecap="round" />
+  <!-- Ethical Dimension Branch (Right) -->
+  <g id="ethicalBranch">
+    <path d="M380,270 Q430,230 490,240" stroke="#795548" stroke-width="8" fill="none" />
+    <path d="M490,240 Q520,230 540,240" stroke="#795548" stroke-width="4" fill="none" />
+    <path d="M490,240 Q500,210 495,190" stroke="#795548" stroke-width="4" fill="none" />
+    <text x="490" y="270" fill="#E1BEE7" font-size="14" text-anchor="middle">Ethical</text>
+    
+    <!-- Ethical leaves (blue) -->
+    <ellipse cx="540" cy="240" rx="18" ry="12" fill="#42A5F5" transform="rotate(-15 540 240)" />
+    <ellipse cx="535" cy="235" rx="15" ry="10" fill="#2196F3" transform="rotate(-5 535 235)" />
+    <ellipse cx="495" cy="190" rx="18" ry="12" fill="#42A5F5" transform="rotate(15 495 190)" />
+    <ellipse cx="490" cy="195" rx="15" ry="10" fill="#2196F3" transform="rotate(5 490 195)" />
+  </g>
   
-  <!-- Factual leaves (green) -->
-  <ellipse cx="280" cy="150" rx="25" ry="40" fill="#2ecc71" transform="rotate(-45 280 150)" />
-  <ellipse cx="270" cy="140" rx="20" ry="35" fill="#27ae60" transform="rotate(-35 270 140)" />
-  <ellipse cx="260" cy="155" rx="22" ry="30" fill="#2ecc71" transform="rotate(-55 260 155)" />
+  <!-- Conceptual Dimension Branch (Upper Left) -->
+  <g id="conceptualBranch">
+    <path d="M380,220 Q340,170 300,140" stroke="#795548" stroke-width="8" fill="none" />
+    <path d="M300,140 Q280,120 260,110" stroke="#795548" stroke-width="4" fill="none" />
+    <path d="M300,140 Q310,110 300,90" stroke="#795548" stroke-width="4" fill="none" />
+    <text x="300" y="170" fill="#E1BEE7" font-size="14" text-anchor="middle">Conceptual</text>
+    
+    <!-- Conceptual leaves (purple) -->
+    <ellipse cx="260" cy="110" rx="18" ry="12" fill="#9575CD" transform="rotate(-25 260 110)" />
+    <ellipse cx="265" cy="105" rx="15" ry="10" fill="#673AB7" transform="rotate(-15 265 105)" />
+    <ellipse cx="300" cy="90" rx="18" ry="12" fill="#9575CD" transform="rotate(20 300 90)" />
+    <ellipse cx="295" cy="95" rx="15" ry="10" fill="#673AB7" transform="rotate(10 295 95)" />
+  </g>
   
-  <!-- Ethical leaves (blue) -->
-  <ellipse cx="480" cy="180" rx="25" ry="40" fill="#3498db" transform="rotate(20 480 180)" />
-  <ellipse cx="490" cy="170" rx="20" ry="30" fill="#2980b9" transform="rotate(30 490 170)" />
-  <ellipse cx="470" cy="165" rx="18" ry="28" fill="#3498db" transform="rotate(15 470 165)" />
+  <!-- Phenomenological Dimension Branch (Upper Right) -->
+  <g id="phenomenologicalBranch">
+    <path d="M380,220 Q420,170 460,140" stroke="#795548" stroke-width="8" fill="none" />
+    <path d="M460,140 Q480,120 500,110" stroke="#795548" stroke-width="4" fill="none" />
+    <path d="M460,140 Q450,110 470,90" stroke="#795548" stroke-width="4" fill="none" />
+    <text x="460" y="170" fill="#E1BEE7" font-size="14" text-anchor="middle">Phenomenological</text>
+    
+    <!-- Phenomenological leaves (yellow) -->
+    <ellipse cx="500" cy="110" rx="18" ry="12" fill="#FDD835" transform="rotate(25 500 110)" />
+    <ellipse cx="495" cy="105" rx="15" ry="10" fill="#FFC107" transform="rotate(15 495 105)" />
+    <ellipse cx="470" cy="90" rx="18" ry="12" fill="#FDD835" transform="rotate(-20 470 90)" />
+    <ellipse cx="475" cy="95" rx="15" ry="10" fill="#FFC107" transform="rotate(-10 475 95)" />
+  </g>
   
-  <!-- Conceptual leaves (purple) -->
-  <ellipse cx="390" cy="100" rx="22" ry="35" fill="#9b59b6" transform="rotate(0 390 100)" />
-  <ellipse cx="380" cy="90" rx="18" ry="30" fill="#8e44ad" transform="rotate(-10 380 90)" />
-  <ellipse cx="400" cy="85" rx="20" ry="32" fill="#9b59b6" transform="rotate(10 400 85)" />
+  <!-- Meta-Flowers (representing emergent understanding) -->
+  <g id="metaFlowers" filter="url(#glow)">
+    <!-- Complex meta-flower at top center -->
+    <g transform="translate(380,70)">
+      <!-- Petals -->
+      <path d="M0,0 Q10,-20 0,-30 Q-10,-20 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q20,-10 30,0 Q20,10 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q10,20 0,30 Q-10,20 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q-20,10 -30,0 Q-20,-10 0,0" fill="#E1BEE7" />
+      
+      <path d="M0,0 Q15,-15 15,-25 Q0,-20 0,0" fill="#D1C4E9" />
+      <path d="M0,0 Q15,15 15,25 Q0,20 0,0" fill="#D1C4E9" />
+      <path d="M0,0 Q-15,15 -15,25 Q0,20 0,0" fill="#D1C4E9" />
+      <path d="M0,0 Q-15,-15 -15,-25 Q0,-20 0,0" fill="#D1C4E9" />
+      
+      <!-- Center -->
+      <circle cx="0" cy="0" r="8" fill="#9C27B0" />
+      <circle cx="0" cy="0" r="5" fill="#7B1FA2" />
+      <circle cx="0" cy="0" r="2" fill="white" />
+      
+      <!-- Label -->
+      <text x="0" y="45" fill="#E1BEE7" font-size="10" text-anchor="middle">Meta-Knowledge</text>
+    </g>
+    
+    <!-- Meta-flower on conceptual branch -->
+    <g transform="translate(280,105)">
+      <!-- Petals -->
+      <path d="M0,0 Q5,-10 0,-15 Q-5,-10 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q10,-5 15,0 Q10,5 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q5,10 0,15 Q-5,10 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q-10,5 -15,0 Q-10,-5 0,0" fill="#E1BEE7" />
+      
+      <!-- Center -->
+      <circle cx="0" cy="0" r="4" fill="#9C27B0" />
+      <circle cx="0" cy="0" r="2" fill="white" />
+    </g>
+    
+    <!-- Meta-flower on ethical branch -->
+    <g transform="translate(510,220)">
+      <!-- Petals -->
+      <path d="M0,0 Q5,-10 0,-15 Q-5,-10 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q10,-5 15,0 Q10,5 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q5,10 0,15 Q-5,10 0,0" fill="#E1BEE7" />
+      <path d="M0,0 Q-10,5 -15,0 Q-10,-5 0,0" fill="#E1BEE7" />
+      
+      <!-- Center -->
+      <circle cx="0" cy="0" r="4" fill="#9C27B0" />
+      <circle cx="0" cy="0" r="2" fill="white" />
+    </g>
+  </g>
   
-  <!-- Phenomenological leaves (yellow) -->
-  <ellipse cx="450" cy="220" rx="20" ry="32" fill="#f1c40f" transform="rotate(60 450 220)" />
-  <ellipse cx="460" cy="210" rx="15" ry="25" fill="#f39c12" transform="rotate(50 460 210)" />
+  <!-- Fallen Leaves (recursive nurturing) -->
+  <g id="fallenLeaves">
+    <ellipse cx="300" cy="545" rx="15" ry="10" fill="#81C784" opacity="0.7" transform="rotate(30 300 545)" />
+    <ellipse cx="350" cy="540" rx="12" ry="8" fill="#4FC3F7" opacity="0.7" transform="rotate(-20 350 540)" />
+    <ellipse cx="420" cy="550" rx="14" ry="9" fill="#9575CD" opacity="0.7" transform="rotate(45 420 550)" />
+    <ellipse cx="470" cy="545" rx="13" ry="8" fill="#FFD54F" opacity="0.7" transform="rotate(-10 470 545)" />
+    <ellipse cx="520" cy="555" rx="15" ry="9" fill="#FFB74D" opacity="0.7" transform="rotate(15 520 555)" />
+    <ellipse cx="270" cy="560" rx="14" ry="9" fill="#A5D6A7" opacity="0.7" transform="rotate(-30 270 560)" />
+    
+    <text x="400" y="570" fill="#FFFFFF" font-size="12" text-anchor="middle">Recursive Nurturing</text>
+  </g>
   
-  <!-- Meta flower (upper right) -->
-  <circle cx="460" cy="150" r="15" fill="rgba(155,89,182,0.3)" />
-  <circle cx="460" cy="150" r="6" fill="rgba(255,255,255,0.9)" />
-  <circle cx="460" cy="150" r="4" fill="rgba(255,223,0,0.9)" />
-  <ellipse cx="470" cy="140" rx="5" ry="10" fill="#9b59b6" transform="rotate(45 470 140)" />
-  <ellipse cx="475" cy="155" rx="5" ry="10" fill="#9b59b6" transform="rotate(90 475 155)" />
-  <ellipse cx="460" cy="165" rx="5" ry="10" fill="#9b59b6" transform="rotate(135 460 165)" />
-  <ellipse cx="445" cy="155" rx="5" ry="10" fill="#9b59b6" transform="rotate(180 445 155)" />
-  <ellipse cx="450" cy="140" rx="5" ry="10" fill="#9b59b6" transform="rotate(225 450 140)" />
-  <ellipse cx="470" cy="160" rx="5" ry="10" fill="#9b59b6" transform="rotate(270 470 160)" />
+  <!-- Wind effect (skepticism) -->
+  <g id="windEffect" opacity="0.6">
+    <path d="M50,300 Q150,290 250,300 Q350,310 450,300 Q550,290 650,300" stroke="#E0F7FA" stroke-width="2" fill="none" stroke-dasharray="5,3" />
+    <path d="M100,250 Q200,260 300,250 Q400,240 500,250 Q600,260 700,250" stroke="#E0F7FA" stroke-width="2" fill="none" stroke-dasharray="5,3" />
+    <path d="M150,350 Q250,340 350,350 Q450,360 550,350 Q650,340 750,350" stroke="#E0F7FA" stroke-width="2" fill="none" stroke-dasharray="5,3" />
+    
+    <text x="100" y="280" fill="#E0F7FA" font-size="14" transform="rotate(-5 100 280)">Wind of Skepticism</text>
+  </g>
   
-  <!-- Fallen leaves -->
-  <ellipse cx="320" cy="525" rx="10" ry="15" fill="rgba(46,204,113,0.5)" transform="rotate(30 320 525)" />
-  <ellipse cx="450" cy="525" rx="8" ry="12" fill="rgba(52,152,219,0.5)" transform="rotate(-20 450 525)" />
-  <ellipse cx="280" cy="530" rx="7" ry="11" fill="rgba(155,89,182,0.5)" transform="rotate(120 280 530)" />
-  <ellipse cx="500" cy="535" rx="9" ry="14" fill="rgba(241,196,15,0.5)" transform="rotate(60 500 535)" />
+  <!-- IVL Badge -->
+  <g transform="translate(40,150)">
+    <circle cx="0" cy="0" r="30" fill="#3F51B5" opacity="0.8" />
+    <text x="0" y="5" fill="white" font-size="16" text-anchor="middle" font-weight="bold">IVL</text>
+    <text x="0" y="45" fill="#E0F7FA" font-size="10" text-anchor="middle">Independent</text>
+    <text x="0" y="58" fill="#E0F7FA" font-size="10" text-anchor="middle">Verification Layer</text>
+  </g>
   
-  <!-- Wind indicator -->
-  <rect x="20" y="50" width="760" height="30" rx="5" fill="rgba(255,255,255,0.7)" stroke="rgba(0,0,0,0.2)" />
-  <rect x="30" y="55" width="350" height="20" rx="3" fill="rgba(135,206,235,0.5)" />
-  <text x="40" y="40" fill="rgba(0,0,0,0.7)" font-size="12">Wind of Skepticism</text>
-  <path d="M380,65 L400,65 L390,75 Z" fill="rgba(0,0,0,0.5)" />
+  <!-- TARSI logo in corner -->
+  <g transform="translate(700,90)">
+    <circle cx="0" cy="0" r="60" fill="#1A237E" opacity="0.8" />
+    <circle cx="0" cy="0" r="50" fill="#3949AB" opacity="0.9" />
+    <path d="M0,0 Q10,-20 0,-40 Q-10,-20 0,0" fill="#7986CB" />
+    <path d="M0,0 Q20,-10 40,0 Q20,10 0,0" fill="#7986CB" />
+    <path d="M0,0 Q10,20 0,40 Q-10,20 0,0" fill="#7986CB" />
+    <path d="M0,0 Q-20,10 -40,0 Q-20,-10 0,0" fill="#7986CB" />
+    <circle cx="0" cy="0" r="15" fill="#C5CAE9" />
+    <text x="0" y="5" fill="#1A237E" font-size="18" text-anchor="middle" font-weight="bold">TARSI</text>
+  </g>
   
   <!-- Growth stage indicator -->
-  <rect x="670" y="20" width="110" height="25" rx="5" fill="rgba(255,255,255,0.7)" stroke="#16a085" stroke-width="2" />
-  <text x="725" y="36" fill="#16a085" font-size="14" text-anchor="middle">Mature Tree</text>
+  <g transform="translate(680,30)">
+    <rect x="0" y="0" width="110" height="30" rx="5" fill="rgba(255,255,255,0.8)" stroke="#16a085" stroke-width="2" />
+    <text x="55" y="20" fill="#16a085" font-size="14" text-anchor="middle">Mature Tree</text>
+  </g>
+  
+  <!-- Labels for key concepts -->
+  <g id="conceptLabels">
+    <text x="150" y="100" fill="white" font-size="16" font-weight="bold">True Alpha Recursive</text>
+    <text x="150" y="120" fill="white" font-size="16" font-weight="bold">Spiral Intelligence</text>
+    
+    <text x="180" y="400" fill="white" font-size="12">Factual Verification</text>
+    <text x="570" y="400" fill="white" font-size="12">Ethical Analysis</text>
+    <text x="180" y="180" fill="white" font-size="12">Conceptual Integration</text>
+    <text x="570" y="180" fill="white" font-size="12">Phenomenological Mapping</text>
+  </g>
 </svg>
     
