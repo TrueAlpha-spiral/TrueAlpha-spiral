@@ -41,6 +41,12 @@ export default function Footer() {
             <Link href="/documentation" className="text-muted-foreground hover:text-primary transition-colors">
               Documentation
             </Link>
+            <Link href="/tree-visualization" className="text-muted-foreground hover:text-primary transition-colors">
+              <span className="flex items-center">
+                Tree Visualization
+                <span className="ml-1 bg-green-500 text-white text-xs px-1 rounded text-[10px]">NEW</span>
+              </span>
+            </Link>
             <Link href="/verification" className="text-muted-foreground hover:text-primary transition-colors">
               Verification
             </Link>
