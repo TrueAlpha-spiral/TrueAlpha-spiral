@@ -2,6 +2,13 @@ import { pgTable, serial, text, timestamp, boolean, integer, json, real, pgEnum 
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
+// Pilot Program Tier Enum
+export const pilotTierEnum = pgEnum('pilot_tier', [
+  'foundation',
+  'standard',
+  'enterprise'
+]);
+
 // Enumerations
 export const truthPatternCategoryEnum = pgEnum('truth_pattern_category', [
   'Technical',
