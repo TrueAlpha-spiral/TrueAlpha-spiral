@@ -13,6 +13,7 @@ import math
 import random
 from flask import Flask, render_template, request, jsonify
 import logging
+import hashlib
 from enhanced_pythonetics import EnhancedPythonetics
 
 # Configure logging
