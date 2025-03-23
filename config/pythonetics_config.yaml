@@ -1,0 +1,115 @@
+# Pythonetics Configuration File
+
+# System Configuration
+system:
+  log_level: INFO
+  log_file: pythonetics.log
+  version: 1.0.0
+
+# Core Parameters
+core:
+  recursion_depth: 3
+  learning_rate: 0.01
+  rhythm_cycle_length: 5
+  universal_threshold: 0.85
+  truth_dimensions:
+    - factual
+    - conceptual
+    - ethical
+    - phenomenological
+
+# Dimension Weights
+weights:
+  factual: 0.35
+  conceptual: 0.25
+  ethical: 0.20
+  phenomenological: 0.20
+
+# Factual Verification
+factual_verification:
+  # If enabled, will attempt to use external APIs for factual verification
+  use_external_apis: false
+  # API configuration (would be added when APIs are integrated)
+  apis:
+    fact_check:
+      enabled: false
+      url: ""
+      key: ""
+    knowledge_base:
+      enabled: false
+      url: ""
+      key: ""
+  # Fallback configuration when APIs are not available
+  fallback:
+    base_score: 0.5
+    length_factor_weight: 0.3
+    random_variation: 0.2
+
+# Ethical Verification
+ethical_verification:
+  bias_detection:
+    enabled: true
+    sensitivity: 0.7
+  fairness_analysis:
+    enabled: true
+    demographic_groups:
+      - gender
+      - age
+      - ethnicity
+  harm_assessment:
+    enabled: true
+    threshold: 0.6
+
+# Phenomenological Verification
+phenomenological_verification:
+  sentiment_analysis:
+    enabled: true
+    positive_weight: 0.5
+    negative_weight: 0.5
+  emotional_content:
+    enabled: true
+    emotion_types:
+      - joy
+      - sadness
+      - anger
+      - fear
+      - surprise
+  experiential_coherence:
+    enabled: true
+    threshold: 0.7
+
+# NLP Processing
+nlp:
+  causality:
+    markers:
+      - because
+      - therefore
+      - since
+      - so
+      - thus
+      - leads to
+      - causes
+    implied_causality_threshold: 0.6
+  polarity:
+    opposition_markers:
+      - but
+      - however
+      - yet
+      - although
+      - nonetheless
+    opposition_density_threshold: 0.1
+
+# Rhythm Analysis
+rhythm_analysis:
+  similarity_threshold: 0.7
+  minimum_logs_required: 3
+  cycle_comparison_count: 2
+  improvement_threshold: 1.1
+  decline_threshold: 0.9
+
+# Error Handling
+error_handling:
+  default_truth_score: 0.5
+  retry_attempts: 3
+  retry_delay_seconds: 1
+  graceful_degradation: true
