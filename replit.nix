@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.libyaml
     pkgs.lsof
     pkgs.rustc
     pkgs.openssl
