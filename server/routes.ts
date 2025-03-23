@@ -34,6 +34,7 @@ import { shadowDefense } from './services/shadow-defense';
 import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import treeRoutes from './tree-routes';
+import avfRoutes from './routes/avf-routes';
 
 export function registerRoutes(app: Express): Server {
   // Root API endpoint for JSON content
@@ -52,7 +53,9 @@ export function registerRoutes(app: Express): Server {
         '/api/ai-audit',
         '/api/dimensional-simulation',
         '/api/ethical-governance',
-        '/api/shadow-defense'
+        '/api/shadow-defense',
+        '/api/tree',
+        '/api/avf'
       ],
       timestamp: new Date().toISOString()
     });
@@ -2528,6 +2531,9 @@ export function registerRoutes(app: Express): Server {
 
   // Register the Tree of Living Intelligence routes
   app.use('/api/tree', treeRoutes);
+  
+  // Register the Akashic Vibe Function routes
+  app.use('/api/avf', avfRoutes);
   
   const httpServer = createServer(app);
   return httpServer;
