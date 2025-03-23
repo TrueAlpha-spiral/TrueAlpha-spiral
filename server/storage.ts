@@ -11,6 +11,8 @@ import {
   InsertSharedTruthPattern,
   SecurityEvent,
   InsertSecurityEvent,
+  TarsiPilotApplication,
+  InsertTarsiPilotApplication,
   SystemStatus,
   DriftResult,
   PatternData,
@@ -81,6 +83,12 @@ export interface IStorage {
   learnPattern(pattern: PatternData, layer: ShadowLayer): Promise<boolean>;
   detectDrift(content: string, context?: Record<string, any>): Promise<DriftResult | null>;
   
+  // TARSI Pilot Applications
+  createTarsiPilotApplication(data: InsertTarsiPilotApplication): Promise<TarsiPilotApplication>;
+  getTarsiPilotApplications(): Promise<TarsiPilotApplication[]>;
+  getTarsiPilotApplication(id: number): Promise<TarsiPilotApplication | null>;
+  updateTarsiPilotApplication(id: number, data: Partial<InsertTarsiPilotApplication>): Promise<TarsiPilotApplication | null>;
+  
   // Session store
   sessionStore: any;
 }
@@ -97,6 +105,7 @@ export class MemStorage implements IStorage {
   private securityEvents: SecurityEvent[] = [];
   private driftHistory: DriftResult[] = [];
   private securityPatterns: PatternData[] = [];
+  private tarsiPilotApplications: TarsiPilotApplication[] = [];
   private systemStatus: SystemStatus = {
     overallIntegrity: 1.0,
     driftDetectionRate: 0.0,
@@ -540,6 +549,68 @@ export class MemStorage implements IStorage {
   
   async getDriftHistory(): Promise<DriftResult[]> {
     return [...this.driftHistory];
+  }
+  
+  // TARSI Pilot Application methods
+  async createTarsiPilotApplication(data: InsertTarsiPilotApplication): Promise<TarsiPilotApplication> {
+    const id = this.tarsiPilotApplications.length > 0 
+      ? Math.max(...this.tarsiPilotApplications.map(a => a.id)) + 1 
+      : 1;
+    
+    // Ensure all required fields have values
+    const newApplication: TarsiPilotApplication = {
+      id,
+      companyName: data.companyName,
+      contactName: data.contactName,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone ?? null,
+      companySize: data.companySize,
+      industry: data.industry,
+      aiSystems: data.aiSystems,
+      useCase: data.useCase,
+      pilotTier: data.pilotTier ?? 'standard',
+      expectedVolume: data.expectedVolume ?? null,
+      additionalInfo: data.additionalInfo ?? null,
+      status: 'pending',
+      createdAt: new Date()
+    };
+    
+    this.tarsiPilotApplications.push(newApplication);
+    
+    // Log a security event for the new application
+    await this.logSecurityEvent({
+      eventType: 'tarsi-application-submitted',
+      data: {
+        applicationId: id,
+        companyName: data.companyName,
+        industry: data.industry
+      },
+      systemStatus: this.systemStatus,
+      severity: 'info'
+    });
+    
+    return newApplication;
+  }
+  
+  async getTarsiPilotApplications(): Promise<TarsiPilotApplication[]> {
+    return [...this.tarsiPilotApplications];
+  }
+  
+  async getTarsiPilotApplication(id: number): Promise<TarsiPilotApplication | null> {
+    return this.tarsiPilotApplications.find(a => a.id === id) || null;
+  }
+  
+  async updateTarsiPilotApplication(id: number, data: Partial<InsertTarsiPilotApplication>): Promise<TarsiPilotApplication | null> {
+    const index = this.tarsiPilotApplications.findIndex(a => a.id === id);
+    if (index === -1) return null;
+    
+    const updatedApplication = {
+      ...this.tarsiPilotApplications[index],
+      ...data
+    };
+    
+    this.tarsiPilotApplications[index] = updatedApplication;
+    return updatedApplication;
   }
   
   // Shadow Defense System methods
