@@ -113,13 +113,24 @@ function HomePage() {
               </p>
             </div>
             <div className="bg-card rounded-xl p-6 shadow-sm border">
-              <div className="bg-primary/10 p-3 rounded-lg w-fit mb-4">
+              <div className="bg-primary/10 p-3 rounded-lg w-fit mb-4 relative">
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                  New
+                </div>
                 <BarChart4 className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-2">False Positive Reduction</h3>
               <p className="text-muted-foreground">
                 Reduce false positives by 40-60% through our advanced cross-reference verification technology with multi-source validation.
               </p>
+              <div className="mt-4">
+                <Link href="/tree-visualization" className="text-primary hover:text-primary/80 text-sm font-medium inline-flex items-center">
+                  View Tree of Living Intelligence
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
