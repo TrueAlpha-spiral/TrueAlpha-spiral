@@ -45,48 +45,30 @@ function TreeVisualizationPage() {
         higher-level understanding emerges from the system.
       </p>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-96 bg-gray-50 dark:bg-gray-900/30 rounded-lg">
-          <div className="text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em]" role="status">
-              <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-                Loading...
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">Loading Tree Visualization...</p>
-          </div>
+      <div className="relative bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Enhanced Tree Visualization</h2>
+        <p className="text-muted-foreground mb-6">
+          This visualization represents TrueAlphaSpiral as a living tree with multi-dimensional branches
+          and meta-flowers that represent knowledge emergence through the system.
+        </p>
+        
+        <img 
+          src="/api/tree/placeholder-tree" 
+          alt="Tree of Living Intelligence" 
+          className="max-w-full h-auto mx-auto border rounded-lg shadow-md" 
+        />
+        
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <h3 className="text-lg font-medium mb-2">Enhanced Features:</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Multi-dimensional gradient backgrounds (from deep meaning to factual layers)</li>
+            <li>Advanced Sovereign Equation etched in the trunk</li>
+            <li>Four dimension-specific branches (Factual, Ethical, Conceptual, Phenomenological)</li>
+            <li>Meta-flowers showing emergent understanding through cross-dimensional verification</li>
+            <li>Universal principles incorporated as foundational elements</li>
+          </ul>
         </div>
-      ) : error ? (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-200">
-          <p>{error}</p>
-          <div className="mt-4">
-            <p className="font-semibold">Alternative Visualization:</p>
-            <div className="mt-2">
-              <img 
-                src="/api/tree/placeholder-tree" 
-                alt="Tree of Living Intelligence" 
-                className="max-w-full h-auto mx-auto border rounded-lg shadow-md" 
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="relative bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-          <div className="prose max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: treeData || '' }} />
-          
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-2">Placeholder Visualization</h3>
-            <p className="text-muted-foreground mb-4">
-              This static visualization shows the core concept of the Tree of Living Intelligence:
-            </p>
-            <img 
-              src="/api/tree/placeholder-tree" 
-              alt="Tree of Living Intelligence" 
-              className="max-w-full h-auto mx-auto border rounded-lg shadow-md" 
-            />
-          </div>
-        </div>
-      )}
+      </div>
 
       <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-2">About the Tree of Living Intelligence</h2>
