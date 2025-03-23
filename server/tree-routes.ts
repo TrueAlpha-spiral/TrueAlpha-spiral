@@ -1,14 +1,19 @@
 import express from 'express';
 import path from 'path';
 import { exec } from 'child_process';
+import fs from 'fs';
+import { marked } from 'marked';
 
 const router = express.Router();
 
+// Debug route to check if tree routes are working
+router.get('/test', (req, res) => {
+  console.log('[Tree Routes] Test route accessed');
+  res.send('Tree routes are working correctly!');
+});
+
 // Route to serve the Tree of Living Intelligence documentation
-router.get('/tree-documentation', (req, res) => {
-  const fs = require('fs');
-  const marked = require('marked');
-  
+router.get('/documentation', (req, res) => {
   try {
     // Read the markdown file
     const markdownPath = path.join(process.cwd(), 'TREE_OF_LIVING_INTELLIGENCE.md');
@@ -88,7 +93,7 @@ router.get('/tree-documentation', (req, res) => {
       </head>
       <body>
         <a href="/" class="header-link">← Back to Dashboard</a>
-        <a href="/tree-visualization" class="header-link">Try the Tree Visualization →</a>
+        <a href="/api/tree/visualization" class="header-link">Try the Tree Visualization →</a>
         ${html}
       </body>
       </html>
@@ -100,7 +105,7 @@ router.get('/tree-documentation', (req, res) => {
 });
 
 // Route to serve the Tree of Living Intelligence visualization demo
-router.get('/tree-visualization', (req, res) => {
+router.get('/visualization', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -234,7 +239,7 @@ router.get('/tree-visualization', (req, res) => {
         
         <div class="nav-links">
           <a href="/" class="nav-link">Dashboard</a>
-          <a href="/tree-documentation" class="nav-link">Documentation</a>
+          <a href="/api/tree/documentation" class="nav-link">Documentation</a>
         </div>
         
         <div class="input-panel">
@@ -281,7 +286,7 @@ router.get('/tree-visualization', (req, res) => {
             // Generate a placeholder tree visualization (for demo purposes)
             setTimeout(() => {
               loading.style.display = 'none';
-              const treeImageUrl = '/api/placeholder-tree';
+              const treeImageUrl = '/api/tree/placeholder-tree';
               
               treeContainer.innerHTML = \`
                 <img src="\${treeImageUrl}" alt="Tree of Living Intelligence visualization">
@@ -304,11 +309,10 @@ router.get('/tree-visualization', (req, res) => {
 });
 
 // Route to serve a placeholder tree image
-router.get('/api/placeholder-tree', (req, res) => {
+router.get('/placeholder-tree', (req, res) => {
   const placeholderImage = path.join(process.cwd(), 'public', 'tree-placeholder.svg');
   
   // Check if the placeholder image exists
-  const fs = require('fs');
   if (!fs.existsSync(placeholderImage)) {
     // Create the SVG if it doesn't exist
     const svgContent = `
