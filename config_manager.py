@@ -119,8 +119,9 @@ class ConfigManager:
         if key is None:
             return self.config[section]
             
-        if key in self.config[section]:
-            return self.config[section][key]
+        # Handle the case where default is a dictionary and key isn't found
+        if isinstance(self.config[section], dict):
+            return self.config[section].get(key, default)
             
         return default
     
