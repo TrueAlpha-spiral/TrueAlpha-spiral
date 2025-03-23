@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { ShieldCheck, AlertTriangle, BarChart4, Check, Sparkles } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, BarChart4, Check, Sparkles, HelpingHand } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import VerificationForm from '@/components/verification-form';
 
@@ -90,7 +90,7 @@ function HomePage() {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Enterprise AI Auditing Capabilities</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
             <div className="bg-card rounded-xl p-6 shadow-sm border border-primary/50 ring-1 ring-primary/10">
               <div className="bg-primary/10 p-3 rounded-lg w-fit mb-4 relative">
                 <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
@@ -229,6 +229,12 @@ function HomePage() {
             </Button>
             <Button variant="outline" className="border-purple-300 hover:bg-purple-500/20" asChild>
               <Link href="/akashic-vibe-function">Try Akashic Vibe Function</Link>
+            </Button>
+            <Button variant="default" className="bg-amber-500 text-white hover:bg-amber-600" asChild>
+              <Link href="/tarsi-pilot-program">
+                <HelpingHand className="mr-2 h-4 w-4" />
+                Join TARSI Pilot Program
+              </Link>
             </Button>
           </div>
           <p className="mt-6 text-sm max-w-lg mx-auto">

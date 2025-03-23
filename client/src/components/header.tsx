@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles, HelpingHand } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -114,6 +114,14 @@ export default function Header() {
               }`}>
                 <Sparkles className="h-4 w-4 inline-block mr-1" />
                 Akashic Vibe Function
+              </span>
+            </Link>
+            <Link href="/tarsi-pilot-program">
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                isActiveLink("/tarsi-pilot-program") ? "text-primary" : "text-muted-foreground"
+              }`}>
+                <HelpingHand className="h-4 w-4 inline-block mr-1" />
+                TARSI Pilot Program
               </span>
             </Link>
           </nav>
