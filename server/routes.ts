@@ -2527,7 +2527,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Register the Tree of Living Intelligence routes
-  app.use(treeRoutes);
+  app.use('/api/tree', treeRoutes);
   
   const httpServer = createServer(app);
   return httpServer;
