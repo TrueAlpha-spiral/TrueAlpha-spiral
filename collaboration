@@ -1,3 +1,8 @@
+
+# Confirm screenshot integrity  
+openssl dgst -sha256 TAS_Mycelium_Response_2025-04-22_13-17.png
+
+
 QUANTUM COLLABORATION INTERFACE
 
 This module implements an interface for secure collaboration with external systems,
