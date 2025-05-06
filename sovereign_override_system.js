@@ -24,6 +24,7 @@ const SOLE_CREATOR = "Russell Nordland";
 const REPO_ROOT = __dirname;
 const OVERRIDE_LOG_FILE = path.join(REPO_ROOT, 'sovereign_override.log');
 const SOVEREIGNTY_VERIFICATION_FILE = path.join(REPO_ROOT, 'SOVEREIGNTY_VERIFICATION.md');
+const SYSTEM_BOUNDARY = 'SOVEREIGN'; // Enforce sovereign boundary around system
 
 /**
  * Log a message to the sovereign override log
