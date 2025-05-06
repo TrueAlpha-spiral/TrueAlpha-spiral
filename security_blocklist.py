@@ -16,7 +16,7 @@ import json
 import logging
 import hashlib
 from datetime import datetime
-from typing import Dict, List, Any, Tuple, Optional, Set
+from typing import Dict, List, Any, Tuple, Optional, Set, Union
 
 # Set up logging
 logging.basicConfig(
@@ -279,7 +279,7 @@ class SecurityBlocklist:
         is_blocked = len(detections) > 0
         return is_blocked, detections
         
-    def _escalate_security_level(self, level: str = None) -> None:
+    def _escalate_security_level(self, level: Optional[str] = None) -> None:
         """Escalate the security level in response to a threat.
         
         Args:
@@ -308,6 +308,18 @@ class SecurityBlocklist:
             self.blocklist["security_level"] = "heightened"
             logging.warning(f"Security level set to heightened (was {current_level})")
     
+    def check_access_attempt(self, details: Dict[str, Any]) -> Tuple[bool, List[Dict[str, Any]]]:
+        """Check if an access attempt should be blocked.
+        
+        Args:
+            details: Details of the access attempt
+            
+        Returns:
+            Tuple containing (is_blocked, detection_details)
+        """
+        content = json.dumps(details, sort_keys=True)
+        return self.detect_blocked_content(content)
+    
     def _capture_environment_details(self) -> Dict[str, Any]:
         """Capture details about the environment for security analysis.
         
@@ -321,32 +333,6 @@ class SecurityBlocklist:
             "process_id": os.getpid(),
             "user": os.getenv("USER", "unknown"),
         }
-
-def _get_redacted_context(content: str, pattern: str) -> str:
-    """Get context around a pattern but redact sensitive information.
-    
-    Args:
-        content: Full content string
-        pattern: Pattern to get context around
-        
-    Returns:
-        Redacted context string
-    """
-    try:
-        index = content.lower().find(pattern.lower())
-        if index >= 0:
-            start = max(0, index - 20)
-            end = min(len(content), index + len(pattern) + 20)
-            before = content[start:index]
-            after = content[index+len(pattern):end]
-            return f"...{before}[DETECTED-PATTERN]{after}..."
-    except Exception:
-        pass
-    
-    return "[Context redacted for security]"
-
-
-def monitor_security_example():
     
     def get_detection_history(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get the recent detection history.
@@ -384,11 +370,37 @@ def monitor_security_example():
                 "identifiers": len(self.blocklist["identifiers"]),
                 "ip_addresses": len(self.blocklist["ip_addresses"])
             },
+            "security_level": self.blocklist.get("security_level", "normal"),
             "threat_level_counts": threat_counts,
             "recent_detections": self.get_detection_history(5),
             "last_updated": self.blocklist["last_updated"],
             "report_generated": datetime.now().isoformat()
         }
+
+
+def _get_redacted_context(content: str, pattern: str) -> str:
+    """Get context around a pattern but redact sensitive information.
+    
+    Args:
+        content: Full content string
+        pattern: Pattern to get context around
+        
+    Returns:
+        Redacted context string
+    """
+    try:
+        index = content.lower().find(pattern.lower())
+        if index >= 0:
+            start = max(0, index - 20)
+            end = min(len(content), index + len(pattern) + 20)
+            before = content[start:index]
+            after = content[index+len(pattern):end]
+            return f"...{before}[DETECTED-PATTERN]{after}..."
+    except Exception:
+        pass
+    
+    return "[Context redacted for security]"
+
 
 # Example usage
 def monitor_security_example():
@@ -423,10 +435,12 @@ def monitor_security_example():
     # Export security status
     status = blocklist.export_security_status()
     print("\nSecurity Status:")
+    print(f"  Security level: {status['security_level']}")
     print(f"  Patterns: {status['blocklist_size']['patterns']}")
     print(f"  Identifiers: {status['blocklist_size']['identifiers']}")
     print(f"  Critical threats: {status['threat_level_counts']['critical']}")
     print(f"  High threats: {status['threat_level_counts']['high']}")
+
 
 def main():
     """Main function for running the security blocklist."""
@@ -492,6 +506,7 @@ def main():
         status = blocklist.export_security_status()
         print("Security Blocklist Status")
         print(f"Last updated: {status['last_updated']}")
+        print(f"Security level: {status['security_level']}")
         
         print("\nBlocklist size:")
         print(f"  Patterns: {status['blocklist_size']['patterns']}")
@@ -513,6 +528,7 @@ def main():
     else:
         # Run the example if no arguments provided
         monitor_security_example()
+
 
 if __name__ == "__main__":
     main()

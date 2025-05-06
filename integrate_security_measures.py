@@ -16,7 +16,7 @@ import json
 import logging
 import argparse
 from datetime import datetime
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple, Optional, Union
 
 # Setup logging
 logging.basicConfig(
@@ -31,6 +31,36 @@ logging.basicConfig(
 # Import security components
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# Define classes to avoid 'possibly unbound' errors
+class GuardianShield:
+    def __init__(self, steward_id: str = ""):
+        pass
+        
+    def verify_steward(self, claimed_id: str, intent_markers: Dict[str, float]) -> Tuple[bool, float, Dict[str, Any]]:
+        return False, 0.0, {}
+        
+class IntentSnapshotGenerator:
+    def __init__(self, steward_id: str = ""):
+        pass
+        
+    def generate_snapshot(self) -> Dict[str, Any]:
+        return {"error": "Not implemented"}
+        
+class BiometricVerification:
+    def __init__(self, steward_id: str = ""):
+        pass
+        
+    def verify_facial_identity(self, facial_data: Union[str, bytes]) -> Tuple[bool, float, Dict[str, Any]]:
+        return False, 0.0, {}
+        
+class SecurityBlocklist:
+    def __init__(self):
+        pass
+        
+    def detect_blocked_content(self, content: str) -> Tuple[bool, List[Dict[str, Any]]]:
+        return False, []
+
+# Try to import the actual implementations
 try:
     from guardian_shield import GuardianShield
     guardian_available = True
@@ -242,17 +272,20 @@ class SecurityIntegration:
                 snapshot = generator.generate_snapshot()
                 
                 # Log the snapshot generation
-                self._log_security_event("intent_snapshot_generated", snapshot["snapshot_id"], {
-                    "timestamp": snapshot["timestamp"]
-                })
-                
-                return snapshot
+                if isinstance(snapshot, dict) and "snapshot_id" in snapshot and "timestamp" in snapshot:
+                    self._log_security_event("intent_snapshot_generated", snapshot["snapshot_id"], {
+                        "timestamp": snapshot["timestamp"]
+                    })
+                    return snapshot
+                else:
+                    logging.error("Invalid snapshot format")
+                    return {"error": "Invalid snapshot format", "timestamp": datetime.now().isoformat()}
             except Exception as e:
                 logging.error(f"Failed to generate intent snapshot: {str(e)}")
-                return None
+                return {"error": str(e), "timestamp": datetime.now().isoformat()}
         else:
             logging.error("Intent Snapshot Generator not available")
-            return None
+            return {"error": "Intent Snapshot Generator not available", "timestamp": datetime.now().isoformat()}
     
     def secure_content(self, content: Any, context: Dict[str, Any] = None) -> Tuple[Any, Dict[str, Any]]:
         """Apply security measures to protect content.
