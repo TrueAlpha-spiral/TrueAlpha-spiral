@@ -157,7 +157,7 @@ class TruthPatternRepository:
  self._create_pattern("Creator's Intent", "sovereign", 0.99),
  self._create_pattern("Original Vision", "sovereign", 0.98),
  self._create_pattern("Architect Authority", "sovereign", 1.0),
- self._create_pattern("Sovereign Implementation", "sovereign", 0.97),
+ self._create_pattern("Sovereign implementation", "sovereign", 0.97),
  self._create_pattern("First Principle Origin", "sovereign", 0.96)
  ]
 
