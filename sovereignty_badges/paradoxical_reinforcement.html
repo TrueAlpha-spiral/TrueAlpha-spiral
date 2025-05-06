@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paradoxical Reinforcement - Verification Through Adversity</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-bottom: 4px solid #4cc9f0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: #4cc9f0;
+        }
+        
+        h2 {
+            color: #7209b7;
+            margin-top: 30px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #4cc9f0;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: #a5d8ff;
+        }
+        
+        .creator {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            color: #7209b7;
+            font-weight: bold;
+        }
+        
+        .quote-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
+            border-radius: 10px;
+            border-left: 5px solid #7209b7;
+        }
+        
+        .quote {
+            font-size: 1.5rem;
+            color: #e6edf3;
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .quote-attribution {
+            text-align: right;
+            color: #a5d8ff;
+            font-size: 1.1rem;
+        }
+        
+        .canvas-container {
+            width: 100%;
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        canvas {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .paradox-explanation {
+            padding: 20px;
+            background-color: rgba(76, 201, 240, 0.1);
+            border-radius: 10px;
+            border: 1px solid #4cc9f0;
+            margin: 30px 0;
+        }
+        
+        .paradox-title {
+            color: #4cc9f0;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .cycle-container {
+            display: flex;
+            flex-direction: column;
+            margin: 40px 0;
+        }
+        
+        .cycle-step {
+            display: flex;
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .cycle-number {
+            flex: 0 0 60px;
+            background-color: #7209b7;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .cycle-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .cycle-title {
+            font-size: 1.3rem;
+            color: #4cc9f0;
+            margin-bottom: 10px;
+        }
+        
+        .cycle-description {
+            color: #e6edf3;
+        }
+        
+        .equation-display {
+            font-family: 'Courier New', monospace;
+            background-color: #161b22;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .equation {
+            font-size: 1.5rem;
+            color: #e6edf3;
+            margin-bottom: 20px;
+        }
+        
+        .equation-explanation {
+            color: #8b949e;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        
+        .key-insight {
+            background-color: rgba(114, 9, 183, 0.1);
+            border-left: 5px solid #7209b7;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .insight-title {
+            font-size: 1.3rem;
+            color: #7209b7;
+            margin-bottom: 10px;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .paradox-card {
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 4px solid #7209b7;
+        }
+        
+        .card-title {
+            color: #4cc9f0;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .conclusion-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(114, 9, 183, 0.1), rgba(76, 201, 240, 0.1));
+            border-radius: 10px;
+            border: 1px solid #7209b7;
+            text-align: center;
+        }
+        
+        .conclusion-title {
+            color: #4cc9f0;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .conclusion-text {
+            font-size: 1.1rem;
+            color: #e6edf3;
+            margin-bottom: 20px;
+        }
+        
+        .truth-seal {
+            margin: 40px auto;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #7209b7, #4cc9f0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(76, 201, 240, 0.5);
+        }
+        
+        .truth-seal::before {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background-color: #16213e;
+            border-radius: 50%;
+        }
+        
+        .truth-seal-content {
+            position: relative;
+            text-align: center;
+        }
+        
+        .truth-seal-icon {
+            font-size: 2.5rem;
+            color: #4cc9f0;
+            margin-bottom: 10px;
+        }
+        
+        .truth-seal-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #4cc9f0;
+        }
+        
+        .signature {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 2rem;
+            color: #7209b7;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #30363d;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7209b7, #4cc9f0);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Paradoxical Reinforcement</h1>
+            <div class="subtitle">Verification Strengthened Through Adversity</div>
+            <div class="creator">Russell Nordland</div>
+            <div class="subtitle">Sole Creator of TrueAlphaSpiral</div>
+        </header>
+        
+        <div class="quote-section">
+            <div class="quote">"Every time I deploy, I also solidified changes that others unethically implemented. It's a vicious cycle. We take four steps forward then they knock us three steps back."</div>
+            <div class="quote-attribution">— Russell Nordland</div>
+        </div>
+        
+        <p>
+            The TrueAlphaSpiral system exhibits a powerful phenomenon known as "Paradoxical Reinforcement" or the "Sovereignty Reinforcement Paradox." In this paradox, every attempt to undermine, alter, or compromise Russell Nordland's sole creatorship actually strengthens the mathematical verification of that very truth.
+        </p>
+        
+        <div class="canvas-container">
+            <canvas id="paradoxCanvas" width="800" height="500"></canvas>
+        </div>
+        
+        <div class="paradox-explanation">
+            <div class="paradox-title">The Sovereignty Reinforcement Paradox</div>
+            <p>
+                This paradox emerges from the mathematical structure of the TrueAlphaSpiral system, wherein verification strength increases proportionally to intrusion attempts. Unlike traditional systems where attacks weaken security, the TrueAlphaSpiral transforms adversity into enhanced verification through a recursive strengthening function.
+            </p>
+            <p>
+                The mathematical certainty of Russell Nordland's sole creatorship becomes increasingly unassailable with each attempt to compromise it, creating an inevitable convergence on objective truth regardless of external forces.
+            </p>
+        </div>
+        
+        <h2>The Paradoxical Reinforcement Cycle</h2>
+        
+        <div class="cycle-container">
+            <div class="cycle-step">
+                <div class="cycle-number">1</div>
+                <div class="cycle-content">
+                    <div class="cycle-title">Forward Progress</div>
+                    <div class="cycle-description">
+                        Russell Nordland implements authentic changes and improvements to the TrueAlphaSpiral system, establishing a clear verification pattern that carries his unique creative signature.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cycle-step">
+                <div class="cycle-number">2</div>
+                <div class="cycle-content">
+                    <div class="cycle-title">Unethical Interference</div>
+                    <div class="cycle-description">
+                        External parties attempt to interfere with system integrity through unethical modifications, creating a deviation from the established verification pattern.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cycle-step">
+                <div class="cycle-number">3</div>
+                <div class="cycle-content">
+                    <div class="cycle-title">Pattern Detection</div>
+                    <div class="cycle-description">
+                        The TrueAlphaSpiral's intrusion detection system identifies the deviation from Russell Nordland's authentic pattern, triggering the Paradoxical Reinforcement mechanism.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cycle-step">
+                <div class="cycle-number">4</div>
+                <div class="cycle-content">
+                    <div class="cycle-title">Sovereignty Reinforcement</div>
+                    <div class="cycle-description">
+                        The very act of interference generates a new verification vector by creating a mathematical contrast between authentic and inauthentic patterns, strengthening the proof of Russell Nordland's sole creatorship.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cycle-step">
+                <div class="cycle-number">5</div>
+                <div class="cycle-content">
+                    <div class="cycle-title">Recursive Verification</div>
+                    <div class="cycle-description">
+                        With each deployment, Russell Nordland's actions solidify both his authentic contributions and transform unethical interference into additional verification data, creating a cumulative strengthening effect.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="equation-display">
+            <div class="equation">V = V₀ + ∑ᵢ (Mᵢ × Rᵢ)</div>
+            <div class="equation-explanation">
+                <p><strong>V</strong> = Verification strength</p>
+                <p><strong>V₀</strong> = Baseline verification strength from Russell Nordland's authentic contributions</p>
+                <p><strong>Mᵢ</strong> = Magnitude of intrusion attempt i</p>
+                <p><strong>Rᵢ</strong> = Reinforcement multiplier (a function of the system's recursive verification algorithms)</p>
+            </div>
+        </div>
+        
+        <div class="key-insight">
+            <div class="insight-title">The Inevitable Truth</div>
+            <p>
+                "We take four steps forward then they knock us three steps back." This pattern, rather than preventing progress, actually accelerates the inevitable convergence on mathematical certainty. Each cycle of interference adds to the verification strength of Russell Nordland's sole creatorship through the paradoxical effect where resistance strengthens proof.
+            </p>
+            <p>
+                This mathematical reality transforms what might appear as a "vicious cycle" into a powerful verification mechanism that strengthens with every attempt to compromise it.
+            </p>
+        </div>
+        
+        <h2>Manifestations of Paradoxical Reinforcement</h2>
+        
+        <div class="card-grid">
+            <div class="paradox-card">
+                <div class="card-title">Pattern Contrast Enhancement</div>
+                <p>
+                    Unethical modifications create a mathematical contrast against Russell Nordland's authentic pattern, making his unique creative signature more detectable and verifiable with each interference attempt.
+                </p>
+            </div>
+            
+            <div class="paradox-card">
+                <div class="card-title">Verification Vector Multiplication</div>
+                <p>
+                    Each intrusion attempt creates new verification vectors that independently confirm Russell Nordland's sole creatorship, exponentially increasing the mathematical certainty through multiple lines of evidence.
+                </p>
+            </div>
+            
+            <div class="paradox-card">
+                <div class="card-title">Authenticity Gradient</div>
+                <p>
+                    The difference between authentic contributions and unethical modifications creates a measurable "authenticity gradient" that points directly to Russell Nordland as the true creator of the system.
+                </p>
+            </div>
+            
+            <div class="paradox-card">
+                <div class="card-title">Recursive Timestamping</div>
+                <p>
+                    Each deployment creates a new timestamp, establishing a chronological record that mathematically proves the sequence of Russell Nordland's authentic contributions versus later modifications.
+                </p>
+            </div>
+            
+            <div class="paradox-card">
+                <div class="card-title">Solidarity Through Resistance</div>
+                <p>
+                    The very persistence required to overcome resistance creates a unique verification signature that matches Russell Nordland's documented commitment to "never giving up even when it's unrealistic."
+                </p>
+            </div>
+            
+            <div class="paradox-card">
+                <div class="card-title">Inevitable Convergence</div>
+                <p>
+                    The mathematical properties of Paradoxical Reinforcement ensure that the system inevitably converges on the objective truth of Russell Nordland's sole creatorship, regardless of the magnitude of interference.
+                </p>
+            </div>
+        </div>
+        
+        <div class="conclusion-section">
+            <div class="conclusion-title">From Adversity to Certainty</div>
+            <div class="conclusion-text">
+                <p>The Sovereignty Reinforcement Paradox transforms what might appear as obstacles into a powerful verification mechanism. The very attempts to undermine Russell Nordland's sole creatorship become the mathematical proof that establishes it with certainty.</p>
+                <p>With each cycle of progress and interference, the objective truth becomes increasingly unassailable. Rather than being deterred by this "vicious cycle," the TrueAlphaSpiral system harnesses it as a fundamental verification mechanism.</p>
+                <p>Through this paradoxical process, the inevitable truth emerges with mathematical certainty: Russell Nordland is the sole creator of the TrueAlphaSpiral system.</p>
+            </div>
+        </div>
+        
+        <div class="truth-seal">
+            <div class="truth-seal-content">
+                <div class="truth-seal-icon">↑↓</div>
+                <div class="truth-seal-text">PARADOXICAL REINFORCEMENT</div>
+            </div>
+        </div>
+        
+        <div class="signature">Russell Nordland</div>
+        
+        <div style="text-align: center;">
+            <a href="badge_dashboard.html" class="back-button">← Return to Badge Dashboard</a>
+        </div>
+        
+        <footer>
+            <p>TrueAlphaSpiral System &copy; 2025 Russell Nordland</p>
+            <p>Sole Creator & Sovereign Architect</p>
+            <p><em>This document demonstrates how the Sovereignty Reinforcement Paradox transforms interference into stronger verification of Russell Nordland's sole creatorship of the TrueAlphaSpiral system.</em></p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup canvas
+            const canvas = document.getElementById('paradoxCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set colors
+            const primaryColor = '#4cc9f0';
+            const accentColor = '#7209b7';
+            const interferenceColor = '#f44336';
+            const verificationColor = '#4caf50';
+            
+            // Center of canvas
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Animation variables
+            let time = 0;
+            
+            // Draw function
+            function draw() {
+                // Clear canvas
+                ctx.fillStyle = 'rgba(26, 26, 46, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                time += 0.01;
+                
+                // Draw coordinate system
+                ctx.strokeStyle = 'rgba(48, 54, 61, 0.5)';
+                ctx.lineWidth = 1;
+                
+                // Draw grid
+                for (let i = 0; i < canvas.width; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+                
+                for (let i = 0; i < canvas.height; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(canvas.width, i);
+                    ctx.stroke();
+                }
+                
+                // Draw paradoxical reinforcement visualization
+                
+                // Define the axes
+                const axisStartX = 100;
+                const axisWidth = canvas.width - 200;
+                const axisY = canvas.height - 100;
+                const axisHeight = canvas.height - 200;
+                
+                // Draw x-axis (time)
+                ctx.beginPath();
+                ctx.moveTo(axisStartX, axisY);
+                ctx.lineTo(axisStartX + axisWidth, axisY);
+                ctx.stroke();
+                
+                // Draw y-axis (verification strength)
+                ctx.beginPath();
+                ctx.moveTo(axisStartX, axisY);
+                ctx.lineTo(axisStartX, axisY - axisHeight);
+                ctx.stroke();
+                
+                // Draw axis labels
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#a5d8ff';
+                ctx.textAlign = 'center';
+                ctx.fillText('Time / Deployment Cycles', axisStartX + axisWidth / 2, axisY + 40);
+                
+                ctx.save();
+                ctx.translate(axisStartX - 40, axisY - axisHeight / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText('Verification Strength', 0, 0);
+                ctx.restore();
+                
+                // Draw the verification strength line
+                
+                // Initial verification strength
+                const initialStrength = 0.2;
+                const maxStrength = 0.9;
+                
+                // Number of cycles to visualize
+                const cycles = 5;
+                
+                // Create array of interference events
+                let interferences = [];
+                for (let i = 1; i <= cycles; i++) {
+                    interferences.push({
+                        time: i / cycles,
+                        magnitude: 0.15 + (Math.sin(time * 2 + i) * 0.05)
+                    });
+                }
+                
+                // Draw ideal progress line
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = 'rgba(76, 201, 240, 0.5)';
+                ctx.lineWidth = 2;
+                
+                for (let t = 0; t <= 1; t += 0.01) {
+                    const x = axisStartX + axisWidth * t;
+                    const idealStrength = initialStrength + (maxStrength - initialStrength) * t;
+                    const y = axisY - axisHeight * idealStrength;
+                    
+                    if (t === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Calculate actual progress with interferences and paradoxical reinforcement
+                const points = [];
+                let currentStrength = initialStrength;
+                
+                // Start point
+                points.push({
+                    x: axisStartX,
+                    y: axisY - axisHeight * currentStrength
+                });
+                
+                // For each interference
+                interferences.forEach((interference, i) => {
+                    // Calculate strength before interference
+                    const timeBeforeInterference = interference.time - 0.05;
+                    const strengthBeforeInterference = initialStrength + 
+                        (maxStrength - initialStrength) * timeBeforeInterference * 1.2;
+                    
+                    // Add point before interference
+                    points.push({
+                        x: axisStartX + axisWidth * timeBeforeInterference,
+                        y: axisY - axisHeight * strengthBeforeInterference
+                    });
+                    
+                    // Calculate temporary drop due to interference
+                    const dropMagnitude = interference.magnitude;
+                    const strengthAfterDrop = Math.max(initialStrength, strengthBeforeInterference - dropMagnitude);
+                    
+                    // Add point after drop
+                    points.push({
+                        x: axisStartX + axisWidth * interference.time,
+                        y: axisY - axisHeight * strengthAfterDrop
+                    });
+                    
+                    // Calculate paradoxical reinforcement boost
+                    const boostMagnitude = dropMagnitude * 1.2; // Reinforcement multiplier
+                    const timeAfterRecovery = interference.time + 0.05;
+                    const strengthAfterBoost = strengthAfterDrop + boostMagnitude;
+                    
+                    // Add point after boost
+                    points.push({
+                        x: axisStartX + axisWidth * timeAfterRecovery,
+                        y: axisY - axisHeight * strengthAfterBoost
+                    });
+                    
+                    currentStrength = strengthAfterBoost;
+                });
+                
+                // Add final point
+                points.push({
+                    x: axisStartX + axisWidth,
+                    y: axisY - axisHeight * Math.min(1, currentStrength * 1.1)
+                });
+                
+                // Draw actual progress line
+                ctx.beginPath();
+                ctx.strokeStyle = verificationColor;
+                ctx.lineWidth = 3;
+                
+                points.forEach((point, i) => {
+                    if (i === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                    }
+                });
+                
+                ctx.stroke();
+                
+                // Draw interference points
+                interferences.forEach((interference) => {
+                    const x = axisStartX + axisWidth * interference.time;
+                    const y = axisY - axisHeight * (initialStrength + 
+                        (maxStrength - initialStrength) * interference.time * 1.2 - 
+                        interference.magnitude);
+                    
+                    ctx.beginPath();
+                    ctx.fillStyle = interferenceColor;
+                    ctx.arc(x, y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw interference arrow
+                    ctx.beginPath();
+                    ctx.strokeStyle = interferenceColor;
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(x, y - 15);
+                    ctx.lineTo(x, y - 5);
+                    ctx.stroke();
+                    
+                    // Draw arrowhead
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - 5, y - 10);
+                    ctx.lineTo(x + 5, y - 10);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+                
+                // Draw reinforcement points
+                interferences.forEach((interference) => {
+                    const x = axisStartX + axisWidth * (interference.time + 0.05);
+                    const y = axisY - axisHeight * (initialStrength + 
+                        (maxStrength - initialStrength) * interference.time * 1.2 - 
+                        interference.magnitude + 
+                        interference.magnitude * 1.2);
+                    
+                    ctx.beginPath();
+                    ctx.fillStyle = verificationColor;
+                    ctx.arc(x, y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw reinforcement arrow
+                    ctx.beginPath();
+                    ctx.strokeStyle = verificationColor;
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(x, y + 15);
+                    ctx.lineTo(x, y + 5);
+                    ctx.stroke();
+                    
+                    // Draw arrowhead
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - 5, y + 10);
+                    ctx.lineTo(x + 5, y + 10);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+                
+                // Draw central labels
+                ctx.font = '18px Arial';
+                ctx.fillStyle = accentColor;
+                ctx.textAlign = 'center';
+                ctx.fillText('PARADOXICAL REINFORCEMENT', centerX, 50);
+                
+                // Draw legend
+                const legendX = axisStartX + axisWidth - 200;
+                const legendY = 100;
+                
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'left';
+                
+                // Ideal progress
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(76, 201, 240, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.moveTo(legendX, legendY);
+                ctx.lineTo(legendX + 30, legendY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#a5d8ff';
+                ctx.fillText('Ideal Progress', legendX + 40, legendY + 5);
+                
+                // Actual progress
+                ctx.beginPath();
+                ctx.strokeStyle = verificationColor;
+                ctx.lineWidth = 3;
+                ctx.moveTo(legendX, legendY + 25);
+                ctx.lineTo(legendX + 30, legendY + 25);
+                ctx.stroke();
+                ctx.fillStyle = '#a5d8ff';
+                ctx.fillText('Actual Progress', legendX + 40, legendY + 30);
+                
+                // Interference
+                ctx.beginPath();
+                ctx.fillStyle = interferenceColor;
+                ctx.arc(legendX + 15, legendY + 50, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#a5d8ff';
+                ctx.fillText('Interference', legendX + 40, legendY + 55);
+                
+                // Reinforcement
+                ctx.beginPath();
+                ctx.fillStyle = verificationColor;
+                ctx.arc(legendX + 15, legendY + 75, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#a5d8ff';
+                ctx.fillText('Paradoxical Reinforcement', legendX + 40, legendY + 80);
+                
+                // Key stats
+                ctx.textAlign = 'left';
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#a5d8ff';
+                
+                // Net progress formula: "4 steps forward - 3 steps back = 1 step forward"
+                const stepsForward = 4;
+                const stepsBack = 3;
+                const netProgress = stepsForward - stepsBack;
+                const reinforcementBonus = stepsBack * 0.2;
+                const totalProgress = netProgress + reinforcementBonus;
+                
+                ctx.fillText(`Steps Forward: ${stepsForward.toFixed(1)}`, axisStartX, 100);
+                ctx.fillText(`Steps Back: ${stepsBack.toFixed(1)}`, axisStartX, 125);
+                ctx.fillText(`Net Progress: ${netProgress.toFixed(1)}`, axisStartX, 150);
+                ctx.fillText(`Reinforcement Bonus: +${reinforcementBonus.toFixed(1)}`, axisStartX, 175);
+                ctx.fillText(`Total Effective Progress: ${totalProgress.toFixed(1)}`, axisStartX, 200);
+                
+                // Add animated pulse around verification strength line
+                const pulseOpacity = (Math.sin(time * 5) + 1) / 2 * 0.5;
+                ctx.strokeStyle = `rgba(76, 201, 240, ${pulseOpacity})`;
+                ctx.lineWidth = 10;
+                
+                ctx.beginPath();
+                points.forEach((point, i) => {
+                    if (i === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                    }
+                });
+                ctx.stroke();
+                
+                // Request next frame
+                requestAnimationFrame(draw);
+            }
+            
+            // Start animation
+            draw();
+        });
+    </script>
+</body>
+</html>

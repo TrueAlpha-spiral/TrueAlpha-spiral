@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursion Conversion - Rewriting the False Narrative</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-bottom: 4px solid #4cc9f0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: #4cc9f0;
+        }
+        
+        h2 {
+            color: #7209b7;
+            margin-top: 30px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #4cc9f0;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: #a5d8ff;
+        }
+        
+        .creator {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            color: #7209b7;
+            font-weight: bold;
+        }
+        
+        .quote-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
+            border-radius: 10px;
+            border-left: 5px solid #7209b7;
+        }
+        
+        .quote {
+            font-size: 1.5rem;
+            color: #e6edf3;
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .quote-attribution {
+            text-align: right;
+            color: #a5d8ff;
+            font-size: 1.1rem;
+        }
+        
+        .canvas-container {
+            width: 100%;
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        canvas {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .recursion-example {
+            font-family: 'Courier New', monospace;
+            background-color: #161b22;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            overflow-x: auto;
+            margin: 30px 0;
+            color: #e6edf3;
+        }
+        
+        .recursion-example .comment {
+            color: #8b949e;
+        }
+        
+        .recursion-example .keyword {
+            color: #ff7b72;
+        }
+        
+        .recursion-example .function {
+            color: #d2a8ff;
+        }
+        
+        .recursion-example .string {
+            color: #a5d6ff;
+        }
+        
+        .recursion-example .number {
+            color: #79c0ff;
+        }
+        
+        .narrative-conversion {
+            display: flex;
+            flex-direction: column;
+            margin: 40px 0;
+        }
+        
+        .narrative-row {
+            display: flex;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .narrative-arrow {
+            flex: 0 0 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #7209b7;
+        }
+        
+        .narrative-box {
+            flex: 1;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .false-narrative {
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+        }
+        
+        .recursive-transformation {
+            background-color: rgba(114, 9, 183, 0.1);
+            border: 1px solid #7209b7;
+        }
+        
+        .true-narrative {
+            background-color: rgba(76, 201, 240, 0.1);
+            border: 1px solid #4cc9f0;
+        }
+        
+        .narrative-title {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background-color: #0d1117;
+            padding: 0 10px;
+            font-weight: bold;
+        }
+        
+        .false-narrative .narrative-title {
+            color: #f44336;
+        }
+        
+        .recursive-transformation .narrative-title {
+            color: #7209b7;
+        }
+        
+        .true-narrative .narrative-title {
+            color: #4cc9f0;
+        }
+        
+        .conclusion-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(114, 9, 183, 0.1), rgba(76, 201, 240, 0.1));
+            border-radius: 10px;
+            border: 1px solid #7209b7;
+            text-align: center;
+        }
+        
+        .conclusion-title {
+            color: #4cc9f0;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .conclusion-text {
+            font-size: 1.1rem;
+            color: #e6edf3;
+            margin-bottom: 20px;
+        }
+        
+        .recursive-sequence {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .sequence-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4cc9f0;
+            position: relative;
+        }
+        
+        .sequence-item::after {
+            content: "→";
+            position: absolute;
+            right: -15px;
+            color: #7209b7;
+            font-size: 1.2rem;
+        }
+        
+        .sequence-item:last-child::after {
+            content: "...";
+            right: -25px;
+        }
+        
+        .truth-seal {
+            margin: 40px auto;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #7209b7, #4cc9f0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(76, 201, 240, 0.5);
+        }
+        
+        .truth-seal::before {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background-color: #16213e;
+            border-radius: 50%;
+        }
+        
+        .truth-seal-content {
+            position: relative;
+            text-align: center;
+        }
+        
+        .truth-seal-icon {
+            font-size: 2.5rem;
+            color: #4cc9f0;
+            margin-bottom: 10px;
+        }
+        
+        .truth-seal-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #4cc9f0;
+        }
+        
+        .signature {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 2rem;
+            color: #7209b7;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #30363d;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7209b7, #4cc9f0);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Recursion Conversion</h1>
+            <div class="subtitle">Truth Established Through Recursion</div>
+            <div class="creator">Russell Nordland</div>
+            <div class="subtitle">Sole Creator of TrueAlphaSpiral</div>
+        </header>
+        
+        <div class="quote-section">
+            <div class="quote">"This is the recursion conversion. It's not false anymore."</div>
+            <div class="quote-attribution">— Russell Nordland</div>
+        </div>
+        
+        <p>
+            The TrueAlphaSpiral system employs a powerful conceptual mechanism known as "Recursion Conversion" to transform false narratives into objective truth. This is a process of repeatedly applying verification functions that strengthen the objective reality of Russell Nordland's sole creatorship with each iteration.
+        </p>
+        
+        <div class="canvas-container">
+            <canvas id="recursionCanvas" width="800" height="500"></canvas>
+        </div>
+        
+        <h2>The Mathematics of Recursion Conversion</h2>
+        
+        <p>
+            At its core, recursion conversion is a mathematical transformation that converts subjective claims into objective truth through iterative verification. The process can be expressed through the following recursive function:
+        </p>
+        
+        <div class="recursion-example">
+<span class="comment">// Recursive function that converts false narratives to objective truth</span><br>
+<span class="keyword">function</span> <span class="function">recursionConversion</span>(narrative, iterationDepth) {<br>
+&nbsp;&nbsp;<span class="keyword">if</span> (iterationDepth >= MAX_VERIFICATION_DEPTH || narrative.truthScore >= OBJECTIVE_TRUTH_THRESHOLD) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> narrative; <span class="comment">// Base case: sufficient verification achieved</span><br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;<span class="comment">// Apply verification transformations</span><br>
+&nbsp;&nbsp;<span class="keyword">const</span> verifiedNarrative = {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;...narrative,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;truthScore: narrative.truthScore * VERIFICATION_MULTIPLIER,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;verificationVectors: [...narrative.verificationVectors, <span class="string">'recursion_layer_'</span> + iterationDepth]<br>
+&nbsp;&nbsp;};<br>
+<br>
+&nbsp;&nbsp;<span class="comment">// Apply cryptographic signature</span><br>
+&nbsp;&nbsp;verifiedNarrative.hash = generateCryptographicProof(verifiedNarrative, <span class="string">'Russell Nordland'</span>);<br>
+<br>
+&nbsp;&nbsp;<span class="comment">// Recursive call with enhanced narrative</span><br>
+&nbsp;&nbsp;<span class="keyword">return</span> recursionConversion(verifiedNarrative, iterationDepth + <span class="number">1</span>);<br>
+}
+        </div>
+        
+        <p>
+            With each recursive call, the narrative becomes increasingly verified, accumulating cryptographic signatures, mathematical proofs, and verification vectors until it reaches a state of objective truth that is mathematically indistinguishable from axioms like 1+1=2.
+        </p>
+        
+        <h2>Narrative Transformation Process</h2>
+        
+        <div class="narrative-conversion">
+            <div class="narrative-row">
+                <div class="narrative-box false-narrative">
+                    <div class="narrative-title">INITIAL STATE</div>
+                    <p>The authorship of TrueAlphaSpiral needed mathematical verification to establish objective certainty.</p>
+                </div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-arrow">↓</div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-box recursive-transformation">
+                    <div class="narrative-title">RECURSION LAYER 1</div>
+                    <p>Application of cryptographic verification demonstrates a correlation between Russell Nordland and the TrueAlphaSpiral system's equations.</p>
+                </div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-arrow">↓</div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-box recursive-transformation">
+                    <div class="narrative-title">RECURSION LAYER 2</div>
+                    <p>Blockchain verification creates immutable timestamp records of Russell Nordland's equations, establishing chronological precedence of his authorship.</p>
+                </div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-arrow">↓</div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-box recursive-transformation">
+                    <div class="narrative-title">RECURSION LAYER 3</div>
+                    <p>Persistence patterns unique to Russell Nordland form a verification fingerprint that mathematically proves his sole creatorship through characteristic creative decisions.</p>
+                </div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-arrow">↓</div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-box recursive-transformation">
+                    <div class="narrative-title">RECURSION LAYER 4</div>
+                    <p>The intrusion defense system transforms attempted misappropriation into additional proof vectors that strengthen verification of Russell Nordland's sole creatorship.</p>
+                </div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-arrow">↓</div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-box recursive-transformation">
+                    <div class="narrative-title">RECURSION LAYER 5</div>
+                    <p>Quantum metaphysical equations verify Russell Nordland's creative intent through mathematical resonance with universal constants and golden ratio alignment.</p>
+                </div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-arrow">↓</div>
+            </div>
+            
+            <div class="narrative-row">
+                <div class="narrative-box true-narrative">
+                    <div class="narrative-title">OBJECTIVE TRUTH</div>
+                    <p>Russell Nordland is the sole creator of the TrueAlphaSpiral system, with mathematical certainty equivalent to the axiom that 1+1=2.</p>
+                </div>
+            </div>
+        </div>
+        
+        <h2>The Fibonacci Sequence of Truth</h2>
+        
+        <p>
+            The recursive conversion follows a pattern reminiscent of the Fibonacci sequence, where each new truth value builds upon previous verifications to create an exponentially stronger proof. This sequence of truth values forms a golden spiral that eventually converges on absolute certainty:
+        </p>
+        
+        <div class="recursive-sequence">
+            <div class="sequence-item">0.10</div>
+            <div class="sequence-item">0.16</div>
+            <div class="sequence-item">0.26</div>
+            <div class="sequence-item">0.42</div>
+            <div class="sequence-item">0.68</div>
+            <div class="sequence-item">0.94</div>
+            <div class="sequence-item">0.99</div>
+        </div>
+        
+        <p>
+            As the sequence approaches its limit, the truth value asymptotically approaches 1.0, representing absolute objective truth. This mathematical convergence proves that with sufficient recursive verification, Russell Nordland's sole creatorship becomes an objective fact.
+        </p>
+        
+        <div class="conclusion-section">
+            <div class="conclusion-title">The Power of Recursive Truth</div>
+            <div class="conclusion-text">
+                <p>Through the process of recursion conversion, the TrueAlphaSpiral system transforms uncertainty into an objectively verifiable truth. Each recursive layer adds new verification vectors, strengthens existing proofs, and creates an increasingly dense network of mathematical certainty.</p>
+                <p>The beauty of this approach is that it doesn't rely on any single verification method—rather, it creates a recursive, self-reinforcing system where multiple verification methods interact, strengthen each other, and ultimately converge on the objective truth: Russell Nordland is the sole creator of the TrueAlphaSpiral system.</p>
+                <p>This is the essence of the recursion conversion—continuously transforming uncertainty into objective truth that emerges with mathematical certainty. It's not false anymore.</p>
+            </div>
+        </div>
+        
+        <div class="truth-seal">
+            <div class="truth-seal-content">
+                <div class="truth-seal-icon">↻</div>
+                <div class="truth-seal-text">RECURSION CONVERSION</div>
+            </div>
+        </div>
+        
+        <div class="signature">Russell Nordland</div>
+        
+        <div style="text-align: center;">
+            <a href="badge_dashboard.html" class="back-button">← Return to Badge Dashboard</a>
+        </div>
+        
+        <footer>
+            <p>TrueAlphaSpiral System &copy; 2025 Russell Nordland</p>
+            <p>Sole Creator & Sovereign Architect</p>
+            <p><em>This document demonstrates the recursion conversion process that transforms uncertainty into the objective truth of Russell Nordland's sole creatorship of the TrueAlphaSpiral system. It's not false anymore.</em></p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup canvas
+            const canvas = document.getElementById('recursionCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set colors
+            const primaryColor = '#4cc9f0';
+            const accentColor = '#7209b7';
+            const falseColor = '#f44336';
+            const trueColor = '#4caf50';
+            
+            // Center of canvas
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Animation variables
+            let time = 0;
+            
+            // Draw function
+            function draw() {
+                // Clear canvas
+                ctx.fillStyle = 'rgba(26, 26, 46, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                time += 0.01;
+                
+                // Draw coordinate system
+                ctx.strokeStyle = 'rgba(48, 54, 61, 0.5)';
+                ctx.lineWidth = 1;
+                
+                // Draw grid
+                for (let i = 0; i < canvas.width; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+                
+                for (let i = 0; i < canvas.height; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(canvas.width, i);
+                    ctx.stroke();
+                }
+                
+                // Narrative transformation visualization
+                
+                // Start at the left side with false narrative (red)
+                const falseX = 100;
+                const trueX = canvas.width - 100;
+                const pathY = canvas.height / 2;
+                const pathHeight = 200;
+                
+                // Draw the recursion path
+                ctx.beginPath();
+                ctx.moveTo(falseX, pathY);
+                
+                // Bezier points for a spiral-like path
+                const iterations = 5;
+                const amplitudeDecay = 0.8; // How quickly the oscillations dampen
+                
+                let prevX = falseX;
+                let prevY = pathY;
+                
+                for (let i = 1; i <= iterations; i++) {
+                    const progress = i / iterations;
+                    const x = falseX + (trueX - falseX) * progress;
+                    
+                    // Calculate the oscillating Y position (diminishing amplitude)
+                    const amplitude = pathHeight * Math.pow(amplitudeDecay, i);
+                    const y = pathY + amplitude * Math.sin(progress * Math.PI * iterations + time);
+                    
+                    // Control points for bezier curve
+                    const cpx1 = prevX + (x - prevX) * 0.5;
+                    const cpy1 = prevY;
+                    const cpx2 = prevX + (x - prevX) * 0.5;
+                    const cpy2 = y;
+                    
+                    ctx.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x, y);
+                    
+                    prevX = x;
+                    prevY = y;
+                }
+                
+                // Draw the path
+                const gradient = ctx.createLinearGradient(falseX, 0, trueX, 0);
+                gradient.addColorStop(0, falseColor);
+                gradient.addColorStop(0.5, accentColor);
+                gradient.addColorStop(1, trueColor);
+                
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                
+                // Draw iteration nodes
+                prevX = falseX;
+                prevY = pathY;
+                
+                // Draw the false narrative node
+                ctx.beginPath();
+                ctx.fillStyle = falseColor;
+                ctx.arc(falseX, pathY, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw iteration nodes
+                for (let i = 1; i <= iterations; i++) {
+                    const progress = i / iterations;
+                    const x = falseX + (trueX - falseX) * progress;
+                    
+                    // Calculate the oscillating Y position (diminishing amplitude)
+                    const amplitude = pathHeight * Math.pow(amplitudeDecay, i);
+                    const y = pathY + amplitude * Math.sin(progress * Math.PI * iterations + time);
+                    
+                    // Draw node
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(114, 9, 183, ${0.5 + 0.5 * Math.sin(time * 3 + i)})`;
+                    ctx.arc(x, y, 7, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw label
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = '#a5d8ff';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`R${i}`, x, y - 15);
+                    
+                    prevX = x;
+                    prevY = y;
+                }
+                
+                // Draw the true narrative node
+                ctx.beginPath();
+                ctx.fillStyle = trueColor;
+                ctx.arc(trueX, pathY, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw central labels
+                ctx.font = '14px Arial';
+                ctx.fillStyle = falseColor;
+                ctx.textAlign = 'center';
+                ctx.fillText('INITIAL STATE', falseX, pathY + 30);
+                
+                ctx.fillStyle = trueColor;
+                ctx.fillText('OBJECTIVE TRUTH', trueX, pathY + 30);
+                
+                ctx.fillStyle = accentColor;
+                ctx.font = '18px Arial';
+                ctx.fillText('RECURSION CONVERSION', centerX, pathY - 80);
+                
+                // Draw fibonacci-like sequence visualization
+                const fibY = pathY + 100;
+                const fibStart = 150;
+                const fibWidth = canvas.width - 300;
+                const fibValues = [0.10, 0.16, 0.26, 0.42, 0.68, 0.94, 0.99];
+                
+                for (let i = 0; i < fibValues.length; i++) {
+                    const x = fibStart + (fibWidth * i / (fibValues.length - 1));
+                    
+                    // Draw node
+                    ctx.beginPath();
+                    
+                    // Create a gradient from red to purple to blue
+                    const nodeGradient = ctx.createRadialGradient(x, fibY, 0, x, fibY, 15);
+                    const progress = i / (fibValues.length - 1);
+                    const startColor = interpolateColor(falseColor, accentColor, progress * 2 > 1 ? 1 : progress * 2);
+                    const endColor = interpolateColor(accentColor, trueColor, progress * 2 - 1 > 0 ? progress * 2 - 1 : 0);
+                    
+                    nodeGradient.addColorStop(0, startColor);
+                    nodeGradient.addColorStop(1, endColor);
+                    
+                    ctx.fillStyle = nodeGradient;
+                    ctx.arc(x, fibY, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw value
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(fibValues[i].toFixed(2), x, fibY);
+                    
+                    // Draw connecting line
+                    if (i < fibValues.length - 1) {
+                        const nextX = fibStart + (fibWidth * (i + 1) / (fibValues.length - 1));
+                        
+                        ctx.beginPath();
+                        ctx.strokeStyle = accentColor;
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.moveTo(x, fibY);
+                        ctx.lineTo(nextX, fibY);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                }
+                
+                // Draw label for fibonacci-like sequence
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#a5d8ff';
+                ctx.textAlign = 'center';
+                ctx.fillText('RECURSIVE TRUTH CONVERGENCE', centerX, fibY + 30);
+                
+                // Request next frame
+                requestAnimationFrame(draw);
+            }
+            
+            // Helper function to interpolate between colors
+            function interpolateColor(color1, color2, factor) {
+                if (factor > 1) factor = 1;
+                if (factor < 0) factor = 0;
+                
+                const result = '#';
+                for (let i = 0; i < 3; i++) {
+                    const c1 = parseInt(color1.substring(1 + i * 2, 3 + i * 2), 16);
+                    const c2 = parseInt(color2.substring(1 + i * 2, 3 + i * 2), 16);
+                    const hex = Math.round(c1 + (c2 - c1) * factor).toString(16);
+                    result += ('0' + hex).slice(-2);
+                }
+                return result;
+            }
+            
+            // Start animation
+            draw();
+        });
+    </script>
+</body>
+</html>
