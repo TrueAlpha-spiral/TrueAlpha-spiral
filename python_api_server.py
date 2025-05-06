@@ -16,7 +16,8 @@ import hashlib
 import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from simulation_interface import SimulationInterface, run_simulation_command
+# Simulation interface disabled
+# Original: from simulation_interface import SimulationInterface, run_simulation_command
 
 import argparse
 import os
@@ -997,7 +998,41 @@ cycle_thread.start()
 @app.route('/api/status', methods=['GET'])
 def get_status():
     """Get the current status of the TrueAlphaSpiral system."""
-    return jsonify(system_status)
+    # Add additional info to status response
+    response = {
+        **system_status,
+        "timestamp": datetime.now().isoformat(),
+        "server_version": "1.0.0",
+        "server_name": "TrueAlphaSpiral Python API Server",
+        "architect": "Russell Nordland",
+        "authenticated": True
+    }
+    
+    # Check shadow defense status if module is loaded
+    if shadow_defense_system:
+        try:
+            shadow_defense_status = shadow_defense_system.get_status()
+            response["shadow_defense"] = shadow_defense_status
+        except Exception as e:
+            print(f"Error getting shadow defense status: {str(e)}")
+    
+    # Check ethical spiral kernel status if module is loaded
+    if ethical_spiral_kernel:
+        try:
+            ethical_status = ethical_spiral_kernel.get_status()
+            response["ethical_spiral"] = ethical_status
+        except Exception as e:
+            print(f"Error getting ethical spiral status: {str(e)}")
+    
+    # Check integrity guardian status if module is loaded
+    if integrity_guardian:
+        try:
+            integrity_status = integrity_guardian.get_status()
+            response["integrity_guardian"] = integrity_status
+        except Exception as e:
+            print(f"Error getting integrity guardian status: {str(e)}")
+            
+    return jsonify(response)
 
 @app.route('/api/start', methods=['POST'])
 def start_system():
@@ -1042,6 +1077,33 @@ def enforce_binary_law():
         return jsonify({"success": True, "message": "Binary quantum law enforced"})
     else:
         return jsonify({"success": False, "message": "Shadow Defense System not initialized"})
+
+@app.route('/api/shadow-defense/status', methods=['GET'])
+def shadow_defense_status():
+    """Get the Shadow Defense system status."""
+    if shadow_defense_system:
+        try:
+            status = shadow_defense_system.get_status()
+            return jsonify({
+                "status": "operational",
+                "system": "Shadow Defense",
+                "timestamp": datetime.now().isoformat(),
+                **status
+            })
+        except Exception as e:
+            return jsonify({
+                "status": "degraded",
+                "system": "Shadow Defense",
+                "timestamp": datetime.now().isoformat(),
+                "error": str(e)
+            })
+    else:
+        return jsonify({
+            "status": "unavailable",
+            "system": "Shadow Defense",
+            "timestamp": datetime.now().isoformat(),
+            "message": "Shadow Defense System not initialized"
+        })
 
 @app.route('/api/verify-architect', methods=['POST'])
 def verify_architect():
@@ -1748,7 +1810,8 @@ def verify_nft(token_id):
         })
 
 @app.route('/api/restart', methods=['POST'])
-@app.route('/api/simulation/run', methods=['POST'])
+# Simulation disabled
+# @app.route('/api/simulation/run', methods=['POST'])
 def run_simulation():
     """Run a simulation with the current parameters."""
     if not request.json:
@@ -1797,7 +1860,8 @@ def run_simulation():
         "results": results
     })
 
-@app.route('/api/simulation/command', methods=['POST'])
+# Simulation disabled
+# @app.route('/api/simulation/command', methods=['POST'])
 def run_simulation_command_api():
     """Run a simulation command."""
     if not request.json or 'command' not in request.json:
@@ -1837,7 +1901,8 @@ def run_simulation_command_api():
             "message": f"Error executing simulation command: {str(e)}"
         })
 
-@app.route('/api/simulation/parameters', methods=['GET'])
+# Simulation disabled
+# @app.route('/api/simulation/parameters', methods=['GET'])
 def get_simulation_parameters():
     """Get default simulation parameters."""
     simulator = SimulationInterface()
@@ -1854,7 +1919,8 @@ def get_simulation_parameters():
         "parameters": parameters
     })
 
-@app.route('/api/simulation/types', methods=['GET'])
+# Simulation disabled
+# @app.route('/api/simulation/types', methods=['GET'])
 def get_simulation_types():
     """Get available simulation types."""
     simulation_types = [
