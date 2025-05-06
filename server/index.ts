@@ -5,6 +5,8 @@ import fs from "fs";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
+import { spawn } from "child_process";
+import { existsSync } from "fs";
 
 // Import analytics functions
 import { analyzeConceptDrift, generateIntegrityReport, getEntityMetrics } from './services/cross-dimensional-analytics';
@@ -335,6 +337,30 @@ app.use((req, res, next) => {
       if (process.env.REPLIT_DOMAINS) {
         const replitDomain = `https://${process.env.REPLIT_DOMAINS.split(',')[0]}`;
         log(`Server accessible at ${replitDomain}`);
+      }
+      
+      // ============================================================
+      // PERMANENT INTEGRATION: Start Python API Watchdog
+      // ============================================================
+      if (existsSync('./python_api_watchdog.py')) {
+        log('Starting Python API Watchdog (PERMANENT SOLUTION)');
+        const pythonWatchdog = spawn('python', ['python_api_watchdog.py'], {
+          stdio: 'inherit',
+          detached: true
+        });
+        
+        // Set up process event handlers
+        pythonWatchdog.on('error', (err) => {
+          console.error('Failed to start Python API Watchdog:', err);
+        });
+        
+        log(`Python API Watchdog started with PID ${pythonWatchdog.pid}`);
+        process.env.PYTHON_API_URL = 'http://localhost:8001';
+        
+        // Unref to allow the process to run independently of the parent
+        pythonWatchdog.unref();
+      } else {
+        log('Python API Watchdog script not found - unable to ensure permanent Python API connection');
       }
     }).on('error', (error) => {
       log(`Error starting server: ${error.message}`, 'error');

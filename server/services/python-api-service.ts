@@ -9,12 +9,19 @@ import fetch from 'node-fetch';
 
 // Default configuration
 const PYTHON_API_BASE_URL = process.env.PYTHON_API_URL || 'http://localhost:8001';
-const API_REQUEST_TIMEOUT = 10000; // 10 seconds timeout
+const API_REQUEST_TIMEOUT = 15000; // 15 seconds timeout
+
+// Shadow Defense System port (backup endpoint)
+const SHADOW_DEFENSE_URL = process.env.SHADOW_DEFENSE_URL || 'http://localhost:8002';
 
 // Track server availability to reduce excessive failed requests
 let isServerAvailable = true;
 let lastCheckTime = 0;
-const CHECK_INTERVAL = 30000; // Re-check server every 30 seconds
+const CHECK_INTERVAL = 15000; // Re-check server every 15 seconds
+
+// Add connection recovery features
+let connectionRetries = 0;
+const MAX_RETRIES = 3;
 
 // Helper function to check if server is available
 async function isApiServerAvailable() {

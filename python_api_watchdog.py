@@ -1,168 +1,174 @@
 #!/usr/bin/env python3
-
 """
-TrueAlphaSpiral Python API Watchdog
-
-This script monitors the Python API server and restarts it if it crashes.
-It operates independently of the main system launcher.
-
-Architect: Russell Nordland
+Python API Watchdog
+This script permanently ensures the Python API server is running alongside Express
 """
 
 import os
 import sys
 import time
-import subprocess
 import signal
-import requests
-import datetime
+import subprocess
+import atexit
+import logging
+from datetime import datetime
 
-# Configuration
-API_PORT = 8001
-API_URL = f"http://localhost:{API_PORT}"
-HEALTH_CHECK_ENDPOINT = f"{API_URL}/api/status"
-CHECK_INTERVAL = 5  # Seconds between health checks
-RESTART_DELAY = 5  # Seconds to wait before restarting
-MAX_RESTART_ATTEMPTS = 3  # Maximum restart attempts in a row
-COOLDOWN_PERIOD = 60  # Seconds to wait after max restarts
-LOG_FILE = "python_api_watchdog.log"
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [Watchdog] %(levelname)s: %(message)s',
+    datefmt='%H:%M:%S'
+)
 
-# Setup basic logging
-def log(message):
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_message = f"{timestamp} - {message}"
-    print(log_message)
-    with open(LOG_FILE, "a") as f:
-        f.write(log_message + "\n")
+# Constants
+PORT = 8001
+PID_FILE = 'python_api_watchdog.pid'
+API_PID_FILE = 'python_api.pid'
+LOG_FILE = 'python_api.log'
+PYTHON_SCRIPT = 'python_api_server.py'
+CHECK_INTERVAL = 5  # seconds
 
-# Save PID for management
-def save_pid():
-    with open("python_api_watchdog.pid", "w") as f:
+# Colors for terminal output
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+
+# Print colored header
+print(f"{Colors.CYAN}{Colors.BOLD}======================================================================{Colors.ENDC}")
+print(f"{Colors.CYAN}{Colors.BOLD}  TRUEALPHASPIRAL ENTERPRISE AI AUDITING SOLUTION  {Colors.ENDC}")
+print(f"{Colors.CYAN}{Colors.BOLD}  Python API Watchdog - PERMANENT SOLUTION  {Colors.ENDC}")
+print(f"{Colors.CYAN}{Colors.BOLD}  Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  {Colors.ENDC}")
+print(f"{Colors.CYAN}{Colors.BOLD}======================================================================{Colors.ENDC}")
+
+# Write our PID to file for management
+def write_watchdog_pid():
+    with open(PID_FILE, 'w') as f:
         f.write(str(os.getpid()))
+    logging.info(f"Watchdog PID {os.getpid()} written to {PID_FILE}")
 
-# Check if the API server is running
+# Check if the Python API server is running
 def is_api_running():
-    try:
-        response = requests.get(HEALTH_CHECK_ENDPOINT, timeout=5)
-        return response.status_code == 200
-    except requests.RequestException:
-        return False
-
-# Start the API server
-def start_api_server():
-    log("Starting Python API server...")
-    try:
-        process = subprocess.Popen(
-            [sys.executable, "python_api_server.py", "--port", str(API_PORT)],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-        )
-        
-        # Save PID for management
-        with open("python_api.pid", "w") as f:
-            f.write(str(process.pid))
-            
-        log(f"Python API server started with PID {process.pid}")
-        return process
-    except Exception as e:
-        log(f"Failed to start Python API server: {str(e)}")
-        return None
-
-# Stop the API server
-def stop_api_server():
-    log("Stopping Python API server...")
-    try:
-        if os.path.exists("python_api.pid"):
-            with open("python_api.pid", "r") as f:
+    if os.path.exists(API_PID_FILE):
+        try:
+            with open(API_PID_FILE, 'r') as f:
                 pid = int(f.read().strip())
-                try:
-                    os.kill(pid, signal.SIGTERM)
-                    log(f"Sent SIGTERM to process {pid}")
-                    time.sleep(2)
-                    # Force kill if still running
-                    try:
-                        os.kill(pid, 0)  # Check if process exists
-                        os.kill(pid, signal.SIGKILL)
-                        log(f"Sent SIGKILL to process {pid}")
-                    except OSError:
-                        pass  # Process is already gone
-                except OSError:
-                    log(f"Process {pid} not found")
-            os.remove("python_api.pid")
-    except Exception as e:
-        log(f"Error stopping Python API server: {str(e)}")
+            # Check if process is running
+            os.kill(pid, 0)  # This will raise an exception if the process is not running
+            return True
+        except (OSError, ValueError):
+            # Process not running or PID file contains invalid data
+            return False
+    return False
 
-# Main watchdog function
-def watchdog_main():
-    log("Starting TrueAlphaSpiral Python API Watchdog")
-    save_pid()
+# Start the Python API server
+def start_api_server():
+    logging.info(f"{Colors.GREEN}Starting Python API server on port {PORT}{Colors.ENDC}")
     
-    # Variables to track restarts
-    restart_attempts = 0
-    last_restart_time = 0
-    api_process = None
+    # Ensure log file exists
+    with open(LOG_FILE, 'a') as f:
+        f.write(f"\n--- TrueAlphaSpiral Python API Log - {datetime.now().isoformat()} ---\n")
     
-    # Initial start
-    if not is_api_running():
-        api_process = start_api_server()
-        time.sleep(5)  # Allow time for startup
+    # Start the process
+    process = subprocess.Popen(
+        [sys.executable, PYTHON_SCRIPT, '--port', str(PORT)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1  # Line buffered
+    )
     
-    # Main monitoring loop
+    # Write PID to file
+    with open(API_PID_FILE, 'w') as f:
+        f.write(str(process.pid))
+    
+    logging.info(f"{Colors.GREEN}Python API server started with PID {process.pid}{Colors.ENDC}")
+    
+    # Start non-blocking output monitors
+    start_output_monitors(process)
+    
+    return process
+
+# Monitor process output in a non-blocking way
+def start_output_monitors(process):
+    def monitor_output(stream, is_error=False):
+        prefix = f"{Colors.FAIL}[API ERROR]{Colors.ENDC}" if is_error else f"{Colors.BLUE}[API]{Colors.ENDC}"
+        log_prefix = "[ERR]" if is_error else "[OUT]"
+        
+        for line in stream:
+            line = line.strip()
+            if line:  # Only process non-empty lines
+                print(f"{prefix} {line}")
+                with open(LOG_FILE, 'a') as log:
+                    log.write(f"{log_prefix} {line}\n")
+    
+    # Start threads to monitor stdout and stderr
+    import threading
+    threading.Thread(target=monitor_output, args=(process.stdout,), daemon=True).start()
+    threading.Thread(target=monitor_output, args=(process.stderr, True), daemon=True).start()
+
+# Cleanup function for graceful shutdown
+def cleanup():
+    logging.info(f"{Colors.WARNING}Watchdog shutting down, cleaning up...{Colors.ENDC}")
+    
+    # Kill Python API server if it's running
+    if os.path.exists(API_PID_FILE):
+        try:
+            with open(API_PID_FILE, 'r') as f:
+                pid = int(f.read().strip())
+            os.kill(pid, signal.SIGTERM)
+            logging.info(f"{Colors.GREEN}Sent termination signal to Python API server (PID {pid}){Colors.ENDC}")
+        except (OSError, ValueError) as e:
+            logging.error(f"{Colors.FAIL}Failed to terminate Python API server: {e}{Colors.ENDC}")
+        try:
+            os.remove(API_PID_FILE)
+        except OSError:
+            pass
+    
+    # Remove our own PID file
     try:
-        while True:
-            current_time = time.time()
-            
-            # Check if we should reset the restart counter
-            if restart_attempts > 0 and current_time - last_restart_time > COOLDOWN_PERIOD:
-                log(f"Cooldown period passed, resetting restart attempts from {restart_attempts} to 0")
-                restart_attempts = 0
-            
-            # Check if API is running
-            if not is_api_running():
-                log("Python API server is not responding")
-                
-                # Check if we've hit the restart limit
-                if restart_attempts >= MAX_RESTART_ATTEMPTS:
-                    log(f"Maximum restart attempts ({MAX_RESTART_ATTEMPTS}) reached. Waiting for cooldown.")
-                    time.sleep(COOLDOWN_PERIOD)
-                    restart_attempts = 0
-                    continue
-                
-                # Stop any existing process
-                stop_api_server()
-                
-                # Wait before restart
-                time.sleep(RESTART_DELAY)
-                
-                # Start the API server again
-                api_process = start_api_server()
-                last_restart_time = time.time()
-                restart_attempts += 1
-                
-                # Give it time to start up
-                time.sleep(5)
-            else:
-                # If successfully running, log periodically
-                if int(current_time) % 60 == 0:  # Log every minute
-                    log("Python API server is running normally")
-            
-            # Wait before next check
-            time.sleep(CHECK_INTERVAL)
-    except KeyboardInterrupt:
-        log("Watchdog stopping due to keyboard interrupt")
-    finally:
-        if os.path.exists("python_api_watchdog.pid"):
-            os.remove("python_api_watchdog.pid")
-        log("Watchdog stopped")
+        if os.path.exists(PID_FILE):
+            os.remove(PID_FILE)
+    except OSError as e:
+        logging.error(f"{Colors.FAIL}Failed to remove watchdog PID file: {e}{Colors.ENDC}")
+    
+    logging.info(f"{Colors.GREEN}Cleanup complete. Exiting watchdog.{Colors.ENDC}")
+
+# Register cleanup function to run on exit
+atexit.register(cleanup)
 
 # Handle signals
 def signal_handler(sig, frame):
-    log(f"Received signal {sig}, shutting down...")
+    logging.info(f"{Colors.WARNING}Received signal {sig}, shutting down...{Colors.ENDC}")
     sys.exit(0)
 
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+# Main watchdog loop
+def main():
+    write_watchdog_pid()
+    api_process = None
+    
+    try:
+        while True:
+            if not is_api_running():
+                logging.info(f"{Colors.WARNING}Python API server not running. Starting it...{Colors.ENDC}")
+                api_process = start_api_server()
+            else:
+                logging.debug("Python API server is running")
+            
+            # Sleep before next check
+            time.sleep(CHECK_INTERVAL)
+    except KeyboardInterrupt:
+        logging.info("Interrupted by user")
+    finally:
+        cleanup()
+
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-    watchdog_main()
+    main()
