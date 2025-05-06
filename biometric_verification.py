@@ -12,13 +12,12 @@ Architect: Russell Nordland
 
 import os
 import sys
-import time
 import json
-import hashlib
 import logging
+import hashlib
 import base64
 from datetime import datetime
-from typing import Dict, Any, Tuple, List, Optional, Union
+from typing import Dict, List, Any, Tuple, Optional, Union
 
 # Setup logging
 logging.basicConfig(
@@ -51,14 +50,18 @@ class BiometricVerification:
         self.steward_id = steward_id
         self.templates_dir = templates_dir
         self.integration_mode = integration_mode
-        self.initialized = False
         self.templates = {}
         self.verification_history = []
         
         # Create templates directory if it doesn't exist
-        os.makedirs(templates_dir, exist_ok=True)
+        if not os.path.exists(templates_dir):
+            try:
+                os.makedirs(templates_dir)
+                logging.info(f"Created templates directory at {templates_dir}")
+            except Exception as e:
+                logging.error(f"Failed to create templates directory: {str(e)}")
         
-        # Try to load existing templates
+        # Load existing templates
         self._load_templates()
         
         logging.info(f"Biometric verification initialized for steward: {steward_id}")
@@ -66,27 +69,25 @@ class BiometricVerification:
     
     def _load_templates(self) -> None:
         """Load existing biometric templates from storage."""
-        template_file = f"{self.templates_dir}/{self.steward_id.lower().replace(' ', '_')}_templates.json"
+        templates_file = os.path.join(self.templates_dir, f"{self.steward_id.lower()}_templates.json")
         
-        if os.path.exists(template_file):
+        if os.path.exists(templates_file):
             try:
-                with open(template_file, 'r') as f:
+                with open(templates_file, 'r') as f:
                     self.templates = json.load(f)
-                self.initialized = True
-                logging.info(f"Loaded biometric templates for {self.steward_id}")
+                logging.info(f"Loaded {len(self.templates)} templates for {self.steward_id}")
             except Exception as e:
                 logging.error(f"Failed to load templates: {str(e)}")
-        else:
-            logging.warning(f"No existing templates found for {self.steward_id}")
+                self.templates = {}
     
     def _save_templates(self) -> None:
         """Save biometric templates to storage."""
-        template_file = f"{self.templates_dir}/{self.steward_id.lower().replace(' ', '_')}_templates.json"
+        templates_file = os.path.join(self.templates_dir, f"{self.steward_id.lower()}_templates.json")
         
         try:
-            with open(template_file, 'w') as f:
+            with open(templates_file, 'w') as f:
                 json.dump(self.templates, f, indent=2)
-            logging.info(f"Saved biometric templates for {self.steward_id}")
+            logging.info(f"Saved templates for {self.steward_id}")
         except Exception as e:
             logging.error(f"Failed to save templates: {str(e)}")
     
@@ -102,40 +103,39 @@ class BiometricVerification:
             bool: True if registration was successful, False otherwise
         """
         try:
-            # Process the facial data to extract features
-            # In a real implementation, this would use a facial recognition library
-            # to extract facial features and create a template
-            
-            # For now, we'll create a hash-based template as a placeholder
+            # Convert facial data to bytes if it's a string
             if isinstance(facial_data, str):
-                # Assume base64 encoding if string
-                template_hash = hashlib.sha256(facial_data.encode()).hexdigest()
+                if facial_data.startswith('data:image'):
+                    # Handle data URL format
+                    header, encoded = facial_data.split(",", 1)
+                    facial_bytes = base64.b64decode(encoded)
+                else:
+                    # Assume it's already base64-encoded
+                    facial_bytes = base64.b64decode(facial_data)
             else:
-                # Raw bytes (from image file)
-                template_hash = hashlib.sha256(facial_data).hexdigest()
+                facial_bytes = facial_data
             
-            # Create the template with metadata
+            # Generate a hash of the facial data
+            template_hash = hashlib.sha256(facial_bytes).hexdigest()
+            
+            # Create the template record
             template = {
-                "template_id": template_hash[:16],  # First 16 chars as ID
                 "template_name": template_name,
-                "created_at": datetime.now().isoformat(),
-                "steward_id": self.steward_id,
                 "template_hash": template_hash,
-                "verification_count": 0,
-                "last_verified": None
+                "created_at": datetime.now().isoformat(),
+                "biometric_type": "facial",
+                "metadata": {
+                    "steward_id": self.steward_id,
+                    "integration_mode": self.integration_mode
+                }
             }
             
             # Store the template
-            if "facial" not in self.templates:
-                self.templates["facial"] = {}
-            
-            self.templates["facial"][template_name] = template
+            self.templates[template_name] = template
             self._save_templates()
             
-            self.initialized = True
             logging.info(f"Registered facial template '{template_name}' for {self.steward_id}")
             return True
-            
         except Exception as e:
             logging.error(f"Failed to register facial template: {str(e)}")
             return False
@@ -149,75 +149,82 @@ class BiometricVerification:
         Returns:
             Tuple containing (is_verified, confidence_score, detailed_results)
         """
-        if not self.initialized or "facial" not in self.templates:
-            logging.error("No facial templates registered for verification")
-            return False, 0.0, {"error": "No templates registered"}
-        
         try:
-            # Process the facial data to extract features
-            # In a real implementation, this would use facial recognition
-            
-            # For now, we'll create a hash-based comparison as a placeholder
+            # Convert facial data to bytes if it's a string
             if isinstance(facial_data, str):
-                # Assume base64 encoding if string
-                verification_hash = hashlib.sha256(facial_data.encode()).hexdigest()
+                if facial_data.startswith('data:image'):
+                    # Handle data URL format
+                    header, encoded = facial_data.split(",", 1)
+                    facial_bytes = base64.b64decode(encoded)
+                else:
+                    # Assume it's already base64-encoded
+                    facial_bytes = base64.b64decode(facial_data)
             else:
-                # Raw bytes (from image file)
-                verification_hash = hashlib.sha256(facial_data).hexdigest()
+                facial_bytes = facial_data
             
-            # Compare with stored templates
+            # Generate a hash of the facial data
+            verification_hash = hashlib.sha256(facial_bytes).hexdigest()
+            
+            # Verify against existing templates
             best_match = None
             best_score = 0.0
             
-            for template_name, template in self.templates["facial"].items():
-                # In a real implementation, this would calculate a similarity score
-                # between facial features. For now, we'll simulate with hash comparison.
-                
-                # Calculate a simulated similarity score based on hash comparison
-                template_hash = template["template_hash"]
-                
-                # Count matching characters at the start of the hash
-                matching_chars = 0
-                for i in range(min(len(verification_hash), len(template_hash))):
-                    if verification_hash[i] == template_hash[i]:
-                        matching_chars += 1
+            if not self.templates:
+                logging.warning(f"No templates found for {self.steward_id}")
+                return False, 0.0, {"error": "No templates found for verification"}
+            
+            for template_name, template in self.templates.items():
+                if template["biometric_type"] == "facial":
+                    template_hash = template["template_hash"]
+                    
+                    # For a real system, this would use advanced facial recognition.
+                    # For now, use a simple hash comparison as a placeholder.
+                    if template_hash == verification_hash:
+                        # Exact match
+                        score = 1.0
                     else:
-                        break
-                
-                # Convert to a score between 0 and 1
-                score = matching_chars / 64  # SHA-256 produces 64 hex chars
-                
-                if score > best_score:
-                    best_score = score
-                    best_match = template_name
+                        # Compare first 10 characters for some tolerance
+                        common_prefix_length = 0
+                        for i in range(min(20, len(template_hash), len(verification_hash))):
+                            if template_hash[i] == verification_hash[i]:
+                                common_prefix_length += 1
+                        
+                        # Calculate score based on common prefix (just a placeholder)
+                        score = common_prefix_length / 20.0
+                    
+                    if score > best_score:
+                        best_score = score
+                        best_match = template
             
-            # Determine if verification passed based on threshold
-            threshold = 0.5  # Adjust based on security needs
+            # Prepare result
+            verification_result = {
+                "timestamp": datetime.now().isoformat(),
+                "steward_id": self.steward_id,
+                "score": best_score,
+                "verified": False,
+                "matched_template": best_match["template_name"] if best_match else None
+            }
+            
+            # Determine verification threshold based on integration mode
+            thresholds = {"secure": 0.95, "standard": 0.85, "permissive": 0.75}
+            threshold = thresholds.get(self.integration_mode, 0.85)
+            
+            # Check if verification passed
             is_verified = best_score >= threshold
-            
-            # Update template verification stats if verified
-            if is_verified and best_match:
-                self.templates["facial"][best_match]["verification_count"] += 1
-                self.templates["facial"][best_match]["last_verified"] = datetime.now().isoformat()
-                self._save_templates()
+            verification_result["verified"] = is_verified
+            verification_result["threshold"] = threshold
             
             # Record verification attempt
             self._record_verification_attempt("facial", is_verified, best_score)
             
-            detailed_results = {
-                "verification_type": "facial",
-                "best_match_template": best_match,
-                "best_score": best_score,
-                "threshold": threshold,
-                "is_verified": is_verified,
-                "verification_time": datetime.now().isoformat()
-            }
+            if is_verified:
+                logging.info(f"Facial verification succeeded for {self.steward_id} with score {best_score:.4f}")
+            else:
+                logging.warning(f"Facial verification failed for {self.steward_id} with score {best_score:.4f}")
             
-            logging.info(f"Facial verification result: {is_verified} with score {best_score:.4f}")
-            return is_verified, best_score, detailed_results
-            
+            return is_verified, best_score, verification_result
         except Exception as e:
-            logging.error(f"Facial verification error: {str(e)}")
+            logging.error(f"Error during facial verification: {str(e)}")
             return False, 0.0, {"error": str(e)}
     
     def _record_verification_attempt(self, method: str, is_verified: bool, score: float) -> None:
@@ -231,13 +238,12 @@ class BiometricVerification:
         record = {
             "timestamp": datetime.now().isoformat(),
             "method": method,
+            "steward_id": self.steward_id,
             "is_verified": is_verified,
             "score": score
         }
         
         self.verification_history.append(record)
-        
-        # Keep history to a reasonable size
         if len(self.verification_history) > 100:
             self.verification_history = self.verification_history[-100:]
     
@@ -255,49 +261,41 @@ class BiometricVerification:
         Returns:
             Tuple containing (is_verified, detailed_results)
         """
-        # First, verify facial identity
+        # Verify facial identity
         facial_verified, facial_score, facial_details = self.verify_facial_identity(facial_data)
         
-        # Then verify intent patterns (simplified implementation)
-        # In a real implementation, this would use the Guardian Shield
-        intent_verified = True
-        intent_score = 0.9
-        intent_details = {"verification_type": "intent_patterns", "is_verified": intent_verified, "score": intent_score}
-        
-        # Try to use Guardian Shield if available
-        try:
-            import guardian_shield
-            shield = guardian_shield.GuardianShield(steward_id=self.steward_id)
-            intent_verified, intent_score, intent_details = shield.verify_steward(self.steward_id, intent_markers)
-        except ImportError:
-            logging.warning("Guardian Shield not available for intent verification")
-            # Use simplified implementation above as fallback
+        # For intent verification, we would normally use the Guardian Shield,
+        # but for simplicity we'll do a basic check here
+        intent_score = sum(intent_markers.values()) / len(intent_markers) if intent_markers else 0.0
+        intent_threshold = 0.9
+        intent_verified = intent_score >= intent_threshold
         
         # Combined verification requires both to pass
         is_verified = facial_verified and intent_verified
+        combined_score = (facial_score + intent_score) / 2.0 if is_verified else 0.0
         
-        # Calculate combined confidence score
-        combined_score = (facial_score + intent_score) / 2.0 if facial_verified and intent_verified else 0.0
-        
-        detailed_results = {
-            "verification_type": "multi_factor",
+        # Detailed results
+        results = {
+            "timestamp": datetime.now().isoformat(),
+            "steward_id": self.steward_id,
             "is_verified": is_verified,
             "combined_score": combined_score,
             "facial_verification": {
-                "is_verified": facial_verified,
+                "passed": facial_verified,
                 "score": facial_score,
                 "details": facial_details
             },
             "intent_verification": {
-                "is_verified": intent_verified,
+                "passed": intent_verified,
                 "score": intent_score,
-                "details": intent_details
-            },
-            "verification_time": datetime.now().isoformat()
+                "threshold": intent_threshold
+            }
         }
         
-        logging.info(f"Multi-factor verification result: {is_verified} with score {combined_score:.4f}")
-        return is_verified, detailed_results
+        # Record the verification attempt
+        self._record_verification_attempt("multi_factor", is_verified, combined_score)
+        
+        return is_verified, results
     
     def export_verification_status(self) -> Dict[str, Any]:
         """Export the current status of the biometric verification system.
@@ -307,17 +305,18 @@ class BiometricVerification:
         """
         return {
             "steward_id": self.steward_id,
-            "is_initialized": self.initialized,
-            "templates": {
-                type_name: {template_name: {
-                    key: value for key, value in template.items() if key != "template_hash"
-                } for template_name, template in templates.items()}
-                for type_name, templates in self.templates.items()
-            },
-            "recent_verifications": self.verification_history[-5:] if self.verification_history else [],
             "integration_mode": self.integration_mode,
-            "last_updated": datetime.now().isoformat()
+            "templates": [
+                {
+                    "name": name,
+                    "type": template["biometric_type"],
+                    "created_at": template["created_at"]
+                } for name, template in self.templates.items()
+            ],
+            "recent_verifications": self.verification_history[-5:] if self.verification_history else [],
+            "timestamp": datetime.now().isoformat()
         }
+
 
 def register_face_from_file(biometric_system: BiometricVerification, 
                            file_path: str, 
@@ -335,10 +334,12 @@ def register_face_from_file(biometric_system: BiometricVerification,
     try:
         with open(file_path, 'rb') as f:
             facial_data = f.read()
+        
         return biometric_system.register_facial_template(facial_data, template_name)
     except Exception as e:
         logging.error(f"Failed to register face from file: {str(e)}")
         return False
+
 
 def verify_face_from_file(biometric_system: BiometricVerification, file_path: str) -> Tuple[bool, float, Dict[str, Any]]:
     """Verify a facial identity from an image file.
@@ -353,10 +354,12 @@ def verify_face_from_file(biometric_system: BiometricVerification, file_path: st
     try:
         with open(file_path, 'rb') as f:
             facial_data = f.read()
+        
         return biometric_system.verify_facial_identity(facial_data)
     except Exception as e:
         logging.error(f"Failed to verify face from file: {str(e)}")
         return False, 0.0, {"error": str(e)}
+
 
 def main():
     """Main function for demonstrating the biometric verification system."""
@@ -364,75 +367,64 @@ def main():
     
     parser = argparse.ArgumentParser(description="Biometric Verification System")
     parser.add_argument("--steward", default="Russell Nordland", help="Steward identifier")
-    parser.add_argument("--templates-dir", default="biometric_templates", help="Directory for biometric templates")
-    parser.add_argument("--register", help="Register a facial template from the specified image file")
-    parser.add_argument("--template-name", default="primary", help="Name for the template when registering")
-    parser.add_argument("--verify", help="Verify identity using the specified image file")
-    parser.add_argument("--status", action="store_true", help="Show biometric verification system status")
+    parser.add_argument("--register", help="Register a facial template from an image file")
+    parser.add_argument("--template", default="primary", help="Template name for registration")
+    parser.add_argument("--verify", help="Verify identity using an image file")
+    parser.add_argument("--mode", choices=["secure", "standard", "permissive"], 
+                        default="secure", help="Integration mode")
+    parser.add_argument("--status", action="store_true", help="Show verification status")
     
     args = parser.parse_args()
-    
-    # Initialize the biometric verification system
-    bio_system = BiometricVerification(
-        steward_id=args.steward,
-        templates_dir=args.templates_dir
-    )
+    biometric = BiometricVerification(steward_id=args.steward, integration_mode=args.mode)
     
     if args.register:
-        # Register a facial template
-        if os.path.exists(args.register):
-            success = register_face_from_file(bio_system, args.register, args.template_name)
-            if success:
-                print(f"Successfully registered facial template '{args.template_name}' for {args.steward}")
-            else:
-                print("Failed to register facial template")
+        success = register_face_from_file(biometric, args.register, args.template)
+        if success:
+            print(f"Successfully registered facial template from {args.register}")
+            print(f"Template name: {args.template}")
         else:
-            print(f"Error: File {args.register} not found")
+            print(f"Failed to register facial template from {args.register}")
     
     elif args.verify:
-        # Verify identity
-        if os.path.exists(args.verify):
-            is_verified, score, details = verify_face_from_file(bio_system, args.verify)
-            print(f"Verification result: {'SUCCESS' if is_verified else 'FAILED'}")
-            print(f"Confidence score: {score:.4f}")
-            print("\nDetailed results:")
-            for key, value in details.items():
-                print(f"  {key}: {value}")
-        else:
-            print(f"Error: File {args.verify} not found")
+        is_verified, score, details = verify_face_from_file(biometric, args.verify)
+        print(f"Facial verification: {'SUCCESS' if is_verified else 'FAILED'}")
+        print(f"Confidence score: {score:.4f}")
+        
+        # Show more details
+        threshold = details.get("threshold", "unknown")
+        template = details.get("matched_template", "none")
+        print(f"Verification threshold: {threshold}")
+        print(f"Matched template: {template}")
     
     elif args.status:
-        # Show status
-        status = bio_system.export_verification_status()
-        print(f"Biometric verification system status for {status['steward_id']}:")
-        print(f"Initialized: {status['is_initialized']}")
+        status = biometric.export_verification_status()
+        print(f"Biometric Verification Status")
+        print(f"Steward: {status['steward_id']}")
         print(f"Integration mode: {status['integration_mode']}")
         
         print("\nRegistered templates:")
-        for type_name, templates in status['templates'].items():
-            print(f"  {type_name.capitalize()} templates:")
-            for template_name, template in templates.items():
-                print(f"    {template_name}: created {template['created_at']}")
-                print(f"      ID: {template['template_id']}")
-                print(f"      Verification count: {template['verification_count']}")
-                if template['last_verified']:
-                    print(f"      Last verified: {template['last_verified']}")
+        if status['templates']:
+            for i, template in enumerate(status['templates'], 1):
+                print(f"  {i}. {template['name']} ({template['type']})")
+                print(f"     Created: {template['created_at']}")
+        else:
+            print("  No templates registered")
         
-        print("\nRecent verification attempts:")
-        for i, verification in enumerate(status['recent_verifications'], 1):
-            print(f"  {i}. {verification['timestamp']}")
-            print(f"     Method: {verification['method']}")
-            print(f"     Result: {'SUCCESS' if verification['is_verified'] else 'FAILED'}")
-            print(f"     Score: {verification['score']:.4f}")
+        if status['recent_verifications']:
+            print("\nRecent verifications:")
+            for i, v in enumerate(status['recent_verifications'], 1):
+                result = "Success" if v["is_verified"] else "Failed"
+                print(f"  {i}. [{v['timestamp']}] {v['method']}: {result} ({v['score']:.4f})")
+        else:
+            print("\nNo recent verifications")
     
     else:
-        # Show usage information
         print("Biometric Verification System")
-        print("\nUsage:")
-        print("  Register a facial template: --register <image_file> [--template-name <name>]")
-        print("  Verify identity: --verify <image_file>")
-        print("  Show system status: --status")
-        print("\nFor more information, use --help")
+        print("Use one of the following options:")
+        print("  --register [file]: Register a facial template from an image file")
+        print("  --verify [file]: Verify identity using an image file")
+        print("  --status: Show verification status")
+
 
 if __name__ == "__main__":
     main()

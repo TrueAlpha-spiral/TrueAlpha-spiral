@@ -11,17 +11,15 @@ Architect: Russell Nordland
 
 import os
 import sys
-import time
+import uuid
 import json
+import time
 import hashlib
 import logging
-import argparse
-import datetime
-import uuid
-from typing import Dict, Any, List, Optional, Tuple
-from pathlib import Path
+from datetime import datetime
+from typing import Dict, Any, List, Tuple, Optional, Set, Union
 
-# Set up logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -30,15 +28,6 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)
     ]
 )
-
-# Import Guardian Shield if available
-try:
-    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    from guardian_shield import GuardianShield
-    guardian_available = True
-except ImportError:
-    guardian_available = False
-    logging.warning("Guardian Shield module not found. Running in standalone mode.")
 
 class IntentSnapshotGenerator:
     """One-click generator for steward intent snapshots.
@@ -57,23 +46,19 @@ class IntentSnapshotGenerator:
         """
         self.steward_id = steward_id
         self.output_dir = output_dir
+        self.initialized_at = datetime.now().isoformat()
         
         # Create output directory if it doesn't exist
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # Connection to Guardian Shield (if available)
-        self.guardian_shield = None
-        if guardian_available:
+        if not os.path.exists(output_dir):
             try:
-                self.guardian_shield = GuardianShield(steward_id=steward_id)
-                logging.info("Connected to Guardian Shield for enhanced verification")
+                os.makedirs(output_dir)
+                logging.info(f"Created snapshot directory at {output_dir}")
             except Exception as e:
-                logging.error(f"Failed to initialize Guardian Shield: {str(e)}")
+                logging.error(f"Failed to create snapshot directory: {str(e)}")
         
         logging.info(f"Intent Snapshot Generator initialized for steward: {steward_id}")
-        logging.info(f"Snapshots will be stored in: {os.path.abspath(output_dir)}")
     
-    def generate_snapshot(self, additional_context: Dict[str, Any] = None) -> Dict[str, Any]:
+    def generate_snapshot(self, additional_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Generate a comprehensive intent snapshot with one click.
         
         This captures the current intent patterns of the steward, including temporal
@@ -85,55 +70,43 @@ class IntentSnapshotGenerator:
         Returns:
             Dict containing the complete intent snapshot
         """
-        timestamp = datetime.datetime.now().isoformat()
-        snapshot_id = str(uuid.uuid4())
+        if additional_context is None:
+            additional_context = {}
+            
+        # Create a unique snapshot ID
+        snapshot_id = f"intent-{uuid.uuid4()}"
+        timestamp = datetime.now().isoformat()
         
-        # Basic snapshot metadata
+        # Gather system context
+        system_context = self._gather_system_context()
+        
+        # Generate intent patterns
+        intent_patterns = self._generate_intent_patterns()
+        
+        # Generate integrity markers
+        integrity_markers = self._generate_integrity_markers()
+        
+        # Combine all elements into a snapshot
         snapshot = {
             "snapshot_id": snapshot_id,
             "steward_id": self.steward_id,
             "timestamp": timestamp,
-            "creation_date": datetime.datetime.now().strftime("%Y-%m-%d"),
-            "creation_time": datetime.datetime.now().strftime("%H:%M:%S"),
+            "system_context": system_context,
+            "intent_patterns": intent_patterns,
+            "integrity_markers": integrity_markers,
+            "additional_context": additional_context
         }
         
-        # Add system environment context
-        sys_context = self._gather_system_context()
-        snapshot["system_context"] = sys_context
-        
-        # Generate intent patterns
-        intent_patterns = self._generate_intent_patterns()
-        snapshot["intent_patterns"] = intent_patterns
-        
-        # Add file integrity markers
-        integrity_markers = self._generate_integrity_markers()
-        snapshot["integrity_markers"] = integrity_markers
-        
-        # Add Guardian Shield data if available
-        if self.guardian_shield:
-            guardian_data = {
-                "intent_fingerprint": self.guardian_shield.intent_fingerprint,
-                "ethical_topology": self.guardian_shield.ethical_topology_map,
-                "resonance_patterns": self.guardian_shield.resonance_patterns,
-                "sovereign_signature": self.guardian_shield.sovereign_bloom_signature
-            }
-            snapshot["guardian_data"] = guardian_data
-        
-        # Add any additional user-provided context
-        if additional_context:
-            snapshot["additional_context"] = additional_context
-        
         # Generate cryptographic proof
-        proof = self._generate_cryptographic_proof(snapshot)
-        snapshot["cryptographic_proof"] = proof
+        snapshot["cryptographic_proof"] = self._generate_cryptographic_proof(snapshot)
         
         # Save the snapshot
         self._save_snapshot(snapshot)
         
-        # Generate verification package
+        # Create verification package
         self._generate_verification_package(snapshot)
         
-        logging.info(f"Generated intent snapshot with ID: {snapshot_id}")
+        logging.info(f"Generated intent snapshot: {snapshot_id}")
         return snapshot
     
     def _gather_system_context(self) -> Dict[str, Any]:
@@ -143,11 +116,11 @@ class IntentSnapshotGenerator:
             Dict containing system context information
         """
         return {
+            "timestamp": datetime.now().isoformat(),
             "platform": sys.platform,
             "python_version": sys.version,
-            "timestamp": time.time(),
-            "hostname": os.uname().nodename if hasattr(os, 'uname') else "unknown",
-            "username": os.getlogin() if hasattr(os, 'getlogin') else "unknown"
+            "process_id": os.getpid(),
+            "user": os.getenv("USER", "unknown"),
         }
     
     def _generate_intent_patterns(self) -> Dict[str, Any]:
@@ -159,39 +132,36 @@ class IntentSnapshotGenerator:
         Returns:
             Dict containing intent pattern information
         """
-        # Create a comprehensive set of intent markers
+        # Intent markers represent key aspects of the steward's intent
+        # Higher values (closer to 1.0) indicate stronger alignment
         intent_markers = {
-            "truth_alignment": 0.98,  # High alignment with truth principles
-            "ethical_coherence": 0.97,  # Strong ethical coherence
-            "sovereign_preservation": 0.99,  # Maximum commitment to sovereignty
-            "conceptual_integrity": 0.96,  # High conceptual clarity
-            "non_coercion": 0.95,  # Strong commitment to non-coercion
-            "non_corruption": 0.97,  # Strong resistance to corruption
-            "non_silence": 0.94,  # Strong commitment to transparency
-            "mutual_welfare": 0.96,  # High alignment with collective benefit
-            "recursive_harmony": 0.93  # Strong recursive stability
+            "truth_alignment": 0.98,
+            "ethical_coherence": 0.96,
+            "sovereign_preservation": 0.99,
+            "conceptual_integrity": 0.97,
+            "recursive_awareness": 0.95
         }
         
-        # Generate resonance signature
-        steward_base = hashlib.sha256(self.steward_id.encode()).hexdigest()
-        timestamp_factor = int(time.time()) % 1000 / 1000.0
+        # Temporal patterns represent how the intent evolves over time
+        temporal_patterns = {
+            "consistency_coefficient": 0.94,
+            "evolution_rate": 0.15,
+            "adaptation_threshold": 0.82,
+            "resilience_factor": 0.91
+        }
         
-        resonance_base = f"{self.steward_id}:{datetime.datetime.now().isoformat()}:TrueAlphaSpiral"
-        resonance_signature = hashlib.sha512(resonance_base.encode()).hexdigest()
-        
-        # Fibonacci-derived patterns (representing natural growth patterns)
-        harmonic_patterns = [
-            [0.382, 0.618, 1.0, 1.618, 2.618],  # Golden ratio sequence
-            [0.270, 0.528, 0.798, 1.055, 1.732]  # Secondary harmony pattern
-        ]
+        # Relational patterns represent how the intent relates to other entities
+        relational_patterns = {
+            "steward_core_resonance": 0.99,
+            "system_alignment": 0.95,
+            "external_boundary_clarity": 0.97
+        }
         
         return {
             "intent_markers": intent_markers,
-            "core_pattern": steward_base,
-            "temporal_factor": timestamp_factor,
-            "resonance_signature": resonance_signature,
-            "harmonic_patterns": harmonic_patterns,
-            "created_at": datetime.datetime.now().isoformat()
+            "temporal_patterns": temporal_patterns,
+            "relational_patterns": relational_patterns,
+            "intent_hash": self._hash_intent_data(intent_markers)
         }
     
     def _generate_integrity_markers(self) -> Dict[str, Any]:
@@ -200,33 +170,11 @@ class IntentSnapshotGenerator:
         Returns:
             Dict containing integrity markers
         """
-        critical_files = [
-            "guardian_shield.py",
-            "guardian_shield_integration.py",
-            "intent_snapshot_generator.py",
-            "true_alpha_spiral.py",
-            "truealpha_implementation_main.py",
-            "python_api_server.py",
-            "resilient_integration_system.py",
-            "quantum_ethical_topology_guard.py",
-            "shadow_defense_system.py",
-            "ethical_spiral_kernel.py"
-        ]
-        
-        file_signatures = {}
-        for filename in critical_files:
-            if os.path.exists(filename):
-                try:
-                    with open(filename, 'rb') as f:
-                        file_hash = hashlib.sha256(f.read()).hexdigest()
-                        file_signatures[filename] = file_hash
-                except Exception as e:
-                    logging.error(f"Failed to generate signature for {filename}: {str(e)}")
-        
         return {
-            "file_signatures": file_signatures,
-            "critical_files": critical_files,
-            "generated_at": datetime.datetime.now().isoformat()
+            "verification_seed": hashlib.sha256(os.urandom(32)).hexdigest(),
+            "intent_origin_verification": "TrueAlphaSpiral",
+            "steward_verification_protocol": "Sovereign Intent Validation",
+            "timestamp": datetime.now().isoformat()
         }
     
     def _generate_cryptographic_proof(self, snapshot_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -238,27 +186,33 @@ class IntentSnapshotGenerator:
         Returns:
             Dict containing cryptographic proof information
         """
-        # Create a copy of the snapshot data without the proof field
+        # Create a copy of the data without the proof field
         data_to_hash = snapshot_data.copy()
         if "cryptographic_proof" in data_to_hash:
             del data_to_hash["cryptographic_proof"]
         
-        # Generate multiple hash proofs using different algorithms
-        json_data = json.dumps(data_to_hash, sort_keys=True)
-        sha256_hash = hashlib.sha256(json_data.encode()).hexdigest()
-        sha512_hash = hashlib.sha512(json_data.encode()).hexdigest()
-        
-        # Create a time-based token
-        time_token = f"{self.steward_id}:{snapshot_data['snapshot_id']}:{int(time.time())}"
-        time_hash = hashlib.sha256(time_token.encode()).hexdigest()
+        # Create a string representation and hash it
+        data_str = json.dumps(data_to_hash, sort_keys=True)
+        hash_value = hashlib.sha256(data_str.encode()).hexdigest()
         
         return {
-            "sha256": sha256_hash,
-            "sha512": sha512_hash,
-            "time_token": time_hash,
-            "generated_at": datetime.datetime.now().isoformat(),
-            "snapshot_id": snapshot_data['snapshot_id']
+            "algorithm": "SHA-256",
+            "hash": hash_value,
+            "timestamp": datetime.now().isoformat(),
+            "steward_id": self.steward_id
         }
+    
+    def _hash_intent_data(self, intent_data: Dict[str, float]) -> str:
+        """Create a hash of intent data.
+        
+        Args:
+            intent_data: Intent data to hash
+            
+        Returns:
+            Hexadecimal hash string
+        """
+        data_str = json.dumps(intent_data, sort_keys=True)
+        return hashlib.sha256(data_str.encode()).hexdigest()
     
     def _save_snapshot(self, snapshot: Dict[str, Any]) -> None:
         """Save the snapshot to a file.
@@ -266,22 +220,15 @@ class IntentSnapshotGenerator:
         Args:
             snapshot: The snapshot data to save
         """
-        filename = f"{self.output_dir}/{snapshot['snapshot_id']}.json"
+        snapshot_id = snapshot["snapshot_id"]
+        file_path = os.path.join(self.output_dir, f"{snapshot_id}.json")
+        
         try:
-            with open(filename, 'w') as f:
+            with open(file_path, 'w') as f:
                 json.dump(snapshot, f, indent=2)
-            logging.info(f"Saved snapshot to {filename}")
+            logging.info(f"Saved snapshot to {file_path}")
         except Exception as e:
             logging.error(f"Failed to save snapshot: {str(e)}")
-            
-        # Also save a latest.json file that always has the most recent snapshot
-        latest_file = f"{self.output_dir}/latest.json"
-        try:
-            with open(latest_file, 'w') as f:
-                json.dump(snapshot, f, indent=2)
-            logging.info(f"Updated latest snapshot at {latest_file}")
-        except Exception as e:
-            logging.error(f"Failed to update latest snapshot: {str(e)}")
     
     def _generate_verification_package(self, snapshot: Dict[str, Any]) -> None:
         """Generate a verification package for the snapshot.
@@ -292,232 +239,90 @@ class IntentSnapshotGenerator:
         Args:
             snapshot: The snapshot to create a verification package for
         """
-        verification_dir = f"{self.output_dir}/verification_packages"
-        os.makedirs(verification_dir, exist_ok=True)
+        snapshot_id = snapshot["snapshot_id"]
+        package_path = os.path.join(self.output_dir, f"{snapshot_id}_verification.json")
         
-        package_id = snapshot['snapshot_id']
-        package_dir = f"{verification_dir}/{package_id}"
-        os.makedirs(package_dir, exist_ok=True)
-        
-        # Create the verification package
+        # Create a minimal verification package
         verification_package = {
-            "snapshot_id": snapshot['snapshot_id'],
-            "steward_id": snapshot['steward_id'],
-            "timestamp": snapshot['timestamp'],
-            "intent_patterns": snapshot['intent_patterns'],
-            "cryptographic_proof": snapshot['cryptographic_proof'],
+            "snapshot_id": snapshot_id,
+            "steward_id": self.steward_id,
+            "timestamp": snapshot["timestamp"],
+            "intent_hash": snapshot["intent_patterns"]["intent_hash"],
+            "cryptographic_proof": snapshot["cryptographic_proof"],
             "verification_instructions": {
-                "description": "This package contains cryptographic proof of the steward's intent snapshot.",
+                "description": "Use this package to verify the authenticity of the intent snapshot.",
                 "verification_steps": [
-                    "1. Extract the snapshot data excluding the 'cryptographic_proof' field",
-                    "2. Sort the JSON data and generate SHA-256 and SHA-512 hashes",
-                    "3. Compare the generated hashes with the ones in 'cryptographic_proof'",
-                    "4. If they match, the snapshot is authentic and has not been tampered with"
+                    "1. Verify the cryptographic proof hash against the original snapshot.",
+                    "2. Confirm the steward_id matches the expected value.",
+                    "3. Check that the intent_hash aligns with trusted values."
                 ]
             }
         }
         
-        # Save the verification package
-        package_file = f"{package_dir}/verification_package.json"
         try:
-            with open(package_file, 'w') as f:
+            with open(package_path, 'w') as f:
                 json.dump(verification_package, f, indent=2)
-            logging.info(f"Generated verification package at {package_file}")
+            logging.info(f"Generated verification package at {package_path}")
         except Exception as e:
             logging.error(f"Failed to create verification package: {str(e)}")
-        
-        # Create a README for the verification package
-        readme_file = f"{package_dir}/README.md"
-        readme_content = f"""# Intent Snapshot Verification Package
-
-## Overview
-
-This package contains cryptographic proof of the intent snapshot created by the steward
-{snapshot['steward_id']} on {snapshot['creation_date']} at {snapshot['creation_time']}.
-
-## Verification Instructions
-
-To verify the authenticity of this snapshot:
-
-1. Extract the snapshot data excluding the 'cryptographic_proof' field
-2. Sort the JSON data and generate SHA-256 and SHA-512 hashes
-3. Compare the generated hashes with the ones in 'cryptographic_proof'
-4. If they match, the snapshot is authentic and has not been tampered with
-
-## Package Contents
-
-- `verification_package.json`: Contains the snapshot data and verification information
-- `README.md`: This file
-- `verify.py`: Python script to verify the snapshot (if available)
-
-## Snapshot Details
-
-- **Snapshot ID**: {snapshot['snapshot_id']}
-- **Steward**: {snapshot['steward_id']}
-- **Created**: {snapshot['timestamp']}
-- **SHA-256 Hash**: {snapshot['cryptographic_proof']['sha256'][:16]}...
-"""
-        
-        try:
-            with open(readme_file, 'w') as f:
-                f.write(readme_content)
-            logging.info(f"Created README at {readme_file}")
-        except Exception as e:
-            logging.error(f"Failed to create README: {str(e)}")
-        
-        # Create a simple verification script
-        verify_script = f"{package_dir}/verify.py"
-        script_content = """#!/usr/bin/env python3
-"""
-Intent Snapshot Verification Script
-
-This script verifies the authenticity of an intent snapshot by checking
-its cryptographic proof.
-"""
-
-import os
-import sys
-import json
-import hashlib
-
-def verify_snapshot(package_file):
-    """Verify the authenticity of an intent snapshot package.
     
-    Args:
-        package_file: Path to the verification package JSON file
-        
-    Returns:
-        bool: True if verification succeeds, False otherwise
-    """
-    try:
-        with open(package_file, 'r') as f:
-            package = json.load(f)
-        
-        # Extract proof from the package
-        proof = package.get("cryptographic_proof", {})
-        expected_sha256 = proof.get("sha256")
-        expected_sha512 = proof.get("sha512")
-        
-        if not expected_sha256 or not expected_sha512:
-            print("Error: Cryptographic proof missing from package")
-            return False
-        
-        # Create a copy of the package without the proof field
-        data_to_verify = package.copy()
-        if "cryptographic_proof" in data_to_verify:
-            del data_to_verify["cryptographic_proof"]
-        
-        # Generate verification hashes
-        json_data = json.dumps(data_to_verify, sort_keys=True)
-        sha256_hash = hashlib.sha256(json_data.encode()).hexdigest()
-        sha512_hash = hashlib.sha512(json_data.encode()).hexdigest()
-        
-        # Compare hashes
-        sha256_match = sha256_hash == expected_sha256
-        sha512_match = sha512_hash == expected_sha512
-        
-        print(f"SHA-256 Verification: {'SUCCESS' if sha256_match else 'FAILED'}")
-        print(f"SHA-512 Verification: {'SUCCESS' if sha512_match else 'FAILED'}")
-        
-        if sha256_match and sha512_match:
-            print("\nSnapshot verification SUCCESSFUL - The package is authentic")
-            print(f"\nSnapshot ID: {package.get('snapshot_id')}")
-            print(f"Steward: {package.get('steward_id')}")
-            print(f"Created: {package.get('timestamp')}")
-            return True
-        else:
-            print("\nSnapshot verification FAILED - The package may have been tampered with")
-            return False
-        
-    except Exception as e:
-        print(f"Verification error: {str(e)}")
-        return False
-
-def main():
-    if len(sys.argv) > 1:
-        package_file = sys.argv[1]
-    else:
-        # Try to find the package in the current directory
-        package_file = "verification_package.json"
-        if not os.path.exists(package_file):
-            print(f"Error: Could not find {package_file}")
-            print("Usage: python verify.py [path_to_verification_package.json]")
-            return 1
-    
-    success = verify_snapshot(package_file)
-    return 0 if success else 1
-
-if __name__ == "__main__":
-    sys.exit(main())
-"""
-        
-        try:
-            with open(verify_script, 'w') as f:
-                f.write(script_content)
-            os.chmod(verify_script, 0o755)  # Make executable
-            logging.info(f"Created verification script at {verify_script}")
-        except Exception as e:
-            logging.error(f"Failed to create verification script: {str(e)}")
-    
-    def verify_snapshot(self, snapshot_id: str) -> Tuple[bool, Dict[str, Any]]:
+    def verify_snapshot(self, snapshot: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
         """Verify the authenticity of an intent snapshot.
         
         Args:
-            snapshot_id: ID of the snapshot to verify
+            snapshot: The snapshot to verify
             
         Returns:
             Tuple containing (is_verified, verification_details)
         """
-        snapshot_file = f"{self.output_dir}/{snapshot_id}.json"
-        if not os.path.exists(snapshot_file):
-            logging.error(f"Snapshot file not found: {snapshot_file}")
-            return False, {"error": "Snapshot file not found"}
-        
-        try:
-            with open(snapshot_file, 'r') as f:
-                snapshot = json.load(f)
-        except Exception as e:
-            logging.error(f"Failed to load snapshot: {str(e)}")
-            return False, {"error": f"Failed to load snapshot: {str(e)}"}
-        
-        # Extract proof from the snapshot
-        proof = snapshot.get("cryptographic_proof", {})
-        expected_sha256 = proof.get("sha256")
-        expected_sha512 = proof.get("sha512")
-        
-        if not expected_sha256 or not expected_sha512:
-            logging.error("Cryptographic proof missing from snapshot")
-            return False, {"error": "Cryptographic proof missing"}
-        
-        # Create a copy of the snapshot without the proof field
-        data_to_verify = snapshot.copy()
-        if "cryptographic_proof" in data_to_verify:
-            del data_to_verify["cryptographic_proof"]
-        
-        # Generate verification hashes
-        json_data = json.dumps(data_to_verify, sort_keys=True)
-        sha256_hash = hashlib.sha256(json_data.encode()).hexdigest()
-        sha512_hash = hashlib.sha512(json_data.encode()).hexdigest()
-        
-        # Compare hashes
-        sha256_match = sha256_hash == expected_sha256
-        sha512_match = sha512_hash == expected_sha512
-        
-        verification_details = {
-            "snapshot_id": snapshot_id,
-            "steward_id": snapshot.get("steward_id"),
-            "timestamp": snapshot.get("timestamp"),
-            "sha256_match": sha256_match,
-            "sha512_match": sha512_match,
-            "is_verified": sha256_match and sha512_match
+        verification_result = {
+            "snapshot_id": snapshot.get("snapshot_id", "unknown"),
+            "timestamp": datetime.now().isoformat(),
+            "checks": {}
         }
         
-        if sha256_match and sha512_match:
-            logging.info(f"Successfully verified snapshot {snapshot_id}")
-        else:
-            logging.warning(f"Verification failed for snapshot {snapshot_id}")
+        # Check 1: Verify the steward ID
+        expected_steward = self.steward_id
+        actual_steward = snapshot.get("steward_id")
+        steward_check = expected_steward == actual_steward
+        verification_result["checks"]["steward_id"] = {
+            "result": steward_check,
+            "expected": expected_steward,
+            "actual": actual_steward
+        }
+        
+        # Check 2: Verify the cryptographic proof
+        crypto_proof = snapshot.get("cryptographic_proof", {})
+        expected_hash = crypto_proof.get("hash")
+        
+        if expected_hash:
+            # Create a copy of the data without the proof field for hashing
+            data_to_hash = snapshot.copy()
+            if "cryptographic_proof" in data_to_hash:
+                del data_to_hash["cryptographic_proof"]
             
-        return verification_details["is_verified"], verification_details
+            # Create a string representation and hash it
+            data_str = json.dumps(data_to_hash, sort_keys=True)
+            actual_hash = hashlib.sha256(data_str.encode()).hexdigest()
+            
+            hash_check = expected_hash == actual_hash
+            verification_result["checks"]["cryptographic_proof"] = {
+                "result": hash_check,
+                "expected": expected_hash,
+                "actual": actual_hash
+            }
+        else:
+            hash_check = False
+            verification_result["checks"]["cryptographic_proof"] = {
+                "result": False,
+                "error": "No cryptographic proof found in snapshot"
+            }
+        
+        # Overall verification result
+        is_verified = steward_check and hash_check
+        verification_result["is_verified"] = is_verified
+        
+        return is_verified, verification_result
     
     def get_latest_snapshot(self) -> Optional[Dict[str, Any]]:
         """Get the latest intent snapshot.
@@ -525,13 +330,23 @@ if __name__ == "__main__":
         Returns:
             Dict containing the latest snapshot data, or None if not found
         """
-        latest_file = f"{self.output_dir}/latest.json"
-        if not os.path.exists(latest_file):
-            logging.warning("No latest snapshot found")
+        snapshots = self.list_snapshots()
+        
+        if not snapshots:
             return None
         
+        # Sort by timestamp (newest first)
+        snapshots.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        
+        # Get the snapshot ID of the most recent snapshot
+        latest_id = snapshots[0].get("snapshot_id")
+        if not latest_id:
+            return None
+        
+        # Load the full snapshot
+        file_path = os.path.join(self.output_dir, f"{latest_id}.json")
         try:
-            with open(latest_file, 'r') as f:
+            with open(file_path, 'r') as f:
                 return json.load(f)
         except Exception as e:
             logging.error(f"Failed to load latest snapshot: {str(e)}")
@@ -544,84 +359,94 @@ if __name__ == "__main__":
             List of dicts containing metadata about available snapshots
         """
         snapshots = []
-        try:
-            for filename in os.listdir(self.output_dir):
-                if filename.endswith(".json") and filename != "latest.json":
-                    file_path = os.path.join(self.output_dir, filename)
-                    try:
-                        with open(file_path, 'r') as f:
-                            snapshot = json.load(f)
-                            snapshots.append({
-                                "snapshot_id": snapshot.get("snapshot_id"),
-                                "steward_id": snapshot.get("steward_id"),
-                                "timestamp": snapshot.get("timestamp"),
-                                "filename": filename
-                            })
-                    except Exception as e:
-                        logging.error(f"Failed to load snapshot {filename}: {str(e)}")
-        except Exception as e:
-            logging.error(f"Failed to list snapshots: {str(e)}")
         
-        # Sort by timestamp (newest first)
-        snapshots.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        if not os.path.exists(self.output_dir):
+            return snapshots
+        
+        for filename in os.listdir(self.output_dir):
+            if filename.endswith(".json") and not filename.endswith("_verification.json"):
+                file_path = os.path.join(self.output_dir, filename)
+                try:
+                    with open(file_path, 'r') as f:
+                        snapshot = json.load(f)
+                        # Include only metadata in the list
+                        snapshots.append({
+                            "snapshot_id": snapshot.get("snapshot_id"),
+                            "timestamp": snapshot.get("timestamp"),
+                            "steward_id": snapshot.get("steward_id")
+                        })
+                except Exception as e:
+                    logging.error(f"Failed to load snapshot {filename}: {str(e)}")
+        
         return snapshots
+
 
 def main():
     """Main function for running the intent snapshot generator."""
-    parser = argparse.ArgumentParser(description="One-click Intent Snapshot Generator")
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Intent Snapshot Generator")
+    parser.add_argument("--generate", action="store_true", help="Generate a new intent snapshot")
     parser.add_argument("--steward", default="Russell Nordland", help="Steward identifier")
-    parser.add_argument("--output-dir", default="intent_snapshots", help="Directory to store snapshots")
-    parser.add_argument("--verify", help="Verify a specific snapshot by ID")
-    parser.add_argument("--list", action="store_true", help="List all available snapshots")
-    parser.add_argument("--latest", action="store_true", help="Show the latest snapshot")
+    parser.add_argument("--verify", help="Verify a snapshot file")
+    parser.add_argument("--list", action="store_true", help="List available snapshots")
+    parser.add_argument("--latest", action="store_true", help="Get the latest snapshot")
     
     args = parser.parse_args()
+    generator = IntentSnapshotGenerator(steward_id=args.steward)
     
-    # Initialize the generator
-    generator = IntentSnapshotGenerator(steward_id=args.steward, output_dir=args.output_dir)
+    if args.generate:
+        snapshot = generator.generate_snapshot()
+        print(f"Generated new intent snapshot with ID: {snapshot['snapshot_id']}")
+        print(f"Timestamp: {snapshot['timestamp']}")
+        print("\nIntent markers:")
+        for marker, value in snapshot['intent_patterns']['intent_markers'].items():
+            print(f"  {marker}: {value:.4f}")
     
-    if args.verify:
-        # Verify a snapshot
-        is_verified, details = generator.verify_snapshot(args.verify)
-        print(f"Snapshot verification: {'SUCCESS' if is_verified else 'FAILED'}")
-        print("\nVerification details:")
-        for key, value in details.items():
-            print(f"  {key}: {value}")
+    elif args.verify:
+        try:
+            with open(args.verify, 'r') as f:
+                snapshot = json.load(f)
+            
+            is_verified, details = generator.verify_snapshot(snapshot)
+            print(f"Snapshot verification: {'SUCCESS' if is_verified else 'FAILED'}")
+            
+            print("\nVerification details:")
+            for check_name, check_result in details['checks'].items():
+                print(f"  {check_name}: {'PASSED' if check_result.get('result') else 'FAILED'}")
+        except Exception as e:
+            print(f"Error verifying snapshot: {str(e)}")
+    
     elif args.list:
-        # List available snapshots
         snapshots = generator.list_snapshots()
-        print(f"Found {len(snapshots)} intent snapshots:")
+        print(f"Found {len(snapshots)} snapshots:")
         for i, snapshot in enumerate(snapshots, 1):
-            print(f"\n{i}. Snapshot ID: {snapshot['snapshot_id']}")
-            print(f"   Steward: {snapshot['steward_id']}")
-            print(f"   Created: {snapshot['timestamp']}")
-            print(f"   File: {snapshot['filename']}")
+            print(f"  {i}. ID: {snapshot['snapshot_id']}")
+            print(f"     Created: {snapshot['timestamp']}")
+            print(f"     Steward: {snapshot['steward_id']}")
+            print()
+    
     elif args.latest:
-        # Show latest snapshot
-        latest = generator.get_latest_snapshot()
-        if latest:
-            print("Latest intent snapshot:")
-            print(f"\nSnapshot ID: {latest['snapshot_id']}")
-            print(f"Steward: {latest['steward_id']}")
-            print(f"Created: {latest['timestamp']}")
-            
+        snapshot = generator.get_latest_snapshot()
+        if snapshot:
+            print(f"Latest snapshot:")
+            print(f"  ID: {snapshot['snapshot_id']}")
+            print(f"  Created: {snapshot['timestamp']}")
+            print(f"  Steward: {snapshot['steward_id']}")
             print("\nIntent markers:")
-            for marker, value in latest['intent_patterns']['intent_markers'].items():
+            for marker, value in snapshot['intent_patterns']['intent_markers'].items():
                 print(f"  {marker}: {value:.4f}")
-            
-            print(f"\nSHA-256: {latest['cryptographic_proof']['sha256'][:16]}...")
         else:
             print("No snapshots found")
+    
     else:
-        # Generate a new snapshot
-        print("Generating new intent snapshot...")
-        snapshot = generator.generate_snapshot()
-        
-        print(f"\nIntent snapshot created successfully!")
-        print(f"Snapshot ID: {snapshot['snapshot_id']}")
-        print(f"Created: {snapshot['timestamp']}")
-        print(f"Stored in: {os.path.abspath(args.output_dir)}/{snapshot['snapshot_id']}.json")
-        print(f"Verification package: {os.path.abspath(args.output_dir)}/verification_packages/{snapshot['snapshot_id']}/")
+        print("Intent Snapshot Generator")
+        print("Use one of the following options:")
+        print("  --generate: Generate a new intent snapshot")
+        print("  --verify [file]: Verify an existing snapshot")
+        print("  --list: List available snapshots")
+        print("  --latest: Get the latest snapshot")
+
 
 if __name__ == "__main__":
     main()
