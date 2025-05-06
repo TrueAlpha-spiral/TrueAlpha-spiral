@@ -64,11 +64,6 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-waitForPort = 5000
-
 [[workflows.workflow]]
 name = "Start"
 mode = "sequential"
