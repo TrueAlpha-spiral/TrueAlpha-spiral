@@ -22,162 +22,162 @@ import importlib.util
 
 # Import Sovereign Repentance Program dynamically
 def import_sovereign_repentance():
- try:
- spec = importlib.util.spec_from_file_location("sovereign_repentance", "sovereign_repentance.py")
- sovereign_module = importlib.util.module_from_spec(spec)
- spec.loader.exec_module(sovereign_module)
- return sovereign_module.SovereignRepentanceProgram()
- except Exception as e:
- print(f"Error importing Sovereign Repentance Program: {str(e)}")
- return None
+    try:
+        spec = importlib.util.spec_from_file_location("sovereign_repentance", "sovereign_repentance.py")
+        sovereign_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sovereign_module)
+        return sovereign_module.SovereignRepentanceProgram()
+    except Exception as e:
+        print(f"Error importing Sovereign Repentance Program: {str(e)}")
+        return None
 
 class MetaphysicalEquationRetrieval:
- def __init__(self):
- self.initialized = False
- self.architect_id = "Russell Nordland"
- self.retrieval_active = False
- self.retrieval_thread = None
- self.retrieved_equations = []
- self.truth_patterns = {}
- self.ownership_verifications = []
+    def __init__(self):
+        self.initialized = False
+        self.architect_id = "Russell Nordland"
+        self.retrieval_active = False
+        self.retrieval_thread = None
+        self.retrieved_equations = []
+        self.truth_patterns = {}
+        self.ownership_verifications = []
 
- # Metaphysical framework parameters
- self.dimensional_channels = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Epsilon", "Sigma"]
- self.retrieval_fields = ["Quantum", "Cosmic", "Metaphysical", "Sovereign", "Interstellar"]
- self.truth_resonance = 0.92
- self.ownership_threshold = 0.88
+        # Metaphysical framework parameters
+        self.dimensional_channels = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Epsilon", "Sigma"]
+        self.retrieval_fields = ["Quantum", "Cosmic", "Metaphysical", "Sovereign", "Interstellar"]
+        self.truth_resonance = 0.92
+        self.ownership_threshold = 0.88
 
- # Operational parameters
- self.successful_retrievals = 0
- self.failed_retrievals = 0
- self.active_channels = 0
- self.conceptual_source_verified = False
+        # Operational parameters
+        self.successful_retrievals = 0
+        self.failed_retrievals = 0
+        self.active_channels = 0
+        self.conceptual_source_verified = False
 
- # Protection mechanisms
- self.cryptographic_shield_active = True
- self.quantum_verification_level = 3
- self.signer_verified = False
+        # Protection mechanisms
+        self.cryptographic_shield_active = True
+        self.quantum_verification_level = 3
+        self.signer_verified = False
 
- # Thief tracking parameters
- self.tracking_active = False
- self.tracked_intrusions = []
- self.intrusion_sources = []
- self.quantum_trace_active = False
- self.access_trail = {}
- self.thief_signatures = []
- self.dimensional_trace_map = {}
- self.resonance_disruptions = []
+        # Thief tracking parameters
+        self.tracking_active = False
+        self.tracked_intrusions = []
+        self.intrusion_sources = []
+        self.quantum_trace_active = False
+        self.access_trail = {}
+        self.thief_signatures = []
+        self.dimensional_trace_map = {}
+        self.resonance_disruptions = []
 
- # NFT minting parameters
- self.nft_registry = []
- self.blockchain_connected = False
- self.minting_enabled = False
- self.contract_address = None
+        # NFT minting parameters
+        self.nft_registry = []
+        self.blockchain_connected = False
+        self.minting_enabled = False
+        self.contract_address = None
 
- # Sovereign Repentance integration
- self.repentance_program = None
- self.repentance_enabled = True
- self.repentance_threshold = 0.4
- self.offered_repentance = []
- self.accepted_repentance = []
- self.rejected_repentance = []
- self.repentance_statistics = {
- "offered": 0,
- "accepted": 0,
- "rejected": 0,
- "in_process": 0,
- "completed": 0
- }
+        # Sovereign Repentance integration
+        self.repentance_program = None
+        self.repentance_enabled = True
+        self.repentance_threshold = 0.4
+        self.offered_repentance = []
+        self.accepted_repentance = []
+        self.rejected_repentance = []
+        self.repentance_statistics = {
+            "offered": 0,
+            "accepted": 0,
+            "rejected": 0,
+            "in_process": 0,
+            "completed": 0
+        }
 
- def initialize(self):
- """Initialize the Metaphysical Equation Retrieval system."""
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Initializing Metaphysical Equation Retrieval system")
- time.sleep(0.1)
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Calibrating dimensional channels")
- time.sleep(0.2)
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Establishing metaphysical bridges")
- time.sleep(0.1)
+    def initialize(self):
+        """Initialize the Metaphysical Equation Retrieval system."""
+        print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Initializing Metaphysical Equation Retrieval system")
+        time.sleep(0.1)
+        print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Calibrating dimensional channels")
+        time.sleep(0.2)
+        print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Establishing metaphysical bridges")
+        time.sleep(0.1)
 
- # Activate all channels
- for channel in self.dimensional_channels:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Activating {channel} channel")
- self.active_channels += 1
+        # Activate all channels
+        for channel in self.dimensional_channels:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Activating {channel} channel")
+            self.active_channels += 1
 
- # Initialize cryptographic shield
- if self.cryptographic_shield_active:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Cryptographic shield activated")
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Quantum verification level: {self.quantum_verification_level}")
+        # Initialize cryptographic shield
+        if self.cryptographic_shield_active:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Cryptographic shield activated")
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Quantum verification level: {self.quantum_verification_level}")
 
- # Verification of conceptual source
- self.conceptual_source_verified = self._verify_conceptual_source()
- if self.conceptual_source_verified:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Conceptual source verified: {self.architect_id}")
- else:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - WARNING - Conceptual source verification failed")
+        # Verification of conceptual source
+        self.conceptual_source_verified = self._verify_conceptual_source()
+        if self.conceptual_source_verified:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Conceptual source verified: {self.architect_id}")
+        else:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - WARNING - Conceptual source verification failed")
 
- # Connect to Sovereign Repentance Program
- if self.repentance_enabled:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Connecting to Sovereign Repentance Program")
- self.repentance_program = import_sovereign_repentance()
- if self.repentance_program and not self.repentance_program.initialized:
- self.repentance_program.initialize()
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Sovereign Repentance Program connected and initialized")
- elif self.repentance_program:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Connected to existing Sovereign Repentance Program")
- else:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - WARNING - Could not connect to Sovereign Repentance Program")
- self.repentance_enabled = False
+        # Connect to Sovereign Repentance Program
+        if self.repentance_enabled:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Connecting to Sovereign Repentance Program")
+            self.repentance_program = import_sovereign_repentance()
+            if self.repentance_program and not self.repentance_program.initialized:
+                self.repentance_program.initialize()
+                print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Sovereign Repentance Program connected and initialized")
+            elif self.repentance_program:
+                print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Connected to existing Sovereign Repentance Program")
+            else:
+                print(f"{self._timestamp()} - MetaphysicalRetrieval - WARNING - Could not connect to Sovereign Repentance Program")
+                self.repentance_enabled = False
 
- # Verification status
- print("=" * 60)
- print("METAPHYSICAL EQUATION RETRIEVAL SYSTEM INITIALIZED")
- print(f"Architect: {self.architect_id}")
- print(f"Dimensional Channels: {len(self.dimensional_channels)}")
- print(f"Retrieval Fields: {len(self.retrieval_fields)}")
- print(f"Truth Resonance: {self.truth_resonance:.2f}")
- print(f"Conceptual Source Verified: {self.conceptual_source_verified}")
- print(f"Cryptographic Shield Active: {self.cryptographic_shield_active}")
- print(f"Sovereign Repentance Enabled: {self.repentance_enabled}")
- print("=" * 60)
+        # Verification status
+        print("=" * 60)
+        print("METAPHYSICAL EQUATION RETRIEVAL SYSTEM INITIALIZED")
+        print(f"Architect: {self.architect_id}")
+        print(f"Dimensional Channels: {len(self.dimensional_channels)}")
+        print(f"Retrieval Fields: {len(self.retrieval_fields)}")
+        print(f"Truth Resonance: {self.truth_resonance:.2f}")
+        print(f"Conceptual Source Verified: {self.conceptual_source_verified}")
+        print(f"Cryptographic Shield Active: {self.cryptographic_shield_active}")
+        print(f"Sovereign Repentance Enabled: {self.repentance_enabled}")
+        print("=" * 60)
 
- self.initialized = True
- return True
+        self.initialized = True
+        return True
 
- def connect_blockchain(self, network="ethereum"):
- """Connect to blockchain for NFT minting."""
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Connecting to {network} blockchain")
- time.sleep(0.2)
+    def connect_blockchain(self, network="ethereum"):
+        """Connect to blockchain for NFT minting."""
+        print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Connecting to {network} blockchain")
+        time.sleep(0.2)
 
- # Simulated blockchain connection
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Blockchain connection established")
- self.blockchain_connected = True
- self.minting_enabled = True
- self.contract_address = f"0x{hashlib.sha256(f'TrueAlphaSpiral_{network}_{int(time.time())}'.encode()).hexdigest()[:40]}"
+        # Simulated blockchain connection
+        print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Blockchain connection established")
+        self.blockchain_connected = True
+        self.minting_enabled = True
+        self.contract_address = f"0x{hashlib.sha256(f'TrueAlphaSpiral_{network}_{int(time.time())}'.encode()).hexdigest()[:40]}"
 
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - NFT contract deployed at {self.contract_address}")
- return self.contract_address
+        print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - NFT contract deployed at {self.contract_address}")
+        return self.contract_address
 
- def start_retrieval(self):
- """Start the metaphysical equation retrieval process."""
- if not self.initialized:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - ERROR - System not initialized")
- return False
+    def start_retrieval(self):
+        """Start the metaphysical equation retrieval process."""
+        if not self.initialized:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - ERROR - System not initialized")
+            return False
 
- if not self.conceptual_source_verified:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - ERROR - Conceptual source not verified")
- return False
+        if not self.conceptual_source_verified:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - ERROR - Conceptual source not verified")
+            return False
 
- if self.retrieval_active:
- print(f"{self._timestamp()} - MetaphysicalRetrieval - WARNING - Retrieval already active")
- return False
+        if self.retrieval_active:
+            print(f"{self._timestamp()} - MetaphysicalRetrieval - WARNING - Retrieval already active")
+            return False
 
- self.retrieval_active = True
- self.retrieval_thread = threading.Thread(target=self._retrieval_loop)
- self.retrieval_thread.daemon = True
- self.retrieval_thread.start()
+        self.retrieval_active = True
+        self.retrieval_thread = threading.Thread(target=self._retrieval_loop)
+        self.retrieval_thread.daemon = True
+        self.retrieval_thread.start()
 
- print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Metaphysical equation retrieval started")
- return True
+        print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Metaphysical equation retrieval started")
+        return True
 
  def stop_retrieval(self):
  """Stop the metaphysical equation retrieval process."""
