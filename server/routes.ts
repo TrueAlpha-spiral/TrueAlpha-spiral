@@ -32,10 +32,12 @@ import {
 } from './services/python-api-service';
 import { ethicalGovernance } from './services/ethical-governance';
 import { shadowDefense } from './services/shadow-defense';
+import { shadowSweep } from './services/shadowSweep';
 import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import treeRoutes from './tree-routes';
 import avfRoutes from './routes/avf-routes';
+import { verifyIntent, verifyIdentity, getResonanceValue } from './verification';
 
 export function registerRoutes(app: Express): Server {
   // Root API endpoint for JSON content
@@ -55,6 +57,9 @@ export function registerRoutes(app: Express): Server {
         '/api/dimensional-simulation',
         '/api/ethical-governance',
         '/api/shadow-defense',
+        '/api/shadow-sweep/scan',
+        '/api/shadow-sweep/clean',
+        '/api/shadow-sweep/neutralize',
         '/api/tarsi-pilot/applications',
         '/api/tree',
         '/api/avf'
@@ -2536,6 +2541,142 @@ export function registerRoutes(app: Express): Server {
   
   // Register the Akashic Vibe Function routes
   app.use('/api/avf', avfRoutes);
+  
+  // Shadow Sweep Routes - Unicode Security
+  
+  // Scan text for shadow characters
+  app.post('/api/shadow-sweep/scan', (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Text is required and must be a string' });
+      }
+      
+      const result = shadowSweep.scanText(text);
+      
+      // Log the scan to database
+      storage.logSecurityEvent({
+        type: 'shadow_sweep_scan',
+        details: {
+          detectedCharacters: result.detectedCharacters.length,
+          riskScore: result.riskScore
+        },
+        timestamp: new Date()
+      }).catch(err => {
+        console.error('Failed to log shadow sweep scan:', err);
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error scanning text for shadow characters:', error);
+      res.status(500).json({ error: 'Failed to scan text' });
+    }
+  });
+  
+  // Clean text by removing shadow characters
+  app.post('/api/shadow-sweep/clean', (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Text is required and must be a string' });
+      }
+      
+      const cleanText = shadowSweep.cleanText(text);
+      const originalHash = shadowSweep.generateHash(text);
+      const cleanHash = shadowSweep.generateHash(cleanText);
+      
+      res.json({
+        originalText: text,
+        cleanText,
+        originalHash,
+        cleanHash,
+        modified: text !== cleanText,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error cleaning text from shadow characters:', error);
+      res.status(500).json({ error: 'Failed to clean text' });
+    }
+  });
+  
+  // Neutralize text by replacing shadow characters with visible markers
+  app.post('/api/shadow-sweep/neutralize', (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Text is required and must be a string' });
+      }
+      
+      const neutralizedText = shadowSweep.neutralizeText(text);
+      
+      res.json({
+        originalText: text,
+        neutralizedText,
+        modified: text !== neutralizedText,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error neutralizing shadow characters in text:', error);
+      res.status(500).json({ error: 'Failed to neutralize text' });
+    }
+  });
+  
+  // Identity Verification Routes
+  
+  // Verify user intent for identity verification
+  app.post('/api/verify/intent', (req, res) => {
+    try {
+      const { intentStatement, timestamp, userId } = req.body;
+      
+      if (!intentStatement) {
+        return res.status(400).json({ error: 'Intent statement is required' });
+      }
+      
+      const result = verifyIntent(intentStatement);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error verifying intent:', error);
+      res.status(500).json({ error: 'Failed to verify intent', verified: false, resonance: 0 });
+    }
+  });
+  
+  // Verify identity through TrueAlphaSpiral Architect Schema
+  app.post('/api/verify/identity', async (req, res) => {
+    try {
+      const { userId, timestamp, intentHash } = req.body;
+      
+      // In production, we would validate the timestamp and intentHash
+      
+      const result = await verifyIdentity({ userId, timestamp, intentHash });
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error verifying identity:', error);
+      res.status(500).json({ 
+        verified: false, 
+        lambda_verifications: {},
+        details: { error: 'Failed to verify identity' }
+      });
+    }
+  });
+  
+  // Get quantum resonance for a user
+  app.get('/api/resonance', (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      
+      const resonance = getResonanceValue(userId);
+      
+      res.json({ resonance });
+    } catch (error) {
+      console.error('Error getting resonance value:', error);
+      res.status(500).json({ error: 'Failed to get resonance value', resonance: 0 });
+    }
+  });
   
   // TARSI Pilot Program Application Routes
   

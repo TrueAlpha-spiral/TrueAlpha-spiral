@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles, HelpingHand, UserPlus } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles, HelpingHand, UserPlus, Fingerprint, EyeOff } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -124,6 +124,14 @@ export default function Header() {
                 TARSI Pilot Program
               </span>
             </Link>
+            <Link href="/shadow-sweep">
+              <span className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                isActiveLink("/shadow-sweep") ? "text-primary" : "text-muted-foreground"
+              }`}>
+                <EyeOff className="h-4 w-4 inline-block mr-1" />
+                Shadow Sweep
+              </span>
+            </Link>
           </nav>
         </div>
         <div className="flex items-center space-x-4">
@@ -134,9 +142,9 @@ export default function Header() {
             </Link>
           </Button>
           <Button variant="outline" className="hidden sm:inline-flex" asChild>
-            <Link href="/verification">
-              <Shield className="mr-2 h-4 w-4" />
-              Compliance Check
+            <Link href="/verify">
+              <Fingerprint className="mr-2 h-4 w-4" />
+              Identity Verification
             </Link>
           </Button>
           <Button variant="default" className="hidden sm:inline-flex" asChild>
