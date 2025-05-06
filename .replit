@@ -6,7 +6,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 channel = "stable-24_05"
 
 [deployment]
-deploymentTarget = "cloudrun"
+deploymentTarget = "gce"
 run = ["sh", "-c", "npm run dev"]
 
 [[ports]]
@@ -15,7 +15,6 @@ externalPort = 3002
 
 [[ports]]
 localPort = 5000
-externalPort = 5000
 
 [[ports]]
 localPort = 8000
@@ -68,3 +67,12 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start"
+mode = "sequential"
+author = 39796624
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
