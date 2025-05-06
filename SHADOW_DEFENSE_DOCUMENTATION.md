@@ -57,16 +57,16 @@ Returns the current status of the Shadow Defense System, including integrity sco
 **Example Response:**
 ```json
 {
-  "status": "active",
-  "systemStatus": {
-    "overallIntegrity": 1,
-    "driftDetectionRate": 0.5,
-    "neutralizationSuccessRate": 1,
-    "learningEfficiency": 0.01,
-    "shieldStrength": 0.91,
-    "securityScore": 0.783
-  },
-  "timestamp": "2025-03-22T21:01:45.166Z"
+ "status": "active",
+ "systemStatus": {
+ "overallIntegrity": 1,
+ "driftDetectionRate": 0.5,
+ "neutralizationSuccessRate": 1,
+ "learningEfficiency": 0.01,
+ "shieldStrength": 0.91,
+ "securityScore": 0.783
+ },
+ "timestamp": "2025-03-22T21:01:45.166Z"
 }
 ```
 
@@ -83,23 +83,23 @@ Returns a history of all detected drifts.
 **Example Response:**
 ```json
 {
-  "count": 1,
-  "driftHistory": [
-    {
-      "detected": true,
-      "score": 0.189,
-      "pattern": {
-        "id": "pat-iulJ1Db9dP",
-        "content": "This is a test content that might have drift.",
-        "source": "test",
-        "timestamp": "2025-03-22T21:01:09.561Z"
-      },
-      "layer": "epsilon",
-      "timestamp": "2025-03-22T21:01:09.561Z",
-      "neutralizationSuccess": true,
-      "recommendations": ["Continue normal monitoring operations"]
-    }
-  ]
+ "count": 1,
+ "driftHistory": [
+ {
+ "detected": true,
+ "score": 0.189,
+ "pattern": {
+ "id": "pat-iulJ1Db9dP",
+ "content": "This is a test content that might have drift.",
+ "source": "test",
+ "timestamp": "2025-03-22T21:01:09.561Z"
+ },
+ "layer": "epsilon",
+ "timestamp": "2025-03-22T21:01:09.561Z",
+ "neutralizationSuccess": true,
+ "recommendations": ["Continue normal monitoring operations"]
+ }
+ ]
 }
 ```
 
@@ -114,32 +114,32 @@ Detects drift in the provided content.
 **Request Body:**
 ```json
 {
-  "content": "Content to analyze for drift",
-  "context": {
-    "source": "application_name",
-    "userId": 123
-  }
+ "content": "Content to analyze for drift",
+ "context": {
+ "source": "application_name",
+ "userId": 123
+ }
 }
 ```
 
 **Example Response:**
 ```json
 {
-  "detected": true,
-  "driftResult": {
-    "detected": true,
-    "score": 0.189,
-    "pattern": {
-      "id": "pat-iulJ1Db9dP",
-      "content": "This is a test content that might have drift.",
-      "source": "test",
-      "timestamp": "2025-03-22T21:01:09.561Z"
-    },
-    "layer": "epsilon",
-    "timestamp": "2025-03-22T21:01:09.561Z",
-    "neutralizationSuccess": true,
-    "recommendations": ["Continue normal monitoring operations"]
-  }
+ "detected": true,
+ "driftResult": {
+ "detected": true,
+ "score": 0.189,
+ "pattern": {
+ "id": "pat-iulJ1Db9dP",
+ "content": "This is a test content that might have drift.",
+ "source": "test",
+ "timestamp": "2025-03-22T21:01:09.561Z"
+ },
+ "layer": "epsilon",
+ "timestamp": "2025-03-22T21:01:09.561Z",
+ "neutralizationSuccess": true,
+ "recommendations": ["Continue normal monitoring operations"]
+ }
 }
 ```
 
@@ -156,52 +156,52 @@ Returns all security events.
 **Example Response:**
 ```json
 {
-  "count": 2,
-  "securityEvents": [
-    {
-      "id": 1,
-      "eventType": "drift-detected",
-      "timestamp": "2025-03-22T21:01:09.562Z",
-      "data": {
-        "patternId": "pat-iulJ1Db9dP",
-        "layer": "epsilon",
-        "driftScore": 0.189,
-        "neutralizationSuccess": true
-      },
-      "systemStatus": {
-        "overallIntegrity": 1,
-        "driftDetectionRate": 0.5,
-        "neutralizationSuccessRate": 1,
-        "learningEfficiency": 0,
-        "shieldStrength": 0.91,
-        "securityScore": 0.782
-      },
-      "severity": "info",
-      "processed": false
-    },
-    {
-      "id": 2,
-      "eventType": "unauthorized_access",
-      "timestamp": "2025-03-22T21:01:16.777Z",
-      "data": {
-        "ip": "192.168.1.1",
-        "endpoint": "/admin"
-      },
-      "systemStatus": {
-        "overallIntegrity": 1,
-        "driftDetectionRate": 0.5,
-        "neutralizationSuccessRate": 1,
-        "learningEfficiency": 0,
-        "shieldStrength": 0.91,
-        "securityScore": 0.782
-      },
-      "severity": "high",
-      "sourceIp": "192.168.1.1",
-      "userId": 123,
-      "sessionId": "sess_123456",
-      "processed": false
-    }
-  ]
+ "count": 2,
+ "securityEvents": [
+ {
+ "id": 1,
+ "eventType": "drift-detected",
+ "timestamp": "2025-03-22T21:01:09.562Z",
+ "data": {
+ "patternId": "pat-iulJ1Db9dP",
+ "layer": "epsilon",
+ "driftScore": 0.189,
+ "neutralizationSuccess": true
+ },
+ "systemStatus": {
+ "overallIntegrity": 1,
+ "driftDetectionRate": 0.5,
+ "neutralizationSuccessRate": 1,
+ "learningEfficiency": 0,
+ "shieldStrength": 0.91,
+ "securityScore": 0.782
+ },
+ "severity": "info",
+ "processed": false
+ },
+ {
+ "id": 2,
+ "eventType": "unauthorized_access",
+ "timestamp": "2025-03-22T21:01:16.777Z",
+ "data": {
+ "ip": "192.168.1.1",
+ "endpoint": "/admin"
+ },
+ "systemStatus": {
+ "overallIntegrity": 1,
+ "driftDetectionRate": 0.5,
+ "neutralizationSuccessRate": 1,
+ "learningEfficiency": 0,
+ "shieldStrength": 0.91,
+ "securityScore": 0.782
+ },
+ "severity": "high",
+ "sourceIp": "192.168.1.1",
+ "userId": 123,
+ "sessionId": "sess_123456",
+ "processed": false
+ }
+ ]
 }
 ```
 
@@ -221,32 +221,32 @@ GET /api/shadow-defense/security-events/unauthorized_access
 **Example Response:**
 ```json
 {
-  "eventType": "unauthorized_access",
-  "count": 1,
-  "securityEvents": [
-    {
-      "id": 2,
-      "eventType": "unauthorized_access",
-      "timestamp": "2025-03-22T21:01:16.777Z",
-      "data": {
-        "ip": "192.168.1.1",
-        "endpoint": "/admin"
-      },
-      "systemStatus": {
-        "overallIntegrity": 1,
-        "driftDetectionRate": 0.5,
-        "neutralizationSuccessRate": 1,
-        "learningEfficiency": 0,
-        "shieldStrength": 0.91,
-        "securityScore": 0.782
-      },
-      "severity": "high",
-      "sourceIp": "192.168.1.1",
-      "userId": 123,
-      "sessionId": "sess_123456",
-      "processed": false
-    }
-  ]
+ "eventType": "unauthorized_access",
+ "count": 1,
+ "securityEvents": [
+ {
+ "id": 2,
+ "eventType": "unauthorized_access",
+ "timestamp": "2025-03-22T21:01:16.777Z",
+ "data": {
+ "ip": "192.168.1.1",
+ "endpoint": "/admin"
+ },
+ "systemStatus": {
+ "overallIntegrity": 1,
+ "driftDetectionRate": 0.5,
+ "neutralizationSuccessRate": 1,
+ "learningEfficiency": 0,
+ "shieldStrength": 0.91,
+ "securityScore": 0.782
+ },
+ "severity": "high",
+ "sourceIp": "192.168.1.1",
+ "userId": 123,
+ "sessionId": "sess_123456",
+ "processed": false
+ }
+ ]
 }
 ```
 
@@ -261,45 +261,45 @@ Logs a new security event.
 **Request Body:**
 ```json
 {
-  "eventType": "unauthorized_access",
-  "data": {
-    "ip": "192.168.1.1",
-    "endpoint": "/admin"
-  },
-  "severity": "high",
-  "sourceIp": "192.168.1.1",
-  "userId": 123,
-  "sessionId": "sess_123456"
+ "eventType": "unauthorized_access",
+ "data": {
+ "ip": "192.168.1.1",
+ "endpoint": "/admin"
+ },
+ "severity": "high",
+ "sourceIp": "192.168.1.1",
+ "userId": 123,
+ "sessionId": "sess_123456"
 }
 ```
 
 **Example Response:**
 ```json
 {
-  "success": true,
-  "event": {
-    "id": 2,
-    "eventType": "unauthorized_access",
-    "timestamp": "2025-03-22T21:01:16.777Z",
-    "data": {
-      "ip": "192.168.1.1",
-      "endpoint": "/admin"
-    },
-    "systemStatus": {
-      "overallIntegrity": 1,
-      "driftDetectionRate": 0.5,
-      "neutralizationSuccessRate": 1,
-      "learningEfficiency": 0,
-      "shieldStrength": 0.91,
-      "securityScore": 0.782
-    },
-    "severity": "high",
-    "sourceIp": "192.168.1.1",
-    "userId": 123,
-    "sessionId": "sess_123456",
-    "processed": false
-  },
-  "timestamp": "2025-03-22T21:01:16.777Z"
+ "success": true,
+ "event": {
+ "id": 2,
+ "eventType": "unauthorized_access",
+ "timestamp": "2025-03-22T21:01:16.777Z",
+ "data": {
+ "ip": "192.168.1.1",
+ "endpoint": "/admin"
+ },
+ "systemStatus": {
+ "overallIntegrity": 1,
+ "driftDetectionRate": 0.5,
+ "neutralizationSuccessRate": 1,
+ "learningEfficiency": 0,
+ "shieldStrength": 0.91,
+ "securityScore": 0.782
+ },
+ "severity": "high",
+ "sourceIp": "192.168.1.1",
+ "userId": 123,
+ "sessionId": "sess_123456",
+ "processed": false
+ },
+ "timestamp": "2025-03-22T21:01:16.777Z"
 }
 ```
 
@@ -316,18 +316,18 @@ Learns a new security pattern.
 **Request Body:**
 ```json
 {
-  "pattern": "Secure pattern for API access",
-  "layer": "gamma"
+ "pattern": "Secure pattern for API access",
+ "layer": "gamma"
 }
 ```
 
 **Example Response:**
 ```json
 {
-  "success": true,
-  "pattern": "Secure pattern for API access",
-  "layer": "gamma",
-  "timestamp": "2025-03-22T21:01:34.781Z"
+ "success": true,
+ "pattern": "Secure pattern for API access",
+ "layer": "gamma",
+ "timestamp": "2025-03-22T21:01:34.781Z"
 }
 ```
 
@@ -344,27 +344,27 @@ Returns security recommendations based on the current system state and drift his
 **Example Response:**
 ```json
 {
-  "systemStatus": {
-    "overallIntegrity": 1,
-    "driftDetectionRate": 0.5,
-    "neutralizationSuccessRate": 1,
-    "learningEfficiency": 0.01,
-    "shieldStrength": 0.91,
-    "securityScore": 0.783
-  },
-  "driftBasedRecommendations": [
-    {
-      "recommendation": "Continue normal monitoring operations",
-      "frequency": 1
-    }
-  ],
-  "systemRecommendations": [
-    {
-      "recommendation": "Enhance pattern learning by providing more diverse training examples",
-      "priority": "medium"
-    }
-  ],
-  "timestamp": "2025-03-22T21:01:45.166Z"
+ "systemStatus": {
+ "overallIntegrity": 1,
+ "driftDetectionRate": 0.5,
+ "neutralizationSuccessRate": 1,
+ "learningEfficiency": 0.01,
+ "shieldStrength": 0.91,
+ "securityScore": 0.783
+ },
+ "driftBasedRecommendations": [
+ {
+ "recommendation": "Continue normal monitoring operations",
+ "frequency": 1
+ }
+ ],
+ "systemRecommendations": [
+ {
+ "recommendation": "Enhance pattern learning by providing more diverse training examples",
+ "priority": "medium"
+ }
+ ],
+ "timestamp": "2025-03-22T21:01:45.166Z"
 }
 ```
 
@@ -439,3 +439,8 @@ If drift detection rate is consistently high:
 - Investigate recent drift events
 - Look for patterns in the types of content showing drift
 - Consider updating baseline patterns to reduce false positives
+
+---
+
+*Protected by EnhancedShadowSweep*  
+*Verification Hash: 680b4c316c73f9ff79e49738a9721102a292edb4a3d6935fed83ab9a61b58967*
