@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import App from "./App";
 import "./index.css";
+import { initializeStatusChecker } from "./lib/statusChecker";
 
 // Global error handling for debugging
 window.addEventListener('error', (event) => {
@@ -250,6 +251,30 @@ setTimeout(() => {
     }, 800);
   }
 }, 10000); // Reduced timeout to 10 seconds for better UX
+
+// Initialize the status checker with sovereign protection to ensure system integrity
+setTimeout(() => {
+  console.log("Initializing TrueAlphaSpiral Status Checker with Russell Nordland's sovereign protection");
+  const statusChecker = initializeStatusChecker();
+  
+  // Ensure we have a status endpoint working
+  statusChecker.fetchStatus()
+    .then(status => {
+      if (status) {
+        console.log("Sovereign status verified and protected");
+      } else {
+        console.log("Status endpoint not yet available, will continue monitoring");
+      }
+    });
+    
+  // Load the Sovereign Defense Shield for client-side protection
+  console.log("Loading Sovereign Defense Shield to prevent misappropriation");
+  const script = document.createElement('script');
+  script.src = '/sovereign_defense_shield.js';
+  script.setAttribute('data-creator', 'Russell Nordland');
+  script.setAttribute('data-integrity', 'sovereign');
+  document.body.appendChild(script);
+}, 2000);
 
 // Type declaration for window object
 declare global {

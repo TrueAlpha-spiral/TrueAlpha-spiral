@@ -25,7 +25,7 @@ def start_python_api_server(port=8001):
  """Start the Python API server as a subprocess using nohup to keep it running."""
  print(f"Starting Python API server on port {port}...")
  try:
- # Use nohup to ensure the process keeps running even when parent process exits
+ # Use nohup to ensure the process keeps running even when originating process exits
  with open("python_api_nohup.out", "w") as outfile:
  # Redirect both stdout and stderr to the nohup output file
  process = subprocess.Popen(

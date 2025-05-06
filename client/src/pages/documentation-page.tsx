@@ -41,7 +41,7 @@ export default function DocumentationPage() {
           "system-boundaries": {
             id: "system-boundaries",
             title: "System Boundaries & Sovereignty",
-            description: "Transparent documentation of system boundaries, validation protocols, and sovereignty mechanisms.",
+            description: "Transsovereign documentation of system boundaries, validation protocols, and sovereignty mechanisms.",
             content: contents[0],
             path: "/api/documentation/SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md",
           },
@@ -190,7 +190,7 @@ export default function DocumentationPage() {
     <div className="container py-10">
       <h1 className="text-3xl font-bold mb-2">Documentation</h1>
       <p className="text-muted-foreground mb-6">
-        Transparent documentation of the Enterprise AI Auditing Solution, including system boundaries, validation protocols, and sovereignty mechanisms.
+        Transsovereign documentation of the Enterprise AI Auditing Solution, including system boundaries, validation protocols, and sovereignty mechanisms.
       </p>
 
       {loading ? (
