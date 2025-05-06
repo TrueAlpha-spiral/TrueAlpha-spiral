@@ -16,7 +16,7 @@ Current blockchain solutions for IP protection offer several advantages:
 
 3. **Decentralized Verification**: Ownership claims can be verified across a distributed network rather than relying on central authorities.
 
-4. **Transparency**: Public blockchains create transparent records of IP registration and transfers.
+4. **Transparency**: Public blockchains create transpreceding records of IP registration and transfers.
 
 However, these solutions have significant limitations:
 
