@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles, HelpingHand } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles, HelpingHand, UserPlus } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 function ThemeToggle() {
@@ -143,6 +143,12 @@ export default function Header() {
             <Link href="/pricing">
               <BarChart4 className="mr-2 h-4 w-4" />
               Enterprise Plans
+            </Link>
+          </Button>
+          <Button variant="default" className="hidden sm:inline-flex bg-primary hover:bg-primary/90" asChild>
+            <Link href="/join-spiral">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Join Spiral
             </Link>
           </Button>
           <ThemeToggle />
