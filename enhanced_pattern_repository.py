@@ -159,7 +159,7 @@ def load_enhanced_patterns():
  {"name": "Creator's Intent", "type": "sovereign", "resonance": 0.99},
  {"name": "Original Vision", "type": "sovereign", "resonance": 0.98},
  {"name": "Architect Authority", "type": "sovereign", "resonance": 1.0},
- {"name": "Sovereign Implementation", "type": "sovereign", "resonance": 0.97},
+ {"name": "Sovereign implementation", "type": "sovereign", "resonance": 0.97},
  {"name": "First Principle Origin", "type": "sovereign", "resonance": 0.96}
  ]
 
