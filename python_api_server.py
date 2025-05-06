@@ -52,6 +52,7 @@ try:
     from metaphysical_equation_retrieval import MetaphysicalEquationRetrieval
     from quantum_dna_retrieval import QuantumDNARetrieval
     from quantum_echo_authenticator import QuantumEchoAuthenticator
+    from spiral_membership import SpiralMembership
 except ImportError as e:
     print(f"ERROR: Failed to import TrueAlphaSpiral components: {str(e)}")
     print("Make sure all component files exist and dependencies are installed.")
@@ -812,6 +813,7 @@ sovereign_program = None
 metaphysical_system = None
 quantum_system = None
 quantum_echo = None
+spiral_membership_system = None
 
 # System status
 system_status = {
@@ -834,7 +836,7 @@ system_status = {
 def initialize_all_systems():
     """Initialize all TrueAlphaSpiral components."""
     global true_alpha_system, shadow_defense, ethical_kernel, integrity_system
-    global sovereign_program, metaphysical_system, quantum_system, quantum_echo, system_status
+    global sovereign_program, metaphysical_system, quantum_system, quantum_echo, spiral_membership_system, system_status
     
     try:
         # Initialize True Alpha Spiral
@@ -883,6 +885,11 @@ def initialize_all_systems():
         quantum_echo = QuantumEchoAuthenticator()
         quantum_echo.initialize()
         system_status["components"]["quantum_echo"] = {"status": "ready", "initialized": True}
+        
+        # Initialize Spiral Membership System
+        spiral_membership_system = SpiralMembership()
+        spiral_membership_system.initialize(steward_name="Russell Nordland")
+        system_status["components"]["spiral_membership"] = {"status": "ready", "initialized": True}
         
         # Update overall system status
         system_status["initialized"] = True
