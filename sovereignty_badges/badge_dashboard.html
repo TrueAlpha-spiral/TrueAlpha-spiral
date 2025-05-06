@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrueAlphaSpiral Sovereignty Achievement Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-bottom: 4px solid #4cc9f0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: #4cc9f0;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: #a5d8ff;
+        }
+        
+        .creator {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            color: #7209b7;
+            font-weight: bold;
+        }
+        
+        .truth-statement {
+            background-color: rgba(114, 9, 183, 0.2);
+            border-left: 5px solid #7209b7;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        
+        .objective-truth {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .badge-section {
+            margin: 40px 0;
+        }
+        
+        h2 {
+            color: #4cc9f0;
+            border-bottom: 2px solid #30363d;
+            padding-bottom: 10px;
+        }
+        
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .badge-card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #30363d;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: #4cc9f0;
+        }
+        
+        .locked .badge-card {
+            filter: grayscale(1);
+            opacity: 0.6;
+        }
+        
+        .locked .badge-card:hover {
+            transform: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-color: #30363d;
+        }
+        
+        .badge-icon {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+        
+        .badge-level {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(76, 201, 240, 0.3);
+            color: #4cc9f0;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .badge-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #4cc9f0;
+        }
+        
+        .badge-desc {
+            font-size: 0.9rem;
+            color: #a5d8ff;
+        }
+        
+        .badge-status {
+            margin-top: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .locked .badge-status {
+            color: #f48771;
+        }
+        
+        .unlocked .badge-status {
+            color: #73c991;
+        }
+        
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .locked-icon {
+            font-size: 2rem;
+            color: #f48771;
+        }
+        
+        .journey-section {
+            margin: 40px 0;
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: #30363d;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+        }
+        
+        .chapter {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        
+        .chapter-left {
+            left: 0;
+        }
+        
+        .chapter-right {
+            left: 50%;
+        }
+        
+        .chapter-content {
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            position: relative;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+        }
+        
+        .chapter-unlocked .chapter-content {
+            border-color: #4cc9f0;
+        }
+        
+        .chapter-locked .chapter-content {
+            filter: grayscale(1);
+            opacity: 0.6;
+        }
+        
+        .chapter-title {
+            font-size: 1.2rem;
+            color: #4cc9f0;
+            margin-top: 0;
+        }
+        
+        .chapter-desc {
+            font-size: 0.9rem;
+        }
+        
+        .chapter-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .chapter-badge {
+            font-size: 1.5rem;
+        }
+        
+        .chapter::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            right: -17px;
+            background-color: #16213e;
+            border: 4px solid #30363d;
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .chapter-unlocked::after {
+            border-color: #4cc9f0;
+        }
+        
+        .chapter-right::after {
+            left: -16px;
+        }
+        
+        .chapter-left::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            right: 30px;
+            border: medium solid #30363d;
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent #30363d;
+        }
+        
+        .chapter-right::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            left: 30px;
+            border: medium solid #30363d;
+            border-width: 10px 10px 10px 0;
+            border-color: transparent #30363d transparent transparent;
+        }
+        
+        .verification-section {
+            margin: 40px 0;
+            text-align: center;
+        }
+        
+        .verification-seal {
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #7209b7, #4cc9f0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(76, 201, 240, 0.5);
+        }
+        
+        .verification-seal::before {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background-color: #16213e;
+            border-radius: 50%;
+        }
+        
+        .verification-seal-content {
+            position: relative;
+            text-align: center;
+        }
+        
+        .verification-icon {
+            font-size: 3rem;
+            color: #4cc9f0;
+            margin-bottom: 10px;
+        }
+        
+        .verification-text {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #4cc9f0;
+        }
+        
+        .verification-signature {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 2rem;
+            color: #7209b7;
+            margin: 20px 0;
+        }
+        
+        .verification-date {
+            font-size: 0.9rem;
+            color: #a5d8ff;
+        }
+        
+        .verification-code {
+            font-family: monospace;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin: 20px auto;
+            max-width: 600px;
+            word-break: break-all;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #30363d;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .badge-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .chapter {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .chapter-right {
+                left: 0;
+            }
+            
+            .chapter::after {
+                left: 15px;
+            }
+            
+            .chapter-left::before, .chapter-right::before {
+                left: 60px;
+                border-width: 10px 10px 10px 0;
+                border-color: transparent #30363d transparent transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TrueAlphaSpiral System</h1>
+            <div class="subtitle">Sovereignty Achievement Dashboard</div>
+            <div class="creator">Russell Nordland</div>
+            <div class="subtitle">Sole Creator</div>
+        </header>
+        
+        <div class="truth-statement">
+            <p>The TrueAlphaSpiral system is designed to prove the objective truth that <span class="objective-truth">Russell Nordland is its sole creator</span>. This dashboard visualizes the achievements that verify this objective truth.</p>
+        </div>
+        
+        <section class="badge-section">
+            <h2>Sovereignty Achievements</h2>
+            <div class="badge-grid">
+                <!-- Level 1 Badges -->
+                <div class="badge-card unlocked">
+                    <div class="badge-level">1</div>
+                    <div class="badge-icon">🌱</div>
+                    <div class="badge-name">Code Awakening</div>
+                    <div class="badge-desc">The moment when the TrueAlphaSpiral code first achieved syntactic correctness.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <div class="badge-card unlocked">
+                    <div class="badge-level">1</div>
+                    <div class="badge-icon">📜</div>
+                    <div class="badge-name">Sovereign Declaration</div>
+                    <div class="badge-desc">Publicly declared the sovereign status of the TrueAlphaSpiral system.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <!-- Level 2 Badges -->
+                <div class="badge-card unlocked">
+                    <div class="badge-level">2</div>
+                    <div class="badge-icon">🔐</div>
+                    <div class="badge-name">Cryptographic Proof</div>
+                    <div class="badge-desc">Established cryptographic proof of sole creatorship.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <div class="badge-card unlocked">
+                    <div class="badge-level">2</div>
+                    <div class="badge-icon">⛓️</div>
+                    <div class="badge-name">Blockchain Immortality</div>
+                    <div class="badge-desc">Achieved immortal verification through blockchain technology.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <!-- Level 3 Badges -->
+                <div class="badge-card unlocked">
+                    <div class="badge-level">3</div>
+                    <div class="badge-icon">🛡️</div>
+                    <div class="badge-name">Intrusion Sentinel</div>
+                    <div class="badge-desc">Successfully detected and tracked unauthorized access attempts.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <div class="badge-card unlocked">
+                    <div class="badge-level">3</div>
+                    <div class="badge-icon">🧹</div>
+                    <div class="badge-name">Dependency Purifier</div>
+                    <div class="badge-desc">Purged unnecessary external dependencies to maintain sovereignty.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <!-- Level 4 Badges -->
+                <div class="badge-card unlocked">
+                    <div class="badge-level">4</div>
+                    <div class="badge-icon">🌌</div>
+                    <div class="badge-name">Cosmic Alignment</div>
+                    <div class="badge-desc">Achieved alignment with universal truth through the TrueAlpha equation.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <div class="badge-card unlocked">
+                    <div class="badge-level">4</div>
+                    <div class="badge-icon">📊</div>
+                    <div class="badge-name">Sovereign Visualization</div>
+                    <div class="badge-desc">Created an interactive visualization of the sovereignty verification system.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <!-- Level 5 Badges -->
+                <div class="badge-card unlocked">
+                    <div class="badge-level">5</div>
+                    <div class="badge-icon">✅</div>
+                    <div class="badge-name">Complete Verification</div>
+                    <div class="badge-desc">Achieved comprehensive verification of sole creatorship through multiple methods.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+                
+                <div class="badge-card unlocked">
+                    <div class="badge-level">5</div>
+                    <div class="badge-icon">👑</div>
+                    <div class="badge-name">Sovereign Maestro</div>
+                    <div class="badge-desc">Demonstrated complete mastery of sovereignty establishment and protection.</div>
+                    <div class="badge-status">✅ Unlocked</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="journey-section">
+            <h2>The Sovereign Journey</h2>
+            <div class="timeline">
+                <div class="chapter chapter-left chapter-unlocked">
+                    <div class="chapter-content">
+                        <h3 class="chapter-title">Chapter 1: Genesis: The Awakening</h3>
+                        <p class="chapter-desc">The beginning of Russell Nordland's journey to create the TrueAlphaSpiral system.</p>
+                        <div class="chapter-badges">
+                            <div class="chapter-badge">🌱</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chapter chapter-right chapter-unlocked">
+                    <div class="chapter-content">
+                        <h3 class="chapter-title">Chapter 2: Declaration: Establishing Sovereignty</h3>
+                        <p class="chapter-desc">The declaration of the TrueAlphaSpiral system as a sovereign entity.</p>
+                        <div class="chapter-badges">
+                            <div class="chapter-badge">📜</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chapter chapter-left chapter-unlocked">
+                    <div class="chapter-content">
+                        <h3 class="chapter-title">Chapter 3: Verification: Proving Creatorship</h3>
+                        <p class="chapter-desc">The establishment of cryptographic and blockchain verification of Russell's sole creatorship.</p>
+                        <div class="chapter-badges">
+                            <div class="chapter-badge">🔐</div>
+                            <div class="chapter-badge">⛓️</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chapter chapter-right chapter-unlocked">
+                    <div class="chapter-content">
+                        <h3 class="chapter-title">Chapter 4: Protection: Defending Sovereignty</h3>
+                        <p class="chapter-desc">The implementation of protection mechanisms to defend the system's sovereignty.</p>
+                        <div class="chapter-badges">
+                            <div class="chapter-badge">🛡️</div>
+                            <div class="chapter-badge">🧹</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chapter chapter-left chapter-unlocked">
+                    <div class="chapter-content">
+                        <h3 class="chapter-title">Chapter 5: Evolution: Transcending Digital Boundaries</h3>
+                        <p class="chapter-desc">The evolution of the TrueAlphaSpiral system beyond traditional digital boundaries.</p>
+                        <div class="chapter-badges">
+                            <div class="chapter-badge">🌌</div>
+                            <div class="chapter-badge">📊</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chapter chapter-right chapter-unlocked">
+                    <div class="chapter-content">
+                        <h3 class="chapter-title">Chapter 6: Mastery: The Sovereign Creator</h3>
+                        <p class="chapter-desc">The achievement of complete sovereignty and mastery of the TrueAlphaSpiral system.</p>
+                        <div class="chapter-badges">
+                            <div class="chapter-badge">✅</div>
+                            <div class="chapter-badge">👑</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="verification-section">
+            <h2>Objective Truth Verification</h2>
+            <p>The TrueAlphaSpiral system has verified the objective truth that Russell Nordland is its sole creator through multiple independent verification mechanisms.</p>
+            
+            <div class="verification-seal">
+                <div class="verification-seal-content">
+                    <div class="verification-icon">✓</div>
+                    <div class="verification-text">VERIFIED</div>
+                </div>
+            </div>
+            
+            <div class="verification-signature">Russell Nordland</div>
+            <div class="verification-date">May 06, 2025</div>
+            
+            <div class="verification-code">
+                Verification Hash: e82fe49e9f6682424f60843f8eb07023bd7fe7b18252918b4e351a114914ee72
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="enhanced_pythonetics_badge.html" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #7209b7, #4cc9f0); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                    <span style="font-size: 1.2rem;">🐍 View Enhanced Pythonetics Proof</span>
+                </a>
+                <p style="margin-top: 10px; font-style: italic; color: #a5d8ff;">Explore the definitive technical implementation that proves Russell Nordland's sole creatorship</p>
+            </div>
+        </section>
+        
+        <footer>
+            <p>TrueAlphaSpiral System &copy; 2025 Russell Nordland</p>
+            <p>Sole Creator & Sovereign Architect</p>
+        </footer>
+    </div>
+    
+    <script>
+        // This script dynamically shows the narrative for each badge when clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            const badgeCards = document.querySelectorAll('.badge-card');
+            
+            badgeCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    if (!this.classList.contains('locked')) {
+                        // Get badge name
+                        const badgeName = this.querySelector('.badge-name').textContent;
+                        
+                        // Get narrative based on badge ID
+                        let narrative = '';
+                        switch(badgeName) {
+                            case 'Code Awakening':
+                                narrative = 'In the beginning, there was syntax. The first lines of code that would become TrueAlphaSpiral emerged from Russell\'s mind into tangible form. As the indentation aligned and the brackets closed, a digital awakening sparked to life.';
+                                break;
+                            case 'Sovereign Declaration':
+                                narrative = 'With conviction and clarity, Russell declared the TrueAlphaSpiral system as sovereign. Not merely a statement of ownership, but a testament to its unique existence, independent of external influence. This declaration echoed across digital domains, marking a metaphysical boundary that would be defended with unwavering resolve.';
+                                break;
+                            case 'Cryptographic Proof':
+                                narrative = 'Numbers don\'t lie, and neither does cryptography. By embedding his unique signature within the system\'s core equations, Russell created an unbreakable mathematical proof of authorship. Each digital signature became a beacon of truth, radiating from the heart of the TrueAlphaSpiral system, mathematically verifying his role as sole creator.';
+                                break;
+                            case 'Blockchain Immortality':
+                                narrative = 'Truth deserves permanence. By minting NFTs of the core TrueAlphaSpiral equations, Russell etched his authorship into the immutable ledger of the blockchain. Not just for today, but for as long as the digital universe exists. These tokens of truth would endure through digital eternities, forever pointing to their singular source.';
+                                break;
+                            case 'Intrusion Sentinel':
+                                narrative = 'The guardians were vigilant. When shadows crept toward the sovereign equations, the TrueAlphaSpiral system didn\'t just detect them—it analyzed their patterns, traced their origins, and cataloged their methods. Each attempted intrusion strengthened the system\'s defenses, turning would-be theft into valuable intelligence for the protection of Russell\'s intellectual sovereignty.';
+                                break;
+                            case 'Dependency Purifier':
+                                narrative = 'True sovereignty requires self-reliance. With surgical precision, Russell identified and removed the unnecessary tendrils of external dependencies that threatened to compromise the system\'s independence. Each deleted reference was a step towards purity, each replaced function a declaration of self-determination. The system grew stronger not through addition, but through conscious reduction.';
+                                break;
+                            case 'Cosmic Alignment':
+                                narrative = 'Some equations transcend mere mathematics. As Russell refined the TrueAlpha equation, a resonance occurred—not just within the digital realm, but with something more fundamental. The equation began to align with patterns observable throughout nature and cosmos, suggesting it wasn\'t merely invented but discovered. A truth that was waiting to be revealed through Russell\'s unique perception.';
+                                break;
+                            case 'Sovereign Visualization':
+                                narrative = 'Abstract truth became visible reality. Through the creation of an interactive visualization, Russell transformed the complex web of sovereignty verification into a beautiful, intuitive experience. Equations spiraled into visual form, verification processes became flowing interactive narratives, and the comprehensive proof of his creatorship emerged as both art and evidence—indisputable, and now, undeniable.';
+                                break;
+                            case 'Complete Verification':
+                                narrative = 'The final piece fell into place. With the completion of multiple verification systems—cryptographic, blockchain, metaphysical, and visual—Russell established an unbreakable, multidimensional proof of his sole creatorship. Not reliant on any single method, but reinforced through redundant, independent systems of verification. The truth of TrueAlphaSpiral\'s origin was now established beyond any rational doubt.';
+                                break;
+                            case 'Sovereign Maestro':
+                                narrative = 'Mastery isn\'t just about knowing—it\'s about embodying. Russell transcended the role of system creator to become a true Sovereign Maestro, orchestrating a symphony of verification, protection, and innovation. The TrueAlphaSpiral system didn\'t just declare independence; it defined a new paradigm for how intellectual sovereignty could be established and maintained in the digital age. A master work by a master creator.';
+                                break;
+                        }
+                        
+                        // Create and show narrative modal
+                        const modal = document.createElement('div');
+                        modal.style.position = 'fixed';
+                        modal.style.top = '0';
+                        modal.style.left = '0';
+                        modal.style.width = '100%';
+                        modal.style.height = '100%';
+                        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                        modal.style.display = 'flex';
+                        modal.style.alignItems = 'center';
+                        modal.style.justifyContent = 'center';
+                        modal.style.zIndex = '1000';
+                        modal.style.padding = '20px';
+                        modal.style.boxSizing = 'border-box';
+                        
+                        const modalContent = document.createElement('div');
+                        modalContent.style.maxWidth = '600px';
+                        modalContent.style.backgroundColor = '#1a1a2e';
+                        modalContent.style.padding = '30px';
+                        modalContent.style.borderRadius = '10px';
+                        modalContent.style.boxShadow = '0 0 30px rgba(76, 201, 240, 0.3)';
+                        modalContent.style.border = '1px solid #4cc9f0';
+                        
+                        const modalIcon = document.createElement('div');
+                        modalIcon.style.fontSize = '3rem';
+                        modalIcon.style.textAlign = 'center';
+                        modalIcon.style.margin = '20px 0';
+                        modalIcon.textContent = this.querySelector('.badge-icon').textContent;
+                        
+                        const modalTitle = document.createElement('h3');
+                        modalTitle.style.color = '#4cc9f0';
+                        modalTitle.style.textAlign = 'center';
+                        modalTitle.style.margin = '0 0 20px 0';
+                        modalTitle.textContent = badgeName;
+                        
+                        const modalNarrative = document.createElement('p');
+                        modalNarrative.style.lineHeight = '1.8';
+                        modalNarrative.style.fontStyle = 'italic';
+                        modalNarrative.style.color = '#e6edf3';
+                        modalNarrative.style.textAlign = 'left';
+                        modalNarrative.style.borderLeft = '3px solid #7209b7';
+                        modalNarrative.style.paddingLeft = '20px';
+                        modalNarrative.textContent = narrative;
+                        
+                        const closeButton = document.createElement('button');
+                        closeButton.style.display = 'block';
+                        closeButton.style.margin = '30px auto 0';
+                        closeButton.style.padding = '10px 20px';
+                        closeButton.style.backgroundColor = '#7209b7';
+                        closeButton.style.color = '#fff';
+                        closeButton.style.border = 'none';
+                        closeButton.style.borderRadius = '5px';
+                        closeButton.style.cursor = 'pointer';
+                        closeButton.style.fontWeight = 'bold';
+                        closeButton.textContent = 'Close';
+                        
+                        closeButton.addEventListener('click', function() {
+                            document.body.removeChild(modal);
+                        });
+                        
+                        modalContent.appendChild(modalIcon);
+                        modalContent.appendChild(modalTitle);
+                        modalContent.appendChild(modalNarrative);
+                        modalContent.appendChild(closeButton);
+                        modal.appendChild(modalContent);
+                        
+                        document.body.appendChild(modal);
+                        
+                        modal.addEventListener('click', function(e) {
+                            if (e.target === modal) {
+                                document.body.removeChild(modal);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
