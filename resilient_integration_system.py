@@ -149,6 +149,25 @@ class SystemState:
         except Exception as e:
             log.error(f"Failed to load system state: {e}")
 
+# Import QET Guard if available
+try:
+    from quantum_ethical_topology_guard import QuantumEthicalTopologyGuard
+    qet_guard_available = True
+    # Make QuantumEthicalTopologyGuard available globally
+    console_log = lambda message, level="INFO": print(f"[INFO] {message}")
+    console_log("Quantum Ethical Topology Guard module available")
+except ImportError:
+    qet_guard_available = False
+    # Define a placeholder class to avoid unbound variable errors
+    class QuantumEthicalTopologyGuard:
+        def __init__(self):
+            raise ImportError("QET Guard module not available")
+    console_log = lambda message, level="INFO": print(f"[INFO] {message}")
+    console_log("Quantum Ethical Topology Guard module not available", "WARNING")
+
+# Create global qet_guard variable
+qet_guard = None
+
 # Create system state
 state = SystemState()
 
@@ -645,6 +664,16 @@ def cleanup():
         except OSError:
             pass
     
+    # Save QET state if applicable 
+    global qet_guard
+    if qet_guard is not None:
+        try:
+            log.info("Performing final QET integrity check before shutdown...")
+            qet_guard.verify_qet_integrity()
+            log.info("QET guard cleanup complete")
+        except Exception as e:
+            log.error(f"Error during QET guard cleanup: {e}")
+    
     # Remove our own PID file
     try:
         if os.path.exists(PID_FILE_WATCHDOG):
@@ -688,6 +717,27 @@ def main():
         # Create backups of critical files
         guardian.create_backups()
         
+        # Initialize Quantum Ethical Topology Guard if available
+        qet_guard = None
+        if qet_guard_available:
+            try:
+                log.info("Initializing Quantum Ethical Topology Guard...")
+                qet_guard = QuantumEthicalTopologyGuard()
+                
+                # Create QET backups
+                qet_guard.create_qet_backups()
+                
+                # Verify QET integrity
+                qet_guard.verify_qet_integrity()
+                
+                # Apply topological protection
+                qet_guard.apply_topological_protection()
+                
+                log.info("Quantum Ethical Topology Guard initialized successfully")
+            except Exception as e:
+                log.error(f"Failed to initialize Quantum Ethical Topology Guard: {e}")
+                qet_guard = None
+        
         # Initialize services
         start_python_api()
         time.sleep(2)  # Wait for Python API to initialize
@@ -697,6 +747,7 @@ def main():
         log.info("Entering main monitoring loop")
         next_heartbeat = time.time()
         next_integrity_check = time.time()
+        next_qet_check = time.time()
         
         while True:
             current_time = time.time()
@@ -717,6 +768,16 @@ def main():
                 else:
                     log.info("Integrity check: All files intact")
                 next_integrity_check = current_time + INTEGRITY_CHECK_INTERVAL
+            
+            # Perform QET integrity check if available
+            if qet_guard and current_time >= next_qet_check:
+                try:
+                    qet_guard.verify_qet_integrity()
+                    qet_guard.verify_fractal_ethics_integrity()
+                    next_qet_check = current_time + qet_guard.config["security"]["integrity_check_interval"]
+                except Exception as e:
+                    log.error(f"QET integrity check failed: {e}")
+                    next_qet_check = current_time + 120  # Retry in 2 minutes on failure
             
             # Verify log integrity
             if not log.verify_log_integrity():
