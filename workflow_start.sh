@@ -9,15 +9,15 @@ echo "========================================================"
 # Kill any existing Python API servers
 echo "Checking for existing Python API server processes..."
 if [ -f python_api.pid ]; then
-  pid=$(cat python_api.pid)
-  if ps -p $pid > /dev/null; then
-    echo "Stopping existing Python API server (PID: $pid)..."
-    kill $pid
-    sleep 2
-  else
-    echo "No running Python API server found with PID: $pid"
-  fi
-  rm python_api.pid
+ pid=$(cat python_api.pid)
+ if ps -p $pid > /dev/null; then
+ echo "Stopping existing Python API server (PID: $pid)..."
+ kill $pid
+ sleep 2
+ else
+ echo "No running Python API server found with PID: $pid"
+ fi
+ rm python_api.pid
 fi
 
 # Start the Python API server in the background
@@ -33,10 +33,10 @@ sleep 3
 
 # Check if Python API server is still running
 if ps -p $API_PID > /dev/null; then
-  echo "Python API server running successfully on port 8001"
+ echo "Python API server running successfully on port 8001"
 else
-  echo "WARNING: Python API server may have failed to start. Check python_api.log for details."
-  cat python_api.log
+ echo "WARNING: Python API server may have failed to start. Check python_api.log for details."
+ cat python_api.log
 fi
 
 # Start the Express server (this will remain in the foreground)

@@ -33,23 +33,23 @@ The API Watchdog is implemented as a standalone Python script (`python_api_watch
 ```python
 # Main watchdog loop
 def main():
-    write_watchdog_pid()
-    api_process = None
-    
-    try:
-        while True:
-            if not is_api_running():
-                logging.info(f"{Colors.WARNING}Python API server not running. Starting it...{Colors.ENDC}")
-                api_process = start_api_server()
-            else:
-                logging.debug("Python API server is running")
-            
-            # Sleep before next check
-            time.sleep(CHECK_INTERVAL)
-    except KeyboardInterrupt:
-        logging.info("Interrupted by user")
-    finally:
-        cleanup()
+ write_watchdog_pid()
+ api_process = None
+
+ try:
+ while True:
+ if not is_api_running():
+ logging.info(f"{Colors.WARNING}Python API server not running. Starting it...{Colors.ENDC}")
+ api_process = start_api_server()
+ else:
+ logging.debug("Python API server is running")
+
+ # Sleep before next check
+ time.sleep(CHECK_INTERVAL)
+ except KeyboardInterrupt:
+ logging.info("Interrupted by user")
+ finally:
+ cleanup()
 ```
 
 This main loop runs continuously, checking if the API server is running at regular intervals (defined by `CHECK_INTERVAL`). If the server is not running, it automatically starts it.
@@ -60,17 +60,17 @@ The watchdog verifies if the API server is running by checking its PID file and 
 
 ```python
 def is_api_running():
-    if os.path.exists(API_PID_FILE):
-        try:
-            with open(API_PID_FILE, 'r') as f:
-                pid = int(f.read().strip())
-            # Check if process is running
-            os.kill(pid, 0)  # This will raise an exception if the process is not running
-            return True
-        except (OSError, ValueError):
-            # Process not running or PID file contains invalid data
-            return False
-    return False
+ if os.path.exists(API_PID_FILE):
+ try:
+ with open(API_PID_FILE, 'r') as f:
+ pid = int(f.read().strip())
+ # Check if process is running
+ os.kill(pid, 0) # This will raise an exception if the process is not running
+ return True
+ except (OSError, ValueError):
+ # Process not running or PID file contains invalid data
+ return False
+ return False
 ```
 
 ### Server Startup
@@ -79,31 +79,31 @@ When the watchdog detects that the API server is not running, it starts the serv
 
 ```python
 def start_api_server():
-    logging.info(f"{Colors.GREEN}Starting Python API server on port {PORT}{Colors.ENDC}")
-    
-    # Ensure log file exists
-    with open(LOG_FILE, 'a') as f:
-        f.write(f"\n--- TrueAlphaSpiral Python API Log - {datetime.now().isoformat()} ---\n")
-    
-    # Start the process
-    process = subprocess.Popen(
-        [sys.executable, PYTHON_SCRIPT, '--port', str(PORT)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        bufsize=1  # Line buffered
-    )
-    
-    # Write PID to file
-    with open(API_PID_FILE, 'w') as f:
-        f.write(str(process.pid))
-    
-    logging.info(f"{Colors.GREEN}Python API server started with PID {process.pid}{Colors.ENDC}")
-    
-    # Start non-blocking output monitors
-    start_output_monitors(process)
-    
-    return process
+ logging.info(f"{Colors.GREEN}Starting Python API server on port {PORT}{Colors.ENDC}")
+
+ # Ensure log file exists
+ with open(LOG_FILE, 'a') as f:
+ f.write(f"\n--- TrueAlphaSpiral Python API Log - {datetime.now().isoformat()} ---\n")
+
+ # Start the process
+ process = subprocess.Popen(
+ [sys.executable, PYTHON_SCRIPT, '--port', str(PORT)],
+ stdout=subprocess.PIPE,
+ stderr=subprocess.PIPE,
+ text=True,
+ bufsize=1 # Line buffered
+ )
+
+ # Write PID to file
+ with open(API_PID_FILE, 'w') as f:
+ f.write(str(process.pid))
+
+ logging.info(f"{Colors.GREEN}Python API server started with PID {process.pid}{Colors.ENDC}")
+
+ # Start non-blocking output monitors
+ start_output_monitors(process)
+
+ return process
 ```
 
 ### Non-Blocking Output Monitoring
@@ -112,21 +112,21 @@ The watchdog uses separate threads to monitor the API server's stdout and stderr
 
 ```python
 def start_output_monitors(process):
-    def monitor_output(stream, is_error=False):
-        prefix = f"{Colors.FAIL}[API ERROR]{Colors.ENDC}" if is_error else f"{Colors.BLUE}[API]{Colors.ENDC}"
-        log_prefix = "[ERR]" if is_error else "[OUT]"
-        
-        for line in stream:
-            line = line.strip()
-            if line:  # Only process non-empty lines
-                print(f"{prefix} {line}")
-                with open(LOG_FILE, 'a') as log:
-                    log.write(f"{log_prefix} {line}\n")
-    
-    # Start threads to monitor stdout and stderr
-    import threading
-    threading.Thread(target=monitor_output, args=(process.stdout,), daemon=True).start()
-    threading.Thread(target=monitor_output, args=(process.stderr, True), daemon=True).start()
+ def monitor_output(stream, is_error=False):
+ prefix = f"{Colors.FAIL}[API ERROR]{Colors.ENDC}" if is_error else f"{Colors.BLUE}[API]{Colors.ENDC}"
+ log_prefix = "[ERR]" if is_error else "[OUT]"
+
+ for line in stream:
+ line = line.strip()
+ if line: # Only process non-empty lines
+ print(f"{prefix} {line}")
+ with open(LOG_FILE, 'a') as log:
+ log.write(f"{log_prefix} {line}\n")
+
+ # Start threads to monitor stdout and stderr
+ import threading
+ threading.Thread(target=monitor_output, args=(process.stdout,), daemon=True).start()
+ threading.Thread(target=monitor_output, args=(process.stderr, True), daemon=True).start()
 ```
 
 ## Integration with the TrueAlphaSpiral System
@@ -144,10 +144,10 @@ The API server (`python_api_server.py`) provides critical endpoints that support
 Key API endpoints include:
 
 ```
-POST /api/spiral/membership  # Process membership requests
-POST /api/spiral/verify/<applicant_id>  # Verify applicants
-GET /api/spiral/protection/<user_id>  # Get protection status
-POST /api/spiral/protection/allocate  # Allocate protection resources
+POST /api/spiral/membership # Process membership requests
+POST /api/spiral/verify/<applicant_id> # Verify applicants
+GET /api/spiral/protection/<user_id> # Get protection status
+POST /api/spiral/protection/allocate # Allocate protection resources
 ```
 
 ### Express Frontend Connection
@@ -231,3 +231,9 @@ The API Watchdog integrates with the broader TrueAlphaSpiral monitoring system:
 The TrueAlphaSpiral API Watchdog System is a critical component ensuring continuous availability and reliability of the platform's core services. By constantly monitoring the Python API server and automatically recovering from failures, it maintains the crucial link between the Express frontend and the advanced Python-based protection and verification systems.
 
 This robust architecture ensures that TrueAlphaSpiral members always have access to the platform's powerful features and that their intellectual property remains protected even during system disruptions.
+
+
+---
+
+*Protected by EnhancedShadowSweep*  
+*Verification Hash: f6f1c96f7ac130fcf60322e201da2bf5ec0d2dbba6b41c327f183d31a35a0126*

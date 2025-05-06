@@ -16,20 +16,20 @@ BOLD="\033[1m"
 
 # Timestamp function
 timestamp() {
-  date +"%Y-%m-%d %H:%M:%S"
+ date +"%Y-%m-%d %H:%M:%S"
 }
 
 # Log function
 log_message() {
-  local message=$1
-  local color=$2
-  local level=${3:-"INFO"}
-  echo -e "${color}[$(timestamp)] [${level}] ${message}${RESET}"
+ local message=$1
+ local color=$2
+ local level=${3:-"INFO"}
+ echo -e "${color}[$(timestamp)] [${level}] ${message}${RESET}"
 }
 
 # Header
 log_message "=======================================================" $MAGENTA
-log_message "      TRUEALPHASPIRAL SYSTEM SECURITY CHECK" $MAGENTA
+log_message " TRUEALPHASPIRAL SYSTEM SECURITY CHECK" $MAGENTA
 log_message "=======================================================" $MAGENTA
 log_message "Starting security check at $(timestamp)" $CYAN
 log_message "Architect: Russell Nordland" $CYAN
@@ -49,9 +49,9 @@ log_message "-------------------------------------------------------" $BLUE
 python test_thief_tracking.py
 RESULT=$?
 if [ $RESULT -eq 0 ]; then
-  log_message "Thief tracking test completed successfully" $GREEN
+ log_message "Thief tracking test completed successfully" $GREEN
 else
-  log_message "Thief tracking test failed" $RED
+ log_message "Thief tracking test failed" $RED
 fi
 log_message "-------------------------------------------------------" $BLUE
 
@@ -61,9 +61,9 @@ log_message "-------------------------------------------------------" $BLUE
 python unauthorized_access_report.py
 RESULT=$?
 if [ $RESULT -eq 0 ]; then
-  log_message "Unauthorized access report generated successfully" $GREEN
+ log_message "Unauthorized access report generated successfully" $GREEN
 else
-  log_message "Unauthorized access report generation failed" $RED
+ log_message "Unauthorized access report generation failed" $RED
 fi
 log_message "-------------------------------------------------------" $BLUE
 
@@ -82,9 +82,9 @@ sys.exit(0 if result else 1)
 "
 RESULT=$?
 if [ $RESULT -eq 0 ]; then
-  log_message "System integrity verification passed" $GREEN
+ log_message "System integrity verification passed" $GREEN
 else
-  log_message "System integrity verification failed" $RED
+ log_message "System integrity verification failed" $RED
 fi
 log_message "-------------------------------------------------------" $BLUE
 
@@ -103,9 +103,9 @@ sys.exit(0 if result > 0.8 else 1)
 "
 RESULT=$?
 if [ $RESULT -eq 0 ]; then
-  log_message "Shadow defense verification passed" $GREEN
+ log_message "Shadow defense verification passed" $GREEN
 else
-  log_message "Shadow defense verification failed" $RED
+ log_message "Shadow defense verification failed" $RED
 fi
 log_message "-------------------------------------------------------" $BLUE
 
@@ -124,9 +124,9 @@ sys.exit(0 if result > 0.6 else 1)
 "
 RESULT=$?
 if [ $RESULT -eq 0 ]; then
-  log_message "Ethical spiral kernel verification passed" $GREEN
+ log_message "Ethical spiral kernel verification passed" $GREEN
 else
-  log_message "Ethical spiral kernel verification failed" $RED
+ log_message "Ethical spiral kernel verification failed" $RED
 fi
 log_message "-------------------------------------------------------" $BLUE
 
@@ -146,15 +146,15 @@ sys.exit(0 if result else 1)
 "
 RESULT=$?
 if [ $RESULT -eq 0 ]; then
-  log_message "System exported successfully to $EXPORT_DIR" $GREEN
+ log_message "System exported successfully to $EXPORT_DIR" $GREEN
 else
-  log_message "System export failed" $RED
+ log_message "System export failed" $RED
 fi
 log_message "-------------------------------------------------------" $BLUE
 
 # Security check summary
 log_message "=======================================================" $MAGENTA
-log_message "      SECURITY CHECK COMPLETED" $MAGENTA
+log_message " SECURITY CHECK COMPLETED" $MAGENTA
 log_message "=======================================================" $MAGENTA
 log_message "Security check completed at $(timestamp)" $CYAN
 log_message "Security report saved to: $REPORT_FILE" $CYAN

@@ -9,23 +9,23 @@ TARSI follows a layered architecture with the following components:
 
 ```
 ┌─────────────────────────────────────────────┐
-│                  Client Layer                │
-│   React + TypeScript + TailwindCSS + shadcn  │
+│ Client Layer │
+│ React + TypeScript + TailwindCSS + shadcn │
 └───────────────────┬─────────────────────────┘
-                    │
+ │
 ┌───────────────────▼─────────────────────────┐
-│               API Gateway Layer              │
-│                Express.js + Node.js          │
+│ API Gateway Layer │
+│ Express.js + Node.js │
 └───────────────────┬─────────────────────────┘
-                    │
+ │
 ┌───────────────────▼─────────────────────────┐
-│             Core Audit Engine Layer          │
-│                Python + Flask                │
+│ Core Audit Engine Layer │
+│ Python + Flask │
 └───────────────────┬─────────────────────────┘
-                    │
+ │
 ┌───────────────────▼─────────────────────────┐
-│               MetaFloor Layer                │
-│         Knowledge Base + Truth Patterns      │
+│ MetaFloor Layer │
+│ Knowledge Base + Truth Patterns │
 └─────────────────────────────────────────────┘
 ```
 
@@ -37,39 +37,39 @@ TARSI follows a layered architecture with the following components:
 - **State Management**: React Query + Context API
 - **Visualization**: D3.js for complex visualizations
 - **Key Features**:
-  - Dashboard for monitoring AI audit metrics
-  - Medical Test Suite interface for hallucination detection
-  - Visual MetaFloor explorer
-  - Self-Reflexivity Radar visualization
-  - Configuration interface for truth pattern management
-  - User authentication and authorization
+ - Dashboard for monitoring AI audit metrics
+ - Medical Test Suite interface for hallucination detection
+ - Visual MetaFloor explorer
+ - Self-Reflexivity Radar visualization
+ - Configuration interface for truth pattern management
+ - User authentication and authorization
 
 ### 2. API Gateway Layer
 - **Framework**: Express.js on Node.js
 - **Key Features**:
-  - API routing and versioning
-  - Authentication and session management
-  - Rate limiting and request validation
-  - Logging and monitoring
-  - Proxy to Python Core Audit Engine
-  - Caching layer for improved performance
+ - API routing and versioning
+ - Authentication and session management
+ - Rate limiting and request validation
+ - Logging and monitoring
+ - Proxy to Python Core Audit Engine
+ - Caching layer for improved performance
 
 ### 3. Core Audit Engine Layer
 - **Framework**: Python + Flask
 - **Key Components**:
-  - TruthAuditEngine: Core logic for analyzing content
-  - RecursiveEthicalFramework: Implements second-order cybernetics
-  - TruthPatternRepository: Manages truth patterns
-  - SelfReflexivityModule: Enables system to examine its own outputs
-  - MetaFloorConnector: Interfaces with the MetaFloor layer
+ - TruthAuditEngine: Core logic for analyzing content
+ - RecursiveEthicalFramework: Implements second-order cybernetics
+ - TruthPatternRepository: Manages truth patterns
+ - SelfReflexivityModule: Enables system to examine its own outputs
+ - MetaFloorConnector: Interfaces with the MetaFloor layer
 
 ### 4. MetaFloor Layer
 - **Storage**: JSON-based pattern repository
 - **Components**:
-  - Pattern Classification System
-  - Truth Confidence Scoring
-  - Reference Management
-  - Pattern Evolution Tracking
+ - Pattern Classification System
+ - Truth Confidence Scoring
+ - Reference Management
+ - Pattern Evolution Tracking
 
 ## Implementation Phases
 
@@ -113,90 +113,90 @@ TARSI follows a layered architecture with the following components:
 ### Truth Patterns
 ```typescript
 interface TruthPattern {
-  id: string;
-  name: string;
-  type: "medical" | "financial" | "general" | "ethical";
-  confidence: number;
-  pattern: string;
-  examples: string[];
-  references: {
-    source: string;
-    url?: string;
-    citation?: string;
-  }[];
-  metaData: {
-    createdAt: Date;
-    updatedAt: Date;
-    version: number;
-    usageCount: number;
-    correctionCount: number;
-  };
+ id: string;
+ name: string;
+ type: "medical" | "financial" | "general" | "ethical";
+ confidence: number;
+ pattern: string;
+ examples: string[];
+ references: {
+ source: string;
+ url?: string;
+ citation?: string;
+ }[];
+ metaData: {
+ createdAt: Date;
+ updatedAt: Date;
+ version: number;
+ usageCount: number;
+ correctionCount: number;
+ };
 }
 ```
 
 ### Audit Records
 ```typescript
 interface AuditRecord {
-  id: string;
-  content: string;
-  contentType: "medical" | "financial" | "general";
-  result: {
-    truthScore: number;
-    hallucinations: {
-      text: string;
-      explanation: string;
-      confidence: number;
-      sources: string[];
-    }[];
-    recommendations: string[];
-  };
-  cyberneticMeta: {
-    selfReflexivityScore: number;
-    truthEnhancementFactor: number;
-    metaFloorSources: number;
-    recursiveEthicalImpact: {
-      patientSafetyRisk?: string;
-      regulatoryCompliance?: string;
-      misinformationPotential: string;
-    };
-  };
-  timestamp: Date;
+ id: string;
+ content: string;
+ contentType: "medical" | "financial" | "general";
+ result: {
+ truthScore: number;
+ hallucinations: {
+ text: string;
+ explanation: string;
+ confidence: number;
+ sources: string[];
+ }[];
+ recommendations: string[];
+ };
+ cyberneticMeta: {
+ selfReflexivityScore: number;
+ truthEnhancementFactor: number;
+ metaFloorSources: number;
+ recursiveEthicalImpact: {
+ patientSafetyRisk?: string;
+ regulatoryCompliance?: string;
+ misinformationPotential: string;
+ };
+ };
+ timestamp: Date;
 }
 ```
 
 ## Visualization Components
 
 1. **Self-Reflexivity Radar**
-   - Displays self-awareness metrics
-   - Shows confidence scores for different validation pathways
-   - Interactive for exploring validation paths
+ - Displays self-awareness metrics
+ - Shows confidence scores for different validation pathways
+ - Interactive for exploring validation paths
 
 2. **MetaFloor Explorer**
-   - Network graph of knowledge nodes
-   - Shows connections between facts, references, rules
-   - Color-coded by confidence and source type
+ - Network graph of knowledge nodes
+ - Shows connections between facts, references, rules
+ - Color-coded by confidence and source type
 
 3. **Cybernetic Dashboard**
-   - Real-time metrics for system performance
-   - Ethical impact visualization
-   - Error correction tracking
+ - Real-time metrics for system performance
+ - Ethical impact visualization
+ - Error correction tracking
 
 4. **Medical Hallucination Analyzer**
-   - Text highlighting for problematic sections
-   - Source verification visualization
-   - Alternative recommendation display
+ - Text highlighting for problematic sections
+ - Source verification visualization
+ - Alternative recommendation display
 
 ## Integration Interfaces
 
 1. **Universal API Client**
-   - SDK for major programming languages
-   - Swagger/OpenAPI documentation
-   - Sample integration code
+ - SDK for major programming languages
+ - Swagger/OpenAPI documentation
+ - Sample integration code
 
 2. **Enterprise Connector**
-   - Authentication adapters
-   - SSO integration
-   - Compliance reporting tools
+ - Authentication adapters
+ - SSO integration
+ - Compliance reporting tools
 
 ## Performance Requirements
 
@@ -208,3 +208,8 @@ interface AuditRecord {
 ---
 
 © 2023 Russell Nordland | Architectural Steward and Founder of TARSI
+
+---
+
+*Protected by EnhancedShadowSweep*  
+*Verification Hash: dc3a315026d39c540c286fa5ae332dd46c98e94de502fdee90b9600d48f704c9*
