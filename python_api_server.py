@@ -1928,6 +1928,296 @@ def get_simulation_parameters():
 
 # Simulation disabled
 # @app.route('/api/simulation/types', methods=['GET'])
+
+# Spiral Membership System API Routes
+@app.route('/api/spiral/join', methods=['POST'])
+def join_spiral():
+    """Request to join the TrueAlphaSpiral."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Validate request body
+    if not request.json:
+        return jsonify({"success": False, "message": "Request body is required"})
+    
+    # Process the membership request
+    try:
+        result = spiral_membership_system.request_membership(request.json)
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error processing membership request: {str(e)}")
+        return jsonify({"success": False, "message": "Error processing membership request"})
+
+@app.route('/api/spiral/verify/<applicant_id>', methods=['POST'])
+def verify_spiral_applicant(applicant_id):
+    """Verify an applicant using their verification code."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Validate request body
+    if not request.json or 'verification_code' not in request.json:
+        return jsonify({"success": False, "message": "Verification code is required"})
+    
+    # Process the verification
+    try:
+        result = spiral_membership_system.verify_applicant(
+            applicant_id,
+            request.json['verification_code']
+        )
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error verifying applicant: {str(e)}")
+        return jsonify({"success": False, "message": "Error verifying applicant"})
+
+@app.route('/api/spiral/payment/<applicant_id>', methods=['POST'])
+def record_spiral_payment(applicant_id):
+    """Record a payment for a spiral membership."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Validate request body
+    if not request.json:
+        return jsonify({"success": False, "message": "Payment data is required"})
+    
+    # Process the payment
+    try:
+        result = spiral_membership_system.record_payment(applicant_id, request.json)
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error recording payment: {str(e)}")
+        return jsonify({"success": False, "message": f"Error recording payment: {str(e)}"})
+
+@app.route('/api/spiral/payment/tiers', methods=['GET'])
+def get_payment_tiers():
+    """Get available payment tiers."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Get the payment tiers
+    try:
+        tiers = spiral_membership_system.get_payment_tiers()
+        return jsonify({
+            "success": True,
+            "tiers": tiers
+        })
+    except Exception as e:
+        print(f"Error getting payment tiers: {str(e)}")
+        return jsonify({"success": False, "message": "Error getting payment tiers"})
+
+@app.route('/api/spiral/payment/status/<applicant_id>', methods=['GET'])
+def get_payment_status(applicant_id):
+    """Get payment status for an applicant."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Get the payment status
+    try:
+        status = spiral_membership_system.get_payment_status(applicant_id)
+        return jsonify(status)
+    except Exception as e:
+        print(f"Error getting payment status: {str(e)}")
+        return jsonify({"success": False, "message": "Error getting payment status"})
+
+@app.route('/api/spiral/approve/<applicant_id>', methods=['POST'])
+def approve_spiral_applicant(applicant_id):
+    """Approve an applicant for membership (steward only)."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Validate request body
+    if not request.json or 'approved_by' not in request.json:
+        return jsonify({"success": False, "message": "Approved by field is required"})
+    
+    # Verify approver is the steward (Russell Nordland)
+    approver = request.json.get('approved_by')
+    if approver != "Russell Nordland" and not approver.startswith(spiral_membership_system.steward_id):
+        return jsonify({"success": False, "message": "Only the steward can approve applications"})
+    
+    # Get optional parameters
+    level = request.json.get('level', 'observer')
+    notes = request.json.get('notes')
+    
+    # Process the approval
+    try:
+        result = spiral_membership_system.approve_applicant(
+            applicant_id,
+            approver,
+            level=level,
+            notes=notes
+        )
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error approving applicant: {str(e)}")
+        return jsonify({"success": False, "message": "Error approving applicant"})
+
+@app.route('/api/spiral/reject/<applicant_id>', methods=['POST'])
+def reject_spiral_applicant(applicant_id):
+    """Reject an applicant for membership (steward only)."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Validate request body
+    if not request.json or 'rejected_by' not in request.json:
+        return jsonify({"success": False, "message": "Rejected by field is required"})
+    
+    # Verify rejecter is the steward (Russell Nordland)
+    rejecter = request.json.get('rejected_by')
+    if rejecter != "Russell Nordland" and not rejecter.startswith(spiral_membership_system.steward_id):
+        return jsonify({"success": False, "message": "Only the steward can reject applications"})
+    
+    # Get optional reason
+    reason = request.json.get('reason')
+    
+    # Process the rejection
+    try:
+        result = spiral_membership_system.reject_applicant(
+            applicant_id,
+            rejecter,
+            reason=reason
+        )
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error rejecting applicant: {str(e)}")
+        return jsonify({"success": False, "message": "Error rejecting applicant"})
+
+@app.route('/api/spiral/members', methods=['GET'])
+def get_spiral_members():
+    """Get all spiral members (with limited information)."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Default to not including sensitive information
+    include_sensitive = request.args.get('include_sensitive', 'false').lower() == 'true'
+    
+    # If requesting sensitive info, verify the requester is the steward
+    if include_sensitive:
+        if 'steward_id' not in request.args or request.args.get('steward_id') != spiral_membership_system.steward_id:
+            include_sensitive = False
+    
+    # Get the members
+    try:
+        members = spiral_membership_system.get_all_members(include_sensitive=include_sensitive)
+        return jsonify({
+            "success": True,
+            "members": members,
+            "count": len(members),
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        print(f"Error getting members: {str(e)}")
+        return jsonify({"success": False, "message": "Error getting members"})
+
+@app.route('/api/spiral/pending', methods=['GET'])
+def get_pending_applications():
+    """Get all pending membership applications (steward only)."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Verify the requester is the steward
+    if 'steward_id' not in request.args or request.args.get('steward_id') != spiral_membership_system.steward_id:
+        return jsonify({"success": False, "message": "Only the steward can view pending applications"})
+    
+    # Get the pending applications
+    try:
+        applications = spiral_membership_system.get_pending_applications()
+        return jsonify({
+            "success": True,
+            "applications": applications,
+            "count": len(applications),
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        print(f"Error getting pending applications: {str(e)}")
+        return jsonify({"success": False, "message": "Error getting pending applications"})
+
+@app.route('/api/spiral/authenticate', methods=['POST'])
+def authenticate_spiral_member():
+    """Authenticate a spiral member using their auth hash."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Validate request body
+    if not request.json or 'member_id' not in request.json or 'auth_hash' not in request.json:
+        return jsonify({"success": False, "message": "Member ID and auth hash are required"})
+    
+    # Process the authentication
+    try:
+        authenticated = spiral_membership_system.authenticate_member(
+            request.json['member_id'],
+            request.json['auth_hash']
+        )
+        
+        if authenticated:
+            member = spiral_membership_system.get_member(request.json['member_id'])
+            return jsonify({
+                "success": True,
+                "authenticated": True,
+                "member": {
+                    "id": member["id"],
+                    "name": member["name"],
+                    "role": member["role"],
+                    "level": member["level"],
+                    "join_date": member["join_date"]
+                }
+            })
+        else:
+            return jsonify({"success": True, "authenticated": False, "message": "Authentication failed"})
+    except Exception as e:
+        print(f"Error authenticating member: {str(e)}")
+        return jsonify({"success": False, "message": "Error authenticating member"})
+
+@app.route('/api/spiral/update-level/<member_id>', methods=['PUT'])
+def update_spiral_member_level(member_id):
+    """Update a member's level (steward only)."""
+    global spiral_membership_system
+    
+    if not spiral_membership_system:
+        return jsonify({"success": False, "message": "Spiral Membership System not initialized"})
+    
+    # Validate request body
+    if not request.json or 'updated_by' not in request.json or 'new_level' not in request.json:
+        return jsonify({"success": False, "message": "Updated by and new level fields are required"})
+    
+    # Verify updater is the steward (Russell Nordland)
+    updater = request.json.get('updated_by')
+    if updater != "Russell Nordland" and not updater.startswith(spiral_membership_system.steward_id):
+        return jsonify({"success": False, "message": "Only the steward can update member levels"})
+    
+    # Get optional reason
+    reason = request.json.get('reason')
+    
+    # Process the level update
+    try:
+        result = spiral_membership_system.update_member_level(
+            member_id,
+            request.json['new_level'],
+            updater,
+            reason=reason
+        )
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error updating member level: {str(e)}")
+        return jsonify({"success": False, "message": "Error updating member level"})
 def get_simulation_types():
     """Get available simulation types."""
     simulation_types = [

@@ -46,11 +46,32 @@ class SpiralMembership:
         """Initialize the Spiral Membership system."""
         self.members = {}
         self.pending_members = {}
+        self.payment_records = {}
         self.alignment_thresholds = {
             "intent": 0.75,  # Minimum intent score required
             "ethical": 0.80,  # Minimum ethical alignment score
             "resonance": 0.70,  # Minimum resonance with core principles
             "sovereignty": 0.85  # Minimum sovereignty respect score
+        }
+        self.payment_tiers = {
+            "basic": {
+                "name": "Basic Access",
+                "amount": 15.00,
+                "description": "Basic access to join the spiral",
+                "currency": "USD"
+            },
+            "contributor": {
+                "name": "Contributor Access",
+                "amount": 45.00,
+                "description": "Enhanced access with contributor privileges",
+                "currency": "USD"
+            },
+            "guardian": {
+                "name": "Guardian Access",
+                "amount": 99.00,
+                "description": "Premium access with guardian capabilities",
+                "currency": "USD"
+            }
         }
         self.membership_levels = {
             "observer": {
@@ -186,12 +207,14 @@ class SpiralMembership:
             "applicant_id": applicant_id,
             "verification_needed": pending_record["status"] == "verification_needed",
             "status": pending_record["status"],
-            "message": "Your membership request has been received and is being processed."
+            "message": "Your membership request has been received and is being processed.",
+            "payment_required": True,
+            "payment_tiers": self.payment_tiers
         }
         
         if pending_record["status"] == "verification_needed":
             response["verification_code"] = pending_record["verification_code"]
-            response["message"] = "Please complete verification to confirm your request."
+            response["message"] = "Please complete verification and payment to confirm your request."
         
         logger.info(f"New membership request from {applicant_data.get('name')} with ID {applicant_id}")
         return response
@@ -242,11 +265,22 @@ class SpiralMembership:
         pending_record = self.pending_members[applicant_id]
         
         # Check if the application is ready for approval
-        valid_statuses = ["verified", "review_needed"]
+        valid_statuses = ["verified", "review_needed", "ready_for_approval"]
         if pending_record["status"] not in valid_statuses:
             return {
                 "success": False, 
                 "error": f"Application cannot be approved at this time. Current status: {pending_record['status']}"
+            }
+        
+        # Check if payment has been received
+        has_paid = "payment_status" in pending_record and pending_record["payment_status"] == "paid"
+        # Allow the steward to override payment requirement (this will be checked in the API layer)
+        override_payment = False
+        
+        if not has_paid and not override_payment and approved_by != "Russell Nordland":
+            return {
+                "success": False,
+                "error": "Payment is required before approval. Use override_payment=true to bypass (steward only)."
             }
         
         # Validate the level
@@ -523,12 +557,139 @@ class SpiralMembership:
         auth_string = f"{user_id}:{timestamp}:{random_component}:TrueAlphaSpiral"
         return hashlib.sha256(auth_string.encode()).hexdigest()
     
+    def record_payment(self, applicant_id, payment_data):
+        """Record a payment from an applicant."""
+        if not self.initialized:
+            logger.warning("Membership system not initialized")
+            return {"success": False, "error": "Membership system not initialized"}
+        
+        # Check if the applicant exists
+        if applicant_id not in self.pending_members and applicant_id not in self.members:
+            return {"success": False, "error": "Applicant or member not found"}
+        
+        # Validate payment data
+        required_fields = ["payment_id", "amount", "currency", "payment_date", "tier"]
+        for field in required_fields:
+            if field not in payment_data:
+                return {"success": False, "error": f"Missing payment field: {field}"}
+        
+        # Verify payment tier exists
+        tier = payment_data.get("tier")
+        if tier not in self.payment_tiers:
+            return {"success": False, "error": f"Invalid payment tier: {tier}"}
+        
+        # Create payment record
+        payment_record = {
+            "id": payment_data.get("payment_id"),
+            "applicant_id": applicant_id,
+            "tier": tier,
+            "amount": payment_data.get("amount"),
+            "currency": payment_data.get("currency"),
+            "payment_date": payment_data.get("payment_date"),
+            "status": "completed",
+            "payment_method": payment_data.get("payment_method", "unknown"),
+            "notes": payment_data.get("notes", [])
+        }
+        
+        # Store the payment record
+        self.payment_records[payment_record["id"]] = payment_record
+        
+        # Update applicant status if pending
+        if applicant_id in self.pending_members:
+            pending_record = self.pending_members[applicant_id]
+            pending_record["payment_status"] = "paid"
+            pending_record["payment_id"] = payment_record["id"]
+            pending_record["payment_tier"] = tier
+            pending_record["notes"].append(f"Payment received: {payment_data.get('amount')} {payment_data.get('currency')} for {self.payment_tiers[tier]['name']}")
+            
+            # If already verified, mark as ready for approval
+            if pending_record["status"] == "verified":
+                pending_record["status"] = "ready_for_approval"
+        
+        # Update member status if already a member (renewal or upgrade)
+        elif applicant_id in self.members:
+            member_record = self.members[applicant_id]
+            if "payments" not in member_record:
+                member_record["payments"] = []
+            member_record["payments"].append(payment_record["id"])
+            
+            # Record the activity
+            self.record_member_activity(
+                applicant_id,
+                "payment",
+                {"payment_id": payment_record["id"], "tier": tier, "amount": payment_data.get("amount")}
+            )
+        
+        # Save updated data
+        self._save_membership_data()
+        
+        logger.info(f"Payment recorded for {applicant_id}: {payment_data.get('amount')} {payment_data.get('currency')} for {tier} tier")
+        return {
+            "success": True,
+            "payment_id": payment_record["id"],
+            "message": "Payment recorded successfully"
+        }
+    
+    def get_payment_tiers(self):
+        """Get available payment tiers."""
+        if not self.initialized:
+            logger.warning("Membership system not initialized")
+            return []
+        
+        return self.payment_tiers
+    
+    def get_payment_status(self, applicant_id):
+        """Get payment status for an applicant."""
+        if not self.initialized:
+            logger.warning("Membership system not initialized")
+            return {"success": False, "error": "Membership system not initialized"}
+        
+        # Check pending members
+        if applicant_id in self.pending_members:
+            pending_record = self.pending_members[applicant_id]
+            if "payment_status" in pending_record and pending_record["payment_status"] == "paid":
+                payment_id = pending_record.get("payment_id")
+                payment_record = self.payment_records.get(payment_id, {})
+                
+                return {
+                    "success": True,
+                    "status": "paid",
+                    "payment_id": payment_id,
+                    "tier": pending_record.get("payment_tier"),
+                    "amount": payment_record.get("amount"),
+                    "payment_date": payment_record.get("payment_date")
+                }
+            else:
+                return {"success": True, "status": "unpaid"}
+        
+        # Check members for most recent payment
+        elif applicant_id in self.members:
+            member = self.members[applicant_id]
+            if "payments" in member and member["payments"]:
+                # Get the most recent payment
+                most_recent_payment_id = member["payments"][-1]
+                payment = self.payment_records.get(most_recent_payment_id, {})
+                
+                return {
+                    "success": True,
+                    "status": "paid",
+                    "payment_id": most_recent_payment_id,
+                    "tier": payment.get("tier"),
+                    "amount": payment.get("amount"),
+                    "payment_date": payment.get("payment_date")
+                }
+            else:
+                return {"success": True, "status": "no_payment_record"}
+        
+        return {"success": False, "error": "Applicant or member not found"}
+    
     def _save_membership_data(self):
         """Save membership data to persistent storage."""
         try:
             data = {
                 "members": self.members,
                 "pending_members": self.pending_members,
+                "payment_records": self.payment_records,
                 "last_updated": datetime.now().isoformat()
             }
             
@@ -555,7 +716,9 @@ class SpiralMembership:
                     self.members[self.steward_id] = steward_record
                 
                 self.pending_members = data.get("pending_members", {})
-                logger.info(f"Loaded {len(self.members)} members and {len(self.pending_members)} pending applications")
+                self.payment_records = data.get("payment_records", {})
+                
+                logger.info(f"Loaded {len(self.members)} members, {len(self.pending_members)} pending applications, and {len(self.payment_records)} payment records")
                 return True
             return False
         except Exception as e:
