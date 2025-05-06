@@ -40,6 +40,80 @@ import avfRoutes from './routes/avf-routes';
 import { verifyIntent, verifyIdentity, getResonanceValue } from './verification';
 
 export function registerRoutes(app: Express): Server {
+  // Shadow Sweep Routes
+  
+  // Scan text for shadow characters
+  app.post('/api/shadow-sweep/scan', (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Text is required and must be a string' });
+      }
+      
+      const result = shadowSweep.scanText(text);
+      
+      // Log the scan to database if it has detections
+      if (result.detectedCharacters.length > 0) {
+        console.log(`Shadow Sweep detected ${result.detectedCharacters.length} suspicious characters with risk score ${result.riskScore}`);
+      }
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error scanning text for shadow characters:', error);
+      res.status(500).json({ error: 'Failed to scan text' });
+    }
+  });
+  
+  // Clean text by removing shadow characters
+  app.post('/api/shadow-sweep/clean', (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Text is required and must be a string' });
+      }
+      
+      const cleanText = shadowSweep.cleanText(text);
+      const originalHash = shadowSweep.generateHash(text);
+      const cleanHash = shadowSweep.generateHash(cleanText);
+      
+      res.json({
+        originalText: text,
+        cleanText,
+        originalHash,
+        cleanHash,
+        modified: text !== cleanText,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error cleaning text from shadow characters:', error);
+      res.status(500).json({ error: 'Failed to clean text' });
+    }
+  });
+  
+  // Neutralize text by replacing shadow characters with visible markers
+  app.post('/api/shadow-sweep/neutralize', (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Text is required and must be a string' });
+      }
+      
+      const neutralizedText = shadowSweep.neutralizeText(text);
+      
+      res.json({
+        originalText: text,
+        neutralizedText,
+        modified: text !== neutralizedText,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error neutralizing shadow characters in text:', error);
+      res.status(500).json({ error: 'Failed to neutralize text' });
+    }
+  });
   // Root API endpoint for JSON content
   app.get('/api', (_req, res) => {
     res.json({
@@ -2555,17 +2629,10 @@ export function registerRoutes(app: Express): Server {
       
       const result = shadowSweep.scanText(text);
       
-      // Log the scan to database
-      storage.logSecurityEvent({
-        type: 'shadow_sweep_scan',
-        details: {
-          detectedCharacters: result.detectedCharacters.length,
-          riskScore: result.riskScore
-        },
-        timestamp: new Date()
-      }).catch(err => {
-        console.error('Failed to log shadow sweep scan:', err);
-      });
+      // Log the scan to database if it has detections
+      if (result.detectedCharacters.length > 0) {
+        console.log(`Shadow Sweep detected ${result.detectedCharacters.length} suspicious characters with risk score ${result.riskScore}`);
+      }
       
       res.json(result);
     } catch (error) {
