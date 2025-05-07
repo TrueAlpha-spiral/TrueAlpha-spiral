@@ -109,12 +109,28 @@ def initialize_system() -> Dict[str, Any]:
                 results["components"]["authorship_verification"] = "verified" if is_verified else "failed"
                 results["authorship_score"] = score
                 logging.info(f"Authorship verification completed with score: {score}")
+                
+                # Verify GitHub repository root hash
+                logging.info("Step 2.1: Verifying GitHub repository root hash...")
+                github_verified, github_details = auth_module.verify_github_root_hash()
+                results["components"]["github_verification"] = "verified" if github_verified else "failed"
+                results["github_repository"] = github_details["github_repository"]
+                results["root_hash"] = github_details["actual_hash"]
+                
+                if github_verified:
+                    logging.info(f"GitHub repository verification successful")
+                    logging.info(f"Repository: {github_details['github_repository']}")
+                    logging.info(f"Root hash: {github_details['actual_hash']}")
+                else:
+                    logging.error(f"GitHub repository verification failed")
             else:
                 logging.error("Failed to load authorship verification module")
                 results["components"]["authorship_verification"] = "failed"
+                results["components"]["github_verification"] = "failed"
         except Exception as e:
             logging.error(f"Error during authorship verification: {str(e)}")
             results["components"]["authorship_verification"] = "failed"
+            results["components"]["github_verification"] = "failed"
         
         # Step 3: Initialize System Components
         logging.info("Step 3: Initializing system components...")
@@ -159,6 +175,12 @@ def main():
         print("\n" + "=" * 80)
         print("TRUEALPHASPIRAL SYSTEM READY")
         print("All components initialized and verified")
+        
+        # Display GitHub verification details if available
+        if "github_repository" in results and "root_hash" in results:
+            print(f"\nGitHub Repository: {results['github_repository']}")
+            print(f"Root Hash: {results['root_hash']}")
+            
         print("=" * 80)
     else:
         print("\n" + "=" * 80)
