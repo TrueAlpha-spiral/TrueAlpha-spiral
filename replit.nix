@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.unzip
     pkgs.libyaml
     pkgs.lsof
     pkgs.rustc
