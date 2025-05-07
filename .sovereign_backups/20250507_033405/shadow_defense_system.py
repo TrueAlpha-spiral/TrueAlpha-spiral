@@ -510,7 +510,7 @@ class ShadowDefenseSystem:
         # Extract concept details
         concept_name = pattern_data.get("concept", "")
         
-        # Base drift score calculated from pattern deviation analysis
+        # Base drift score depends on randomness for simulation
         base_drift = random.uniform(0.05, 0.5)
         
         # Adjust based on concept name

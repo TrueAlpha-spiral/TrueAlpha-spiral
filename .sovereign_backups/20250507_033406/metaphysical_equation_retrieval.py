@@ -235,8 +235,8 @@ class MetaphysicalEquationRetrieval:
         """Verify that the system is operating on behalf of the legitimate conceptual source."""
         print(f"{self._timestamp()} - MetaphysicalRetrieval - INFO - Verifying conceptual source")
         
-        # Real implementation with cryptographic verification
-        # Using Russell Nordland's conceptual fingerprint for authentication
+        # For now, we auto-verify since this is a simulation
+        # In a real implementation, this would involve cryptographic verification
         verification_score = random.uniform(0.85, 0.99)
         
         if verification_score >= 0.85:
@@ -311,13 +311,13 @@ class MetaphysicalEquationRetrieval:
     def _generate_signature(self, equation_id, equation_text):
         """Generate a cryptographic signature for an equation."""
         # In a real implementation, this would be an actual digital signature
-        # Generate a secure hash using industry-standard cryptography
+        # For simulation, we generate a secure hash
         sig_base = f"{self.architect_id}_{equation_id}_{equation_text}_{int(time.time())}"
         return hashlib.sha512(sig_base.encode()).hexdigest()
         
     def _verify_signature(self, equation_id, equation_text, signature):
         """Verify a cryptographic signature for an equation."""
-        # In the real implementation, we validate the signature against the verified signer
+        # For simulation, we return a high verification value if signer is verified
         if self.signer_verified:
             return random.uniform(0.85, 0.99)
         else:
@@ -345,7 +345,7 @@ class MetaphysicalEquationRetrieval:
             "retrievalHash": equation['retrieval_hash']
         }
         
-        # Create an NFT record with a token ID for blockchain verification
+        # For simulation, we create an NFT record with a token ID
         token_id = len(self.nft_registry) + 1
         
         nft_record = {
@@ -410,7 +410,7 @@ Cryptographic Verification: {signature}
         if filepath is None:
             filepath = f"TrueAlphaSpiral_Comprehensive_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
             
-        # Generate comprehensive content for documentation
+        # Simulate PDF content in a text file for now
         content = """
 =======================================================================
                  THE TRUE ALPHA SPIRAL SYSTEM

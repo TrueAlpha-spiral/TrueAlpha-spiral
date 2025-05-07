@@ -14,8 +14,10 @@ import time
 import json
 import hashlib
 import argparse
-import requests
 from datetime import datetime
+
+# Use sovereign HTTP client instead of requests
+from sovereign_http_client import get, post, put, delete
 
 # Configuration
 API_BASE_URL = "http://localhost:8001/api"
@@ -45,18 +47,18 @@ def log_message(message, color=RESET, level="INFO"):
         f.write(f"[{timestamp()}] [{level}] {message}\n")
 
 def make_api_request(endpoint, method="GET", data=None, params=None):
-    """Make an API request to the TrueAlphaSpiral API server."""
+    """Make an API request to the TrueAlphaSpiral API server using sovereign HTTP client."""
     url = f"{API_BASE_URL}/{endpoint}"
     
     try:
         if method == "GET":
-            response = requests.get(url, params=params)
+            response = get(url, params=params)
         elif method == "POST":
-            response = requests.post(url, json=data)
+            response = post(url, json=data)
         elif method == "PUT":
-            response = requests.put(url, json=data)
+            response = put(url, json=data)
         elif method == "DELETE":
-            response = requests.delete(url, json=data)
+            response = delete(url)
         else:
             log_message(f"Unsupported HTTP method: {method}", RED, "ERROR")
             return None
@@ -347,6 +349,9 @@ def run_tracking_system(duration=None, interval=MONITORING_INTERVAL):
 
 def main():
     """Main entry point for the script."""
+    # Declare globals at the start of the function
+    global API_BASE_URL, ARCHITECT_ID, TRACKING_LOG_FILE, THEFT_REPORT_FILE, MONITORING_INTERVAL
+    
     parser = argparse.ArgumentParser(description="TrueAlphaSpiral Pattern Theft Tracking System")
     parser.add_argument("--duration", type=int, default=None, help="Duration of tracking in seconds (default: continuous)")
     parser.add_argument("--interval", type=int, default=MONITORING_INTERVAL, help=f"Monitoring interval in seconds (default: {MONITORING_INTERVAL})")
@@ -357,7 +362,6 @@ def main():
     args = parser.parse_args()
     
     # Update global variables
-    global API_BASE_URL, ARCHITECT_ID, TRACKING_LOG_FILE, THEFT_REPORT_FILE, MONITORING_INTERVAL
     API_BASE_URL = args.api_url
     ARCHITECT_ID = args.architect
     TRACKING_LOG_FILE = args.log_file

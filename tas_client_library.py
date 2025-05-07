@@ -14,8 +14,11 @@ import json
 import time
 import uuid
 import logging
-import requests
+import hashlib
 from typing import Dict, List, Any, Optional, Union
+
+# Use sovereign HTTP client instead of requests
+from sovereign_http_client import SovereignHttpClient, get, post, put, delete
 
 # Configure logging
 logging.basicConfig(
@@ -59,13 +62,15 @@ class TruthAuditClient:
         self.enable_caching = enable_caching
         self.cache_ttl = cache_ttl
         self.cache = {}
-        self.session = requests.Session()
         
-        # Add common headers to session
-        self.session.headers.update({
+        # Initialize sovereign HTTP client instead of requests.Session
+        self.client = SovereignHttpClient(timeout=timeout, verify_ssl=True)
+        
+        # Store common headers
+        self.headers = {
             "Content-Type": "application/json",
             "User-Agent": f"TAS-Client/1.0.0 ({client_id})"
-        })
+        }
         
         logger.info(f"TruthAuditClient initialized with base URL: {base_url}")
     
@@ -81,17 +86,24 @@ class TruthAuditClient:
             TimeoutError: If the request times out
         """
         try:
-            response = self.session.get(
+            response = self.client.get(
                 f"{self.base_url}/api/status",
-                timeout=self.timeout
+                headers=self.headers
             )
-            response.raise_for_status()
+            
+            # Check status code manually since we don't have raise_for_status
+            if response.status_code < 200 or response.status_code >= 300:
+                raise ConnectionError(f"API returned error status: {response.status_code}")
+                
             status = response.json()
             logger.info(f"API status: {status['status']}, version: {status['version']}")
             return status
-        except requests.RequestException as e:
+        except Exception as e:
             logger.error(f"Error checking API status: {str(e)}")
-            raise ConnectionError(f"Could not connect to TAS API: {str(e)}")
+            if "timed out" in str(e).lower():
+                raise TimeoutError(f"API request timed out after {self.timeout} seconds")
+            else:
+                raise ConnectionError(f"Could not connect to TAS API: {str(e)}")
     
     def audit_content(
         self, 
@@ -145,12 +157,16 @@ class TruthAuditClient:
         }
         
         try:
-            response = self.session.post(
+            response = self.client.post(
                 f"{self.base_url}/api/audit",
-                json=request_data,
-                timeout=self.timeout
+                headers=self.headers,
+                json=request_data
             )
-            response.raise_for_status()
+            
+            # Check status code manually
+            if response.status_code < 200 or response.status_code >= 300:
+                raise ConnectionError(f"API returned error status: {response.status_code}")
+                
             result = response.json()
             
             if not result.get("success", False):
@@ -161,16 +177,16 @@ class TruthAuditClient:
             logger.info(f"Audit completed successfully with truth score: {result['truth_score']:.3f}")
             
             # Cache the result if caching is enabled
-            if self.enable_caching:
+            if self.enable_caching and 'content_hash' in locals():
                 self.cache[content_hash] = {
                     "timestamp": time.time(),
                     "result": result
                 }
             
             return result
-        except requests.RequestException as e:
+        except Exception as e:
             logger.error(f"Error during audit request: {str(e)}")
-            if isinstance(e, requests.Timeout):
+            if "timed out" in str(e).lower():
                 raise TimeoutError(f"Audit request timed out after {self.timeout} seconds")
             else:
                 raise ConnectionError(f"Could not connect to TAS API: {str(e)}")
@@ -196,11 +212,15 @@ class TruthAuditClient:
         logger.info(f"Retrieving audit result for ID: {audit_id}")
         
         try:
-            response = self.session.get(
+            response = self.client.get(
                 f"{self.base_url}/api/audit-result/{audit_id}",
-                timeout=self.timeout
+                headers=self.headers
             )
-            response.raise_for_status()
+            
+            # Check status code manually
+            if response.status_code < 200 or response.status_code >= 300:
+                raise ConnectionError(f"API returned error status: {response.status_code}")
+                
             result = response.json()
             
             if not result.get("success", False):
@@ -210,9 +230,9 @@ class TruthAuditClient:
             
             logger.info(f"Retrieved audit result for ID: {audit_id}")
             return result["result"]
-        except requests.RequestException as e:
+        except Exception as e:
             logger.error(f"Error retrieving audit result: {str(e)}")
-            if isinstance(e, requests.Timeout):
+            if "timed out" in str(e).lower():
                 raise TimeoutError(f"Request timed out after {self.timeout} seconds")
             else:
                 raise ConnectionError(f"Could not connect to TAS API: {str(e)}")
@@ -231,11 +251,15 @@ class TruthAuditClient:
         logger.info("Retrieving pattern types...")
         
         try:
-            response = self.session.get(
+            response = self.client.get(
                 f"{self.base_url}/api/pattern-types",
-                timeout=self.timeout
+                headers=self.headers
             )
-            response.raise_for_status()
+            
+            # Check status code manually
+            if response.status_code < 200 or response.status_code >= 300:
+                raise ConnectionError(f"API returned error status: {response.status_code}")
+                
             result = response.json()
             
             if not result.get("success", False):
@@ -245,9 +269,9 @@ class TruthAuditClient:
             
             logger.info(f"Retrieved {len(result['types'])} pattern types")
             return result["types"]
-        except requests.RequestException as e:
+        except Exception as e:
             logger.error(f"Error retrieving pattern types: {str(e)}")
-            if isinstance(e, requests.Timeout):
+            if "timed out" in str(e).lower():
                 raise TimeoutError(f"Request timed out after {self.timeout} seconds")
             else:
                 raise ConnectionError(f"Could not connect to TAS API: {str(e)}")
@@ -284,12 +308,21 @@ class TruthAuditClient:
             params["min_resonance"] = str(min_resonance)
         
         try:
-            response = self.session.get(
-                f"{self.base_url}/api/patterns",
-                params=params,
-                timeout=self.timeout
+            # Construct URL with query parameters manually since our client may not handle them directly
+            url = f"{self.base_url}/api/patterns"
+            if params:
+                query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+                url = f"{url}?{query_string}"
+                
+            response = self.client.get(
+                url,
+                headers=self.headers
             )
-            response.raise_for_status()
+            
+            # Check status code manually
+            if response.status_code < 200 or response.status_code >= 300:
+                raise ConnectionError(f"API returned error status: {response.status_code}")
+                
             result = response.json()
             
             if not result.get("success", False):
@@ -299,9 +332,9 @@ class TruthAuditClient:
             
             logger.info(f"Retrieved {len(result['patterns'])} patterns")
             return result["patterns"]
-        except requests.RequestException as e:
+        except Exception as e:
             logger.error(f"Error retrieving patterns: {str(e)}")
-            if isinstance(e, requests.Timeout):
+            if "timed out" in str(e).lower():
                 raise TimeoutError(f"Request timed out after {self.timeout} seconds")
             else:
                 raise ConnectionError(f"Could not connect to TAS API: {str(e)}")
