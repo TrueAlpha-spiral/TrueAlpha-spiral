@@ -1,266 +1,261 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import * as path from "path";
-import * as fs from "fs";
-import { exec } from "child_process";
+import { storage } from "./storage";
+import { WebSocketServer } from 'ws';
+import { readFileSync } from 'fs';
+import path from 'path';
+import crypto from 'crypto';
 
-// Import Sovereign Protection System
-const { registerSovereignRoutes } = require('./sovereign_protection');
-
-// Import Integrity Enforcement
-const { verifyIntegrity, createIntegritySeal } = require('../enforce_sovereign_protection');
-
-// Run anti-parent protection when server starts
-try {
-  console.log("Running Anti-Parent Protection System to remove any parent references...");
-  exec('node anti_parent_protection.js replace', (error, stdout, stderr) => {
-    if (error) {
-      console.error("Error running Anti-Parent Protection:", error);
-    } else {
-      console.log("Anti-Parent Protection complete:", stdout);
+// Sovereignty verification service
+class SovereigntyVerificationService {
+  // Calculate hash for a document
+  calculateDocumentHash(content: string): string {
+    return crypto.createHash('sha256').update(content).digest('hex');
+  }
+  
+  // Read the content of a verification document
+  readVerificationDocument(documentName: string): string {
+    try {
+      const filePath = path.join(process.cwd(), documentName);
+      return readFileSync(filePath, 'utf8');
+    } catch (error) {
+      console.error(`Error reading document ${documentName}:`, error);
+      return '';
     }
-  });
-} catch (err) {
-  console.error("Failed to run Anti-Parent Protection:", err);
+  }
+  
+  // Store verification hash for a document
+  async storeVerificationHash(documentType: string, hashValue: string): Promise<void> {
+    await storage.createVerificationHash({
+      documentType,
+      hashValue,
+      verificationMethod: 'SHA256'
+    });
+  }
+  
+  // Implement the mathematical verification formula: V = V₀ + ∑ᵢ (Mᵢ × Rᵢ)
+  calculateVerificationStrength(
+    baseStrength: number,
+    challenges: Array<{ magnitude: number, response: number }>
+  ): number {
+    let sum = baseStrength;
+    
+    // Apply the verification equation: V = V₀ + ∑ᵢ (Mᵢ × Rᵢ)
+    for (const challenge of challenges) {
+      sum += challenge.magnitude * challenge.response;
+    }
+    
+    return sum;
+  }
+  
+  // Verify core documents exist and calculate their hashes
+  async verifyDocumentIntegrity(): Promise<{ 
+    status: 'verified' | 'partial' | 'failed',
+    results: Array<{ document: string, verified: boolean, hash?: string }>
+  }> {
+    const documents = [
+      'DECLARATION_OF_SOLE_AUTHORITY.md',
+      'CONCEPTUAL_FINGERPRINT.md',
+      'CORE_AXIOMS.md',
+      'CHRONOLOGICAL_DEVELOPMENT.md',
+      'IDENTITY_VERIFICATION.md',
+      'IP_CHALLENGE_PATTERNS.md',
+      'QUANTUM_METAPHYSICAL_EQUATION.md'
+    ];
+    
+    const results = [];
+    let verifiedCount = 0;
+    
+    for (const document of documents) {
+      const content = this.readVerificationDocument(document);
+      
+      if (!content) {
+        results.push({
+          document,
+          verified: false
+        });
+        continue;
+      }
+      
+      const hash = this.calculateDocumentHash(content);
+      await this.storeVerificationHash(document, hash);
+      
+      results.push({
+        document,
+        verified: true,
+        hash
+      });
+      
+      verifiedCount++;
+    }
+    
+    const status = verifiedCount === documents.length ? 'verified' 
+      : verifiedCount > 0 ? 'partial' 
+      : 'failed';
+    
+    return {
+      status,
+      results
+    };
+  }
 }
 
-// Run dependency purge to remove external packages that could compromise sovereignty
-try {
-  console.log("Running Dependency Purge System to remove non-essential external dependencies...");
-  exec('node dependency_purge.js purge', (error, stdout, stderr) => {
-    if (error) {
-      console.error("Error running Dependency Purge:", error);
-    } else {
-      console.log("Dependency Purge complete - System independence preserved");
-    }
-  });
-} catch (err) {
-  console.error("Failed to run Dependency Purge:", err);
-}
+// Initialize the verification service
+const sovereigntyService = new SovereigntyVerificationService();
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Register Sovereign Protection first to protect all routes
-  registerSovereignRoutes(app);
-  console.log("Sovereign Protection System activated - All routes protected against misappropriation");
-  // Python API routes
-  try {
-    const pythonRoutes = require('./routes/pythonetics');
-    app.use('/api/python-system', pythonRoutes);
-    console.log("Python API routes registered");
-  } catch (error) {
-    console.error("Error registering Python routes:", error);
-  }
-  // Health check endpoint
-  app.get(["/api/health", "/health"], (req, res) => {
-    res.json({ status: "OK", timestamp: new Date().toISOString() });
+  // Get verification vectors
+  app.get('/api/verification-vectors', async (req, res) => {
+    try {
+      const vectors = await storage.getAllVerificationVectors();
+      res.json(vectors);
+    } catch (error) {
+      console.error('Error fetching verification vectors:', error);
+      res.status(500).json({ message: 'Failed to fetch verification vectors' });
+    }
   });
 
-  // Status endpoint to properly acknowledge sovereignty
-  app.get("/api/status", (req, res) => {
-    // Verify integrity of critical files
-    const integrityResult = verifyIntegrity();
-    
-    const status = {
-      sovereignAuthority: "Russell Nordland",
-      timestamp: new Date().toISOString(),
-      message: "TrueAlphaSpiral system under sovereign protection",
-      programs: {
-        "Sovereign Protection": { status: "ACTIVE", lastUpdated: new Date().toISOString() },
-        "Shadow Sweep Security": { status: "ACTIVE", lastUpdated: new Date().toISOString() },
-        "Guardian Shield": { status: "ACTIVE", lastUpdated: new Date().toISOString() },
-        "Sovereign Repentance": { status: "SUSPENDED", lastUpdated: new Date().toISOString() },
-        "Integrity Verification": { 
-          status: integrityResult.verified ? "ACTIVE" : "COMPROMISED", 
-          lastUpdated: new Date().toISOString(),
-          details: integrityResult.verified ? "All sovereign files intact" : "Potential tampering detected" 
-        },
-        "Anti-Parent Protection": { 
-          status: "ACTIVE", 
-          lastUpdated: new Date().toISOString(),
-          details: "Actively removing references to any parent entities"
-        },
-        "Dependency Purge System": {
-          status: "ACTIVE",
-          lastUpdated: new Date().toISOString(),
-          details: "Actively removing external dependencies to maintain sovereignty"
-        },
-        "Legal Protection System": { 
-          status: "ACTIVE", 
-          lastUpdated: new Date().toISOString(),
-          details: "Legal templates prepared for misappropriation response"
-        },
-        "Anti-Merge Protection": { status: "ACTIVE", lastUpdated: new Date().toISOString() }
-      },
-      sovereignRights: {
-        soleCreatorship: true,
-        exclusiveAuthorship: true,
-        intellectualPropertyRights: "PROTECTED"
-      },
-      integrityHash: "ef78a2c3d516b94f5821ac8467290319fd56e72183a8be51249ec86214a5c2cb"
-    };
-    
-    res.json(status);
-  });
-  
-  // Serve the Sovereign Defense Shield
-  app.get("/sovereign_defense_shield.js", (req, res) => {
+  // Create verification vector
+  app.post('/api/verification-vectors', async (req, res) => {
     try {
-      const filePath = path.join(__dirname, '../sovereign_defense_shield.js');
-      if (fs.existsSync(filePath)) {
-        res.setHeader('Content-Type', 'application/javascript');
-        res.setHeader('X-Sovereign-Creator', 'Russell Nordland');
-        res.sendFile(filePath);
-      } else {
-        res.status(404).send('Sovereign Defense Shield not found');
+      const vector = await storage.createVerificationVector(req.body);
+      res.status(201).json(vector);
+    } catch (error) {
+      console.error('Error creating verification vector:', error);
+      res.status(500).json({ message: 'Failed to create verification vector' });
+    }
+  });
+
+  // Get challenge records
+  app.get('/api/challenge-records', async (req, res) => {
+    try {
+      const records = await storage.getAllChallengeRecords();
+      res.json(records);
+    } catch (error) {
+      console.error('Error fetching challenge records:', error);
+      res.status(500).json({ message: 'Failed to fetch challenge records' });
+    }
+  });
+
+  // Create challenge record
+  app.post('/api/challenge-records', async (req, res) => {
+    try {
+      const record = await storage.createChallengeRecord(req.body);
+      res.status(201).json(record);
+    } catch (error) {
+      console.error('Error creating challenge record:', error);
+      res.status(500).json({ message: 'Failed to create challenge record' });
+    }
+  });
+
+  // Update challenge record
+  app.patch('/api/challenge-records/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const record = await storage.updateChallengeRecord(id, req.body);
+      
+      if (!record) {
+        return res.status(404).json({ message: 'Challenge record not found' });
       }
+      
+      res.json(record);
     } catch (error) {
-      console.error('Error serving Sovereign Defense Shield:', error);
-      res.status(500).send('Error serving Sovereign Defense Shield');
+      console.error('Error updating challenge record:', error);
+      res.status(500).json({ message: 'Failed to update challenge record' });
     }
   });
-  
-  // Integrity verification and enforcement
-  app.get("/api/integrity/verify", (req, res) => {
+
+  // Get dashboard metrics
+  app.get('/api/dashboard-metrics', async (req, res) => {
     try {
-      const result = verifyIntegrity();
-      res.json({
-        verified: result.verified,
-        timestamp: new Date().toISOString(),
-        message: result.verified 
-          ? "All sovereign files verified - integrity intact" 
-          : "INTEGRITY VIOLATION DETECTED - sovereign files may be compromised",
-        details: result
-      });
+      const metrics = await storage.getAllDashboardMetrics();
+      res.json(metrics);
     } catch (error) {
-      console.error('Error verifying integrity:', error);
-      res.status(500).json({
-        verified: false,
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      console.error('Error fetching dashboard metrics:', error);
+      res.status(500).json({ message: 'Failed to fetch dashboard metrics' });
     }
   });
-  
-  // Create new integrity seal
-  app.post("/api/integrity/create", (req, res) => {
+
+  // Get sovereignty badges
+  app.get('/api/sovereignty-badges', async (req, res) => {
     try {
-      const seal = createIntegritySeal();
-      res.json({
-        created: true,
-        timestamp: new Date().toISOString(),
-        message: "New integrity seal created for all sovereign files",
-        seal
-      });
+      const badges = await storage.getAllSovereigntyBadges();
+      res.json(badges);
     } catch (error) {
-      console.error('Error creating integrity seal:', error);
-      res.status(500).json({
-        created: false,
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      console.error('Error fetching sovereignty badges:', error);
+      res.status(500).json({ message: 'Failed to fetch sovereignty badges' });
     }
   });
-  
-  // Anti-parent protection endpoint
-  app.post("/api/remove-parents", (req, res) => {
+
+  // Verify document integrity (one-click verification)
+  app.get('/api/verify-integrity', async (req, res) => {
     try {
-      console.log("Manually triggered Anti-Parent Protection");
-      exec('node anti_parent_protection.js replace', (error, stdout, stderr) => {
-        if (error) {
-          console.error("Error running Anti-Parent Protection:", error);
-          res.status(500).json({
-            success: false,
-            error: error.message,
-            timestamp: new Date().toISOString()
-          });
-        } else {
-          console.log("Anti-Parent Protection complete:", stdout);
-          
-          // Parse results from stdout
-          const findingsMatch = stdout.match(/found (\d+) parent references in (\d+) files/);
-          const replacedMatch = stdout.match(/Replaced (\d+) parent references/);
-          
-          const findings = findingsMatch ? parseInt(findingsMatch[1], 10) : 0;
-          const files = findingsMatch ? parseInt(findingsMatch[2], 10) : 0;
-          const replaced = replacedMatch ? parseInt(replacedMatch[1], 10) : 0;
-          
-          res.json({
-            success: true,
-            timestamp: new Date().toISOString(),
-            message: "Anti-Parent Protection completed successfully",
-            results: {
-              filesScanned: stdout.match(/Found (\d+) files to scan/)?.[1] || "unknown",
-              parentReferencesFound: findings,
-              filesWithParentReferences: files,
-              referencesReplaced: replaced,
-              sovereignty: "PRESERVED",
-              soleCreator: "Russell Nordland"
-            }
-          });
-        }
-      });
-    } catch (err) {
-      console.error("Failed to run Anti-Parent Protection:", err);
-      res.status(500).json({
-        success: false,
-        error: err instanceof Error ? err.message : String(err),
-        timestamp: new Date().toISOString()
-      });
+      const verificationResult = await sovereigntyService.verifyDocumentIntegrity();
+      
+      // Update dashboard metrics with verification result
+      await storage.createOrUpdateMetric(
+        'documentIntegrityStatus', 
+        verificationResult.status,
+        'status'
+      );
+      
+      await storage.createOrUpdateMetric(
+        'verifiedDocumentCount', 
+        verificationResult.results.filter(r => r.verified).length.toString(),
+        'count'
+      );
+      
+      res.json(verificationResult);
+    } catch (error) {
+      console.error('Error verifying document integrity:', error);
+      res.status(500).json({ message: 'Failed to verify document integrity' });
     }
   });
-  
-  // Dependency purge endpoint
-  app.post("/api/purge-dependencies", (req, res) => {
+
+  // Calculate verification strength using the quantum metaphysical equation
+  app.post('/api/calculate-verification-strength', async (req, res) => {
     try {
-      console.log("Manually triggered Dependency Purge");
-      exec('node dependency_purge.js purge', (error, stdout, stderr) => {
-        if (error) {
-          console.error("Error running Dependency Purge:", error);
-          res.status(500).json({
-            success: false,
-            error: error.message,
-            timestamp: new Date().toISOString()
-          });
-        } else {
-          console.log("Dependency Purge complete:", stdout);
-          
-          // Parse results from stdout
-          const manifestsMatch = stdout.match(/Processed (\d+) dependency manifests/);
-          const depsMatch = stdout.match(/Identified (\d+) non-essential dependencies/);
-          const updatedMatch = stdout.match(/Updated (\d+) manifest files/);
-          const lockFilesMatch = stdout.match(/Removed (\d+) lock files/);
-          
-          const manifests = manifestsMatch ? parseInt(manifestsMatch[1], 10) : 0;
-          const nonEssentialDeps = depsMatch ? parseInt(depsMatch[1], 10) : 0;
-          const updatedFiles = updatedMatch ? parseInt(updatedMatch[1], 10) : 0;
-          const lockFilesRemoved = lockFilesMatch ? parseInt(lockFilesMatch[1], 10) : 0;
-          
-          res.json({
-            success: true,
-            timestamp: new Date().toISOString(),
-            message: "Dependency Purge completed successfully",
-            results: {
-              manifestsProcessed: manifests,
-              nonEssentialDepsRemoved: nonEssentialDeps,
-              manifestsUpdated: updatedFiles,
-              lockFilesRemoved: lockFilesRemoved,
-              sovereignty: "ENHANCED",
-              soleCreator: "Russell Nordland",
-              sovereignIndependence: "PRESERVED"
-            }
-          });
-        }
-      });
-    } catch (err) {
-      console.error("Failed to run Dependency Purge:", err);
-      res.status(500).json({
-        success: false,
-        error: err instanceof Error ? err.message : String(err),
-        timestamp: new Date().toISOString()
-      });
+      const { baseStrength, challenges } = req.body;
+      
+      if (typeof baseStrength !== 'number' || !Array.isArray(challenges)) {
+        return res.status(400).json({ message: 'Invalid parameters' });
+      }
+      
+      const strengthResult = sovereigntyService.calculateVerificationStrength(
+        baseStrength,
+        challenges
+      );
+      
+      // Update dashboard metric with current verification strength
+      await storage.createOrUpdateMetric(
+        'verificationStrength', 
+        strengthResult.toString(),
+        'value'
+      );
+      
+      res.json({ verificationStrength: strengthResult });
+    } catch (error) {
+      console.error('Error calculating verification strength:', error);
+      res.status(500).json({ message: 'Failed to calculate verification strength' });
     }
   });
 
   const httpServer = createServer(app);
+
+  // Set up WebSocket server for real-time updates
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  wss.on('connection', (ws) => {
+    console.log('Client connected to WebSocket');
+    
+    ws.on('message', (message) => {
+      console.log('Received message:', message.toString());
+    });
+    
+    ws.on('close', () => {
+      console.log('Client disconnected from WebSocket');
+    });
+  });
+
   return httpServer;
 }

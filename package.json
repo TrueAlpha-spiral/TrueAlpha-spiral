@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
+    "@neondatabase/serverless": "^1.0.0",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -43,17 +44,23 @@
     "@stripe/react-stripe-js": "^3.7.0",
     "@tanstack/react-query": "^5.60.5",
     "@types/cors": "^2.8.17",
+    "@types/ws": "^8.18.1",
     "axios": "^1.9.0",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",
+    "d3": "^7.9.0",
     "drizzle-kit": "^0.31.1",
-    "drizzle-orm": "^0.39.1",
+    "drizzle-orm": "^0.39.3",
+    "drizzle-zod": "^0.7.1",
     "express": "^4.21.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^7.5.3",
+    "recharts": "^2.15.3",
     "tailwindcss-animate": "^1.0.7",
     "wouter": "^3.3.5",
-    "zod": "^3.23.8"
+    "ws": "^8.18.2",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@replit/vite-plugin-cartographer": "^0.0.11",
@@ -65,7 +72,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.2",
-    "tailwindcss": "^3.4.14",
+    "tailwindcss": "^3.4.17",
     "typescript": "5.6.3",
     "vite": "^5.4.14"
   },
