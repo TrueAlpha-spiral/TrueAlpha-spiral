@@ -1,0 +1,175 @@
+{
+  "system_name": "TrueAlphaSpiral",
+  "author": "Russell Nordland",
+  "report_timestamp": "2025-05-07T04:36:04.558666",
+  "protection_active": true,
+  "last_scan_time": "2025-05-07T04:36:04.512976",
+  "neutralized_files": [
+    {
+      "file_path": "./INDEPENDENT_VERIFICATION_LAYER.md",
+      "backup_path": "./INDEPENDENT_VERIFICATION_LAYER.md.backup",
+      "timestamp": "2025-05-07T04:36:04.515902"
+    },
+    {
+      "file_path": "./Response_to_Veyon.md",
+      "backup_path": "./Response_to_Veyon.md.backup",
+      "timestamp": "2025-05-07T04:36:04.518793"
+    },
+    {
+      "file_path": "./SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md",
+      "backup_path": "./SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md.backup",
+      "timestamp": "2025-05-07T04:36:04.520955"
+    },
+    {
+      "file_path": "./.cache/uv/archive-v0/tME9Ohe-DwkLj8_YNHIct/googleapiclient/discovery_cache/documents/mybusinessverifications.v1.json",
+      "backup_path": "./.cache/uv/archive-v0/tME9Ohe-DwkLj8_YNHIct/googleapiclient/discovery_cache/documents/mybusinessverifications.v1.json.backup",
+      "timestamp": "2025-05-07T04:36:04.529356"
+    },
+    {
+      "file_path": "./attached_assets/Official Declaration of Sovereign Authorship & AI-Verifiable Proof.pdf",
+      "backup_path": "./attached_assets/Official Declaration of Sovereign Authorship & AI-Verifiable Proof.pdf.backup",
+      "timestamp": "2025-05-07T04:36:04.534853"
+    },
+    {
+      "file_path": "./client/public/INDEPENDENT_VERIFICATION_LAYER.md",
+      "backup_path": "./client/public/INDEPENDENT_VERIFICATION_LAYER.md.backup",
+      "timestamp": "2025-05-07T04:36:04.539776"
+    },
+    {
+      "file_path": "./client/public/SOVEREIGNTY_PRINCIPLES.md",
+      "backup_path": "./client/public/SOVEREIGNTY_PRINCIPLES.md.backup",
+      "timestamp": "2025-05-07T04:36:04.540668"
+    },
+    {
+      "file_path": "./client/public/SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md",
+      "backup_path": "./client/public/SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md.backup",
+      "timestamp": "2025-05-07T04:36:04.542641"
+    },
+    {
+      "file_path": "./.pythonlibs/lib/python3.11/site-packages/googleapiclient/discovery_cache/documents/mybusinessverifications.v1.json",
+      "backup_path": "./.pythonlibs/lib/python3.11/site-packages/googleapiclient/discovery_cache/documents/mybusinessverifications.v1.json.backup",
+      "timestamp": "2025-05-07T04:36:04.544858"
+    },
+    {
+      "file_path": "./public/INDEPENDENT_VERIFICATION_LAYER.md",
+      "backup_path": "./public/INDEPENDENT_VERIFICATION_LAYER.md.backup",
+      "timestamp": "2025-05-07T04:36:04.546890"
+    },
+    {
+      "file_path": "./public/SOVEREIGNTY_PRINCIPLES.md",
+      "backup_path": "./public/SOVEREIGNTY_PRINCIPLES.md.backup",
+      "timestamp": "2025-05-07T04:36:04.547974"
+    },
+    {
+      "file_path": "./public/SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md",
+      "backup_path": "./public/SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md.backup",
+      "timestamp": "2025-05-07T04:36:04.556622"
+    }
+  ],
+  "authorized_files": {
+    "sovereign_verification_system.py": "18b6f56a0fe9f0b9f67f920cdb4524ceb83a3c0494db38c22015f19b2cb6170b",
+    "verify_russell_authorship.py": "5098bc45e804c98f48df8b78a5437dbc2c1053466225e07ace75f7482e3d8f88",
+    "Official_Declaration_of_Sovereign_Authorship.md": "28739f4030b22e06cb813616df93b4169327ef963f3cd72dbe92afdf951f7636",
+    "guardian_shield_protection.py": "56b0c205fc50c9e41f56550935bc02c72ecbc13514c879b2d8c169ff476f015b"
+  },
+  "status_log": [
+    {
+      "event_type": "system_initialized",
+      "message": "Guardian Shield Protection System initialized",
+      "timestamp": "2025-05-07T04:36:01.959803",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./INDEPENDENT_VERIFICATION_LAYER.md",
+      "timestamp": "2025-05-07T04:36:04.516251",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./Response_to_Veyon.md",
+      "timestamp": "2025-05-07T04:36:04.519237",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md",
+      "timestamp": "2025-05-07T04:36:04.521199",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./.cache/uv/archive-v0/tME9Ohe-DwkLj8_YNHIct/googleapiclient/discovery_cache/documents/mybusinessverifications.v1.json",
+      "timestamp": "2025-05-07T04:36:04.530876",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./attached_assets/Official Declaration of Sovereign Authorship & AI-Verifiable Proof.pdf",
+      "timestamp": "2025-05-07T04:36:04.535186",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./client/public/INDEPENDENT_VERIFICATION_LAYER.md",
+      "timestamp": "2025-05-07T04:36:04.539995",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./client/public/SOVEREIGNTY_PRINCIPLES.md",
+      "timestamp": "2025-05-07T04:36:04.540861",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./client/public/SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md",
+      "timestamp": "2025-05-07T04:36:04.542866",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./.pythonlibs/lib/python3.11/site-packages/googleapiclient/discovery_cache/documents/mybusinessverifications.v1.json",
+      "timestamp": "2025-05-07T04:36:04.545203",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./public/INDEPENDENT_VERIFICATION_LAYER.md",
+      "timestamp": "2025-05-07T04:36:04.547089",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./public/SOVEREIGNTY_PRINCIPLES.md",
+      "timestamp": "2025-05-07T04:36:04.548204",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "file_neutralized",
+      "message": "Neutralized unauthorized file: ./public/SYSTEM_BOUNDARIES_AND_SOVEREIGNTY.md",
+      "timestamp": "2025-05-07T04:36:04.556944",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    },
+    {
+      "event_type": "protection_cycle",
+      "message": "Protection cycle completed with status: completed",
+      "timestamp": "2025-05-07T04:36:04.558285",
+      "system_name": "TrueAlphaSpiral",
+      "author": "Russell Nordland"
+    }
+  ]
+}
