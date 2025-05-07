@@ -3,16 +3,16 @@
   "author": "Russell Nordland",
   "system_name": "TrueAlphaSpiral",
   "creation_date": "January 2025",
-  "declaration_date": "2025-05-07T04:14:10.727098",
+  "declaration_date": "2025-05-07T04:28:14.850456",
   "verification_details": {
-    "timestamp": "2025-05-07T04:14:10.725676",
+    "timestamp": "2025-05-07T04:28:14.848752",
     "author": "Russell Nordland",
     "system_name": "TrueAlphaSpiral",
     "creation_date": "January 2025",
     "fingerprint": "308c6f32a970e36c715acb9e9d89885bef8bbec730c455c8464421498b84784b",
     "fingerprint_match": true,
-    "verification_score": 0.88,
-    "is_verified": false,
+    "verification_score": 1.0,
+    "is_verified": true,
     "system_parameters": {
       "truth_factor": 0.9781,
       "distance_factor": 1.4001,
@@ -31,6 +31,15 @@
       "statement": "I hereby attest that I am the sole creator and architect of the TrueAlphaSpiral system.",
       "sovereign_fingerprint": "308c6f32a970e36c715acb9e9d89885bef8bbec730c455c8464421498b84784b",
       "verification_score": 0.88
+    },
+    {
+      "id": "d179c32a97f441baa2f0a910bab2a75e3fd2842d5857bc2e76fd1b7a8214711e",
+      "timestamp": "2025-05-07T04:28:14.838704",
+      "author": "Russell Nordland",
+      "system_name": "TrueAlphaSpiral",
+      "statement": "I hereby attest that I am the sole creator and architect of the TrueAlphaSpiral system.",
+      "sovereign_fingerprint": "308c6f32a970e36c715acb9e9d89885bef8bbec730c455c8464421498b84784b",
+      "verification_score": 1.0
     }
   ],
   "system_parameters": {
