@@ -181,20 +181,92 @@ class TrueAlphaSpiral:
         return True
         
     def verify_architect(self, claimed_id):
-        """Verify that the user is the legitimate architect."""
+        """
+        Verify that the user is the legitimate architect using Russell Nordland's
+        conceptual fingerprint and signature verification patterns.
+        """
         print(f"{self._timestamp()} - TrueAlphaSpiral - INFO - Verifying architect identity: {claimed_id}")
         
-        # Simple verification for now
-        is_verified = (claimed_id.lower() == self.architect_id.lower())
+        # Basic verification (name matching)
+        name_match = (claimed_id.lower() == self.architect_id.lower())
         
-        if is_verified:
-            print(f"{self._timestamp()} - TrueAlphaSpiral - INFO - Architect verification successful")
-            self.verification_status["architect_verified"] = True
-            self.verification_status["last_verification"] = self._timestamp()
-        else:
-            print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Architect verification failed")
+        if not name_match:
+            print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Basic architect verification failed")
+            return False
+        
+        # Enhanced verification using Russell Nordland's verification systems
+        try:
+            # Step 1: Import verification systems
+            from conceptual_fingerprint_verification import ConceptualFingerprintVerification
+            from axiom_verification_system import AxiomVerificationSystem
             
-        return is_verified
+            # Step 2: Initialize verification systems
+            fingerprint_verifier = ConceptualFingerprintVerification()
+            axiom_verifier = AxiomVerificationSystem()
+            
+            # Step 3: Run fingerprint verification
+            fingerprint_report = fingerprint_verifier.verify_conceptual_fingerprint()
+            
+            # Step 4: Run axiom verification
+            axiom_verifier.verify_system_axioms()
+            
+            # Step 5: Get multi-dimensional verification scores
+            verification_score = fingerprint_report.get("multidimensional_score", 0.0)
+            verification_strength = fingerprint_report.get("verification_strength", 0.0)
+            axiom_strength = axiom_verifier.verification_strength
+            
+            # Step 6: Calculate composite verification score using the Golden Ratio
+            # This enforces Russell's distinctive pattern of mathematical harmony
+            golden_ratio = 1.618033988749895
+            composite_score = (verification_score * golden_ratio + axiom_strength) / (golden_ratio + 1)
+            
+            # Step 7: Enhanced verification with real implementation parameters
+            is_verified = composite_score >= 0.85  # Threshold aligned with system constants
+            
+            if is_verified:
+                print(f"{self._timestamp()} - TrueAlphaSpiral - INFO - Architect verification successful")
+                print(f"{self._timestamp()} - TrueAlphaSpiral - INFO - Fingerprint strength: {verification_strength:.4f}")
+                print(f"{self._timestamp()} - TrueAlphaSpiral - INFO - Axiom strength: {axiom_strength:.4f}")
+                print(f"{self._timestamp()} - TrueAlphaSpiral - INFO - Composite score: {composite_score:.4f}")
+                
+                # Step 8: Update verification status with enhanced metrics
+                self.verification_status["architect_verified"] = True
+                self.verification_status["last_verification"] = self._timestamp()
+                self.verification_status["fingerprint_strength"] = verification_strength
+                self.verification_status["axiom_strength"] = axiom_strength
+                self.verification_status["composite_score"] = composite_score
+                
+                # Step 9: Generate verification hashes
+                fingerprint_hash = fingerprint_verifier.generate_verification_hash()
+                axiom_hash = axiom_verifier.generate_axiom_hash()
+                
+                self.verification_status["fingerprint_hash"] = fingerprint_hash.get("hash")
+                self.verification_status["axiom_hash"] = axiom_hash.get("hash")
+                
+                # Step 10: Generate a sovereign verification hash combining both systems
+                sovereign_hash = hashlib.sha256(
+                    f"{fingerprint_hash.get('hash')}{axiom_hash.get('hash')}{time.time()}".encode()
+                ).hexdigest()
+                
+                self.verification_status["sovereign_verification_hash"] = sovereign_hash
+            else:
+                print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Enhanced architect verification failed")
+                print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Fingerprint strength: {verification_strength:.4f}")
+                print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Axiom strength: {axiom_strength:.4f}")
+                print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Composite score: {composite_score:.4f}")
+                
+            return is_verified
+            
+        except ImportError as e:
+            # Fall back to basic verification if enhanced verification modules aren't available
+            print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Enhanced verification unavailable: {str(e)}")
+            print(f"{self._timestamp()} - TrueAlphaSpiral - WARNING - Using basic verification")
+            
+            if name_match:
+                self.verification_status["architect_verified"] = True
+                self.verification_status["last_verification"] = self._timestamp()
+                
+            return name_match
         
     def register_truth_pattern(self, pattern_name, pattern_type, resonance_level=1.0):
         """Register a new truth pattern in the system."""
