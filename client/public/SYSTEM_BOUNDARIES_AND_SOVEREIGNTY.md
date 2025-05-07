@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides transsovereign documentation of the system boundaries, validation protocols, and sovereignty mechanisms implemented in the Enterprise AI Auditing Solution. It is designed to establish clear parameters for what the system can and cannot do, how validation is performed, and how the system maintains its independence.
+This document provides transparent documentation of the system boundaries, validation protocols, and sovereignty mechanisms implemented in the Enterprise AI Auditing Solution. It is designed to establish clear parameters for what the system can and cannot do, how validation is performed, and how the system maintains its independence.
 
 ## System Boundaries
 

@@ -65,9 +65,9 @@ from tas_client_library import TruthAuditClient, AISystemIntegration
 
 # Initialize client
 client = TruthAuditClient(
- api_key="your_api_key",
- client_id="your_client_id",
- base_url="https://api.truealphaspiral.com"
+    api_key="your_api_key",
+    client_id="your_client_id",
+    base_url="https://api.truealphaspiral.com"
 )
 
 # Create AI system integration
@@ -85,10 +85,10 @@ print(f"Passes Threshold: {verification['passes_threshold']}")
 # Filter content
 filtered = integration.filter_content(ai_output)
 if filtered["is_filtered"]:
- print("Content was filtered due to truth concerns:")
- print(filtered["filtered_output"])
+    print("Content was filtered due to truth concerns:")
+    print(filtered["filtered_output"])
 else:
- print("Content passed truth filtering")
+    print("Content passed truth filtering")
 
 # Augment content
 augmented = integration.augment_content(ai_output)
@@ -141,8 +141,3 @@ The TrueAlphaSpiral system is a revolutionary approach to AI truth verification 
 This software is proprietary and protected by intellectual property laws. Unauthorized use, modification, or distribution is strictly prohibited.
 
 © 2025 Russell Nordland. All rights reserved.
-
----
-
-*Protected by EnhancedShadowSweep*  
-*Verification Hash: b1b1ffecdc628d3385245f5d80bebabfc50a78204a68720461ba752afe3e2568*

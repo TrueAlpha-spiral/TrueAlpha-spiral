@@ -1,60 +1,60 @@
 {
- "api_keys": {
- "demo_free": {
- "client_id": "demo_client",
- "tier": "free",
- "created": "2025-03-22T14:29:57.420349",
- "active": true,
- "description": "Demo Free Tier API Key"
- },
- "demo_basic": {
- "client_id": "demo_client",
- "tier": "basic",
- "created": "2025-03-22T14:29:57.420359",
- "active": true,
- "description": "Demo Basic Tier API Key"
- },
- "demo_premium": {
- "client_id": "demo_client",
- "tier": "premium",
- "created": "2025-03-22T14:29:57.420361",
- "active": true,
- "description": "Demo Premium Tier API Key"
- },
- "demo_enterprise": {
- "client_id": "demo_client",
- "tier": "enterprise",
- "created": "2025-03-22T14:29:57.420362",
- "active": true,
- "description": "Demo Enterprise Tier API Key"
- }
- },
- "usage_stats": {},
- "config": {
- "rate_limit": {
- "free": 10,
- "basic": 100,
- "premium": 1000,
- "enterprise": 0
- },
- "audit_types": {
- "free": [
- "quick"
- ],
- "basic": [
- "quick",
- "standard"
- ],
- "premium": [
- "quick",
- "standard",
- "comprehensive"
- ],
- "enterprise": [
- "quick",
- "standard",
- "comprehensive"
- ]
- }
- }
+  "api_keys": {
+    "demo_free": {
+      "client_id": "demo_client",
+      "tier": "free",
+      "created": "2025-03-22T14:29:57.420349",
+      "active": true,
+      "description": "Demo Free Tier API Key"
+    },
+    "demo_basic": {
+      "client_id": "demo_client",
+      "tier": "basic",
+      "created": "2025-03-22T14:29:57.420359",
+      "active": true,
+      "description": "Demo Basic Tier API Key"
+    },
+    "demo_premium": {
+      "client_id": "demo_client",
+      "tier": "premium",
+      "created": "2025-03-22T14:29:57.420361",
+      "active": true,
+      "description": "Demo Premium Tier API Key"
+    },
+    "demo_enterprise": {
+      "client_id": "demo_client",
+      "tier": "enterprise",
+      "created": "2025-03-22T14:29:57.420362",
+      "active": true,
+      "description": "Demo Enterprise Tier API Key"
+    }
+  },
+  "usage_stats": {},
+  "config": {
+    "rate_limit": {
+      "free": 10,
+      "basic": 100,
+      "premium": 1000,
+      "enterprise": 0
+    },
+    "audit_types": {
+      "free": [
+        "quick"
+      ],
+      "basic": [
+        "quick",
+        "standard"
+      ],
+      "premium": [
+        "quick",
+        "standard",
+        "comprehensive"
+      ],
+      "enterprise": [
+        "quick",
+        "standard",
+        "comprehensive"
+      ]
+    }
+  }
 }

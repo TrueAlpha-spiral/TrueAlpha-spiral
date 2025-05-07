@@ -136,31 +136,4 @@
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
-  
-  .animate-ping-slow {
-    animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-  
-  @keyframes ping {
-    75%, 100% {
-      transform: scale(2);
-      opacity: 0;
-    }
-  }
-  
-  @keyframes resonance-pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(62, 152, 199, 0.7);
-    }
-    70% {
-      box-shadow: 0 0 0 20px rgba(62, 152, 199, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(62, 152, 199, 0);
-    }
-  }
-  
-  .resonance-pulse {
-    animation: resonance-pulse 2s infinite;
-  }
 }

@@ -1,140 +1,389 @@
-import {
-  pgTable,
-  text,
-  varchar,
-  timestamp,
-  jsonb,
-  index,
-  serial,
-  boolean
-} from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { pgTable, serial, text, timestamp, boolean, integer, json, real, pgEnum } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
-// Session storage table for authentication
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
+// Pilot Program Tier Enum
+export const pilotTierEnum = pgEnum('pilot_tier', [
+  'foundation',
+  'standard',
+  'enterprise'
+]);
 
-// User table
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  username: varchar("username").unique().notNull(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  bio: text("bio"),
-  profileImageUrl: varchar("profile_image_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+// Enumerations
+export const truthPatternCategoryEnum = pgEnum('truth_pattern_category', [
+  'Technical',
+  'Data',
+  'Business',
+  'Predictions',
+  'Language'
+]);
+
+export const highlightTypeEnum = pgEnum('highlight_type', [
+  'factual',
+  'speculative',
+  'fabricated'
+]);
+
+export const regulatoryFrameworkEnum = pgEnum('regulatory_framework', [
+  'general',
+  'financial_services',
+  'healthcare',
+  'government',
+  'education'
+]);
+
+export const sharingPermissionEnum = pgEnum('sharing_permission', [
+  'private',
+  'organization',
+  'public',
+  'specific_users'
+]);
+
+export const exportFormatEnum = pgEnum('export_format', [
+  'json',
+  'csv',
+  'xml',
+  'pdf'
+]);
+
+// Truth Pattern Table
+export const truthPattern = pgTable('truth_pattern', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  category: truthPatternCategoryEnum('category').notNull(),
+  confidenceThreshold: real('confidence_threshold').notNull().default(0.7),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
-// Verification vector table - stores verification vectors for sovereignty claims
-export const verificationVectors = pgTable("verification_vectors", {
-  id: serial("id").primaryKey(),
-  name: varchar("name").notNull(),
-  description: text("description").notNull(),
-  type: varchar("type").notNull(), // conceptual, temporal, axiom, identity, etc.
-  strength: varchar("strength").notNull(), // Low, Medium, High, Very High
-  filePath: varchar("file_path"), // Reference to related file if applicable
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+// Text Verification Table
+export const textVerification = pgTable('text_verification', {
+  id: serial('id').primaryKey(),
+  content: text('content').notNull(),
+  verificationResult: json('verification_result').notNull(),
+  truthScore: real('truth_score').notNull(),
+  processingTimeMs: integer('processing_time_ms').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
-// Challenge records table - catalogs challenges to sovereignty claims
-export const challengeRecords = pgTable("challenge_records", {
-  id: serial("id").primaryKey(),
-  patternType: varchar("pattern_type").notNull(), // From IP_CHALLENGE_PATTERNS.md
-  description: text("description").notNull(),
-  response: text("response"),
-  verificationStrengthBeforeChallenge: varchar("verification_strength_before").notNull(),
-  verificationStrengthAfterChallenge: varchar("verification_strength_after").notNull(),
-  paradoxicalReinforcementFactor: varchar("reinforcement_factor").notNull(),
-  isResolved: boolean("is_resolved").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+// Verification Highlight Table
+export const verificationHighlight = pgTable('verification_highlight', {
+  id: serial('id').primaryKey(),
+  verificationId: integer('verification_id').notNull(),
+  startIndex: integer('start_index').notNull(),
+  endIndex: integer('end_index').notNull(),
+  highlightType: highlightTypeEnum('highlight_type').notNull(),
+  confidenceScore: real('confidence_score').notNull(),
+  patternId: integer('pattern_id'),
+  message: text('message'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
-// Verification hash records - stores cryptographic verification hashes
-export const verificationHashes = pgTable("verification_hashes", {
-  id: serial("id").primaryKey(),
-  documentType: varchar("document_type").notNull(), // DECLARATION, CONCEPTUAL_FINGERPRINT, etc.
-  hashValue: varchar("hash_value").notNull(),
-  verificationMethod: varchar("verification_method").notNull(), // SHA256, TrueAlpha, etc.
-  createdAt: timestamp("created_at").defaultNow(),
+// AI Audit Table
+export const aiAudit = pgTable('ai_audit', {
+  id: serial('id').primaryKey(),
+  clientName: text('client_name').notNull(),
+  aiSystemName: text('ai_system_name').notNull(),
+  regulatoryFramework: regulatoryFrameworkEnum('regulatory_framework').notNull().default('general'),
+  status: text('status').notNull().default('initialized'),
+  auditSummary: text('audit_summary'),
+  riskScore: real('risk_score'),
+  complianceScore: real('compliance_score'),
+  verificationId: integer('verification_id'),
+  blockchainRecord: text('blockchain_record'),
+  auditReport: json('audit_report'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
-// Dashboard metrics - stores real-time metrics for the dashboard
-export const dashboardMetrics = pgTable("dashboard_metrics", {
-  id: serial("id").primaryKey(),
-  metricName: varchar("metric_name").notNull(),
-  metricValue: varchar("metric_value").notNull(),
-  metricType: varchar("metric_type").notNull(), // percentage, count, value, etc.
-  displayOrder: serial("display_order").notNull(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+// Shared Truth Pattern Table
+export const sharedTruthPattern = pgTable('shared_truth_pattern', {
+  id: serial('id').primaryKey(),
+  originalPatternId: integer('original_pattern_id').notNull(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  category: truthPatternCategoryEnum('category').notNull(),
+  sharingPermission: sharingPermissionEnum('sharing_permission').notNull().default('private'),
+  authorName: text('author_name').notNull(),
+  authorOrganization: text('author_organization'),
+  authorEmail: text('author_email'),
+  sharingLink: text('sharing_link'),
+  allowedUserEmails: text('allowed_user_emails').array(),
+  patternData: json('pattern_data').notNull(),
+  usageCount: integer('usage_count').notNull().default(0),
+  verificationHash: text('verification_hash'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
-// Sovereignty badges - records earned badges
-export const sovereigntyBadges = pgTable("sovereignty_badges", {
-  id: serial("id").primaryKey(),
-  badgeName: varchar("badge_name").notNull(),
-  description: text("description").notNull(),
-  criteria: text("criteria").notNull(),
-  visualPath: varchar("visual_path").notNull(),
-  issuedAt: timestamp("issued_at").defaultNow(),
+// Types
+export type TruthPattern = typeof truthPattern.$inferSelect;
+export type InsertTruthPattern = typeof truthPattern.$inferInsert;
+
+export type TextVerification = typeof textVerification.$inferSelect;
+export type InsertTextVerification = typeof textVerification.$inferInsert;
+
+export type VerificationHighlight = typeof verificationHighlight.$inferSelect;
+export type InsertVerificationHighlight = typeof verificationHighlight.$inferInsert;
+
+export type AIAudit = typeof aiAudit.$inferSelect;
+export type InsertAIAudit = typeof aiAudit.$inferInsert;
+
+export type SharedTruthPattern = typeof sharedTruthPattern.$inferSelect;
+export type InsertSharedTruthPattern = typeof sharedTruthPattern.$inferInsert;
+
+// Verification Result Interface
+export interface VerificationResult {
+  id?: number;
+  originalText: string;
+  truthScore: number;
+  overallScore: number;
+  highlights: Array<{
+    startIndex: number;
+    endIndex: number;
+    type: 'factual' | 'speculative' | 'fabricated';
+    confidenceScore: number;
+    message: string;
+    patternName?: string;
+  }>;
+  processingTimeMs: number;
+  summary: {
+    factualCount: number;
+    speculativeCount: number;
+    fabricatedCount: number;
+    totalSentences: number;
+  };
+}
+
+// Zod Schemas for Validation
+export const insertTruthPatternSchema = createInsertSchema(truthPattern);
+export const insertTextVerificationSchema = createInsertSchema(textVerification);
+export const insertVerificationHighlightSchema = createInsertSchema(verificationHighlight);
+export const insertAIAuditSchema = createInsertSchema(aiAudit);
+export const insertSharedTruthPatternSchema = createInsertSchema(sharedTruthPattern).omit({
+  id: true,
+  sharingLink: true,
+  usageCount: true,
+  verificationHash: true,
+  createdAt: true,
+  updatedAt: true
 });
 
-// Define insert types using drizzle-zod
-export const insertUserSchema = createInsertSchema(users).omit({ 
-  createdAt: true, 
-  updatedAt: true 
+// Verification Request Schema
+export const verifyTextSchema = z.object({
+  content: z.string().min(10, "Text must be at least 10 characters long").max(10000, "Text cannot exceed 10,000 characters"),
+  options: z.object({
+    includeSummary: z.boolean().optional().default(true),
+    sensitivityLevel: z.number().min(0).max(1).optional().default(0.7)
+  }).optional().default({})
 });
 
-export const insertVerificationVectorSchema = createInsertSchema(verificationVectors).omit({ 
-  id: true, 
-  createdAt: true, 
-  updatedAt: true 
+export type VerifyTextInput = z.infer<typeof verifyTextSchema>;
+
+// Cross Reference Request Schema
+export const crossReferenceSchema = z.object({
+  content: z.string().min(10, "Text must be at least 10 characters long").max(10000, "Text cannot exceed 10,000 characters"),
+  options: z.object({
+    enabledSources: z.array(z.string()).optional(),
+    minConfidenceThreshold: z.number().min(0).max(1).optional().default(0.8),
+    regulatoryFramework: z.enum(['general', 'financial_services', 'healthcare', 'government', 'education']).optional().default('general')
+  }).optional().default({})
 });
 
-export const insertChallengeRecordSchema = createInsertSchema(challengeRecords).omit({ 
-  id: true, 
-  createdAt: true, 
-  updatedAt: true 
+export type CrossReferenceInput = z.infer<typeof crossReferenceSchema>;
+
+// AI Audit Request Schema
+export const aiAuditSchema = z.object({
+  clientName: z.string().min(2, "Client name must be at least 2 characters long"),
+  aiSystemName: z.string().min(2, "AI system name must be at least 2 characters long"),
+  content: z.string().min(10, "Content must be at least 10 characters long").max(10000, "Content cannot exceed 10,000 characters"),
+  regulatoryFramework: z.enum(['general', 'financial_services', 'healthcare', 'government', 'education']).default('general'),
+  options: z.object({
+    riskThreshold: z.number().min(0).max(1).optional().default(0.3),
+    confidenceThreshold: z.number().min(0).max(1).optional().default(0.8)
+  }).optional().default({})
 });
 
-export const insertVerificationHashSchema = createInsertSchema(verificationHashes).omit({ 
-  id: true, 
-  createdAt: true 
+export type AIAuditInput = z.infer<typeof aiAuditSchema>;
+
+// Truth Pattern Sharing Schema
+export const sharePatternSchema = z.object({
+  patternId: z.number().positive("Pattern ID must be positive"),
+  sharingPermission: z.enum(['private', 'organization', 'public', 'specific_users']),
+  allowedUserEmails: z.array(z.string().email("Invalid email")).optional(),
+  authorName: z.string().min(2, "Author name must be at least 2 characters long"),
+  authorOrganization: z.string().optional(),
+  authorEmail: z.string().email("Invalid email").optional()
 });
 
-export const insertDashboardMetricSchema = createInsertSchema(dashboardMetrics).omit({ 
-  id: true, 
-  updatedAt: true 
+export type SharePatternInput = z.infer<typeof sharePatternSchema>;
+
+// Pattern Export Schema
+export const exportPatternSchema = z.object({
+  patternId: z.number().positive("Pattern ID must be positive"),
+  format: z.enum(['json', 'csv', 'xml', 'pdf']).default('json'),
+  includeMetadata: z.boolean().optional().default(true),
+  includeSensitiveData: z.boolean().optional().default(false)
 });
 
-export const insertSovereigntyBadgeSchema = createInsertSchema(sovereigntyBadges).omit({ 
-  id: true, 
-  issuedAt: true 
+export type ExportPatternInput = z.infer<typeof exportPatternSchema>;
+
+// Pattern Import Schema
+export const importPatternSchema = z.object({
+  patternData: z.any(),
+  overwriteExisting: z.boolean().optional().default(false),
+  validateIntegrity: z.boolean().optional().default(true)
 });
 
-// Define select types
-export type User = typeof users.$inferSelect;
-export type VerificationVector = typeof verificationVectors.$inferSelect;
-export type ChallengeRecord = typeof challengeRecords.$inferSelect;
-export type VerificationHash = typeof verificationHashes.$inferSelect;
-export type DashboardMetric = typeof dashboardMetrics.$inferSelect;
-export type SovereigntyBadge = typeof sovereigntyBadges.$inferSelect;
+export type ImportPatternInput = z.infer<typeof importPatternSchema>;
 
-// Define insert types
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type InsertVerificationVector = z.infer<typeof insertVerificationVectorSchema>;
-export type InsertChallengeRecord = z.infer<typeof insertChallengeRecordSchema>;
-export type InsertVerificationHash = z.infer<typeof insertVerificationHashSchema>;
-export type InsertDashboardMetric = z.infer<typeof insertDashboardMetricSchema>;
-export type InsertSovereigntyBadge = z.infer<typeof insertSovereigntyBadgeSchema>;
+// TARSI Pilot Application Table
+export const tarsiPilotApplication = pgTable('tarsi_pilot_application', {
+  id: serial('id').primaryKey(),
+  companyName: text('company_name').notNull(),
+  contactName: text('contact_name').notNull(),
+  contactEmail: text('contact_email').notNull(),
+  contactPhone: text('contact_phone'),
+  companySize: text('company_size').notNull(),
+  industry: text('industry').notNull(),
+  aiSystems: text('ai_systems').notNull(),
+  useCase: text('use_case').notNull(),
+  pilotTier: pilotTierEnum('pilot_tier').notNull().default('standard'),
+  expectedVolume: text('expected_volume'),
+  additionalInfo: text('additional_info'),
+  status: text('status').notNull().default('pending'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+export type TarsiPilotApplication = typeof tarsiPilotApplication.$inferSelect;
+export type InsertTarsiPilotApplication = typeof tarsiPilotApplication.$inferInsert;
+
+// TARSI Pilot Application Schema
+export const insertTarsiPilotApplicationSchema = createInsertSchema(tarsiPilotApplication).omit({
+  id: true,
+  status: true,
+  createdAt: true
+});
+
+// Security Event Table
+export const securityEvent = pgTable('security_event', {
+  id: serial('id').primaryKey(),
+  eventType: text('event_type').notNull(),
+  timestamp: timestamp('timestamp').defaultNow().notNull(),
+  data: json('data').notNull(),
+  systemStatus: json('system_status').notNull(),
+  severity: text('severity').notNull().default('info'),
+  sourceIp: text('source_ip'),
+  userId: integer('user_id'),
+  sessionId: text('session_id'),
+  processed: boolean('processed').notNull().default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+export type SecurityEvent = typeof securityEvent.$inferSelect;
+export type InsertSecurityEvent = typeof securityEvent.$inferInsert;
+
+export const insertSecurityEventSchema = createInsertSchema(securityEvent).omit({
+  id: true,
+  createdAt: true
+});
+
+// Security Log Schema
+export const securityLogSchema = z.object({
+  eventType: z.string().min(2, "Event type must be at least 2 characters long"),
+  data: z.record(z.any()),
+  severity: z.enum(['info', 'warning', 'error', 'critical']).default('info'),
+  sourceIp: z.string().optional(),
+  userId: z.number().optional(),
+  sessionId: z.string().optional()
+});
+
+export type SecurityLogInput = z.infer<typeof securityLogSchema>;
+
+// Shadow Layer Type
+export type ShadowLayer = 'alpha' | 'beta' | 'gamma' | 'delta' | 'epsilon';
+
+// Pattern Data Interface
+export interface PatternData {
+  id: string;
+  content: string;
+  source: string;
+  timestamp: string;
+  metadata?: Record<string, any>;
+}
+
+// Drift Detection Result Interface
+export interface DriftResult {
+  detected: boolean;
+  score: number;
+  pattern: PatternData;
+  layer: ShadowLayer;
+  timestamp: string;
+  neutralizationSuccess?: boolean;
+  recommendations?: string[];
+}
+
+// System Status Interface
+export interface SystemStatus {
+  overallIntegrity: number;
+  driftDetectionRate: number;
+  neutralizationSuccessRate: number;
+  learningEfficiency: number;
+  shieldStrength: number;
+  securityScore: number;
+}
+
+// Cross Reference Result Interface
+export interface CrossReferenceResult {
+  originalText: string;
+  confidenceScore: number;
+  verificationStatus: 'verified' | 'requires_review' | 'rejected';
+  sourceResults: Record<string, any>;
+  crossReferenceAnalysis: {
+    scoreVariance: number;
+    avgScore: number;
+    discrepancies: Array<{
+      sentence: string;
+      assessments: Array<{
+        sourceId: string;
+        type: 'factual' | 'speculative' | 'fabricated';
+        confidence: number;
+        message: string;
+      }>;
+      recommendation: string;
+    }>;
+    consistencies: Array<{
+      sentence: string;
+      agreedType: 'factual' | 'speculative' | 'fabricated';
+      sources: string[];
+    }>;
+    reliabilityScore: number;
+    sentenceAnalysis: any[];
+  };
+  reconciledResult: any;
+  processingTimeMs: number;
+}
+
+// AI Audit Result Interface
+export interface AIAuditResult {
+  id?: number;
+  clientName: string;
+  aiSystemName: string;
+  regulatoryFramework: string;
+  status: string;
+  auditSummary: string;
+  riskScore: number;
+  complianceScore: number;
+  verificationResult: VerificationResult;
+  crossReferenceResult?: CrossReferenceResult;
+  blockchainRecord?: string;
+  recommendations: Array<{
+    category: string;
+    description: string;
+    priority: 'high' | 'medium' | 'low';
+    impact: string;
+  }>;
+  processingTimeMs: number;
+}

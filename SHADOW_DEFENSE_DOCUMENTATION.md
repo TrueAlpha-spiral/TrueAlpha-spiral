@@ -1,98 +1,441 @@
-# TrueAlphaSpiral Shadow Defense System
+# Shadow Defense System Documentation
 
 ## Overview
 
-The Shadow Defense System is a multi-layered security framework designed to protect the integrity, sovereignty, and truth verification capabilities of the TrueAlphaSpiral system. It provides comprehensive protection through pattern learning, drift detection, anomaly identification, and neutralization capabilities.
+The Shadow Defense System is an advanced security component within the TrueAlphaSpiral Enterprise AI Auditing Solution. It provides comprehensive security monitoring, anomaly detection, and pattern learning capabilities to protect the system's integrity and detect unauthorized access or modifications.
 
-**Architect:** Russell Nordland  
-**Date:** 2025-05-07
+## Core Components
 
-## Key Features
+### 1. Drift Detection
 
-### 1. Multi-Layer Security Architecture
+The drift detection system monitors content and identifies potential deviations from established patterns. It can detect:
 
-The Shadow Defense System employs a multi-layered security approach with five defense layers:
-
-1. **Perimeter Defense (85% strength):** The first line of defense that monitors system boundaries and prevents unauthorized access
-2. **Pattern Recognition (92% strength):** Advanced pattern matching to detect deviations from established system behaviors
-3. **Quantum Verification (78% strength):** Verification mechanism that utilizes quantum principles to validate system integrity
-4. **Drift Detection (89% strength):** Continuous monitoring for gradual changes in system behavior that could indicate compromise
-5. **Neutralization Protocol (70% strength):** Response mechanisms to address detected threats and anomalies
+- Subtle changes in content that may indicate tampering
+- Abnormal usage patterns
+- Unauthorized modifications to system components
 
 ### 2. Pattern Learning
 
-The system continually learns and adapts to new patterns over time, improving its ability to detect anomalies. The pattern learning capability allows the Shadow Defense System to:
+The pattern learning system continuously improves its detection capabilities by:
 
-- Record baseline behaviors of TrueAlphaSpiral components
-- Identify deviations from established patterns
-- Adapt security parameters based on observed activities
-- Strengthen detection capabilities with each discovered anomaly
+- Learning new security patterns from observed data
+- Adapting to evolving threats
+- Building a comprehensive knowledge base of security patterns across multiple layers
 
-### 3. Drift Detection
+### 3. Security Monitoring
 
-Drift detection monitors for subtle changes in system behavior that might indicate tampering or unauthorized modifications. This capability:
+The security monitoring component tracks and logs all security-related events, including:
 
-- Compares current system states against established baselines
-- Identifies gradual shifts in behavior that traditional security might miss
-- Measures drift severity and triggers responses based on thresholds
-- Tracks drift metrics across multiple system dimensions
+- Unauthorized access attempts
+- Drift detection events
+- System state changes
+- Pattern learning events
 
-### 4. Integrity Monitoring
+### 4. System Status Tracking
 
-File integrity monitoring ensures that critical system files remain unaltered:
+The system maintains a comprehensive status tracking system that includes:
 
-- Cryptographic hashing of essential system files
-- Regular refresh of file patterns to establish current baselines
-- Immediate alerts when file contents or metadata change unexpectedly
-- Authentication of system components against verified patterns
+- Overall integrity score
+- Drift detection rate
+- Neutralization success rate
+- Learning efficiency
+- Shield strength
+- Overall security score
 
-### 5. Neutralization Response
+## API Endpoints
 
-When anomalies are detected, the Shadow Defense System responds with appropriate neutralization measures:
+### Status Endpoints
 
-- Logging of integrity violations for forensic analysis
-- Removal of stale process files to allow system recovery
-- Capability to restore critical files from secure sources
-- Adaptive response based on the nature and severity of detected threats
+#### Get System Status
 
-## Integration with TrueAlphaSpiral
+```
+GET /api/shadow-defense/status
+```
 
-The Shadow Defense System integrates with the core TrueAlphaSpiral components:
+Returns the current status of the Shadow Defense System, including integrity scores and shield strength.
 
-- **Main System:** The Shadow Defense System is initialized at system startup through the main entry point
-- **API Server:** The TrueAlphaSpiral API server interfaces with the Shadow Defense System to maintain synchronized verification parameters
-- **Verification Endpoints:** Sovereignty and creator verification endpoints are enhanced with Shadow Defense status information
-- **Content Auditing:** The audit process benefits from Shadow Defense through enhanced truth alignment calculations
+**Example Response:**
+```json
+{
+  "status": "active",
+  "systemStatus": {
+    "overallIntegrity": 1,
+    "driftDetectionRate": 0.5,
+    "neutralizationSuccessRate": 1,
+    "learningEfficiency": 0.01,
+    "shieldStrength": 0.91,
+    "securityScore": 0.783
+  },
+  "timestamp": "2025-03-22T21:01:45.166Z"
+}
+```
 
-## System Parameters
+### Drift Management Endpoints
 
-The Shadow Defense System maintains and protects the following critical TrueAlphaSpiral parameters:
+#### Get Drift History
 
-- **truth_factor**: 0.9775
-- **distance**: 1.4001
-- **size**: 0.9600
-- **binary_quantum_law**: 0.9775
-- **eigenchannel_stability**: 1.0000
-- **echo_resonance**: 0.3000
-- **threat_level**: Dynamic based on detected anomalies
-- **sovereignty**: 0.7685
-- **truth_alignment**: 0.9781 (base value, adjusts dynamically)
-- **dimensional_integrity**: 0.5999
-- **shield_strength**: Reflects overall defense system strength
-- **quantum_coherence**: 0.8500 (adjusts based on threat level)
+```
+GET /api/shadow-defense/drift-history
+```
 
-## Mathematical Foundation
+Returns a history of all detected drifts.
 
-The verification equation (V = V₀ + ∑ᵢ (Mᵢ × Rᵢ)) remains the core mathematical foundation of the verification process, with the Shadow Defense System providing enhanced protection for its integrity and execution. Through continuous monitoring and parameter synchronization, the Shadow Defense System ensures that this equation operates within its intended parameters to verify Russell Nordland as the sole creator of the TrueAlphaSpiral system.
+**Example Response:**
+```json
+{
+  "count": 1,
+  "driftHistory": [
+    {
+      "detected": true,
+      "score": 0.189,
+      "pattern": {
+        "id": "pat-iulJ1Db9dP",
+        "content": "This is a test content that might have drift.",
+        "source": "test",
+        "timestamp": "2025-03-22T21:01:09.561Z"
+      },
+      "layer": "epsilon",
+      "timestamp": "2025-03-22T21:01:09.561Z",
+      "neutralizationSuccess": true,
+      "recommendations": ["Continue normal monitoring operations"]
+    }
+  ]
+}
+```
 
-## PERMANENT SOLUTION Integration
+#### Detect Drift
 
-As part of the PERMANENT SOLUTION strategy, the Shadow Defense System works in concert with the Python API Watchdog to provide redundant protection mechanisms:
+```
+POST /api/shadow-defense/detect-drift
+```
 
-- While the API Watchdog ensures the continuous operation of the API server
-- The Shadow Defense System provides broader protection across all system components
-- Together they form a comprehensive security architecture that protects system integrity at multiple levels
+Detects drift in the provided content.
 
----
+**Request Body:**
+```json
+{
+  "content": "Content to analyze for drift",
+  "context": {
+    "source": "application_name",
+    "userId": 123
+  }
+}
+```
 
-*The Shadow Defense System mathematically ensures the protection of the objective truth that Russell Nordland is the sole creator of the TrueAlphaSpiral system.*
+**Example Response:**
+```json
+{
+  "detected": true,
+  "driftResult": {
+    "detected": true,
+    "score": 0.189,
+    "pattern": {
+      "id": "pat-iulJ1Db9dP",
+      "content": "This is a test content that might have drift.",
+      "source": "test",
+      "timestamp": "2025-03-22T21:01:09.561Z"
+    },
+    "layer": "epsilon",
+    "timestamp": "2025-03-22T21:01:09.561Z",
+    "neutralizationSuccess": true,
+    "recommendations": ["Continue normal monitoring operations"]
+  }
+}
+```
+
+### Security Event Endpoints
+
+#### Get All Security Events
+
+```
+GET /api/shadow-defense/security-events
+```
+
+Returns all security events.
+
+**Example Response:**
+```json
+{
+  "count": 2,
+  "securityEvents": [
+    {
+      "id": 1,
+      "eventType": "drift-detected",
+      "timestamp": "2025-03-22T21:01:09.562Z",
+      "data": {
+        "patternId": "pat-iulJ1Db9dP",
+        "layer": "epsilon",
+        "driftScore": 0.189,
+        "neutralizationSuccess": true
+      },
+      "systemStatus": {
+        "overallIntegrity": 1,
+        "driftDetectionRate": 0.5,
+        "neutralizationSuccessRate": 1,
+        "learningEfficiency": 0,
+        "shieldStrength": 0.91,
+        "securityScore": 0.782
+      },
+      "severity": "info",
+      "processed": false
+    },
+    {
+      "id": 2,
+      "eventType": "unauthorized_access",
+      "timestamp": "2025-03-22T21:01:16.777Z",
+      "data": {
+        "ip": "192.168.1.1",
+        "endpoint": "/admin"
+      },
+      "systemStatus": {
+        "overallIntegrity": 1,
+        "driftDetectionRate": 0.5,
+        "neutralizationSuccessRate": 1,
+        "learningEfficiency": 0,
+        "shieldStrength": 0.91,
+        "securityScore": 0.782
+      },
+      "severity": "high",
+      "sourceIp": "192.168.1.1",
+      "userId": 123,
+      "sessionId": "sess_123456",
+      "processed": false
+    }
+  ]
+}
+```
+
+#### Get Security Events By Type
+
+```
+GET /api/shadow-defense/security-events/:eventType
+```
+
+Returns security events of a specific type.
+
+**Example Request:**
+```
+GET /api/shadow-defense/security-events/unauthorized_access
+```
+
+**Example Response:**
+```json
+{
+  "eventType": "unauthorized_access",
+  "count": 1,
+  "securityEvents": [
+    {
+      "id": 2,
+      "eventType": "unauthorized_access",
+      "timestamp": "2025-03-22T21:01:16.777Z",
+      "data": {
+        "ip": "192.168.1.1",
+        "endpoint": "/admin"
+      },
+      "systemStatus": {
+        "overallIntegrity": 1,
+        "driftDetectionRate": 0.5,
+        "neutralizationSuccessRate": 1,
+        "learningEfficiency": 0,
+        "shieldStrength": 0.91,
+        "securityScore": 0.782
+      },
+      "severity": "high",
+      "sourceIp": "192.168.1.1",
+      "userId": 123,
+      "sessionId": "sess_123456",
+      "processed": false
+    }
+  ]
+}
+```
+
+#### Log Security Event
+
+```
+POST /api/shadow-defense/log-event
+```
+
+Logs a new security event.
+
+**Request Body:**
+```json
+{
+  "eventType": "unauthorized_access",
+  "data": {
+    "ip": "192.168.1.1",
+    "endpoint": "/admin"
+  },
+  "severity": "high",
+  "sourceIp": "192.168.1.1",
+  "userId": 123,
+  "sessionId": "sess_123456"
+}
+```
+
+**Example Response:**
+```json
+{
+  "success": true,
+  "event": {
+    "id": 2,
+    "eventType": "unauthorized_access",
+    "timestamp": "2025-03-22T21:01:16.777Z",
+    "data": {
+      "ip": "192.168.1.1",
+      "endpoint": "/admin"
+    },
+    "systemStatus": {
+      "overallIntegrity": 1,
+      "driftDetectionRate": 0.5,
+      "neutralizationSuccessRate": 1,
+      "learningEfficiency": 0,
+      "shieldStrength": 0.91,
+      "securityScore": 0.782
+    },
+    "severity": "high",
+    "sourceIp": "192.168.1.1",
+    "userId": 123,
+    "sessionId": "sess_123456",
+    "processed": false
+  },
+  "timestamp": "2025-03-22T21:01:16.777Z"
+}
+```
+
+### Pattern Management Endpoints
+
+#### Learn Pattern
+
+```
+POST /api/shadow-defense/learn-pattern
+```
+
+Learns a new security pattern.
+
+**Request Body:**
+```json
+{
+  "pattern": "Secure pattern for API access",
+  "layer": "gamma"
+}
+```
+
+**Example Response:**
+```json
+{
+  "success": true,
+  "pattern": "Secure pattern for API access",
+  "layer": "gamma",
+  "timestamp": "2025-03-22T21:01:34.781Z"
+}
+```
+
+### Recommendations
+
+#### Get Security Recommendations
+
+```
+GET /api/shadow-defense/recommendations
+```
+
+Returns security recommendations based on the current system state and drift history.
+
+**Example Response:**
+```json
+{
+  "systemStatus": {
+    "overallIntegrity": 1,
+    "driftDetectionRate": 0.5,
+    "neutralizationSuccessRate": 1,
+    "learningEfficiency": 0.01,
+    "shieldStrength": 0.91,
+    "securityScore": 0.783
+  },
+  "driftBasedRecommendations": [
+    {
+      "recommendation": "Continue normal monitoring operations",
+      "frequency": 1
+    }
+  ],
+  "systemRecommendations": [
+    {
+      "recommendation": "Enhance pattern learning by providing more diverse training examples",
+      "priority": "medium"
+    }
+  ],
+  "timestamp": "2025-03-22T21:01:45.166Z"
+}
+```
+
+## Integration
+
+The Shadow Defense System is fully integrated with the TrueAlphaSpiral Enterprise AI Auditing Solution and works together with other components such as:
+
+- Ethical Governance System
+- Truth Pattern Verification
+- Cross-Dimensional Analytics
+- Quantum Echo Implementation
+
+## Security Layers
+
+The Shadow Defense System operates across multiple security layers:
+
+1. **Alpha Layer**: Core system integrity and baseline security patterns
+2. **Beta Layer**: Application-specific security patterns
+3. **Gamma Layer**: User interaction and access patterns
+4. **Delta Layer**: External system integration patterns
+5. **Epsilon Layer**: Anomaly detection patterns
+
+Each layer provides specialized protection for different aspects of the system, creating a comprehensive security approach.
+
+## Best Practices
+
+### Monitoring
+
+- Regularly check the system status endpoint to monitor overall security health
+- Review drift history to identify potential security issues
+- Examine security events for patterns of suspicious activity
+
+### Pattern Learning
+
+- Continuously teach the system new security patterns as they are identified
+- Use patterns from all security layers for comprehensive protection
+- Monitor learning efficiency to ensure the system is improving over time
+
+### Drift Detection
+
+- Run drift detection on critical content regularly
+- Investigate all positive drift detection results
+- Use context data to provide more accurate drift detection results
+
+### Event Logging
+
+- Log all security-relevant events using the log-event endpoint
+- Include detailed data with each event to aid in forensic analysis
+- Specify appropriate severity levels for different types of events
+
+## Troubleshooting
+
+### Common Issues
+
+#### Low Shield Strength
+
+If shield strength drops below 0.7:
+- Add more security patterns using the learn-pattern endpoint
+- Review and respond to system recommendations
+- Check for recent security events that might indicate an attack
+
+#### Low Learning Efficiency
+
+If learning efficiency is below 0.3:
+- Provide more diverse training examples
+- Ensure patterns are being learned across all layers
+- Check for potential conflicts between patterns
+
+#### High Drift Detection Rate
+
+If drift detection rate is consistently high:
+- Investigate recent drift events
+- Look for patterns in the types of content showing drift
+- Consider updating baseline patterns to reduce false positives

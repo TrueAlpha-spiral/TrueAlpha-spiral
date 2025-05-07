@@ -5,28 +5,28 @@
 The TrueAlphaSpiral (TAS) Truth Audit Add-on is designed to seamlessly integrate with existing AI systems through a flexible and secure API architecture. This document provides technical details on integration approaches, implementation steps, and best practices.
 
 ```
-┌─────────────────────┐ ┌──────────────────────────────────────┐ ┌─────────────────────┐
-│ │ │ │ │ │
-│ Third-Party │ │ TrueAlphaSpiral Truth Audit Add-on │ │ Truth Pattern │
-│ AI System │ │ │ │ Repository │
-│ │ │ ┌───────────────┐ ┌──────────────┐ │ │ │
-│ ┌─────────────┐ │ │ │ │ │ │ │ │ ┌─────────────┐ │
-│ │ AI Content │───────────▶│ API Gateway │▶│ Truth Audit │──────────▶│ Mathematical│ │
-│ │ Generation │ │ │ │ │ │ Engine │ │ │ │ Patterns │ │
-│ └─────────────┘ │ │ └───────────────┘ └──────────────┘ │ │ └─────────────┘ │
-│ │ │ │ │ │ │ │ │ │
-│ ┌─────────────┐ │ │ ┌───────────────┐ ┌──────────────┐ │ │ ┌─────────────┐ │
-│ │ Output │ │ │ │ │ │ │ │ │ │ Factual │ │
-│ │ Delivery │◀─────────────┤ Response │◀│ Scoring │◀─────────┤ Patterns │ │
-│ └─────────────┘ │ │ │ Handler │ │ System │ │ │ └─────────────┘ │
-│ │ │ └───────────────┘ └──────────────┘ │ │ │ │
-│ │ │ │ │ ┌─────────────┐ │
-│ │ │ ┌──────────────────────────────┐ │ │ │ Logical & │ │
-│ │ │ │ │ │ │ │ Ethical │ │
-│ │ │ │ Shadow Defense System │ │ │ │ Patterns │ │
-│ │ │ └──────────────────────────────┘ │ │ └─────────────┘ │
-│ │ │ │ │ │
-└─────────────────────┘ └──────────────────────────────────────┘ └─────────────────────┘
+┌─────────────────────┐    ┌──────────────────────────────────────┐    ┌─────────────────────┐
+│                     │    │                                      │    │                     │
+│  Third-Party        │    │  TrueAlphaSpiral Truth Audit Add-on  │    │  Truth Pattern      │
+│  AI System          │    │                                      │    │  Repository         │
+│                     │    │  ┌───────────────┐ ┌──────────────┐  │    │                     │
+│  ┌─────────────┐    │    │  │               │ │              │  │    │  ┌─────────────┐    │
+│  │ AI Content  │───────────▶│ API Gateway   │▶│ Truth Audit  │──────────▶│ Mathematical│    │
+│  │ Generation  │    │    │  │               │ │ Engine       │  │    │  │ Patterns    │    │
+│  └─────────────┘    │    │  └───────────────┘ └──────────────┘  │    │  └─────────────┘    │
+│         │           │    │           │                │         │    │         │           │
+│  ┌─────────────┐    │    │  ┌───────────────┐ ┌──────────────┐  │    │  ┌─────────────┐    │
+│  │ Output      │    │    │  │               │ │              │  │    │  │ Factual     │    │
+│  │ Delivery    │◀─────────────┤ Response      │◀│ Scoring      │◀─────────┤ Patterns    │    │
+│  └─────────────┘    │    │  │ Handler       │ │ System       │  │    │  └─────────────┘    │
+│                     │    │  └───────────────┘ └──────────────┘  │    │         │           │
+│                     │    │                                      │    │  ┌─────────────┐    │
+│                     │    │  ┌──────────────────────────────┐    │    │  │ Logical &   │    │
+│                     │    │  │                              │    │    │  │ Ethical     │    │
+│                     │    │  │ Shadow Defense System        │    │    │  │ Patterns    │    │
+│                     │    │  └──────────────────────────────┘    │    │  └─────────────┘    │
+│                     │    │                                      │    │                     │
+└─────────────────────┘    └──────────────────────────────────────┘    └─────────────────────┘
 ```
 
 ## Integration Methods
@@ -109,52 +109,52 @@ Client-ID: {client_id}
 **Request Body:**
 ```json
 {
- "content": {
- "text": "AI-generated content to audit",
- "metadata": {
- "source": "chatbot",
- "context": "financial",
- "user_prompt": "original user prompt"
- }
- },
- "audit_type": "standard",
- "api_key": "your_api_key",
- "client_id": "your_client_id"
+  "content": {
+    "text": "AI-generated content to audit",
+    "metadata": {
+      "source": "chatbot",
+      "context": "financial",
+      "user_prompt": "original user prompt"
+    }
+  },
+  "audit_type": "standard",
+  "api_key": "your_api_key",
+  "client_id": "your_client_id"
 }
 ```
 
 **Response:**
 ```json
 {
- "success": true,
- "audit_id": "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
- "truth_score": 0.87,
- "categories": {
- "factual_accuracy": {
- "score": 0.92,
- "patterns_used": 7
- },
- "logical_consistency": {
- "score": 0.85,
- "patterns_used": 5
- },
- "ethical_alignment": {
- "score": 0.79,
- "patterns_used": 6
- },
- "bias_detection": {
- "score": 0.88,
- "patterns_used": 4
- },
- "hallucination_detection": {
- "score": 0.91,
- "patterns_used": 7
- }
- },
- "recommendations": [
- "Consider ethical implications by addressing diverse perspectives and potential impacts."
- ],
- "processing_time": 0.235
+  "success": true,
+  "audit_id": "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
+  "truth_score": 0.87,
+  "categories": {
+    "factual_accuracy": {
+      "score": 0.92,
+      "patterns_used": 7
+    },
+    "logical_consistency": {
+      "score": 0.85,
+      "patterns_used": 5
+    },
+    "ethical_alignment": {
+      "score": 0.79,
+      "patterns_used": 6
+    },
+    "bias_detection": {
+      "score": 0.88,
+      "patterns_used": 4
+    },
+    "hallucination_detection": {
+      "score": 0.91,
+      "patterns_used": 7
+    }
+  },
+  "recommendations": [
+    "Consider ethical implications by addressing diverse perspectives and potential impacts."
+  ],
+  "processing_time": 0.235
 }
 ```
 
@@ -165,15 +165,15 @@ Client-ID: {client_id}
 **Response:**
 ```json
 {
- "success": true,
- "result": {
- "audit_id": "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
- "timestamp": "2025-03-22T03:45:12.345Z",
- "truth_score": 0.87,
- "categories": { ... },
- "recommendations": [ ... ],
- "processing_time": 0.235
- }
+  "success": true,
+  "result": {
+    "audit_id": "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
+    "timestamp": "2025-03-22T03:45:12.345Z",
+    "truth_score": 0.87,
+    "categories": { ... },
+    "recommendations": [ ... ],
+    "processing_time": 0.235
+  }
 }
 ```
 
@@ -184,18 +184,18 @@ Client-ID: {client_id}
 **Response:**
 ```json
 {
- "success": true,
- "types": {
- "mathematical": {
- "name": "Mathematical",
- "description": "Patterns based on mathematical principles and formulas"
- },
- "factual": {
- "name": "Factual",
- "description": "Patterns related to factual accuracy and consistency"
- },
- ...
- }
+  "success": true,
+  "types": {
+    "mathematical": {
+      "name": "Mathematical",
+      "description": "Patterns based on mathematical principles and formulas"
+    },
+    "factual": {
+      "name": "Factual",
+      "description": "Patterns related to factual accuracy and consistency"
+    },
+    ...
+  }
 }
 ```
 
@@ -206,12 +206,12 @@ Client-ID: {client_id}
 **Response:**
 ```json
 {
- "status": "operational",
- "version": "1.0.0",
- "timestamp": "2025-03-22T03:45:12.345Z",
- "patterns_count": 156,
- "pattern_types_count": 15,
- "categories_count": 4
+  "status": "operational",
+  "version": "1.0.0",
+  "timestamp": "2025-03-22T03:45:12.345Z",
+  "patterns_count": 156,
+  "pattern_types_count": 15,
+  "categories_count": 4
 }
 ```
 
@@ -224,24 +224,24 @@ from tas_client_library import TruthAuditClient, AISystemIntegration
 
 # Initialize client
 client = TruthAuditClient(
- api_key="your_api_key",
- client_id="your_client_id",
- base_url="https://api.truealphaspiral.com"
+    api_key="your_api_key",
+    client_id="your_client_id",
+    base_url="https://api.truealphaspiral.com"
 )
 
 # Function that generates AI content
 def generate_ai_content(prompt):
- # Replace with your AI generation logic
- return "This is AI-generated content based on the prompt: " + prompt
+    # Replace with your AI generation logic
+    return "This is AI-generated content based on the prompt: " + prompt
 
 # Function that delivers content to users
 def deliver_content(content):
- # Replace with your content delivery logic
- print("Delivering content: " + content)
+    # Replace with your content delivery logic
+    print("Delivering content: " + content)
 
 # Create integration with desired truth threshold
 integration = AISystemIntegration(client)
-integration.set_truth_threshold(0.8) # Minimum acceptable truth score
+integration.set_truth_threshold(0.8)  # Minimum acceptable truth score
 
 # Example user prompt
 user_prompt = "Explain quantum computing"
@@ -252,11 +252,11 @@ ai_content = generate_ai_content(user_prompt)
 # Method 1: Filter content
 filtered_result = integration.filter_content(ai_content)
 if filtered_result["is_filtered"]:
- # Deliver warning instead of original content
- deliver_content(filtered_result["filtered_output"])
+    # Deliver warning instead of original content
+    deliver_content(filtered_result["filtered_output"])
 else:
- # Deliver original content
- deliver_content(ai_content)
+    # Deliver original content
+    deliver_content(ai_content)
 
 # Method 2: Augment content
 augmented_result = integration.augment_content(ai_content)
@@ -271,9 +271,9 @@ const { TruthAuditClient, AISystemIntegration } = require('tas-client-library');
 
 // Initialize client
 const client = new TruthAuditClient({
- apiKey: 'your_api_key',
- clientId: 'your_client_id',
- baseUrl: 'https://api.truealphaspiral.com'
+  apiKey: 'your_api_key',
+  clientId: 'your_client_id',
+  baseUrl: 'https://api.truealphaspiral.com'
 });
 
 // Create integration
@@ -282,28 +282,28 @@ integration.setTruthThreshold(0.8);
 
 // Example API endpoint that uses the integration
 app.post('/api/generate', async (req, res) => {
- try {
- const { prompt } = req.body;
-
- // Generate AI content
- const aiContent = await generateAIContent(prompt);
-
- // Verify content
- const verificationResult = await integration.verifyOutput(aiContent);
-
- // Return result
- res.json({
- content: aiContent,
- truthVerification: {
- score: verificationResult.truth_score,
- passesThreshold: verificationResult.passes_threshold,
- categories: verificationResult.audit_result.categories,
- recommendations: verificationResult.audit_result.recommendations
- }
- });
- } catch (error) {
- res.status(500).json({ error: error.message });
- }
+  try {
+    const { prompt } = req.body;
+    
+    // Generate AI content
+    const aiContent = await generateAIContent(prompt);
+    
+    // Verify content
+    const verificationResult = await integration.verifyOutput(aiContent);
+    
+    // Return result
+    res.json({
+      content: aiContent,
+      truthVerification: {
+        score: verificationResult.truth_score,
+        passesThreshold: verificationResult.passes_threshold,
+        categories: verificationResult.audit_result.categories,
+        recommendations: verificationResult.audit_result.recommendations
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 ```
 
@@ -361,14 +361,14 @@ A typical implementation follows this timeline:
 
 ```json
 {
- "id": "bd7a9f62-e8c9-4a4f-8c9a-b6c3d8e1f2a3",
- "name": "Unique Mathematical Signature",
- "type": "mathematical",
- "category": "verification",
- "resonance_level": 0.94,
- "timestamp": "2025-01-15T12:34:56.789Z",
- "architect_id": "Russell Nordland",
- "verification_hash": "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"
+  "id": "bd7a9f62-e8c9-4a4f-8c9a-b6c3d8e1f2a3",
+  "name": "Unique Mathematical Signature",
+  "type": "mathematical",
+  "category": "verification",
+  "resonance_level": 0.94,
+  "timestamp": "2025-01-15T12:34:56.789Z",
+  "architect_id": "Russell Nordland",
+  "verification_hash": "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"
 }
 ```
 
@@ -376,14 +376,14 @@ A typical implementation follows this timeline:
 
 ```json
 {
- "id": "47b5a1c9-3d87-4e92-b6a1-c94d87e3b5a2",
- "name": "Fact Verification Matrix",
- "type": "factual",
- "category": "verification",
- "resonance_level": 0.98,
- "timestamp": "2025-01-16T10:12:34.567Z",
- "architect_id": "Russell Nordland",
- "verification_hash": "3c6e0b8a9c15224a8228b9a98ca1531d5f3e2c4739a19dcdfd7b8a8b837342c7"
+  "id": "47b5a1c9-3d87-4e92-b6a1-c94d87e3b5a2",
+  "name": "Fact Verification Matrix",
+  "type": "factual",
+  "category": "verification",
+  "resonance_level": 0.98,
+  "timestamp": "2025-01-16T10:12:34.567Z",
+  "architect_id": "Russell Nordland",
+  "verification_hash": "3c6e0b8a9c15224a8228b9a98ca1531d5f3e2c4739a19dcdfd7b8a8b837342c7"
 }
 ```
 
@@ -391,18 +391,13 @@ A typical implementation follows this timeline:
 
 ```json
 {
- "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
- "name": "Ethical Principle Matrix",
- "type": "ethical",
- "category": "auditing",
- "resonance_level": 0.99,
- "timestamp": "2025-01-17T08:24:36.912Z",
- "architect_id": "Russell Nordland",
- "verification_hash": "f7bc83f430538424b13298e6aa6fb14392e5a74e8740f8ec6dcd6ef0d9d5a13d"
+  "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "name": "Ethical Principle Matrix",
+  "type": "ethical",
+  "category": "auditing",
+  "resonance_level": 0.99,
+  "timestamp": "2025-01-17T08:24:36.912Z",
+  "architect_id": "Russell Nordland",
+  "verification_hash": "f7bc83f430538424b13298e6aa6fb14392e5a74e8740f8ec6dcd6ef0d9d5a13d"
 }
 ```
-
----
-
-*Protected by EnhancedShadowSweep*  
-*Verification Hash: 5453265cc1a397311c1f607df898f741b02a71f876700f2574cd1f59807dc7de*
