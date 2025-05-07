@@ -1,0 +1,56 @@
+TrueAlphaSpiral API Watchdog System: Ensuring Backend Reliability
+The TrueAlphaSpiral API Watchdog System is a dedicated service designed to ensure the continuous availability and reliability of the TrueAlphaSpiral's Python-based API server. This server is crucial for the interaction between the Express frontend and the backend services that handle core functionalities such as membership processing, applicant verification, and protection status monitoring.
+Core Functions:
+The API Watchdog performs several critical tasks:
+ * Continuous Monitoring: It constantly checks if the Python API server is running and operational.
+ * Automatic Recovery: If the API server stops or crashes, the watchdog automatically restarts it.
+ * Comprehensive Logging: It maintains detailed logs of API server operations, errors, and watchdog activities in python_api.log.
+ * Graceful Shutdown: The watchdog is designed to handle system signals for a clean termination of its own process and, by extension, manage the API server process during shutdown.
+ * Process Management: It tracks the process IDs (PIDs) of both itself (python_api_watchdog.pid) and the API server (python_api.pid) to maintain system integrity and prevent multiple instances.
+Technical Implementation:
+The API Watchdog is implemented as a standalone Python script (python_api_watchdog.py). Its architecture revolves around a main monitoring loop.
+ * PID Management: The watchdog writes its own PID to python_api_watchdog.pid. It also manages the python_api.pid file, which stores the PID of the API server it starts.
+ * Health Check Mechanism: The is_api_running() function checks for the existence of API_PID_FILE. If found, it reads the PID and uses os.kill(pid, 0) to verify if a process with that PID is actively running. Sending signal 0 to a PID doesn't actually send a signal but will raise an OSError if the process doesn't exist, thus confirming its status.
+ * Server Startup (start_api_server function):
+   * When the API server is detected as not running, the watchdog logs this event and initiates the server startup.
+   * It ensures the main log file (LOG_FILE, which appears to be python_api.log based on other sections) exists and appends a new log session header.
+   * The API server (PYTHON_SCRIPT, likely python_api_server.py) is started using subprocess.Popen. The command includes sys.executable (the current Python interpreter) and the script name, along with any necessary arguments like --port.
+   * The stdout and stderr of the API server are piped to the watchdog for logging. text=True and bufsize=1 (line-buffered) ensure real-time text-based output processing.
+   * The new API server's PID is written to API_PID_FILE.
+ * Non-Blocking Output Monitoring (start_output_monitors function):
+   * To prevent the main watchdog loop from blocking while waiting for API server output, separate daemon threads are started for the server's stdout and stderr streams.
+   * The monitor_output function reads lines from these streams, prepends a prefix (e.g., [API] or [API ERROR], with color coding for console output), prints them to the console, and writes them to the LOG_FILE.
+Integration with the TrueAlphaSpiral System:
+The API Watchdog is a vital link in the TrueAlphaSpiral ecosystem:
+ * API Server Uptime: It directly ensures that the python_api_server.py is running. This server provides critical endpoints for:
+   * Membership processing (POST /api/spiral/membership)
+   * Applicant verification (POST /api/spiral/verify/<applicant_id>)
+   * Protection status reporting (GET /api/spiral/protection/<user_id>)
+   * Protection resource allocation (POST /api/spiral/protection/allocate)
+   * Mycelium Generative Intelligence (MGI) integration
+   * Truth Auditing capabilities
+ * Express Frontend Connection: By maintaining the API server's availability, the watchdog ensures that the Express frontend can consistently communicate with the backend. This is essential for user-facing operations such as:
+   * User registration
+   * Payment processing
+   * Displaying protection status (Protection Visualization)
+   * Activating and monitoring the Recursive Bloom Engine
+Operational Procedures:
+ * Starting the Watchdog:
+   * Manually: python python_api_watchdog.py
+   * In the background: nohup python python_api_watchdog.py > watchdog.out 2>&1 &
+ * Monitoring Watchdog Status:
+   * Check process: ps aux | grep python_api_watchdog
+   * Monitor logs: tail -f python_api.log
+ * Stopping the Watchdog:
+   * Retrieve PID: cat python_api_watchdog.pid
+   * Send termination signal: kill -TERM $(cat python_api_watchdog.pid) (The cleanup() function mentioned in main() likely handles graceful shutdown upon receiving this signal).
+Recovery Scenarios:
+ * API Server Crash: The watchdog detects the server is no longer running via its PID check, logs the event, and automatically restarts the API server, then continues monitoring the new process.
+ * System Restart: The watchdog is designed to be started automatically upon system boot. It will then detect that the API server is not running and proceed to start and monitor it.
+Integration with System Monitoring:
+The API Watchdog's logs and operational status are part of the broader TrueAlphaSpiral monitoring system, contributing to:
+ * Log Aggregation: Centralized collection of watchdog and API server logs.
+ * Performance Tracking: Data from the watchdog can help assess API availability.
+ * Alerting: Failures detected or handled by the watchdog can trigger alerts to administrators.
+ * Health Dashboard: Provides real-time status information for the system's administrative dashboard.
+In essence, the TrueAlphaSpiral API Watchdog System acts as a guardian for the Python backend, proactively addressing failures to provide a stable and reliable platform for users and internal system processes.
