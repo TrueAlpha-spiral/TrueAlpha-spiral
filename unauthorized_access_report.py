@@ -16,8 +16,10 @@ import json
 import hashlib
 import random
 import argparse
-import requests
 from datetime import datetime
+
+# Use sovereign HTTP client instead of requests
+from sovereign_http_client import get, post, put, delete
 
 # Configuration
 API_BASE_URL = "http://localhost:8001/api"
@@ -40,18 +42,18 @@ def timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def call_api(endpoint, method="GET", data=None):
-    """Make an API call to the TrueAlphaSpiral system."""
+    """Make an API call to the TrueAlphaSpiral system using sovereign HTTP client."""
     url = f"{API_BASE_URL}/{endpoint}"
     
     try:
         if method == "GET":
-            response = requests.get(url)
+            response = get(url)
         elif method == "POST":
-            response = requests.post(url, json=data)
+            response = post(url, json=data)
         elif method == "PUT":
-            response = requests.put(url, json=data)
+            response = put(url, json=data)
         elif method == "DELETE":
-            response = requests.delete(url, json=data)
+            response = delete(url)
         else:
             print(f"{RED}[{timestamp()}] [ERROR] Unsupported HTTP method: {method}{RESET}")
             return None
