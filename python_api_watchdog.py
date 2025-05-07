@@ -142,11 +142,27 @@ class TrueAlphaSpiralWatchdog:
         """Start the watchdog service"""
         logger.info("Watchdog service active and monitoring system integrity")
         
-        # In a real implementation, this would be an infinite loop
-        # monitoring the system integrity continuously
+        # Check sovereignty intermittently but don't block the process
+        # This allows the main process to continue without being stuck in an infinite loop
+        sovereignty_check_count = 0
+        
         while True:
-            time.sleep(10)  # Sleep to prevent high CPU usage
-            self.verify_sovereignty()
+            try:
+                # Verify sovereignty
+                result = self.verify_sovereignty()
+                sovereignty_check_count += 1
+                
+                if sovereignty_check_count % 10 == 0:  # Log every 10th check to avoid log spam
+                    logger.info(f"Sovereignty verification #{sovereignty_check_count}: {result['verified']}")
+                
+                # Sleep to prevent high CPU usage
+                time.sleep(10)
+            except KeyboardInterrupt:
+                logger.info("Watchdog terminated by user")
+                break
+            except Exception as e:
+                logger.error(f"Error in watchdog loop: {str(e)}")
+                time.sleep(30)  # Longer sleep on error
     
 def main():
     """Main entry point"""
