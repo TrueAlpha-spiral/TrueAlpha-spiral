@@ -14,10 +14,25 @@ import json
 import argparse
 import logging
 from pathlib import Path
-from flask import Flask, request, jsonify, send_from_directory, Response
 import datetime
 import hashlib
 import random
+
+# Load environment variables from .env file if it exists
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("python-dotenv not found, skipping .env file loading")
+
+# Import Flask and related modules
+try:
+    from flask import Flask, request, jsonify, send_from_directory, Response
+    from flask_cors import CORS
+except ImportError:
+    print("Error: Flask or Flask-CORS not installed. Install with:")
+    print("pip install flask flask-cors")
+    sys.exit(1)
 
 # Configure logging
 logging.basicConfig(
@@ -30,6 +45,9 @@ logger = logging.getLogger('TrueAlphaSpiral')
 # Create Flask app for web interface
 app = Flask(__name__, static_folder='public')
 app.logger.setLevel(logging.INFO)
+
+# Enable CORS for all routes
+CORS(app)
 
 # Global variables
 system_parameters = {
