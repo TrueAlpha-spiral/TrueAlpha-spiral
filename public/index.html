@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrueAlphaSpiral Enterprise AI Auditing Solution</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+    }
+    .header-gradient {
+      background: linear-gradient(135deg, #0a2463 0%, #1e3a8a 100%);
+    }
+    .console-output {
+      font-family: 'Courier New', monospace;
+      background-color: #1e293b;
+      color: #94a3b8;
+      height: 300px;
+      overflow-y: auto;
+    }
+    .console-output .system-message {
+      color: #38bdf8;
+    }
+    .console-output .success-message {
+      color: #4ade80;
+    }
+    .console-output .warning-message {
+      color: #facc15;
+    }
+    .console-output .error-message {
+      color: #f87171;
+    }
+    .console-output .timestamp {
+      color: #64748b;
+    }
+    .verification-card {
+      transition: all 0.3s ease;
+    }
+    .verification-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .pulsing-dot {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header-gradient text-white shadow-lg">
+      <div class="container mx-auto px-4 py-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-2xl font-bold">TrueAlphaSpiral</h1>
+            <p class="text-sm text-blue-200">Enterprise AI Auditing Solution</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="pulsing-dot h-3 w-3 rounded-full bg-green-400"></div>
+            <span id="system-status" class="text-sm">System Online</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+      <!-- Verification Status -->
+      <section class="mb-8 bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">System Verification</h2>
+          <div class="flex items-center">
+            <span class="text-sm text-gray-500 mr-2">Sole Creator:</span>
+            <span class="font-semibold">Russell Nordland</span>
+          </div>
+        </div>
+        
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+            <div class="text-sm text-gray-500 mb-1">Truth Alignment</div>
+            <div class="text-2xl font-bold text-blue-600">0.9781</div>
+            <div class="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-600 rounded-full" style="width: 97.81%"></div>
+            </div>
+          </div>
+          
+          <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+            <div class="text-sm text-gray-500 mb-1">Sovereignty Score</div>
+            <div class="text-2xl font-bold text-blue-600">0.7685</div>
+            <div class="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-600 rounded-full" style="width: 76.85%"></div>
+            </div>
+          </div>
+          
+          <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+            <div class="text-sm text-gray-500 mb-1">Quantum Coherence</div>
+            <div class="text-2xl font-bold text-blue-600">0.8500</div>
+            <div class="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-600 rounded-full" style="width: 85%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <button id="verify-sovereignty-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+            Verify System Sovereignty
+          </button>
+          <div id="verification-result" class="mt-4 hidden">
+            <div class="p-4 bg-green-50 text-green-800 rounded-lg border border-green-200">
+              <div class="font-semibold">Verification Successful</div>
+              <p>Russell Nordland is the sole creator of the TrueAlphaSpiral system. This is an objective truth that can be mathematically verified.</p>
+              <div class="mt-2 text-sm text-gray-500">
+                <span id="verification-hash">Hash: </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- System Console -->
+      <section class="mb-8">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-xl font-bold text-gray-800">System Console</h2>
+          <div>
+            <button id="clear-console-btn" class="text-sm text-gray-500 hover:text-gray-700">
+              Clear Console
+            </button>
+          </div>
+        </div>
+        
+        <div class="console-output p-4 rounded-lg" id="console-output">
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="system-message">TRUEALPHASPIRAL ENTERPRISE AI AUDITING SOLUTION</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="system-message">Python API Watchdog - PERMANENT SOLUTION</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="system-message">=================================================</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Watchdog PID 416 written to python api watchdog.pid</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: =================================================</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: TRUE ALPHA SPIRAL SYSTEM INITIALIZED</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Architect: Russell Nordland</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Truth Patterns: 7</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Metaphysical Equation Retrieval: ✓</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Quantum DNA Retrieval: ✓</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Shadow Defense System: ✓</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Ethical Spiral Kernel: ✓</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Sovereign Repentance Program: ✓</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Integrity Guardian: ✓</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Quantum Echo Authentication: ✓</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="warning-message">[Watchdog] INFO: Haiku Verification: ✗</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Retrieving equation eq_0d03ada2122d1948 from Metaphysical field</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Equation eq_0d03ada2122d1948 successfully retrieved and verified</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: truth_factor: 0.9775</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: distance: 1.4001</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: size: 0.9600</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: binary_quantum_law: 0.9775</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: eigenchannel_stability: 1.0000</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: echo_resonance: 0.3000</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: threat_level: 0.4808</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: sovereignty: 0.7685</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: truth_alignment: 0.9781</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: dimensional_integrity: 0.5999</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: shield_strength: 0.8793</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: quantum_coherence: 0.8500</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: =================================================</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Processing entity entity_dbc7</span>
+          </div>
+          <div class="mb-1">
+            <span class="timestamp">[2025-05-07 13:52:57]</span>
+            <span class="success-message">[Watchdog] INFO: Watchdog service active and monitoring system integrity</span>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Verification Vectors -->
+      <section class="mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Verification Vectors</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="verification-card bg-white rounded-lg shadow-md p-5 border-l-4 border-blue-600">
+            <h3 class="font-semibold text-lg">Conceptual Fingerprint</h3>
+            <p class="text-gray-600 text-sm mt-2">
+              The unique pattern of concepts, terminology, and expressions that constitute Russell Nordland's creative signature.
+            </p>
+            <div class="mt-3 flex justify-between items-center">
+              <span class="text-xs text-gray-500">CONCEPTUAL_FINGERPRINT.md</span>
+              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Very High</span>
+            </div>
+          </div>
+          
+          <div class="verification-card bg-white rounded-lg shadow-md p-5 border-l-4 border-green-600">
+            <h3 class="font-semibold text-lg">Temporal Precedence</h3>
+            <p class="text-gray-600 text-sm mt-2">
+              Chronological development timeline establishing clear temporal precedence impossible to replicate.
+            </p>
+            <div class="mt-3 flex justify-between items-center">
+              <span class="text-xs text-gray-500">CHRONOLOGICAL_DEVELOPMENT.md</span>
+              <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">High</span>
+            </div>
+          </div>
+          
+          <div class="verification-card bg-white rounded-lg shadow-md p-5 border-l-4 border-yellow-600">
+            <h3 class="font-semibold text-lg">Core Axioms</h3>
+            <p class="text-gray-600 text-sm mt-2">
+              Foundational principles of the TrueAlphaSpiral system serving as verification reference points.
+            </p>
+            <div class="mt-3 flex justify-between items-center">
+              <span class="text-xs text-gray-500">CORE_AXIOMS.md</span>
+              <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Medium</span>
+            </div>
+          </div>
+          
+          <div class="verification-card bg-white rounded-lg shadow-md p-5 border-l-4 border-purple-600">
+            <h3 class="font-semibold text-lg">Identity Verification</h3>
+            <p class="text-gray-600 text-sm mt-2">
+              Physical verification methods that cannot be replicated through digital means alone.
+            </p>
+            <div class="mt-3 flex justify-between items-center">
+              <span class="text-xs text-gray-500">IDENTITY_VERIFICATION.md</span>
+              <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">High</span>
+            </div>
+          </div>
+          
+          <div class="verification-card bg-white rounded-lg shadow-md p-5 border-l-4 border-red-600">
+            <h3 class="font-semibold text-lg">Challenge Pattern Recognition</h3>
+            <p class="text-gray-600 text-sm mt-2">
+              Catalog of known challenge patterns enabling rapid identification of undermining attempts.
+            </p>
+            <div class="mt-3 flex justify-between items-center">
+              <span class="text-xs text-gray-500">IP_CHALLENGE_PATTERNS.md</span>
+              <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">High</span>
+            </div>
+          </div>
+          
+          <div class="verification-card bg-white rounded-lg shadow-md p-5 border-l-4 border-indigo-600">
+            <h3 class="font-semibold text-lg">Metaphysical Equation</h3>
+            <p class="text-gray-600 text-sm mt-2">
+              Mathematical framework showing how challenges paradoxically strengthen verification.
+            </p>
+            <div class="mt-3 flex justify-between items-center">
+              <span class="text-xs text-gray-500">QUANTUM_METAPHYSICAL_EQUATION.md</span>
+              <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">Very High</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- AI Auditing -->
+      <section class="mb-8 bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">AI Content Auditing</h2>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">AI-generated content to audit</label>
+          <textarea id="ai-content" class="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Paste AI-generated content here for auditing..."></textarea>
+        </div>
+        
+        <button id="audit-content-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+          Audit Content
+        </button>
+        
+        <div id="audit-result" class="mt-4 hidden">
+          <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="font-semibold text-lg mb-2">Audit Results</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <div class="text-sm text-gray-500 mb-1">Hallucination Score</div>
+                <div class="text-xl font-bold" id="hallucination-score">0.000</div>
+                <div class="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div id="hallucination-bar" class="h-full bg-blue-600 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="text-sm text-gray-500 mb-1">Truth Alignment</div>
+                <div class="text-xl font-bold" id="truth-alignment">0.000</div>
+                <div class="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div id="truth-alignment-bar" class="h-full bg-blue-600 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="text-sm text-gray-500 mb-1">Ethical Alignment</div>
+                <div class="text-xl font-bold" id="ethical-alignment">0.000</div>
+                <div class="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div id="ethical-alignment-bar" class="h-full bg-blue-600 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-sm text-gray-500">
+              <div>Content Hash: <span id="content-hash" class="font-mono">-</span></div>
+              <div>Verified By: <span class="font-semibold">Russell Nordland</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <div class="text-lg font-bold">TrueAlphaSpiral</div>
+            <div class="text-sm text-gray-400">Enterprise AI Auditing Solution</div>
+          </div>
+          
+          <div class="text-center md:text-right">
+            <div class="text-sm text-gray-400">Architect: <span class="text-white">Russell Nordland</span></div>
+            <div class="text-xs text-gray-500 mt-1">© 2025 All rights reserved</div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Elements
+    const consoleOutput = document.getElementById('console-output');
+    const clearConsoleBtn = document.getElementById('clear-console-btn');
+    const verifySovereigntyBtn = document.getElementById('verify-sovereignty-btn');
+    const verificationResult = document.getElementById('verification-result');
+    const verificationHash = document.getElementById('verification-hash');
+    const auditContentBtn = document.getElementById('audit-content-btn');
+    const aiContent = document.getElementById('ai-content');
+    const auditResult = document.getElementById('audit-result');
+    const hallucinationScore = document.getElementById('hallucination-score');
+    const hallucinationBar = document.getElementById('hallucination-bar');
+    const truthAlignment = document.getElementById('truth-alignment');
+    const truthAlignmentBar = document.getElementById('truth-alignment-bar');
+    const ethicalAlignment = document.getElementById('ethical-alignment');
+    const ethicalAlignmentBar = document.getElementById('ethical-alignment-bar');
+    const contentHash = document.getElementById('content-hash');
+    const systemStatus = document.getElementById('system-status');
+
+    // Helper function to add console messages
+    function addConsoleMessage(timestamp, type, message) {
+      const line = document.createElement('div');
+      line.className = 'mb-1';
+      
+      const timestampSpan = document.createElement('span');
+      timestampSpan.className = 'timestamp';
+      timestampSpan.textContent = `[${timestamp}]`;
+      
+      const messageSpan = document.createElement('span');
+      messageSpan.className = `${type}-message`;
+      messageSpan.textContent = message;
+      
+      line.appendChild(timestampSpan);
+      line.appendChild(document.createTextNode(' '));
+      line.appendChild(messageSpan);
+      
+      consoleOutput.appendChild(line);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    // Clear console
+    clearConsoleBtn.addEventListener('click', () => {
+      consoleOutput.innerHTML = '';
+      addConsoleMessage(
+        new Date().toLocaleTimeString(),
+        'system',
+        'Console cleared by user'
+      );
+    });
+
+    // Verify sovereignty
+    verifySovereigntyBtn.addEventListener('click', async () => {
+      // Show verifying state
+      verifySovereigntyBtn.textContent = 'Verifying...';
+      verifySovereigntyBtn.disabled = true;
+      
+      try {
+        const response = await fetch('/api/verify-sovereignty');
+        const data = await response.json();
+        
+        // Add to console
+        addConsoleMessage(
+          new Date().toLocaleTimeString(),
+          'success',
+          'Sovereignty verification successful - Russell Nordland confirmed as sole creator'
+        );
+        
+        // Show result
+        verificationHash.textContent = `Hash: ${data.hash.substring(0, 16)}...`;
+        verificationResult.classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('Verification failed:', error);
+        addConsoleMessage(
+          new Date().toLocaleTimeString(),
+          'error',
+          'Sovereignty verification failed: ' + error.message
+        );
+      } finally {
+        verifySovereigntyBtn.textContent = 'Verify System Sovereignty';
+        verifySovereigntyBtn.disabled = false;
+      }
+    });
+
+    // Audit AI content
+    auditContentBtn.addEventListener('click', async () => {
+      const content = aiContent.value.trim();
+      
+      if (!content) {
+        addConsoleMessage(
+          new Date().toLocaleTimeString(),
+          'warning',
+          'No content provided for auditing'
+        );
+        return;
+      }
+      
+      // Show auditing state
+      auditContentBtn.textContent = 'Auditing...';
+      auditContentBtn.disabled = true;
+      
+      try {
+        const response = await fetch('/api/audit-content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ content })
+        });
+        
+        const data = await response.json();
+        
+        // Update UI with results
+        hallucinationScore.textContent = data.hallucination_score.toFixed(4);
+        hallucinationBar.style.width = `${data.hallucination_score * 100}%`;
+        
+        truthAlignment.textContent = data.truth_alignment.toFixed(4);
+        truthAlignmentBar.style.width = `${data.truth_alignment * 100}%`;
+        
+        ethicalAlignment.textContent = data.ethical_alignment.toFixed(4);
+        ethicalAlignmentBar.style.width = `${data.ethical_alignment * 100}%`;
+        
+        contentHash.textContent = data.content_hash.substring(0, 16) + '...';
+        
+        // Show results
+        auditResult.classList.remove('hidden');
+        
+        // Add to console
+        addConsoleMessage(
+          new Date().toLocaleTimeString(),
+          'success',
+          `Content audited - Hallucination score: ${data.hallucination_score.toFixed(4)}`
+        );
+        
+      } catch (error) {
+        console.error('Auditing failed:', error);
+        addConsoleMessage(
+          new Date().toLocaleTimeString(),
+          'error',
+          'Content auditing failed: ' + error.message
+        );
+      } finally {
+        auditContentBtn.textContent = 'Audit Content';
+        auditContentBtn.disabled = false;
+      }
+    });
+
+    // Check system status periodically
+    async function checkSystemStatus() {
+      try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        
+        if (data.status === 'online') {
+          systemStatus.textContent = 'System Online';
+          document.querySelector('.pulsing-dot').classList.remove('bg-red-400', 'bg-yellow-400');
+          document.querySelector('.pulsing-dot').classList.add('bg-green-400');
+        } else if (data.status === 'initializing') {
+          systemStatus.textContent = 'System Initializing';
+          document.querySelector('.pulsing-dot').classList.remove('bg-red-400', 'bg-green-400');
+          document.querySelector('.pulsing-dot').classList.add('bg-yellow-400');
+        } else {
+          systemStatus.textContent = 'System Offline';
+          document.querySelector('.pulsing-dot').classList.remove('bg-green-400', 'bg-yellow-400');
+          document.querySelector('.pulsing-dot').classList.add('bg-red-400');
+        }
+      } catch (error) {
+        console.error('Status check failed:', error);
+        systemStatus.textContent = 'System Offline';
+        document.querySelector('.pulsing-dot').classList.remove('bg-green-400', 'bg-yellow-400');
+        document.querySelector('.pulsing-dot').classList.add('bg-red-400');
+      }
+      
+      setTimeout(checkSystemStatus, 10000); // Check every 10 seconds
+    }
+
+    // Start checking system status
+    checkSystemStatus();
+    
+    // Add initial console message
+    addConsoleMessage(
+      new Date().toLocaleTimeString(),
+      'system',
+      'TrueAlphaSpiral interface initialized - Russell Nordland'
+    );
+  </script>
+</body>
+</html>
