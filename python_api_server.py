@@ -52,7 +52,7 @@ try:
     from metaphysical_equation_retrieval import MetaphysicalEquationRetrieval
     from quantum_dna_retrieval import QuantumDNARetrieval
     from quantum_echo_authenticator import QuantumEchoAuthenticator
-    from spiral_membership import SpiralMembership
+    from spiral_membership_restricted import RestrictedSpiralMembership
 except ImportError as e:
     print(f"ERROR: Failed to import TrueAlphaSpiral components: {str(e)}")
     print("Make sure all component files exist and dependencies are installed.")
@@ -813,7 +813,7 @@ sovereign_program = None
 metaphysical_system = None
 quantum_system = None
 quantum_echo = None
-spiral_membership_system = None
+restricted_membership = None
 
 # System status
 system_status = {
@@ -836,7 +836,7 @@ system_status = {
 def initialize_all_systems():
     """Initialize all TrueAlphaSpiral components."""
     global true_alpha_system, shadow_defense, ethical_kernel, integrity_system
-    global sovereign_program, metaphysical_system, quantum_system, quantum_echo, spiral_membership_system, system_status
+    global sovereign_program, metaphysical_system, quantum_system, quantum_echo, restricted_membership, system_status
     
     try:
         # Initialize True Alpha Spiral
@@ -886,10 +886,10 @@ def initialize_all_systems():
         quantum_echo.initialize()
         system_status["components"]["quantum_echo"] = {"status": "ready", "initialized": True}
         
-        # Initialize Spiral Membership System
-        spiral_membership_system = SpiralMembership()
-        spiral_membership_system.initialize(steward_name="Russell Nordland")
-        system_status["components"]["spiral_membership"] = {"status": "ready", "initialized": True}
+        # Initialize Restricted Spiral Membership System
+        restricted_membership = RestrictedSpiralMembership()
+        restricted_membership.initialize(steward_name="Russell Nordland")
+        system_status["components"]["restricted_membership"] = {"status": "ready", "initialized": True}
         
         # Update overall system status
         system_status["initialized"] = True
@@ -2000,6 +2000,160 @@ if __name__ == '__main__':
         sys.exit(0)
     sock.close()
     
+    # Restricted Membership API endpoints - Only accessible to the steward
+    @app.route('/api/membership/restricted/register', methods=['POST'])
+    def register_member():
+        """Register a new member (steward only)."""
+        if not restricted_membership:
+            return jsonify({"success": False, "error": "Restricted Membership System not initialized"}), 500
+        
+        if not request.json:
+            return jsonify({"success": False, "error": "Request body is required"}), 400
+        
+        # Extract required data
+        if 'registered_by' not in request.json:
+            return jsonify({"success": False, "error": "Steward ID (registered_by) is required"}), 400
+            
+        member_data = request.json.get('member', {})
+        steward_id = request.json.get('registered_by')
+        
+        # Restricted API - only the steward can register members
+        result = restricted_membership.register_member(member_data, steward_id)
+        
+        if result.get('success', False):
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 403
+    
+    @app.route('/api/membership/restricted/request', methods=['POST'])
+    def submit_membership_request():
+        """Submit a request to join the spiral (doesn't grant access, just notifies steward)."""
+        if not restricted_membership:
+            return jsonify({"success": False, "error": "Restricted Membership System not initialized"}), 500
+        
+        if not request.json:
+            return jsonify({"success": False, "error": "Request body is required"}), 400
+        
+        # Add additional security information
+        request_data = request.json
+        request_data['ip_address'] = request.remote_addr
+        request_data['user_agent'] = request.headers.get('User-Agent', 'unknown')
+        
+        # Submit the request (does not grant access)
+        result = restricted_membership.submit_request(request_data)
+        
+        return jsonify(result), 200 if result.get('success', False) else 400
+    
+    @app.route('/api/membership/restricted/members', methods=['GET'])
+    def get_all_members():
+        """Get all members (steward only)."""
+        if not restricted_membership:
+            return jsonify({"success": False, "error": "Restricted Membership System not initialized"}), 500
+        
+        # Steward verification
+        steward_id = request.args.get('steward_id')
+        if not steward_id:
+            return jsonify({"success": False, "error": "Steward ID is required"}), 400
+        
+        # Get all members (restricted to steward only)
+        members = restricted_membership.get_all_members(steward_id)
+        
+        # If empty list is returned, likely due to unauthorized access
+        if not members:
+            return jsonify({
+                "success": False, 
+                "error": "Unauthorized access or no members found",
+                "members": []
+            }), 403
+        
+        return jsonify({
+            "success": True,
+            "members": members,
+            "count": len(members)
+        }), 200
+    
+    @app.route('/api/membership/restricted/requests', methods=['GET'])
+    def get_pending_requests():
+        """Get all pending join requests (steward only)."""
+        if not restricted_membership:
+            return jsonify({"success": False, "error": "Restricted Membership System not initialized"}), 500
+        
+        # Steward verification
+        steward_id = request.args.get('steward_id')
+        if not steward_id:
+            return jsonify({"success": False, "error": "Steward ID is required"}), 400
+        
+        # Get pending requests (restricted to steward only)
+        requests = restricted_membership.get_pending_requests(steward_id)
+        
+        # If empty list is returned, likely due to unauthorized access
+        if not requests:
+            return jsonify({
+                "success": False, 
+                "error": "Unauthorized access or no requests found",
+                "requests": []
+            }), 403
+        
+        return jsonify({
+            "success": True,
+            "requests": requests,
+            "count": len(requests)
+        }), 200
+    
+    @app.route('/api/membership/restricted/authenticate', methods=['POST'])
+    def authenticate_member():
+        """Authenticate a member using their auth hash with enhanced security."""
+        if not restricted_membership:
+            return jsonify({"success": False, "error": "Restricted Membership System not initialized"}), 500
+        
+        if not request.json:
+            return jsonify({"success": False, "error": "Request body is required"}), 400
+        
+        # Extract authentication data
+        member_id = request.json.get('member_id')
+        auth_hash = request.json.get('auth_hash')
+        
+        if not member_id or not auth_hash:
+            return jsonify({"success": False, "error": "Member ID and auth hash are required"}), 400
+        
+        # Authenticate the member
+        is_authenticated = restricted_membership.authenticate_member(member_id, auth_hash)
+        
+        if is_authenticated:
+            return jsonify({
+                "success": True,
+                "message": "Authentication successful"
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Authentication failed"
+            }), 401
+    
+    @app.route('/api/membership/restricted/remove', methods=['POST'])
+    def remove_member():
+        """Remove a member from the spiral (steward only)."""
+        if not restricted_membership:
+            return jsonify({"success": False, "error": "Restricted Membership System not initialized"}), 500
+        
+        if not request.json:
+            return jsonify({"success": False, "error": "Request body is required"}), 400
+        
+        # Extract required data
+        member_id = request.json.get('member_id')
+        removed_by = request.json.get('removed_by')  # Must be steward
+        
+        if not member_id or not removed_by:
+            return jsonify({"success": False, "error": "Member ID and steward ID (removed_by) are required"}), 400
+        
+        # Remove the member (restricted to steward only)
+        result = restricted_membership.remove_member(member_id, removed_by)
+        
+        if result.get('success', False):
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 403
+            
     # TAS Truth Audit Add-on API endpoints
     @app.route('/api/tas/status', methods=['GET'])
     def tas_status():
