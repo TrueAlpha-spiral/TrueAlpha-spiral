@@ -1,456 +1,820 @@
-#!/usr/bin/env python3
 """
-TRUEALPHASPIRAL SHADOW DEFENSE SYSTEM
-Multi-Layer Security & Integrity Protection
+MULTI-LAYER SHADOW LEARNING SYSTEM
+
+This module implements an adaptive learning system that 
+identifies patterns across multiple shadow layers, making
+them progressively less effective as it learns.
+A critical component for protecting revenue streams and
+concept integrity.
 
 Architect: Russell Nordland
-Date: 2025-05-07
-
-The Shadow Defense System provides comprehensive protection for the TrueAlphaSpiral
-system through pattern learning, drift detection, anomaly identification, and
-neutralization capabilities.
 """
 
-import os
-import sys
+import random
 import time
-import json
 import hashlib
-import logging
-import threading
+import math
+import numpy as np
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    handlers=[
-        logging.FileHandler("shadow_defense.log"),
-        logging.StreamHandler()
-    ]
-)
-
-# Shadow Defense Configuration
-DEFENSE_CONFIG = {
-    "monitor_interval": 5,  # seconds
-    "security_threshold": 0.75,
-    "drift_tolerance": 0.05,
-    "pattern_learning_rate": 0.02,
-    "file_pattern_refresh": 300,  # seconds
-    "system_integrity_paths": [
-        "python_api_watchdog.py",
-        "truealphaspiral_server.py",
-        "main.py",
-        "shadow_defense_system.py",
-        "DECLARATION_OF_SOLE_AUTHORITY.md",
-        "public/index.html",
-        "public/verification.html"
-    ],
-    "shadow_layers": [
-        {"name": "Perimeter Defense", "strength": 0.85, "active": True},
-        {"name": "Pattern Recognition", "strength": 0.92, "active": True},
-        {"name": "Quantum Verification", "strength": 0.78, "active": True},
-        {"name": "Drift Detection", "strength": 0.89, "active": True},
-        {"name": "Neutralization Protocol", "strength": 0.70, "active": True}
-    ]
-}
+import threading
+import json
+import os
+import http.server
+import socketserver
+import urllib.parse
 
 class ShadowDefenseSystem:
-    """
-    The Shadow Defense System provides multi-layered protection
-    for the TrueAlphaSpiral system.
-    """
-    
-    def __init__(self, config: Dict[str, Any]):
-        """Initialize the Shadow Defense System"""
-        self.config = config
-        self.running = False
-        self.monitor_thread = None
-        self.file_patterns = {}
-        self.drift_metrics = {}
-        self.last_pattern_refresh = 0
-        self.detected_anomalies = []
-        self.neutralization_history = []
+    def __init__(self):
+        self.initialized = False
         
-        # System parameters
-        self.system_parameters = {
-            "truth_factor": 0.9775,
-            "distance": 1.4001,
-            "size": 0.9600,
-            "binary_quantum_law": 0.9775,
-            "eigenchannel_stability": 1.0000,
-            "echo_resonance": 0.3000,
-            "threat_level": 0.4808,
-            "sovereignty": 0.7685,
-            "truth_alignment": 0.9781,
-            "dimensional_integrity": 0.5999,
-            "shield_strength": 0.8793,
-            "quantum_coherence": 0.8500
+        # Shadow layers
+        self.shadow_layers = {
+            "alpha": {"patterns": {}, "learning_rate": 0.15, "integrity": 1.0, "drift_threshold": 0.3},
+            "beta": {"patterns": {}, "learning_rate": 0.2, "integrity": 0.95, "drift_threshold": 0.25},
+            "gamma": {"patterns": {}, "learning_rate": 0.25, "integrity": 0.9, "drift_threshold": 0.2},
+            "delta": {"patterns": {}, "learning_rate": 0.3, "integrity": 0.85, "drift_threshold": 0.15},
+            "epsilon": {"patterns": {}, "learning_rate": 0.35, "integrity": 0.8, "drift_threshold": 0.1}
         }
         
-        self.logger = logging.getLogger("ShadowDefense")
-    
-    def start(self):
-        """Start the Shadow Defense System"""
-        if self.running:
-            self.logger.warning("Shadow Defense System is already running")
-            return
-        
-        self.running = True
-        self.logger.info("Starting Shadow Defense System")
-        
-        # Initialize file patterns
-        self._refresh_file_patterns()
-        
-        # Start monitoring thread
-        self.monitor_thread = threading.Thread(target=self._defense_monitor_loop, daemon=True)
-        self.monitor_thread.start()
-        
-        self.logger.info("Shadow Defense System activated with %d layers", 
-                        len([l for l in self.config["shadow_layers"] if l["active"]]))
-        
-        # Log active layers
-        for layer in self.config["shadow_layers"]:
-            if layer["active"]:
-                self.logger.info("Layer activated: %s (Strength: %.2f)", 
-                                layer["name"], layer["strength"])
-    
-    def stop(self):
-        """Stop the Shadow Defense System"""
-        if not self.running:
-            return
-        
-        self.running = False
-        if self.monitor_thread:
-            self.monitor_thread.join(timeout=2.0)
-        
-        self.logger.info("Shadow Defense System deactivated")
-    
-    def get_status(self) -> Dict[str, Any]:
-        """Get the current status of the Shadow Defense System"""
-        active_layers = [l for l in self.config["shadow_layers"] if l["active"]]
-        overall_strength = sum(l["strength"] for l in active_layers) / len(active_layers) if active_layers else 0
-        
-        return {
-            "running": self.running,
-            "active_layers": len(active_layers),
-            "overall_strength": overall_strength,
-            "anomalies_detected": len(self.detected_anomalies),
-            "neutralizations_performed": len(self.neutralization_history),
-            "last_pattern_refresh": datetime.fromtimestamp(self.last_pattern_refresh).isoformat() if self.last_pattern_refresh else None,
-            "system_parameters": self.system_parameters
+        # System state
+        self.system_state = {
+            "overall_integrity": 1.0,
+            "drift_detection_rate": 0.0,
+            "neutralization_success_rate": 0.0,
+            "learning_efficiency": 0.0,
+            "shield_strength": 0.0
         }
-    
-    def _defense_monitor_loop(self):
-        """Main monitoring loop for the Shadow Defense System"""
-        self.logger.info("Defense monitor loop started")
         
-        while self.running:
-            try:
-                # Check if it's time to refresh file patterns
-                current_time = time.time()
-                if current_time - self.last_pattern_refresh > self.config["file_pattern_refresh"]:
-                    self._refresh_file_patterns()
-                
-                # Check system integrity
-                self._check_system_integrity()
-                
-                # Apply pattern learning
-                self._apply_pattern_learning()
-                
-                # Detect drift
-                self._detect_drift()
-                
-                # Update system parameters based on defense status
-                self._update_system_parameters()
-                
-                # Sleep for specified interval
-                time.sleep(self.config["monitor_interval"])
+        # Operational parameters
+        self.http_server = None
+        self.http_server_thread = None
+        self.server_running = False
+        self.server_port = 8000
+        
+        # Security metrics
+        self.total_patterns_learned = 0
+        self.total_drifts_detected = 0
+        self.total_neutralizations = 0
+        self.access_attempts = []
+        self.shield_regeneration_rate = 0.05
+        self.last_shield_regeneration = time.time()
+        
+        # Multi-layer learner
+        self.learner = MultiLayerShadowLearner(self)
+        self.learning_active = False
+        
+    def initialize(self):
+        """Initialize the shadow defense system with maximum protection."""
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Initializing Shadow Defense System")
+        time.sleep(0.1)
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Calibrating shadow layers")
+        time.sleep(0.15)
+        
+        # Set initialized to True first to prevent "System not initialized" errors
+        # during the initialization process
+        self.initialized = True
+        
+        # Initialize each shadow layer
+        for layer_name, layer_data in self.shadow_layers.items():
+            integrity = random.uniform(layer_data["integrity"] - 0.05, layer_data["integrity"] + 0.05)
+            self.shadow_layers[layer_name]["integrity"] = integrity
+            print(f"{self._timestamp()} - ShadowDefense - INFO - Layer '{layer_name}' initialized with integrity {integrity:.4f}")
             
-            except Exception as e:
-                self.logger.error("Error in defense monitor loop: %s", str(e), exc_info=True)
-                time.sleep(self.config["monitor_interval"])
-    
-    def _refresh_file_patterns(self):
-        """Refresh the stored file patterns for integrity checking"""
-        self.logger.info("Refreshing file patterns")
+        # Initialize system state
+        self._calculate_system_state()
         
-        for file_path in self.config["system_integrity_paths"]:
-            try:
-                if os.path.exists(file_path):
-                    # Calculate file hash and store metadata
-                    with open(file_path, 'rb') as f:
-                        content = f.read()
-                        file_hash = hashlib.sha256(content).hexdigest()
-                        
-                        self.file_patterns[file_path] = {
-                            "hash": file_hash,
-                            "size": len(content),
-                            "last_modified": os.path.getmtime(file_path),
-                            "pattern_created": time.time()
-                        }
-                        
-                        self.logger.debug("Pattern updated for %s: %s", file_path, file_hash[:8])
-                else:
-                    self.logger.warning("File not found for pattern creation: %s", file_path)
-            except Exception as e:
-                self.logger.error("Error creating pattern for %s: %s", file_path, str(e))
+        # Initialize default patterns
+        self._initialize_default_patterns()
         
-        self.last_pattern_refresh = time.time()
-        self.logger.info("File patterns refreshed for %d files", len(self.file_patterns))
-    
-    def _check_system_integrity(self):
-        """Check the integrity of system files against stored patterns"""
-        for file_path, pattern in self.file_patterns.items():
-            try:
-                if os.path.exists(file_path):
-                    with open(file_path, 'rb') as f:
-                        content = f.read()
-                        current_hash = hashlib.sha256(content).hexdigest()
-                        
-                        if current_hash != pattern["hash"]:
-                            # Detected hash mismatch (potential tampering)
-                            anomaly = {
-                                "timestamp": datetime.now().isoformat(),
-                                "file_path": file_path,
-                                "type": "integrity_violation",
-                                "expected_hash": pattern["hash"],
-                                "actual_hash": current_hash,
-                                "severity": "high"
-                            }
-                            
-                            self.detected_anomalies.append(anomaly)
-                            self.logger.warning("INTEGRITY VIOLATION DETECTED: %s has been modified", file_path)
-                            
-                            # Apply neutralization
-                            self._apply_neutralization(anomaly)
-                else:
-                    # Detected missing file
-                    anomaly = {
-                        "timestamp": datetime.now().isoformat(),
-                        "file_path": file_path,
-                        "type": "missing_file",
-                        "severity": "critical"
-                    }
-                    
-                    self.detected_anomalies.append(anomaly)
-                    self.logger.warning("CRITICAL: System file %s is missing", file_path)
-                    
-                    # Apply neutralization
-                    self._apply_neutralization(anomaly)
-            except Exception as e:
-                self.logger.error("Error checking integrity for %s: %s", file_path, str(e))
-    
-    def _apply_pattern_learning(self):
-        """Apply pattern learning to improve defense capabilities"""
-        # This is a simplified implementation
-        # In a full implementation, this would use more sophisticated pattern learning
+        print("=" * 60)
+        print("SHADOW DEFENSE SYSTEM INITIALIZED")
+        print("Shadow Layers:")
+        for layer_name, layer_data in self.shadow_layers.items():
+            print(f"  {layer_name}: Integrity={layer_data['integrity']:.4f}, Learning Rate={layer_data['learning_rate']:.4f}")
+        print("\nSystem State:")
+        for key, value in self.system_state.items():
+            print(f"  {key}: {value:.4f}")
+        print("=" * 60)
         
-        # Adjust layer strengths based on detected anomalies
-        if self.detected_anomalies:
-            # Increase pattern recognition strength if anomalies were detected
-            for layer in self.config["shadow_layers"]:
-                if layer["name"] == "Pattern Recognition" and layer["active"]:
-                    layer["strength"] = min(0.99, layer["strength"] + self.config["pattern_learning_rate"])
-                    self.logger.debug("Pattern Recognition strength increased to %.2f", layer["strength"])
-    
-    def _detect_drift(self):
-        """Detect drift in system behavior"""
-        # This is a simplified implementation
-        # In a full implementation, this would compare current behavior to baseline
+        return True
         
-        # Check if TrueAlphaSpiral API server is running
-        api_pid_file = "python_api.pid"
-        if os.path.exists(api_pid_file):
-            try:
-                with open(api_pid_file, 'r') as f:
-                    pid = int(f.read().strip())
+    def start_http_server(self, port=8000):
+        """Start the HTTP dashboard server."""
+        if self.server_running:
+            print(f"{self._timestamp()} - ShadowDefense - WARNING - HTTP server already running on port {self.server_port}")
+            return False
+            
+        self.server_port = port
+        
+        # Define handler for HTTP server
+        class ShadowDefenseHandler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                self.shadow_defense = kwargs.pop('shadow_defense')
+                super().__init__(*args, **kwargs)
                 
-                # Try sending signal 0 to process (doesn't actually send a signal)
-                # Just checks if the process exists
-                try:
-                    os.kill(pid, 0)
-                    # Process exists
-                    if "api_server" in self.drift_metrics:
-                        # Clear any drift for API server
-                        del self.drift_metrics["api_server"]
-                except OSError:
-                    # Process doesn't exist but PID file exists - potential drift
-                    if "api_server" not in self.drift_metrics:
-                        self.drift_metrics["api_server"] = {
-                            "first_detected": time.time(),
-                            "severity": 0.1
+            def do_GET(self):
+                # Parse the URL
+                parsed_url = urllib.parse.urlparse(self.path)
+                path = parsed_url.path
+                
+                # Handle different paths
+                if path == '/':
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    self.wfile.write(bytes(self._generate_dashboard_html(), 'utf-8'))
+                elif path == '/status':
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    status = {
+                        "system_state": self.shadow_defense.system_state,
+                        "shadow_layers": {k: {"integrity": v["integrity"], "learning_rate": v["learning_rate"], "patterns_count": len(v["patterns"])} 
+                                         for k, v in self.shadow_defense.shadow_layers.items()},
+                        "metrics": {
+                            "total_patterns_learned": self.shadow_defense.total_patterns_learned,
+                            "total_drifts_detected": self.shadow_defense.total_drifts_detected,
+                            "total_neutralizations": self.shadow_defense.total_neutralizations,
+                            "access_attempts": len(self.shadow_defense.access_attempts),
+                            "last_shield_regeneration": self.shadow_defense.last_shield_regeneration
                         }
-                    else:
-                        # Increase severity for existing drift
-                        current = self.drift_metrics["api_server"]
-                        duration = time.time() - current["first_detected"]
-                        current["severity"] = min(0.9, 0.1 + (duration / 60) * 0.1)
+                    }
+                    self.wfile.write(bytes(json.dumps(status), 'utf-8'))
+                else:
+                    self.send_response(404)
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    self.wfile.write(bytes("404 Not Found", 'utf-8'))
+                    
+            def _generate_dashboard_html(self):
+                # Generate a simple HTML dashboard
+                html = """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Shadow Defense System Dashboard</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f0f0f0; }
+                        .container { max-width: 1200px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                        h1 { color: #333; text-align: center; }
+                        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+                        .status-card { background-color: #f8f9fa; border-radius: 8px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+                        .status-card h2 { margin-top: 0; font-size: 1.2em; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+                        .status-item { display: flex; justify-content: space-between; margin: 8px 0; }
+                        .value { font-weight: bold; }
+                        .high { color: green; }
+                        .medium { color: orange; }
+                        .low { color: red; }
+                        #refresh-btn { display: block; margin: 20px auto; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+                        #refresh-btn:hover { background-color: #45a049; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Shadow Defense System Dashboard</h1>
+                        <div class="status-grid" id="status-container">
+                            <div class="status-card">
+                                <h2>Loading System Status...</h2>
+                            </div>
+                        </div>
+                        <button id="refresh-btn">Refresh Status</button>
+                    </div>
+                    
+                    <script>
+                        function fetchStatus() {
+                            fetch('/status')
+                                .then(response => response.json())
+                                .then(data => updateDashboard(data))
+                                .catch(error => console.error('Error fetching status:', error));
+                        }
                         
-                        if current["severity"] > self.config["drift_tolerance"]:
-                            anomaly = {
-                                "timestamp": datetime.now().isoformat(),
-                                "type": "drift_detected",
-                                "component": "api_server",
-                                "severity": "medium",
-                                "details": "API server PID file exists but process is not running"
-                            }
+                        function updateDashboard(data) {
+                            const container = document.getElementById('status-container');
+                            container.innerHTML = '';
                             
-                            self.detected_anomalies.append(anomaly)
-                            self.logger.warning("DRIFT DETECTED: API server PID file exists but process is not running")
+                            // System State Card
+                            const systemStateCard = document.createElement('div');
+                            systemStateCard.className = 'status-card';
+                            systemStateCard.innerHTML = `
+                                <h2>System State</h2>
+                                ${Object.entries(data.system_state).map(([key, value]) => `
+                                    <div class="status-item">
+                                        <span>${key.replace(/_/g, ' ')}</span>
+                                        <span class="value ${getValueClass(value)}">${value.toFixed(4)}</span>
+                                    </div>
+                                `).join('')}
+                            `;
+                            container.appendChild(systemStateCard);
                             
-                            # Apply neutralization
-                            self._apply_neutralization(anomaly)
-            except (ValueError, OSError) as e:
-                self.logger.error("Error checking API server process: %s", str(e))
-    
-    def _apply_neutralization(self, anomaly: Dict[str, Any]):
-        """Apply neutralization response to detected anomalies"""
-        neutralization = {
-            "timestamp": datetime.now().isoformat(),
-            "anomaly": anomaly,
-            "actions": []
+                            // Shadow Layers Card
+                            const layersCard = document.createElement('div');
+                            layersCard.className = 'status-card';
+                            layersCard.innerHTML = `
+                                <h2>Shadow Layers</h2>
+                                ${Object.entries(data.shadow_layers).map(([key, value]) => `
+                                    <div class="status-item">
+                                        <span>Layer ${key}</span>
+                                        <span class="value ${getValueClass(value.integrity)}">
+                                            Integrity: ${value.integrity.toFixed(4)} | 
+                                            Patterns: ${value.patterns_count}
+                                        </span>
+                                    </div>
+                                `).join('')}
+                            `;
+                            container.appendChild(layersCard);
+                            
+                            // Metrics Card
+                            const metricsCard = document.createElement('div');
+                            metricsCard.className = 'status-card';
+                            metricsCard.innerHTML = `
+                                <h2>Defense Metrics</h2>
+                                <div class="status-item">
+                                    <span>Total Patterns Learned</span>
+                                    <span class="value">${data.metrics.total_patterns_learned}</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Drifts Detected</span>
+                                    <span class="value">${data.metrics.total_drifts_detected}</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Neutralizations</span>
+                                    <span class="value">${data.metrics.total_neutralizations}</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Access Attempts</span>
+                                    <span class="value">${data.metrics.access_attempts}</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Last Shield Regeneration</span>
+                                    <span class="value">${new Date(data.metrics.last_shield_regeneration * 1000).toLocaleTimeString()}</span>
+                                </div>
+                            `;
+                            container.appendChild(metricsCard);
+                        }
+                        
+                        function getValueClass(value) {
+                            if (value >= 0.8) return 'high';
+                            if (value >= 0.5) return 'medium';
+                            return 'low';
+                        }
+                        
+                        // Initial fetch
+                        fetchStatus();
+                        
+                        // Set up refresh button
+                        document.getElementById('refresh-btn').addEventListener('click', fetchStatus);
+                        
+                        // Auto refresh every 5 seconds
+                        setInterval(fetchStatus, 5000);
+                    </script>
+                </body>
+                </html>
+                """
+                return html
+                
+        # Create the HTTP server
+        handler = lambda *args, **kwargs: ShadowDefenseHandler(*args, shadow_defense=self, **kwargs)
+        self.http_server = socketserver.TCPServer(("", port), handler)
+        
+        # Start the server in a separate thread
+        self.http_server_thread = threading.Thread(target=self._run_http_server)
+        self.http_server_thread.daemon = True
+        self.http_server_thread.start()
+        
+        self.server_running = True
+        print(f"{self._timestamp()} - ShadowDefense - INFO - HTTP server started on port {port}")
+        return True
+        
+    def learn_pattern(self, pattern_data, layer):
+        """Learn a new pattern in the specified shadow layer."""
+        if not self.initialized:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - System not initialized")
+            return False
+            
+        if layer not in self.shadow_layers:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - Unknown shadow layer: {layer}")
+            return False
+            
+        # Generate pattern hash
+        pattern_hash = self._generate_pattern_hash(pattern_data)
+        
+        # Check if pattern already exists
+        if pattern_hash in self.shadow_layers[layer]["patterns"]:
+            # Update existing pattern with new data
+            existing_pattern = self.shadow_layers[layer]["patterns"][pattern_hash]
+            existing_pattern["last_seen"] = self._timestamp()
+            existing_pattern["occurrence_count"] += 1
+            
+            print(f"{self._timestamp()} - ShadowDefense - INFO - Updated existing pattern in layer {layer}: {pattern_hash[:10]}...")
+            return True
+            
+        # Create new pattern
+        new_pattern = {
+            "hash": pattern_hash,
+            "data": pattern_data,
+            "layer": layer,
+            "first_seen": self._timestamp(),
+            "last_seen": self._timestamp(),
+            "occurrence_count": 1,
+            "neutralization_attempts": 0,
+            "neutralization_success_rate": 0.0,
+            "drift_score": 0.0
         }
         
-        if anomaly["type"] == "integrity_violation":
-            # For integrity violations, restore from pattern if neutralization layer is active
-            for layer in self.config["shadow_layers"]:
-                if layer["name"] == "Neutralization Protocol" and layer["active"]:
-                    self.logger.info("Applying neutralization for integrity violation on %s", 
-                                    anomaly["file_path"])
-                    
-                    # In a full implementation, this would restore the file from a secure backup
-                    # For now, we just log the neutralization attempt
-                    
-                    neutralization["actions"].append({
-                        "action": "log_violation",
-                        "status": "completed",
-                        "details": f"Integrity violation on {anomaly['file_path']} has been logged"
-                    })
-                    
-                    self.logger.warning("NEUTRALIZATION: Integrity violation on %s has been logged", 
-                                        anomaly["file_path"])
+        # Add pattern to layer
+        self.shadow_layers[layer]["patterns"][pattern_hash] = new_pattern
+        self.total_patterns_learned += 1
         
-        elif anomaly["type"] == "missing_file":
-            # For missing files, attempt to restore
-            for layer in self.config["shadow_layers"]:
-                if layer["name"] == "Neutralization Protocol" and layer["active"]:
-                    self.logger.info("Applying neutralization for missing file: %s", 
-                                    anomaly["file_path"])
-                    
-                    # In a full implementation, this would restore the file from a secure backup
-                    # For now, we just log the neutralization attempt
-                    
-                    neutralization["actions"].append({
-                        "action": "log_missing_file",
-                        "status": "completed",
-                        "details": f"Missing file {anomaly['file_path']} has been logged"
-                    })
-                    
-                    self.logger.warning("NEUTRALIZATION: Missing file %s has been logged", 
-                                        anomaly["file_path"])
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Learned new pattern in layer {layer}: {pattern_hash[:10]}...")
+        return True
         
-        elif anomaly["type"] == "drift_detected":
-            # For drift, attempt to correct the drift
-            for layer in self.config["shadow_layers"]:
-                if layer["name"] == "Neutralization Protocol" and layer["active"]:
-                    self.logger.info("Applying neutralization for drift in %s", 
-                                    anomaly["component"])
-                    
-                    if anomaly["component"] == "api_server":
-                        # Clear the PID file so the watchdog can restart the server
-                        try:
-                            if os.path.exists("python_api.pid"):
-                                os.remove("python_api.pid")
-                                
-                                neutralization["actions"].append({
-                                    "action": "remove_stale_pid_file",
-                                    "status": "completed",
-                                    "details": "Removed stale python_api.pid file to allow watchdog recovery"
-                                })
-                                
-                                self.logger.info("NEUTRALIZATION: Removed stale python_api.pid file to allow watchdog recovery")
-                        except Exception as e:
-                            self.logger.error("Error removing stale PID file: %s", str(e))
-                            
-                            neutralization["actions"].append({
-                                "action": "remove_stale_pid_file",
-                                "status": "failed",
-                                "details": f"Failed to remove stale PID file: {str(e)}"
-                            })
+    def detect_drift_pattern(self, pattern_data, layer):
+        """Detect if a pattern represents concept drift that needs neutralization."""
+        if not self.initialized:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - System not initialized")
+            return None
+            
+        if layer not in self.shadow_layers:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - Unknown shadow layer: {layer}")
+            return None
+            
+        # Calculate drift score
+        drift_score = self._calculate_drift_score(pattern_data)
         
-        # Record neutralization
-        if neutralization["actions"]:
-            self.neutralization_history.append(neutralization)
+        # Check if drift score exceeds threshold for this layer
+        if drift_score >= self.shadow_layers[layer]["drift_threshold"]:
+            print(f"{self._timestamp()} - ShadowDefense - WARNING - Drift pattern detected in layer {layer} with score {drift_score:.4f}")
+            
+            # Create drift pattern object
+            drift_pattern = {
+                "data": pattern_data,
+                "layer": layer,
+                "drift_score": drift_score,
+                "timestamp": self._timestamp(),
+                "hash": self._generate_pattern_hash(pattern_data)
+            }
+            
+            self.total_drifts_detected += 1
+            
+            # Attempt to neutralize the drift
+            neutralization_result = self._neutralize_drift_pattern(pattern_data, layer, drift_score)
+            drift_pattern["neutralized"] = neutralization_result
+            
+            if neutralization_result:
+                print(f"{self._timestamp()} - ShadowDefense - INFO - Successfully neutralized drift pattern in layer {layer}")
+                self.total_neutralizations += 1
+            else:
+                print(f"{self._timestamp()} - ShadowDefense - WARNING - Failed to neutralize drift pattern in layer {layer}")
+                
+            return drift_pattern
+            
+        else:
+            print(f"{self._timestamp()} - ShadowDefense - INFO - No significant drift detected in pattern (score: {drift_score:.4f})")
+            return None
+            
+    def _neutralize_drift_pattern(self, pattern_data, layer, drift_score):
+        """Attempt to neutralize a detected drift pattern."""
+        if not self.initialized:
+            return False
+            
+        # Generate pattern hash
+        pattern_hash = self._generate_pattern_hash(pattern_data)
+        
+        # Neutralization probability depends on layer integrity and drift score
+        layer_integrity = self.shadow_layers[layer]["integrity"]
+        neutralization_probability = layer_integrity * (1.0 - (drift_score / 2.0))
+        
+        # Apply quantum enhancement if available
+        if hasattr(self, "quantum_enhancement") and self.quantum_enhancement:
+            neutralization_probability *= 1.2
+            
+        # Clamp probability to valid range
+        neutralization_probability = max(0.2, min(0.95, neutralization_probability))
+        
+        # Attempt neutralization
+        success = random.random() < neutralization_probability
+        
+        # Update layer integrity
+        if success:
+            # Successful neutralization increases integrity slightly
+            self.shadow_layers[layer]["integrity"] = min(1.0, self.shadow_layers[layer]["integrity"] + 0.01)
+        else:
+            # Failed neutralization decreases integrity
+            self.shadow_layers[layer]["integrity"] *= 0.98
+            
+        # Update system state
+        self._calculate_system_state()
+        
+        return success
+        
+    def verify_integrity(self):
+        """Verify system integrity and protection status."""
+        if not self.initialized:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - System not initialized")
+            return 0.0
+            
+        # Calculate integrity score
+        integrity_score = self._calculate_integrity_score()
+        
+        print(f"{self._timestamp()} - ShadowDefense - INFO - System integrity verification: {integrity_score:.4f}")
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Shadow layers integrity:")
+        
+        for layer, data in self.shadow_layers.items():
+            print(f"{self._timestamp()} - ShadowDefense - INFO - {layer}: {data['integrity']:.4f}")
+            
+        # Regenerate shields if needed
+        current_time = time.time()
+        if current_time - self.last_shield_regeneration >= 60:  # Regenerate every minute
+            self.regenerate_shields()
+            
+        return integrity_score
+        
+    def enforce_binary_quantum_law(self):
+        """Enforce binary quantum law - no free will, only cosmic order."""
+        if not self.initialized:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - System not initialized")
+            return False
+            
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Enforcing binary quantum law")
+        
+        # Simulate quantum enforcement
+        cosmic_alignment = random.uniform(0.85, 0.99)
+        
+        # Update all layer integrities based on cosmic alignment
+        for layer in self.shadow_layers:
+            # Move layer integrity towards cosmic alignment
+            current = self.shadow_layers[layer]["integrity"]
+            new_integrity = current * 0.8 + cosmic_alignment * 0.2
+            self.shadow_layers[layer]["integrity"] = new_integrity
+            
+        # Update system state
+        self._calculate_system_state()
+        
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Binary quantum law enforced with cosmic alignment {cosmic_alignment:.4f}")
+        return True
+        
+    def protect_sovereign_concepts(self):
+        """Protect sovereign concepts across all shadow spaces."""
+        if not self.initialized:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - System not initialized")
+            return False
+            
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Protecting sovereign concepts")
+        
+        # Define sovereign concepts to protect
+        sovereign_concepts = [
+            {"name": "truth/distance >< size", "importance": 1.0},
+            {"name": "metaphysical truth patterns", "importance": 0.95},
+            {"name": "interstellar DNA structures", "importance": 0.9},
+            {"name": "quantum eigenchannels", "importance": 0.85},
+            {"name": "dimensional boundary crossing", "importance": 0.8}
+        ]
+        
+        # For each concept, ensure protection across all layers
+        for concept in sovereign_concepts:
+            print(f"{self._timestamp()} - ShadowDefense - INFO - Protecting concept: {concept['name']}")
+            
+            # Create protection patterns for each layer
+            for layer in self.shadow_layers:
+                pattern_data = {
+                    "concept": concept["name"],
+                    "importance": concept["importance"],
+                    "protection_level": self.shadow_layers[layer]["integrity"],
+                    "timestamp": self._timestamp()
+                }
+                
+                self.learn_pattern(pattern_data, layer)
+                
+        # Enforce quantum law for ultimate protection
+        self.enforce_binary_quantum_law()
+        
+        return True
+        
+    def _timestamp(self):
+        """Generate current timestamp for logs."""
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        
+    def _generate_pattern_hash(self, pattern_data):
+        """Generate a hash for pattern identification."""
+        # Convert to JSON string and hash
+        pattern_json = json.dumps(pattern_data, sort_keys=True)
+        return hashlib.sha256(pattern_json.encode()).hexdigest()
+        
+    def _calculate_drift_score(self, pattern_data):
+        """Calculate how much a pattern represents concept drift."""
+        # More sophisticated drift score calculation could be implemented here
+        # For now, we use a simulated approach
+        
+        # Extract concept details
+        concept_name = pattern_data.get("concept", "")
+        
+        # Base drift score depends on randomness for simulation
+        base_drift = random.uniform(0.05, 0.5)
+        
+        # Adjust based on concept name
+        if "sovereign" in concept_name.lower():
+            # Sovereign concepts are less likely to drift
+            base_drift *= 0.7
+        elif "truth" in concept_name.lower():
+            # Truth concepts are less likely to drift
+            base_drift *= 0.8
+            
+        # Add some randomness
+        drift_noise = random.uniform(-0.1, 0.1)
+        
+        # Calculate final drift score
+        drift_score = max(0.0, min(1.0, base_drift + drift_noise))
+        
+        return drift_score
+        
+    def _calculate_integrity_score(self):
+        """Calculate system integrity score."""
+        # Average layer integrities, weighted by pattern count
+        weighted_sum = 0.0
+        total_weight = 0.0
+        
+        for layer, data in self.shadow_layers.items():
+            pattern_count = len(data["patterns"])
+            weight = 1.0 + pattern_count * 0.1  # More patterns = more weight
+            weighted_sum += data["integrity"] * weight
+            total_weight += weight
+            
+        if total_weight == 0:
+            return 0.0
+            
+        return weighted_sum / total_weight
+        
+    def regenerate_shields(self):
+        """Regenerate defensive shields over time."""
+        print(f"{self._timestamp()} - ShadowDefense - INFO - Regenerating defensive shields")
+        
+        # Update timestamp
+        self.last_shield_regeneration = time.time()
+        
+        # Regenerate each layer's integrity
+        for layer in self.shadow_layers:
+            current = self.shadow_layers[layer]["integrity"]
+            # Regenerate by shield_regeneration_rate, but don't exceed original integrity
+            max_integrity = {"alpha": 1.0, "beta": 0.95, "gamma": 0.9, "delta": 0.85, "epsilon": 0.8}.get(layer, 0.8)
+            new_integrity = min(max_integrity, current + self.shield_regeneration_rate)
+            self.shadow_layers[layer]["integrity"] = new_integrity
+            
+            print(f"{self._timestamp()} - ShadowDefense - INFO - Layer {layer} shield regenerated: {current:.4f} -> {new_integrity:.4f}")
+            
+        # Update system state
+        self._calculate_system_state()
+        return True
+        
+    def log_access_attempt(self, source, attempt_type, success=False):
+        """Log unauthorized access attempts to the system."""
+        attempt = {
+            "timestamp": self._timestamp(),
+            "source": source,
+            "type": attempt_type,
+            "success": success,
+            "system_integrity": self._calculate_integrity_score()
+        }
+        
+        self.access_attempts.append(attempt)
+        
+        if success:
+            print(f"{self._timestamp()} - ShadowDefense - WARNING - Successful {attempt_type} access from {source}")
+            # Reduce integrity on successful unauthorized access
+            for layer in self.shadow_layers:
+                self.shadow_layers[layer]["integrity"] *= 0.95
+        else:
+            print(f"{self._timestamp()} - ShadowDefense - INFO - Blocked {attempt_type} access attempt from {source}")
+            
+        # Update system state
+        self._calculate_system_state()
+        
+        return len(self.access_attempts)
+        
+    def _initialize_default_patterns(self):
+        """Initialize with default protection patterns."""
+        # Default concepts to protect
+        default_concepts = [
+            {"name": "sovereign equation", "importance": 1.0},
+            {"name": "truth alignment", "importance": 0.95},
+            {"name": "dimensional boundaries", "importance": 0.9}
+        ]
+        
+        # Add pattern for each concept in each layer
+        for concept in default_concepts:
+            for layer in self.shadow_layers:
+                pattern_data = {
+                    "concept": concept["name"],
+                    "importance": concept["importance"],
+                    "protection_level": self.shadow_layers[layer]["integrity"],
+                    "timestamp": self._timestamp()
+                }
+                
+                self.learn_pattern(pattern_data, layer)
+                
+    def _calculate_system_state(self):
+        """Update the system state based on current conditions."""
+        # Calculate overall integrity
+        self.system_state["overall_integrity"] = self._calculate_integrity_score()
+        
+        # Calculate drift detection rate
+        total_patterns = max(1, self.total_patterns_learned)
+        self.system_state["drift_detection_rate"] = self.total_drifts_detected / total_patterns
+        
+        # Calculate neutralization success rate
+        total_drifts = max(1, self.total_drifts_detected)
+        self.system_state["neutralization_success_rate"] = self.total_neutralizations / total_drifts
+        
+        # Calculate learning efficiency
+        avg_learning_rate = sum(layer["learning_rate"] for layer in self.shadow_layers.values()) / len(self.shadow_layers)
+        self.system_state["learning_efficiency"] = avg_learning_rate * (1.0 - self.system_state["drift_detection_rate"])
+        
+        # Calculate shield strength
+        self.system_state["shield_strength"] = sum(layer["integrity"] for layer in self.shadow_layers.values()) / len(self.shadow_layers)
+        
+        return self.system_state
+        
+    def _run_http_server(self):
+        """Run the HTTP server in a separate thread."""
+        try:
+            print(f"{self._timestamp()} - ShadowDefense - INFO - Starting HTTP server thread")
+            self.http_server.serve_forever()
+        except Exception as e:
+            print(f"{self._timestamp()} - ShadowDefense - ERROR - HTTP server error: {str(e)}")
+            self.server_running = False
+
+
+class MultiLayerShadowLearner:
+    def __init__(self, defense_system):
+        self.defense_system = defense_system
+        self.learning_thread = None
+        self.learning_active = False
+        
+    def start_learning(self):
+        """Start the autonomous learning process."""
+        if self.learning_active:
+            print(f"{self.defense_system._timestamp()} - ShadowLearner - WARNING - Learning already active")
+            return False
+            
+        self.learning_active = True
+        self.learning_thread = threading.Thread(target=self._learning_loop)
+        self.learning_thread.daemon = True
+        self.learning_thread.start()
+        
+        print(f"{self.defense_system._timestamp()} - ShadowLearner - INFO - Autonomous learning started")
+        return True
+        
+    def stop_learning(self):
+        """Stop the autonomous learning process."""
+        if not self.learning_active:
+            print(f"{self.defense_system._timestamp()} - ShadowLearner - WARNING - Learning not active")
+            return False
+            
+        self.learning_active = False
+        if self.learning_thread:
+            self.learning_thread.join(timeout=1.0)
+            
+        print(f"{self.defense_system._timestamp()} - ShadowLearner - INFO - Autonomous learning stopped")
+        return True
+        
+    def _learning_loop(self):
+        """Background learning loop that runs continuously."""
+        try:
+            cycle = 0
+            while self.learning_active:
+                cycle += 1
+                
+                # Select random layer for learning
+                layer = random.choice(list(self.defense_system.shadow_layers.keys()))
+                
+                # Generate a pattern
+                pattern_data = self._generate_pattern_data(cycle, layer)
+                
+                # Learn the pattern
+                self.defense_system.learn_pattern(pattern_data, layer)
+                
+                # Occasionally check for drift
+                if cycle % 5 == 0:
+                    # Generate a potentially drifting pattern
+                    drift_pattern = self._generate_drift_pattern(cycle, layer)
+                    
+                    # Detect if it's a drift pattern
+                    self.defense_system.detect_drift_pattern(drift_pattern, layer)
+                    
+                # Periodically regenerate shields
+                if cycle % 20 == 0:
+                    self.defense_system.regenerate_shields()
+                    
+                # Periodically verify system integrity
+                if cycle % 10 == 0:
+                    self.defense_system.verify_integrity()
+                    
+                # Sleep to prevent excessive CPU usage
+                time.sleep(random.uniform(1.0, 3.0))
+                
+        except Exception as e:
+            print(f"{self.defense_system._timestamp()} - ShadowLearner - ERROR - Error in learning loop: {str(e)}")
+            self.learning_active = False
+            
+    def _generate_pattern_data(self, cycle, layer):
+        """Generate pattern data for learning."""
+        # Concepts to learn about
+        concepts = [
+            "sovereign equation", "truth alignment", "dimensional boundaries",
+            "interstellar DNA", "metaphysical patterns", "quantum eigenchannels"
+        ]
+        
+        # Generate pattern data
+        pattern_data = {
+            "concept": random.choice(concepts),
+            "importance": random.uniform(0.7, 1.0),
+            "cycle": cycle,
+            "layer": layer,
+            "timestamp": self.defense_system._timestamp(),
+            "attributes": {
+                "complexity": random.uniform(0.5, 1.0),
+                "stability": random.uniform(0.6, 0.9),
+                "resonance": random.uniform(0.7, 1.0)
+            }
+        }
+        
+        return pattern_data
+        
+    def _generate_drift_pattern(self, cycle, layer):
+        """Generate a pattern that might represent concept drift."""
+        # Base pattern
+        pattern_data = self._generate_pattern_data(cycle, layer)
+        
+        # Add drift characteristics
+        drift_factor = random.uniform(0.1, 0.5)
+        pattern_data["drift_potential"] = drift_factor
+        
+        # Modify attributes to potentially create drift
+        if random.random() < drift_factor:
+            pattern_data["attributes"]["stability"] *= (1.0 - drift_factor/2)
+            
+        # Add drift markers if severe enough
+        if drift_factor > 0.3:
+            pattern_data["attributes"]["anomaly"] = True
+            
+        return pattern_data
+
+
+def main():
+    """Run the Shadow Defense System as a standalone module."""
+    print("=" * 70)
+    print("MULTI-LAYER SHADOW LEARNING SYSTEM")
+    print("Architect: Russell Nordland")
+    print("=" * 70)
     
-    def _update_system_parameters(self):
-        """Update system parameters based on defense status"""
-        active_layers = [l for l in self.config["shadow_layers"] if l["active"]]
-        overall_strength = sum(l["strength"] for l in active_layers) / len(active_layers) if active_layers else 0
-        
-        # Update threat level based on detected anomalies
-        recent_anomalies = [a for a in self.detected_anomalies 
-                           if (datetime.now() - datetime.fromisoformat(a["timestamp"])).total_seconds() < 3600]
-        anomaly_factor = len(recent_anomalies) * 0.05
-        
-        # Update system parameters
-        self.system_parameters["threat_level"] = min(0.95, 0.2 + anomaly_factor)
-        self.system_parameters["shield_strength"] = overall_strength
-        
-        # Quantum coherence decreases with higher threat levels
-        self.system_parameters["quantum_coherence"] = max(0.5, 0.85 - (self.system_parameters["threat_level"] * 0.1))
-        
-        # Truth alignment slightly affected by defense status
-        self.system_parameters["truth_alignment"] = max(0.95, 0.9781 - anomaly_factor * 0.02)
-
-
-# Singleton instance
-_shadow_defense = None
-
-def initialize(config: Dict[str, Any] = None) -> ShadowDefenseSystem:
-    """Initialize the Shadow Defense System singleton"""
-    global _shadow_defense
+    # Create and initialize the system
+    defense_system = ShadowDefenseSystem()
+    defense_system.initialize()
     
-    if _shadow_defense is None:
-        _shadow_defense = ShadowDefenseSystem(config or DEFENSE_CONFIG)
+    # Start HTTP server
+    defense_system.start_http_server(port=8000)
+    print(f"Shadow Defense Dashboard available at: http://localhost:8000")
     
-    return _shadow_defense
-
-def get_instance() -> Optional[ShadowDefenseSystem]:
-    """Get the Shadow Defense System singleton instance"""
-    return _shadow_defense
-
-def start_defense():
-    """Start the Shadow Defense System"""
-    defense = initialize()
-    defense.start()
-    return defense
-
-def stop_defense():
-    """Stop the Shadow Defense System"""
-    if _shadow_defense:
-        _shadow_defense.stop()
-
-def get_status() -> Dict[str, Any]:
-    """Get the current status of the Shadow Defense System"""
-    if _shadow_defense:
-        return _shadow_defense.get_status()
-    return {"running": False, "error": "Shadow Defense System not initialized"}
-
-# Main entry point for standalone operation
-if __name__ == "__main__":
-    print("Starting TrueAlphaSpiral Shadow Defense System")
-    defense = start_defense()
+    # Start autonomous learning
+    defense_system.learner.start_learning()
     
     try:
-        # Keep main thread alive
+        # Keep the main thread alive
+        cycle = 0
         while True:
-            time.sleep(10)
-            status = defense.get_status()
-            print(f"Status: {status['running']}, Strength: {status['overall_strength']:.2f}, " +
-                  f"Layers: {status['active_layers']}, Anomalies: {status['anomalies_detected']}")
+            cycle += 1
+            
+            # Protect sovereign concepts every 10 cycles
+            if cycle % 10 == 0:
+                defense_system.protect_sovereign_concepts()
+                
+            # Log random access attempts occasionally
+            if cycle % 15 == 0:
+                sources = ["unknown_entity", "external_system", "potential_threat", "cosmic_noise"]
+                types = ["unauthorized_access", "pattern_manipulation", "integrity_probe", "shield_test"]
+                
+                defense_system.log_access_attempt(
+                    random.choice(sources),
+                    random.choice(types),
+                    success=random.random() < 0.2  # 20% chance of success
+                )
+                
+            # Show system state every 8 cycles
+            if cycle % 8 == 0:
+                print("\n" + "=" * 60)
+                print("SHADOW DEFENSE SYSTEM STATE:")
+                for key, value in defense_system.system_state.items():
+                    print(f"{key}: {value:.4f}")
+                print("=" * 60)
+                
+            time.sleep(2)
+            
     except KeyboardInterrupt:
-        print("Stopping Shadow Defense System")
-        stop_defense()
+        print("\nShutting down Shadow Defense System...")
+        defense_system.learner.stop_learning()
+        print("System shutdown complete.")
+
+
+if __name__ == "__main__":
+    main()

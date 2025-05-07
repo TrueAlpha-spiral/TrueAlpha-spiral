@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>API Connection Test</title>
+  <title>API Connection Test</title>
 </head>
 <body>
- <h1>API Connection Test</h1>
- <div id="result">Testing connection...</div>
+  <h1>API Connection Test</h1>
+  <div id="result">Testing connection...</div>
 
- <script>
- // Test the health endpoint
- fetch('/api/health')
- .then(response => {
- if (!response.ok) {
- throw new Error(`HTTP error! Status: ${response.status}`);
- }
- return response.json();
- })
- .then(data => {
- document.getElementById('result').innerHTML = `
- <p style="color: green;">✅ Connection successful!</p>
- <pre>${JSON.stringify(data, null, 2)}</pre>
- `;
- })
- .catch(error => {
- document.getElementById('result').innerHTML = `
- <p style="color: red;">❌ Connection failed: ${error.message}</p>
- `;
- });
- </script>
+  <script>
+    // Test the health endpoint
+    fetch('/api/health')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        document.getElementById('result').innerHTML = `
+          <p style="color: green;">✅ Connection successful!</p>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+      })
+      .catch(error => {
+        document.getElementById('result').innerHTML = `
+          <p style="color: red;">❌ Connection failed: ${error.message}</p>
+        `;
+      });
+  </script>
 </body>
 </html>

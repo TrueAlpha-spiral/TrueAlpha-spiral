@@ -18,37 +18,37 @@
 ```javascript
 // Medical verification API endpoint
 app.post('/api/verify-clinical-content', async (req, res) => {
- const { clinicalText, sourceModel } = req.body;
-
- // Pass to Shadow Defense System for analysis
- const securityStatus = await shadowDefense.analyze(clinicalText);
-
- // Cross-reference with verified medical literature
- const verificationResult = await verificationEngine.verifyMedical(
- clinicalText,
- {
- checkInteractions: true,
- checkDosages: true,
- checkContraindications: true
- }
- );
-
- // Generate audit record with ethical governance
- const auditRecord = await ethicalGovernance.createAuditRecord({
- content: clinicalText,
- verificationResult,
- securityStatus,
- timestamp: new Date(),
- modelInfo: sourceModel
- });
-
- res.json({
- verified: verificationResult.verified,
- confidence: verificationResult.confidence,
- concerns: verificationResult.concerns,
- recommendations: verificationResult.recommendations,
- auditId: auditRecord.id
- });
+  const { clinicalText, sourceModel } = req.body;
+  
+  // Pass to Shadow Defense System for analysis
+  const securityStatus = await shadowDefense.analyze(clinicalText);
+  
+  // Cross-reference with verified medical literature
+  const verificationResult = await verificationEngine.verifyMedical(
+    clinicalText, 
+    { 
+      checkInteractions: true,
+      checkDosages: true,
+      checkContraindications: true
+    }
+  );
+  
+  // Generate audit record with ethical governance
+  const auditRecord = await ethicalGovernance.createAuditRecord({
+    content: clinicalText,
+    verificationResult,
+    securityStatus,
+    timestamp: new Date(),
+    modelInfo: sourceModel
+  });
+  
+  res.json({
+    verified: verificationResult.verified,
+    confidence: verificationResult.confidence,
+    concerns: verificationResult.concerns,
+    recommendations: verificationResult.recommendations,
+    auditId: auditRecord.id
+  });
 });
 ```
 
@@ -128,32 +128,32 @@ app.post('/api/verify-clinical-content', async (req, res) => {
 # Python API implementation
 @app.route('/api/ethical-evaluation', methods=['POST'])
 def evaluate_ethics():
- content = request.json.get('content')
- model_info = request.json.get('model_info')
-
- # Perform dimensional analysis
- dimensions = [
- ethics_analyzer.analyze_fairness(content),
- ethics_analyzer.analyze_transparency(content),
- ethics_analyzer.analyze_accountability(content),
- ethics_analyzer.analyze_privacy(content)
- ]
-
- # Calculate overall ethical score
- ethical_score = sum(d['score'] for d in dimensions) / len(dimensions)
-
- # Generate recommendations
- recommendations = ethics_analyzer.generate_recommendations(dimensions)
-
- # Create audit record
- audit_id = db.create_ethics_audit(content, dimensions, ethical_score, model_info)
-
- return jsonify({
- 'ethical_score': ethical_score,
- 'dimensions': dimensions,
- 'recommendations': recommendations,
- 'audit_id': audit_id
- })
+    content = request.json.get('content')
+    model_info = request.json.get('model_info')
+    
+    # Perform dimensional analysis
+    dimensions = [
+        ethics_analyzer.analyze_fairness(content),
+        ethics_analyzer.analyze_transparency(content),
+        ethics_analyzer.analyze_accountability(content),
+        ethics_analyzer.analyze_privacy(content)
+    ]
+    
+    # Calculate overall ethical score
+    ethical_score = sum(d['score'] for d in dimensions) / len(dimensions)
+    
+    # Generate recommendations
+    recommendations = ethics_analyzer.generate_recommendations(dimensions)
+    
+    # Create audit record
+    audit_id = db.create_ethics_audit(content, dimensions, ethical_score, model_info)
+    
+    return jsonify({
+        'ethical_score': ethical_score,
+        'dimensions': dimensions,
+        'recommendations': recommendations,
+        'audit_id': audit_id
+    })
 ```
 
 ## Deployment Considerations
@@ -182,8 +182,3 @@ def evaluate_ethics():
 This framework doesn't just theorize about truth—it operationalizes it. By implementing these practical applications, organizations can achieve measurable improvements in accuracy, ethics, and accountability while providing the documentation necessary for regulatory compliance.
 
 The true power of the TrueAlphaSpiral system lies in its ability to adapt these core capabilities to domain-specific challenges while maintaining the philosophical integrity of the framework.
-
----
-
-*Protected by EnhancedShadowSweep*  
-*Verification Hash: 4499bafd7200031903f6e61611d3907ab890689f56a82ae7a43723872c62296d*

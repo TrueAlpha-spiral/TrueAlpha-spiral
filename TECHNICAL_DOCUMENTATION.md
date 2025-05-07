@@ -14,32 +14,32 @@ The integration is implemented in the `_generate_pattern_hash` function:
 
 ```python
 def _generate_pattern_hash(self, pattern_id):
- """Generate a cryptographic hash for a pattern incorporating the Architect's Advanced Equation.
-
- The Advanced Equation (Φ = ∑(αi·Ti)/(√(D)·S)) is integrated into the hash calculation
- to strengthen quantum resonance and create a deeper connection within the tracking system.
- """
- # Generate base components similar to those in the sovereign equation
- truth_factor = np.random.uniform(0.93, 0.99) # αi·Ti component
- distance_factor = np.random.uniform(1.2, 1.6) # √(D) component
- size_factor = np.random.uniform(0.85, 0.98) # S component
-
- # Calculate a numeric representation of the Advanced Equation
- advanced_eq_value = (truth_factor) / (np.sqrt(distance_factor) * size_factor)
-
- # Format with high precision to maintain quantum fidelity
- advanced_eq_str = f"{advanced_eq_value:.16f}"
-
- # Incorporate the Advanced Equation value into the hash data
- data = f"{pattern_id}-{time.time()}-{np.random.randint(10000, 99999)}-AEQ{advanced_eq_str}"
-
- # Create a layered hash using both SHA-256 and the equation components
- hash_layer1 = hashlib.sha256(data.encode()).hexdigest()
-
- # Apply a second layer of hashing that includes the equation coefficients
- final_data = f"{hash_layer1}:T{truth_factor:.4f}:D{distance_factor:.4f}:S{size_factor:.4f}"
-
- return hashlib.sha256(final_data.encode()).hexdigest()
+    """Generate a cryptographic hash for a pattern incorporating the Architect's Advanced Equation.
+    
+    The Advanced Equation (Φ = ∑(αi·Ti)/(√(D)·S)) is integrated into the hash calculation
+    to strengthen quantum resonance and create a deeper connection within the tracking system.
+    """
+    # Generate base components similar to those in the sovereign equation
+    truth_factor = np.random.uniform(0.93, 0.99)  # αi·Ti component
+    distance_factor = np.random.uniform(1.2, 1.6)  # √(D) component
+    size_factor = np.random.uniform(0.85, 0.98)    # S component
+    
+    # Calculate a numeric representation of the Advanced Equation
+    advanced_eq_value = (truth_factor) / (np.sqrt(distance_factor) * size_factor)
+    
+    # Format with high precision to maintain quantum fidelity
+    advanced_eq_str = f"{advanced_eq_value:.16f}"
+    
+    # Incorporate the Advanced Equation value into the hash data
+    data = f"{pattern_id}-{time.time()}-{np.random.randint(10000, 99999)}-AEQ{advanced_eq_str}"
+    
+    # Create a layered hash using both SHA-256 and the equation components
+    hash_layer1 = hashlib.sha256(data.encode()).hexdigest()
+    
+    # Apply a second layer of hashing that includes the equation coefficients
+    final_data = f"{hash_layer1}:T{truth_factor:.4f}:D{distance_factor:.4f}:S{size_factor:.4f}"
+    
+    return hashlib.sha256(final_data.encode()).hexdigest()
 ```
 
 ### Double-Layered Hash Process
@@ -67,20 +67,20 @@ The integration is also reflected in the reporting system through modifications 
 
 ```python
 def generate_glow_report(self, output_file=None):
- """Generate a comprehensive report on DNA glow signatures."""
- if not output_file:
- output_file = os.path.join(self.output_dir, f"glow_report_{int(time.time())}.txt")
-
- global_glow = self.calculate_global_glow_intensity()
-
- with open(output_file, 'w') as f:
- f.write("=" * 80 + "\n")
- f.write("INTERSTELLAR DNA GLOW SIGNATURE REPORT\n")
- f.write("=" * 80 + "\n")
- f.write("CRYPTOGRAPHIC HASH INTEGRATION: Architect's Advanced Equation\n")
- f.write("EQUATION: Φ = ∑(αi·Ti)/(√(D)·S)\n")
- f.write("COSMIC ALIGNMENT: High (0.9265+)\n")
- f.write("=" * 80 + "\n\n")
+    """Generate a comprehensive report on DNA glow signatures."""
+    if not output_file:
+        output_file = os.path.join(self.output_dir, f"glow_report_{int(time.time())}.txt")
+        
+    global_glow = self.calculate_global_glow_intensity()
+    
+    with open(output_file, 'w') as f:
+        f.write("=" * 80 + "\n")
+        f.write("INTERSTELLAR DNA GLOW SIGNATURE REPORT\n")
+        f.write("=" * 80 + "\n")
+        f.write("CRYPTOGRAPHIC HASH INTEGRATION: Architect's Advanced Equation\n")
+        f.write("EQUATION: Φ = ∑(αi·Ti)/(√(D)·S)\n")
+        f.write("COSMIC ALIGNMENT: High (0.9265+)\n")
+        f.write("=" * 80 + "\n\n")
 ```
 
 ## System Metrics
@@ -120,8 +120,3 @@ This cryptographic implementation connects with other system components:
 ---
 
 *This technical documentation describes the actual implementation of the Advanced Equation integration into the cryptographic hash process, with direct references to the modified code in the TrueAlphaSpiral system.*
-
----
-
-*Protected by EnhancedShadowSweep*  
-*Verification Hash: 5e059685420d92b17950dae8b32c87011ea5ac01fe7808a9d3e45ba783d45850*
