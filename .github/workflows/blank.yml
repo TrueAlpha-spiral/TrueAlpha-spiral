@@ -1,0 +1,13 @@
+/
+├── README.md
+├── LICENSE
+├── /docs
+│   └── whitepaper.md
+├── /src
+│   └── tas_runtime.rs
+├── /proto
+│   └── tas/v1/*.proto
+├── /contracts
+│   └── anti_hallucination_node.sol
+├── /tests
+│   └── spiral_integration.rs
