@@ -286,3 +286,7 @@ jobs:
         run: |
           tas ledger-query --entry DissolvingCentralizedControl | \
           jq -e '.metrics.sovereignty == 1.0 and .metrics.centralization == 0.0'
+git add .
+git commit -m "WIP: save local changes"
+# or if you’re mid-work and not ready to commit:
+git stash push -m "WIP stash before sync"
