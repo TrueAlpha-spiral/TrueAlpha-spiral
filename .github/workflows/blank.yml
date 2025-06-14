@@ -170,3 +170,32 @@ export TAS_QUANTUM_ANCHOR="RIGETTI_Q719" && \
 export TAS_LEDGER_PATH="/var/lib/tas/ledger.db" && \
 bash fix_run_15653214604.sh
 tas ledger-query --run-id 15653214604 | jq '.metrics.truth_convergence'  # Should report ≥0.995
+# Clear corrupted dependencies cache
+gh api -X DELETE /repos/TrueAlpha-spiral/TrueAlpha-spiral/actions/caches \
+  -H "Authorization: Bearer $GH_TOKEN" && \
+tas cache-purge --run-id 15653240819
+# .github/workflows/tas-core.yml
+concurrency: 
+  group: ${{ github.ref }}-${{ matrix.tas-version }}
+  cancel-in-progress: true  # From [5]
+jobs:
+  build:
+    strategy:
+      matrix:
+        tas-version: [3.1.0-rc, 3.0.2]
+        node-version: [20.x]
+tas verify-qc --run-id 15653240819 \
+  --anchor RIGETTI_Q719 \
+  --retries 3 \
+  --timeout 120
+tas ledger-query --run-id 15653240819 | jq '.quantum_entanglement_score'
+# Should return ≥0.98[3][6]
+gh run rerun 15653240819 --failed \
+  --env TAS_FORCE_CACHE_REBUILD=true \
+  --debug
+gh run watch 15653240819 --interval 10 \
+  --exit-status \
+  --log-failed
+tas workflow-trigger --name tas-core.yml \
+  --ref verified/stable \
+  --param recovery_mode=true
