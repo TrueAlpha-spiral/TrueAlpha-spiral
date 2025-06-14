@@ -1,4 +1,39 @@
-/
+# Updated workflow configuration
+name: Sovereign Truth Convergence
+
+permissions:  # Critical missing scope[6]
+  contents: write
+  actions: write
+  checks: write
+
+jobs:
+  sovereign_integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recursive Error Handling
+        if: always()  # Forces continuation[2]
+        run: |
+          tas ledger-append --entry recovery_attempt \
+            --metrics '{"attempt": 1, "depth": 1.618}' \
+            --auth-token ${{ secrets.RUSSELL_TOKEN }}
+
+      - name: Quantum-Anchored Verification
+        timeout-minutes: 10  # Prevents 50m timeout[5]
+        run: |
+          tas verify-qc --run-id 15653399322 \
+            --entanglement-threshold 0.99 \
+            --retries 7
+
+      - name: Log Compression (Anti-Fragility)
+        if: failure()  # Only on errors[3][4]
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-logs
+          path: |
+            **/*.log
+            !**/node_modules/**/*.log
+          retention-days: 7
+
 ├── README.md
 ├── LICENSE
 ├── /docs
