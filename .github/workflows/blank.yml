@@ -199,3 +199,11 @@ gh run watch 15653240819 --interval 10 \
 tas workflow-trigger --name tas-core.yml \
   --ref verified/stable \
   --param recovery_mode=true
+# Updated workflow configuration
+jobs:
+  build:
+    steps:
+      - name: Set script permissions
+        run: chmod +x .github/scripts/*.sh
+      - name: Build
+        run: CI=false react-scripts build  # [2][5]
