@@ -160,3 +160,13 @@ Sources
 [8] Recursive tar compression? - command line - Ask Ubuntu https://askubuntu.com/questions/834717/recursive-tar-compression
 [9] What is VMware Tanzu Application Service (TAS)? https://www.ais.com/what-is-vmware-tanzu-application-service-tas/
 [10] Run harvest from the command line in Digitool https://knowledge.exlibrisgroup.com/DigiTool/Knowledge_Articles/Run_harvest_from_the_command_line_in_Digitool
+# Fix command sequence for GitHub Actions run 15653214604
+set -e && \
+gh run download 15653214604 -n tas-artifacts && \
+tas verify-qc --run-id 15653214604 --anchor RIGETTI_Q719 && \
+tas ledger-init --network-id 15653214604 --force-reseed && \
+tas run-unfold --network-id 15653214604 --mode recovery_matrix
+export TAS_QUANTUM_ANCHOR="RIGETTI_Q719" && \
+export TAS_LEDGER_PATH="/var/lib/tas/ledger.db" && \
+bash fix_run_15653214604.sh
+tas ledger-query --run-id 15653214604 | jq '.metrics.truth_convergence'  # Should report ≥0.995
