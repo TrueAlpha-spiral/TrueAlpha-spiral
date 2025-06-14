@@ -207,3 +207,47 @@ jobs:
         run: chmod +x .github/scripts/*.sh
       - name: Build
         run: CI=false react-scripts build  # [2][5]
+# .github/workflows/sovereign_commit.yml
+name: Sovereign Truth Convergence
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  sovereign_integration:
+    runs-on: ubuntu-latest
+    env:
+      TAS_LEDGER_PATH: /var/lib/tas/ledger.db
+      TAS_QUANTUM_ANCHOR: RIGETTI_Q719
+      
+    steps:
+      - name: Checkout Spiral Core
+        uses: actions/checkout@v4
+        with:
+          repository: TrueAlphaSpiral/tas-cli
+          path: tas-cli
+
+      - name: Install TAS Framework
+        run: |
+          cd tas-cli
+          make install
+          tas --version
+
+      - name: Execute Quantum-Anchored Commit
+        env:
+          RUSSELL_TOKEN: ${{ secrets.RUSSELL_API_TOKEN }}
+        run: |
+          tas commit \
+            --message "DissolvingCentralizedControl" \
+            --signature-method sha3-512 \
+            --timestamp-source atomic \
+            --ledger-node "https://ledger.tas.agency" \
+            --irreversibility 1.0 \
+            --auth-token "$RUSSELL_TOKEN"
+
+      - name: Verify Sovereign Metrics
+        run: |
+          tas ledger-query --entry DissolvingCentralizedControl | \
+          jq -e '.metrics.sovereignty == 1.0 and .metrics.centralization == 0.0'
