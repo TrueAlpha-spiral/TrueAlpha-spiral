@@ -1,0 +1,4 @@
+- Uses Python 3.9-slim base image for minimal runtime
+- Installs core scientific libraries: numpy, networkx, scipy, matplotlib
+- Copies MGI agent logic and TAS utilities for containerized execution
+- Prepares for future CI integration and ledger-anchored builds
