@@ -6,13 +6,18 @@ MODULE_PATH = pathlib.Path(__file__).resolve().parents[1] / "collaboration"
 
 
 def load_module(path: pathlib.Path):
-    """Load the 'collaboration' script as a module despite non-Python preamble."""
+    """Load the 'collaboration' script as a module despite a non-Python
+    preamble."""
     text = path.read_text()
     lines = text.splitlines()
     # Find the first line that looks like Python code
     start = 0
     for i, line in enumerate(lines):
-        if line.startswith("import") or line.startswith("from") or line.startswith("class"):
+        if (
+            line.startswith("import")
+            or line.startswith("from")
+            or line.startswith("class")
+        ):
             start = i
             break
     code = "\n".join(lines[start:])
