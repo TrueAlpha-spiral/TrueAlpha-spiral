@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant U as Author / User
+    participant D as Draft Gene
+    participant C as CI Validator
+    participant L as ITL Ledger
+    participant R as Runtime Engine
+    participant G as Governance Audit
+
+    U->>D: Create draft gene (JSON)
+    D-->>C: Submit for schema & guard checks
+    C->>U: Fail?  Return errors
+    C->>L: Pass?  Hash + anchor (seal)
+    L-->>D: Ledger anchor ID
+    D->>R: Load gene at runtime
+    R->>R: Enforce A_C > S_C & Φ thresholds
+    R->>L: Log executions
+    G->>L: Audit ledger
+    G->>U: Propose extension (new gene)
+    loop Recursive extend
+        U->>D: Append next gene
+    end
