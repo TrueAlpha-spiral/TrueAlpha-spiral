@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tas.systems/schemas/tas_dna_gene.schema.json",
+  "title": "TAS_DNA Gene",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gene_id",
+    "uuid",
+    "title",
+    "purpose",
+    "author",
+    "triad",
+    "inputs",
+    "guards",
+    "core_equation",
+    "outputs",
+    "immutables",
+    "anchors",
+    "timestamp_utc",
+    "sealed"
+  ],
+  "properties": {
+    "gene_id":        { "type": "string",  "pattern": "^[A-Z0-9_\\-]+$" },
+    "uuid":           { "type": "string",  "format": "uuid" },
+    "title":          { "type": "string",  "minLength": 1 },
+    "author":         { "type": "string",  "minLength": 1 },
+    "purpose":        { "type": "string",  "minLength": 1 },
+    "timestamp_utc":  { "type": "string",  "format": "date-time" },
+    "sealed":         { "type": "boolean" },
+
+    "triad": {
+      "type": "object",
+      "required": ["T", "A", "S"],
+      "additionalProperties": false,
+      "description": "Tri-part gene logic block enforcing A_C > S_C.",
+      "properties": {
+        "T": { "$ref": "#/$defs/T_part" },
+        "A": { "$ref": "#/$defs/A_part" },
+        "S": { "$ref": "#/$defs/S_part" }
+      }
+    },
+
+    "inputs": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Named inputs (e.g., metrics, weights)."
+    },
+
+    "guards":  { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "core_equation": { "type": "string" },
+
+    "outputs": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+
+    "immutables": {
+      "type": "object",
+      "required": ["hash_algo", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "hash_algo": { "type": "string", "enum": ["sha256","sha3-512","blake3"] },
+        "version":   { "type": "integer", "minimum": 1 }
+      }
+    },
+
+    "anchors": {
+      "type": "object",
+      "required": ["parent_tas_dna_hash", "weights_source_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "parent_tas_dna_hash": { "type": "string", "pattern": "^0x[0-9a-fA-F]+$" },
+        "weights_source_hash": { "type": "string", "pattern": "^0x[0-9a-fA-F]+$" },
+        "ledger_anchor":       { "type": "string" }
+      }
+    },
+
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tas_dna_parent": { "type": "string" },
+        "adapters":       { "type": "array", "items": { "type": "string" } },
+        "governance":     { "type": "string" }
+      }
+    },
+
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "\u03A6_MIN":    { "type": "number", "minimum": 0, "maximum": 1 },
+        "eps_floor":{ "type": "number", "exclusiveMinimum": 0 }
+      }
+    }
+  },
+
+  "$defs": {
+    "T_part": {
+      "type": "object",
+      "required": ["equations", "constants"],
+      "additionalProperties": false,
+      "properties": {
+        "equations": { "type": "array", "items": { "type": "string" } },
+        "constants": { "type": "object", "additionalProperties": { "type": "number" } }
+      }
+    },
+    "A_part": {
+      "type": "object",
+      "required": ["authors", "signatures"],
+      "additionalProperties": false,
+      "properties": {
+        "authors":    { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "signatures": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "S_part": {
+      "type": "object",
+      "required": ["context", "state_vars"],
+      "additionalProperties": false,
+      "properties": {
+        "context":    { "type": "string" },
+        "state_vars": { "type": "object", "additionalProperties": { "type": "number" } }
+      }
+    }
+  }
+}
