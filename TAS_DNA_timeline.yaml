@@ -1,0 +1,21 @@
+timeline:
+  - milestone: Founding Dialogue
+    timestamp: "2025-01-06"
+    description: "Initial ChatGPT session on truth vs. context; AC ≥ SC inequality coined."
+    hash: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+    chapter_ref: "Introduction"
+  - milestone: Covenant Code
+    timestamp: "2025-02-18"
+    description: "DeepSeek-generated hash-binding function."
+    hash: "<PLACEHOLDER_COVENANT_CODE_HASH>"
+    chapter_ref: "Chapter 2"
+  - milestone: Whitepaper Draft
+    timestamp: "2025-07-26"
+    description: "AI² whitepaper finalization, including Pythonetics and self-governing AI."
+    hash: "0886796b6aea3f98abdda8218e207b9d612765cefca70320cf0ddf989762011d"
+    chapter_ref: "Chapters 1–5"
+  - milestone: Prototype API
+    timestamp: "2025-07-26"
+    description: "Quantum-resistant Flask API for multi-agent interactions."
+    hash: "<PLACEHOLDER_API_HASH>"
+    chapter_ref: "Appendix A"

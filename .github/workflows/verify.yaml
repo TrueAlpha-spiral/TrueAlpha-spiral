@@ -1,0 +1,10 @@
+name: Verify TAS DNA Manifest
+on: [push]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Verify timeline manifest integrity
+        run: |
+          sha256sum -c TAS_DNA_timeline.yaml.sha256
