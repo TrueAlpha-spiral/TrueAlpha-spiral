@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coherence
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coherence
+  template:
+    metadata:
+      labels:
+        app: coherence
+    spec:
+      containers:
+        - name: coherence
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          ports:
+            - containerPort: {{ .Values.watchdog.probes.port }}
+{{- if .Values.watchdog.probes.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.watchdog.probes.livePath }}
+              port: {{ .Values.watchdog.probes.port }}
+            initialDelaySeconds: {{ .Values.watchdog.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.watchdog.probes.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.watchdog.probes.readyPath }}
+              port: {{ .Values.watchdog.probes.port }}
+            initialDelaySeconds: {{ .Values.watchdog.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.watchdog.probes.periodSeconds }}
+{{- end }}

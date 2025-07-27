@@ -1,0 +1,11 @@
+image:
+  repository: your-docker-registry/coherence-api
+  tag: latest
+watchdog:
+  probes:
+    enabled: true
+    livePath: /watchdog/health/live
+    readyPath: /watchdog/health/ready
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
