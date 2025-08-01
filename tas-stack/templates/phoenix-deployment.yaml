@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tas-stack.fullname" . }}-phoenix
+  labels:
+    {{- include "tas-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: phoenix-controller
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "tas-stack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: phoenix-controller
+  template:
+    metadata:
+      labels:
+        {{- include "tas-stack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: phoenix-controller
+    spec:
+      volumes:
+        - name: opa-policy-volume
+          configMap:
+            name: {{ include "tas-stack.fullname" . }}-opa-policy
+      containers:
+        - name: phoenix-controller
+          image: "{{ .Values.phoenix.image.repository }}:{{ .Values.phoenix.image.tag }}"
+          imagePullPolicy: {{ .Values.phoenix.image.pullPolicy }}
+          env:
+            - name: OPA_URL
+              value: "http://localhost:8181/v1/data/tas/ethics/pii_scan/allow"
+            - name: KAFKA_BROKER
+              value: "my-kafka-broker:9092" # Needs to be configured
+          resources: {} # Add resource requests/limits in production
+
+        - name: opa-sidecar
+          image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
+          imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
+          args:
+            - "run"
+            - "--server"
+            - "--addr=localhost:8181"
+            - "--set=decision_logs.console=true"
+            - "/policies/pii_scan.rego"
+          ports:
+            - name: http
+              containerPort: 8181
+              protocol: TCP
+          volumeMounts:
+            - name: opa-policy-volume
+              mountPath: /policies
+              readOnly: true
+          resources: {} # Add resource requests/limits in production
