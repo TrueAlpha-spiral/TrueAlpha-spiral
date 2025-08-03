@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "tas-stack.fullname" . }}-pii-scanner-service
+  labels:
+    {{- include "tas-stack.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.piiScanner.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "tas-stack.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: pii-scanner
