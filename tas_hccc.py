@@ -5,8 +5,10 @@ import json
 import hashlib
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
+from math import exp
 from pathlib import Path
 from typing import List, Optional
+import zlib
 
 
 def _deterministic_json(data: dict) -> str:
@@ -54,6 +56,84 @@ class Cell:
             self.pk_pq = base64.b64encode(getattr(pq_sk, "public_key", b"")).decode()
             self.sig_pq = base64.b64encode(pq_sk.sign(blob)).decode()
         return self
+
+
+@dataclass
+class PolicyAnchor:
+    """Inline TAS-SES anchor descriptor."""
+
+    ref: str
+    kind: str  # e.g. "A_C" or "S_C"
+    detail: str
+
+
+class CursiveCoherenceEngine:
+    """CP-004 CCE with TAS-SES gating and compressed cell output."""
+
+    def __init__(
+        self,
+        policy_anchor: str,
+        anchors: List[PolicyAnchor],
+        mgi_status: str = "pending",
+        weights: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0),
+    ):
+        self.policy_anchor = policy_anchor
+        self.anchors = anchors
+        self.mgi_status = mgi_status
+        self.alpha, self.beta, self.gamma, self.delta = weights
+        self._require_anchor_mix()
+
+    @staticmethod
+    def _sigmoid(x: float) -> float:
+        return 1 / (1 + exp(-x))
+
+    def _require_anchor_mix(self) -> None:
+        a_c = sum(1 for a in self.anchors if a.kind == "A_C")
+        s_c = sum(1 for a in self.anchors if a.kind == "S_C")
+        if a_c < 1 or s_c < 2:
+            raise ValueError("TAS-SES requires ≥1 A_C and ≥2 S_C anchors")
+
+    def coherence(self, entailment: float, trust: float, lineage: float, contradiction: float) -> float:
+        raw = (
+            self.alpha * entailment
+            + self.beta * trust
+            + self.gamma * lineage
+            - self.delta * contradiction
+        )
+        return self._sigmoid(raw)
+
+    @staticmethod
+    def _compress_payload(payload: dict) -> dict:
+        blob = _deterministic_json(payload).encode()
+        return {
+            "encoding": "b64zlib",
+            "data": base64.b64encode(zlib.compress(blob)).decode(),
+        }
+
+    def attest(
+        self,
+        status: str,
+        entailment: float,
+        trust: float,
+        lineage: float,
+        contradiction: float,
+    ) -> Cell:
+        phi = self.coherence(entailment, trust, lineage, contradiction)
+        payload = {
+            "status": status,
+            "policy_anchor": self.policy_anchor,
+            "anchors": [asdict(a) for a in self.anchors],
+            "mgi_status": self.mgi_status,
+            "metrics": {
+                "entailment": entailment,
+                "source_trust": trust,
+                "lineage_integrity": lineage,
+                "contradiction_mass": contradiction,
+                "phi": phi,
+            },
+        }
+        compressed = self._compress_payload(payload)
+        return Cell(datetime.now(timezone.utc).isoformat(), compressed)
 
 
 class MerkleBatch:
@@ -114,6 +194,14 @@ if __name__ == "__main__":
         payload = {"idx": i}
         cell = Cell(datetime.now(timezone.utc).isoformat(), payload).sign(sk)
         batch.add_cell(cell)
+    anchors = [
+        PolicyAnchor("policy:ac:demo", "A_C", "Inline declared governance"),
+        PolicyAnchor("source:sc:1", "S_C", "Source attestation one"),
+        PolicyAnchor("source:sc:2", "S_C", "Source attestation two"),
+    ]
+    cce = CursiveCoherenceEngine("TAS-SES", anchors, mgi_status="active")
+    cce_cell = cce.attest("CCE", entailment=0.9, trust=0.88, lineage=0.92, contradiction=0.05)
+    batch.add_cell(cce_cell.sign(sk))
     # Explicit flush of remaining cells if batch not full
     if batch.cells:
         batch._commit()
