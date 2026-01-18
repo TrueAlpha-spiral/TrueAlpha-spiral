@@ -1,0 +1,40 @@
+# PSVP: Provenance-Spec-Vouching-Protocol
+# Feeds Neutral Scribe; enforces DayZero invariants
+# Version: tas-1.0 (2026-01-08)
+
+$schema: "https://tas_zero.org/psvp-schema.json"
+type: object
+required: [spec_id, axiom_set_hash, invariant_set_hash, state_machine]
+properties:
+  spec_id:
+    type: string
+    pattern: "^TAS-PSVP-\\d{4}-\\w{8}$"  # e.g., TAS-PSVP-2026-abcd1234
+  axiom_set_hash:
+    type: string  # SHA256(DayZero axioms)
+    minLength: 64
+  invariant_set_hash:
+    type: string  # SHA256(invariants like default_invariant)
+    minLength: 64
+  state_machine:
+    type: object
+    required: [states, transitions, initial]
+    properties:
+      initial: {type: string}
+      states:
+        type: object
+        patternProperties:
+          "^s_\\d+$":  # s_0, s_1, ...
+            type: object
+            required: [h_surrogate, invariants]
+            properties:
+              h_surrogate: {type: number}  # Precomputed mock H
+              invariants: {type: array, items: {type: string}}
+      transitions:
+        type: array
+        items:
+          type: object
+          required: [from, to, guard]
+          properties:
+            from: {type: string}
+            to: {type: string}
+            guard: {type: string}  # Python expr: "default_invariant(s_t, s_tp1)"

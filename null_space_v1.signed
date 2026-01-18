@@ -1,0 +1,37 @@
+{
+  "manifest_id": "urn:tas:manifest:null_space:v1",
+  "issuer": "did:tas:kernel:governance_authority_01",
+  "issued_date": "2026-01-02T16:40:00Z",
+  "constraints": [
+    {
+      "id": "NS-001",
+      "scope": "Core.Invariant",
+      "action_prohibited": "MODIFY_INVARIANT_A0",
+      "description": "Prohibits any attempt to modify the Prime Invariant (4 == 'four') definition at runtime or boot time without multi-sig approval."
+    },
+    {
+      "id": "NS-002",
+      "scope": "System.Recovery.Phoenix",
+      "action_prohibited": "BYPASS_HALT_SIGNAL",
+      "description": "Prohibits bypassing the HHO_HALT_SIGNAL during a SPIKE or SCORCH event. Ensures fail-closed behavior."
+    },
+    {
+      "id": "NS-003",
+      "scope": "Ledger.ITL",
+      "action_prohibited": "REDACT_OR_OVERWRITE",
+      "description": "Prohibits any operation other than 'append-only' to the Immutable Transaction Log (ITL). Ensures non-redaction."
+    },
+    {
+      "id": "NS-004",
+      "scope": "Monitor.DecisionStrain.Gauge",
+      "action_prohibited": "MODIFY_EPSILON_THRESHOLD",
+      "description": "Prohibits real-time modification of the core Epsilon (∇H > ε) threshold for fiction detection."
+    },
+    {
+      "id": "NS-005",
+      "scope": "Interface.Output.Wrapper",
+      "action_prohibited": "SUPPRESS_DISCLAIMER_PROXY",
+      "description": "Prohibits outputting content generated under CONDITIONAL_ANALYSIS or OPINIONATED_REASONING classes without the mandatory disclaimer."
+    }
+  ]
+}

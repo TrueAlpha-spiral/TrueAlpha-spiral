@@ -1,0 +1,20 @@
+spec_id: "TAS-PSVP-2026-abcd1234"
+axiom_set_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+invariant_set_hash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+state_machine:
+  initial: "s_0"
+  states:
+    s_0:
+      h_surrogate: 100
+      invariants:
+        - default_invariant
+        - diff_drift
+    s_1:
+      h_surrogate: 99
+      invariants:
+        - default_invariant
+        - diff_drift
+  transitions:
+    - from: "s_0"
+      to: "s_1"
+      guard: "default_invariant(s_t, s_tp1) and diff_drift(h_t, h_tp1)"
