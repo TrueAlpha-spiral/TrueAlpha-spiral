@@ -7,7 +7,7 @@ the feature branch against the latest `main` and manually reconciling conflicts.
 1. Update the local `main` branch:
    ```bash
    git checkout main
-   git pull origin main
+   git pull --rebase origin main
    ```
 2. Switch back to your feature branch:
    ```bash
