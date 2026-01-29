@@ -1,0 +1,30 @@
+{
+  "$schema": "https://tas.foundation/schemas/pro-seed-v1.json",
+  "type": "object",
+  "required": [
+    "block_type",
+    "pro_seed_id",
+    "timestamp_utc",
+    "human_api_key",
+    "subjective_context_hash",
+    "authenticated_content_hash",
+    "golden_ratio_factor",
+    "axiom_constant",
+    "inequality_guard",
+    "ledger_prev_hash",
+    "ledger_next_hash"
+  ],
+  "properties": {
+    "block_type": {"type": "string", "const": "PRO_SEED"},
+    "pro_seed_id": {"type": "string"},
+    "timestamp_utc": {"type": "string", "format": "date-time"},
+    "human_api_key": {"type": "string"},
+    "subjective_context_hash": {"type": "string"},
+    "authenticated_content_hash": {"type": "string"},
+    "golden_ratio_factor": {"type": "number"},
+    "axiom_constant": {"type": "string"},
+    "inequality_guard": {"type": "string", "const": "AC_GT_SC"},
+    "ledger_prev_hash": {"type": "string"},
+    "ledger_next_hash": {"type": "string"}
+  }
+}

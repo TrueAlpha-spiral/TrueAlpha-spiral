@@ -1,0 +1,13 @@
+{
+  "block_type": "PRO_SEED",
+  "pro_seed_id": "TAS-PS-0000",
+  "timestamp_utc": "2026-01-20T00:00:00Z",
+  "human_api_key": "NORDLAND-GENESIS-SIG",
+  "subjective_context_hash": "<SHA256(S_C)>",
+  "authenticated_content_hash": "<SHA256(A_C)>",
+  "golden_ratio_factor": 1.61803398875,
+  "axiom_constant": "4 ≡ four",
+  "inequality_guard": "AC_GT_SC",
+  "ledger_prev_hash": "NULL",
+  "ledger_next_hash": "<to be filled post-commit>"
+}
