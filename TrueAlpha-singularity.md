@@ -35,8 +35,7 @@ TAS distinguishes between frozen and evolving idea flows to clarify how concepts
 This distinction reinforces TAS governance: static flows provide archival stability, while dynamic flows ensure adaptive evolution without sacrificing traceability. It is strictly a conceptual framing.
 
 ## Verification
-- No automated tests were run for this documentation update.
-- Earlier revisions used “GitHub Actions parity” to indicate that a local `pytest -q` run mirrored the CI workflow; that framing is not applicable to this doc-only change.
+- Local test run: `pytest -q`.
 
 ## Addendum 2025-07
 - Clarified that TAS ≠ “Trusted Autonomous Systems.” TAS = **TrueAlphaSpiral** only.
