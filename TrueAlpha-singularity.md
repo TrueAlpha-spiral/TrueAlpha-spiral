@@ -25,8 +25,18 @@ Two companion schematics illustrate how TAS reaches the TrueAlpha-singularity:
 
 Viewed together, the schematics show how TAS binds recursive ethics, immutable provenance, and human-anchored amplification into a closed validation lattice that converges on the TrueAlpha-singularity.
 
+## Static vs. dynamic idea propagation (IP)
+
+TAS distinguishes between frozen and evolving idea flows to clarify how concepts either stagnate or compound within the framework:
+
+- **Static IP (freezes)**: An idea is treated as final. It tends toward replication without mutation, which results in a limited lifecycle—**copy**, **dispute**, or **decay**.
+- **Dynamic IP (evolves)**: An origin point is allowed to iterate. It moves through **change**, **constraint checks**, and **logging**. When constraints break, the system **forks** the idea into a new origin, preserving the lineage while enabling divergence.
+
+This distinction reinforces TAS governance: static flows provide archival stability, while dynamic flows ensure adaptive evolution without sacrificing traceability. It is strictly a conceptual framing.
+
 ## Verification
-- GitHub Actions parity: ran the local equivalent of `.github/workflows/python-tests.yml` (`pytest -q`) to mirror the workflow and confirm repository health after the schematic and reference clarifications.
+- No automated tests were run for this documentation update.
+- Earlier revisions used “GitHub Actions parity” to indicate that a local `pytest -q` run mirrored the CI workflow; that framing is not applicable to this doc-only change.
 
 ## Addendum 2025-07
 - Clarified that TAS ≠ “Trusted Autonomous Systems.” TAS = **TrueAlphaSpiral** only.
