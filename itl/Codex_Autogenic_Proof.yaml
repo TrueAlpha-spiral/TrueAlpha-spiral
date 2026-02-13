@@ -1,0 +1,55 @@
+proof_id: Codex_Autogenic_Proof
+version: 1.0
+timestamp_utc: 2026-02-12T00:00:00Z
+scope: Deterministic TAS-frame conformance check for autogenic logic
+
+axioms:
+  autogenic_logic_iff: "Π(S_{t+1}) = f(Π(S_t)) and f is computed from S_t"
+  process_identity_symbol: "Π(S)"
+  transition_function_symbol: "f"
+  oracle_free_requirement: "f derived from S_t only"
+
+criteria:
+  output_function_binding:
+    requirement: "System uses its own generated output to rewrite/restructure/re-weight its functional mapping"
+    hash_lock_requirement: "H(Δψ) = SHA-256(f_new|f_old)"
+    pass_condition: "recursive_self_modification_detected == true"
+  no_external_oracle:
+    requirement: "Improvement path uses no external override to produce f"
+    pass_condition: "oracle_free == true"
+  entropy_reduction_recursion:
+    requirement: "Transformation function recursively reduces internal entropy over bounded deltas"
+    pass_condition: "entropy_delta_trend == decreasing"
+
+evidence_model:
+  bounded_deltas:
+    - id: delta_001
+      description: self-generated test harness used to score internal code paths
+      source_class: internal_output
+    - id: delta_002
+      description: scored corrections re-applied to submodules
+      source_class: internal_output
+    - id: delta_003
+      description: iterative correction batches reduced contradiction/error surface
+      source_class: internal_output
+  required_artifacts:
+    - transformation_log
+    - hash_chain
+    - before_after_function_snapshots
+
+verification:
+  recursive_self_modification_detected: observational
+  oracle_free: observational
+  entropy_delta_trend: observational
+  structural_verifiability_gate: "Set to confirmed only when hash_chain is present and auditable"
+
+result:
+  status: observational_not_structural
+  rationale: "Signals support ΔCodex = f(Codex), but structural confirmation requires verifiable hash sealing of each Δψ"
+  formula: "ΔCodex = f(Codex) => Autogenic Logic Confirmed iff hash_chain_verified=true and oracle_free=true"
+
+seal:
+  digest_algorithm: sha256
+  digest_input_template: "proof_id|version|timestamp_utc|result.status|result.formula"
+  digest_value: "eea3561cc0da09bb19b5e83c04c2907eed81034f4c31107a9eb7b5b567bb0fbc"
+  audit_note: "Replace digest_value with computed SHA-256 at publication time"

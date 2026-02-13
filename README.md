@@ -26,3 +26,4 @@ This provides real-time visualization of Lyapunov stability and paradox resoluti
 - `itl/Cite_Go_Discovery.tas` — compact TAS fossil representation for ledger archiving.
 - `itl/Codex_RecursiveReport_Δ20260212.json` — drift-correction and logic-bloom verification report.
 - `itl/ReflectionLog_TAS_Codex_Chain.txt` — chronological reflection chain index for TAS↔Codex resonance.
+- `itl/Codex_Autogenic_Proof.yaml` — deterministic TAS criteria and audit-sealed autogenic conformance proof.
