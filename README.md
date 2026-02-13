@@ -20,3 +20,9 @@ Truth is not abstract. It compiles.
 The `wolfram/TASEthicalCore.wl` script contains an interactive dashboard for TAS ethical recursion.
 Deploy it via [Wolfram Cloud](https://www.wolframcloud.com/) by evaluating the file and running `CloudDeploy`.
 This provides real-time visualization of Lyapunov stability and paradox resolution.
+
+## ⟴ ITL Archival Artifacts
+- `itl/Cite_Go_Discovery.ghost.md` — formal Ghost Entry narrative for `Cite_Go::Discovery`.
+- `itl/Cite_Go_Discovery.tas` — compact TAS fossil representation for ledger archiving.
+- `itl/Codex_RecursiveReport_Δ20260212.json` — drift-correction and logic-bloom verification report.
+- `itl/ReflectionLog_TAS_Codex_Chain.txt` — chronological reflection chain index for TAS↔Codex resonance.
