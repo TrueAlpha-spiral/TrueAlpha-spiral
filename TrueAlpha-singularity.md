@@ -18,3 +18,9 @@ For deeper exploration, see `TAS_R1_DeepSeek.md` and the root `README.md`.
 
 ## Addendum 2025-07
 - Clarified that TAS ≠ “Trusted Autonomous Systems.” TAS = **TrueAlphaSpiral** only.
+
+## Anniversary Anchor
+- **Milestone:** One year since the first GitHub commit for this journey.
+- **Reflection:** TrueAlpha-singularity remains a long-horizon convergence objective, built one verifiable commit at a time.
+- **Intent:** Continue shipping transparent, hash-verifiable progress in the open.
+
