@@ -1,0 +1,14 @@
+{
+  "name": "tas-core",
+  "version": "0.1.0",
+  "description": "TrueAlphaSpiral Core Gate",
+  "main": "src/qs_gate.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0",
+    "@types/node": "^20.11.0"
+  }
+}
