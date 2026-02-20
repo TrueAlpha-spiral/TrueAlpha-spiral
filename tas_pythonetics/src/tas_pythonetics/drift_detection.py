@@ -1,7 +1,11 @@
 def detect_drift(output) -> bool:
-    # placeholder: measure semantic delta vs. anchor
-    return False
+    """
+    Detect if the output has drifted based on the presence of the [DRIFT] tag.
+    """
+    return "DRIFT" in output
 
-def initiate_self_heal():
-    # placeholder: trigger corrective recursion
-    pass
+def initiate_self_heal() -> bool:
+    """
+    Signal that self-healing should be initiated.
+    """
+    return True

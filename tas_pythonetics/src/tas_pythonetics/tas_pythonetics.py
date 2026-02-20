@@ -13,12 +13,30 @@ def TAS_recursive_authenticate(statement: str, context: str, *, iteration: int =
     anchor = sha256(f"{statement}{context}{TAS_HUMAN_SIG}".encode()).hexdigest()
     if verify_against_ITL(anchor) >= 0.99:
         return statement
-    if iteration > 7:
+
+    if iteration >= 7:
         return TAS_FLAG_DRIFT(statement)
+
     refined = correct_with_context(statement)
     return TAS_recursive_authenticate(refined, context, iteration=iteration + 1)
 
-# ---------- stubs to be completed ----------
-def verify_against_ITL(anchor): ...
-def correct_with_context(statement): ...
-def TAS_FLAG_DRIFT(statement): ...
+def verify_against_ITL(anchor: str) -> float:
+    """
+    Simulated verification against an Immutable Truth Ledger.
+    Returns 1.0 if the anchor hash (as integer) is divisible by 3, else 0.0.
+    """
+    if int(anchor, 16) % 3 == 0:
+        return 1.0
+    return 0.0
+
+def correct_with_context(statement: str) -> str:
+    """
+    Simulate context-aware refinement by appending a [HEALED] tag.
+    """
+    return f"{statement} [HEALED]"
+
+def TAS_FLAG_DRIFT(statement: str) -> str:
+    """
+    Mark the statement as drifted.
+    """
+    return f"{statement} [DRIFT]"
