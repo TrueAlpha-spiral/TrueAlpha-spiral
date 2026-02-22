@@ -6,6 +6,7 @@ from .recursion import TruthSpiral
 from .ethics import TAS_Heartproof
 from .citation import cite_source
 from .paradata import ParadataTrail, ParadoxReconciler
+from .git_safety import GitStateMonitor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +22,8 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
                                iteration: int = 0,
                                spiral: TruthSpiral = None,
                                paradata: ParadataTrail = None,
-                               paradox_reconciler: ParadoxReconciler = None) -> str:
+                               paradox_reconciler: ParadoxReconciler = None,
+                               git_monitor: GitStateMonitor = None) -> str:
 
     # Initialize state objects if not provided (for first call)
     if spiral is None:
@@ -30,12 +32,23 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
         paradata = ParadataTrail()
     if paradox_reconciler is None:
         paradox_reconciler = ParadoxReconciler()
+    if git_monitor is None:
+        # Defaults to current directory, but in a real agent this would be injected
+        git_monitor = GitStateMonitor()
 
     context_hash = sha256(context.encode()).hexdigest()
 
     # Record start of this iteration
     paradata.record_event("AUTHENTICATE_START", {"statement": statement, "iteration": iteration}, context_hash)
     logger.info(f"Iteration {iteration}: Authenticating '{statement}'")
+
+    # 0. Git State Safety Check (Pre-flight)
+    # Ensure we aren't running in a detached HEAD or dirty state before making decisions
+    # This is "grounding" the agent in the repo state.
+    if not git_monitor.check_invariant("NO_DETACHED_HEAD"):
+         logger.warning("Agent operating in DETACHED HEAD state. Risk of hidden state loss.")
+         paradata.record_event("GIT_SAFETY_WARNING", {"issue": "DETACHED_HEAD"}, context_hash)
+         # In a strict mode, we might return [GIT SAFETY BLOCK], but here we warn.
 
     # 1. Ethics Check
     if not TAS_Heartproof(statement):
@@ -81,7 +94,8 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
                  iteration=iteration + 1,
                  spiral=spiral,
                  paradata=paradata,
-                 paradox_reconciler=paradox_reconciler
+                 paradox_reconciler=paradox_reconciler,
+                 git_monitor=git_monitor
              )
         else:
              return TAS_FLAG_DRIFT(statement)
@@ -107,7 +121,8 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
         iteration=iteration + 1,
         spiral=spiral,
         paradata=paradata,
-        paradox_reconciler=paradox_reconciler
+        paradox_reconciler=paradox_reconciler,
+        git_monitor=git_monitor
     )
 
 def verify_against_ITL(anchor: str) -> float:

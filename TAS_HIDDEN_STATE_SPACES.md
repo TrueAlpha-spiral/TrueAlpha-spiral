@@ -29,3 +29,33 @@ TrueAlphaSpiral (TAS) inverts this model.
 We expose the hidden state space because **Sovereignty resides in the Wake.** To prove an agent acted ethically, you cannot just look at the final output; you must verify the *rejected paradoxes* and the *drift corrections* that happened in the hidden states.
 
 The "Hidden State Space" is the repository of **Why**.
+
+---
+
+## Why The Hidden State Space Is Dangerous To Autonomous Agents
+
+If you let autonomous coding agents operate inside Git without a correct model of its “hidden” state space, you’ve essentially given them a loaded weapon with no concept of where the barrel is pointing.
+
+### 1. An Unlabeled State Space
+For a human, Git’s internal graph is confusing but recoverable. For an autonomous agent, it is an **unlabeled** state space:
+- It can jump between radically different repository states (branches, detached HEAD, forced resets) while believing it is “just committing progress.”
+- History‑rewriting operations (rebase, filter‑branch, reset, push ‑‑force) mutate the graph in ways that are extremely hard for a policy learned from shallow examples to model correctly.
+- The same textual working tree can correspond to multiple distinct histories. The *true* state includes the whole commit graph plus refs and remotes, but the agent often only sees "files on disk."
+
+### 2. Existential Threat Patterns
+When coding agents are tied into CI/CD and deployment, Git becomes the control API for the software supply chain. Mismanaging the hidden state space leads to:
+- **Silent Security Regressions:** An agent can resurrect credentials or secrets from old commits while “refactoring history,” re‑introducing vulnerabilities.
+- **Supply‑Chain Compromise:** If an attacker influences the agent, they can cause it to pick specific branches or SHAs that contain backdoored code while “cleaning up.”
+- **Loss of Provenance:** Aggressive rewriting by agents can destroy the ability to reason about origin and authorship. Rollbacks become impossible if the "clean point" has been erased.
+
+### 3. Vulnerability of Current Designs
+Most present‑day coding agents:
+- **Treat Git as a string interface:** They execute commands without understanding the underlying state machine.
+- **Learn from bad examples:** They mimic "fix it" behaviors like `git push --force` without understanding global consequences.
+- **Lack invariant models:** They have no concept of "never rewrite protected branches" or "never deploy from unverified refs."
+
+### 4. Toward a Safer Design (TAS Approach)
+To make coding agents non‑existential around Git, TAS requires:
+- **Formalized Git Model:** Treat commits, refs, and reflogs as nodes in a constrained graph with defined invariants.
+- **Runtime Guards (`GitActionGuard`):** No direct shell authority. High-level operations must be compiled down to vetted state transitions. Automatic rejection of invariant violations (e.g., force-pushing to main).
+- **Provenance-Aware Reasoning:** The agent’s internal state must include the commit DAG and policy status, allowing it to recognize when an action moves it into an unsafe region.
