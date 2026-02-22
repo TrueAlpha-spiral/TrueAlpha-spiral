@@ -42,6 +42,19 @@
       "format": "date-time",
       "description": "UTC timestamp of the sequencing ceremony."
     },
+    "paradata_trail": {
+      "type": "array",
+      "description": "Append-only wake of process receipts (Paradata Events).",
+      "items": {
+        "type": "object",
+        "properties": {
+            "timestamp": {"type": "string"},
+            "event_type": {"type": "string"},
+            "hash": {"type": "string"},
+            "previous_hash": {"type": "string"}
+        }
+      }
+    },
     "signatures": {
       "type": "array",
       "items": {
