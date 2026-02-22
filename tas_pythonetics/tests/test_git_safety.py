@@ -44,3 +44,19 @@ def test_guard_allows_safe_operations():
     assert guard.authorize_command("git add .") is True
     assert guard.authorize_command("git commit -m 'fix'") is True
     assert guard.authorize_command("git push origin feature-branch") is True
+
+def test_guard_blocks_remote_push_to_protected():
+    monitor = GitStateMonitor()
+    monitor.get_current_branch = MagicMock(return_value="feature-branch")
+    guard = GitActionGuard(monitor)
+
+    # Even if on feature-branch, pushing to main should be blocked
+    assert guard.authorize_command("git push origin main") is False
+    assert guard.authorize_command("git push origin feature-branch:main") is False
+    assert guard.authorize_command("git push origin feature-branch:production") is False
+
+    # Should allow safe pushes
+    assert guard.authorize_command("git push origin feature-branch") is True
+    # Pushing local main to remote feature-branch is technically safe (reverse merge) but unusual
+    # My implementation allows it because it doesn't end with :main
+    assert guard.authorize_command("git push origin main:feature-branch") is True

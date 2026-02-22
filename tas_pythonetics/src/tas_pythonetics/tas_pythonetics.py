@@ -1,5 +1,6 @@
 from hashlib import sha256
 import logging
+import uuid
 from .context_binding import compute_contextual_hash
 from .drift_detection import detect_drift, initiate_self_heal
 from .recursion import TruthSpiral
@@ -136,9 +137,10 @@ def verify_against_ITL(anchor: str) -> float:
 
 def correct_with_context(statement: str) -> str:
     """
-    Simulate context-aware refinement by appending a [HEALED] tag.
+    Simulate context-aware refinement by appending a [HEALED] tag with a nonce.
     """
-    return f"{statement} [HEALED]"
+    nonce = str(uuid.uuid4())[:8]
+    return f"{statement} [HEALED:{nonce}]"
 
 def TAS_FLAG_DRIFT(statement: str) -> str:
     """

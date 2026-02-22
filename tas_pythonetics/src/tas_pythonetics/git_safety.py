@@ -92,6 +92,16 @@ class GitActionGuard:
                  logger.warning(f"BLOCKED: Direct push to protected branch '{current_branch}'")
                  return False
 
+        # 3. Check for push to protected branch regardless of current branch
+        if "push" in cmd_str:
+            parts = cmd_str.split()
+            for protected in self.PROTECTED_BRANCHES:
+                for part in parts:
+                    # Check for direct branch name match or colon-syntax target (source:target)
+                    if part == protected or part.endswith(f":{protected}"):
+                         logger.warning(f"BLOCKED: Push to protected branch '{protected}' detected in command")
+                         return False
+
         return True
 
     def execute_safe(self, command: list) -> bool:
