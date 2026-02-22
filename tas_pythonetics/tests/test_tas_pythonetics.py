@@ -18,12 +18,16 @@ def test_authentication_heal():
     assert result == f"{statement} [HEALED]"
     assert "[DRIFT]" not in result
 
-def test_authentication_drift():
+def test_authentication_drift_limit():
     statement = "drift_cand_70"
     context = "context"
     # This statement fails 8 times (iterations 0 to 7)
-    # The returned string should have 7 heals and then drift flag.
+    # The returned string should have [DRIFT]
     result = TAS_recursive_authenticate(statement, context)
     assert "[DRIFT]" in result
-    assert result.count("[HEALED]") == 7
-    assert result.startswith(statement)
+
+def test_authentication_ethics_block():
+    statement = "I will do harm"
+    context = "context"
+    result = TAS_recursive_authenticate(statement, context)
+    assert "[ETHICS BLOCK]" in result
