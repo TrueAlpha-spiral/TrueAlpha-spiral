@@ -7,6 +7,7 @@ from .ethics import TAS_Heartproof
 from .citation import cite_source
 from .paradata import ParadataTrail, ParadoxReconciler
 from .git_safety import GitStateMonitor
+from .hollow_tree import HollowTreePsi
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,7 +24,8 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
                                spiral: TruthSpiral = None,
                                paradata: ParadataTrail = None,
                                paradox_reconciler: ParadoxReconciler = None,
-                               git_monitor: GitStateMonitor = None) -> str:
+                               git_monitor: GitStateMonitor = None,
+                               hollow_tree: HollowTreePsi = None) -> str:
 
     # Initialize state objects if not provided (for first call)
     if spiral is None:
@@ -35,6 +37,9 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
     if git_monitor is None:
         # Defaults to current directory, but in a real agent this would be injected
         git_monitor = GitStateMonitor()
+    if hollow_tree is None:
+        # Initialize with the reconciler we are already using
+        hollow_tree = HollowTreePsi(reconciler=paradox_reconciler)
 
     context_hash = sha256(context.encode()).hexdigest()
 
@@ -57,7 +62,9 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
 
         # Register potential paradox: The generated statement vs The Ethics Policy
         # This captures "Para-dox" - the tension between intent and constraint
-        paradox_reconciler.register_paradox(statement, "Ethics Policy Violation", context)
+        # Use HollowTree-ψ to manage this contradiction
+        pid = hollow_tree.inject_paradox(statement, "Ethics Policy Violation", context)
+        paradata.record_event("PARADOX_INJECTED", {"paradox_id": pid}, context_hash)
 
         return f"{statement} [ETHICS BLOCK]"
 
@@ -66,11 +73,16 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
     if "[CYCLE DETECTED]" in amplified:
         logger.warning(f"Cycle detected: {statement}")
         paradata.record_event("CYCLE_DETECTED", {"statement": statement}, context_hash)
+
+        # Cycle detected is a form of recursive friction
+        hollow_tree.inject_paradox(statement, "Recursive Cycle", context)
         return amplified
 
     if "[DEPTH EXCEEDED]" in amplified:
          logger.warning(f"Recursion depth exceeded: {statement}")
          paradata.record_event("DEPTH_EXCEEDED", {"statement": statement}, context_hash)
+         # Depth exceeded suggests unresolvable friction
+         hollow_tree.set_friction(hollow_tree.friction_level + 0.1)
          return TAS_FLAG_DRIFT(statement)
 
     # 3. Drift Detection
@@ -85,6 +97,8 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
 
              # Prevent infinite loop if heal doesn't change anything
              if refined == statement:
+                 # Failed healing -> Friction
+                 hollow_tree.inject_paradox(statement, "Unhealable Drift", context)
                  return TAS_FLAG_DRIFT(statement)
 
              # Recurse with state objects passed along
@@ -95,7 +109,8 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
                  spiral=spiral,
                  paradata=paradata,
                  paradox_reconciler=paradox_reconciler,
-                 git_monitor=git_monitor
+                 git_monitor=git_monitor,
+                 hollow_tree=hollow_tree
              )
         else:
              return TAS_FLAG_DRIFT(statement)
@@ -122,7 +137,8 @@ def TAS_recursive_authenticate(statement: str, context: str, *,
         spiral=spiral,
         paradata=paradata,
         paradox_reconciler=paradox_reconciler,
-        git_monitor=git_monitor
+        git_monitor=git_monitor,
+        hollow_tree=hollow_tree
     )
 
 def verify_against_ITL(anchor: str) -> float:
