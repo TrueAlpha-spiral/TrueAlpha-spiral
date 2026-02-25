@@ -1,6 +1,7 @@
 import logging
 import subprocess
 import os
+import shlex
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -60,7 +61,6 @@ class GitActionGuard:
     """
     Intercepts and validates Git commands before execution.
     """
-    FORBIDDEN_PATTERNS = ["push --force", "push -f", "reset --hard", "rebase"]
     PROTECTED_BRANCHES = ["main", "master", "production"]
 
     def __init__(self, monitor: GitStateMonitor):
@@ -69,26 +69,54 @@ class GitActionGuard:
     def authorize_command(self, command: str) -> bool:
         """
         Check if a command is safe to execute given the current state.
+        Uses shlex to properly parse the command line.
         """
-        cmd_str = command.lower()
-
-        # 1. Check for forbidden destructive commands
-        for forbidden in self.FORBIDDEN_PATTERNS:
-            if forbidden in cmd_str:
-                logger.warning(f"BLOCKED: Destructive command attempt '{command}'")
-                return False
-
-        # 2. Check for protected branch manipulation
         try:
-            current_branch = self.monitor.get_current_branch()
-        except Exception:
-            # If we can't determine branch, fail safe
+            tokens = shlex.split(command)
+        except ValueError:
+            logger.warning(f"BLOCKED: Malformed command string '{command}'")
             return False
 
-        if current_branch in self.PROTECTED_BRANCHES:
-            # Heuristic: Prevent any push or destructive action on protected branches directly
-            # For now, block pushes to protected branches (should use PRs)
-            if "push" in cmd_str:
+        if not tokens:
+            return False
+
+        # Normalize tokens to lowercase for checking commands/flags
+        lower_tokens = [t.lower() for t in tokens]
+
+        # Check for rebase
+        if "rebase" in lower_tokens:
+            logger.warning(f"BLOCKED: Rebase is not allowed '{command}'")
+            return False
+
+        # Check for reset --hard
+        if "reset" in lower_tokens and "--hard" in lower_tokens:
+             logger.warning(f"BLOCKED: reset --hard is not allowed '{command}'")
+             return False
+
+        # Check for push operations
+        if "push" in lower_tokens:
+            # Check for force flags
+            for token in lower_tokens:
+                if token == "-f" or token.startswith("--force") or token.startswith("--delete"):
+                    logger.warning(f"BLOCKED: Force/Delete push is not allowed '{command}'")
+                    return False
+
+            # Check for +refspec in original tokens (case sensitive for refspecs usually, but '+' is key)
+            # We skip the first token usually ("git") and "push" command itself, but iterating all is safer.
+            for token in tokens:
+                # Refspecs starting with + are force pushes
+                if token.startswith("+"):
+                    logger.warning(f"BLOCKED: Force push via +refspec is not allowed '{command}'")
+                    return False
+
+            # Check for protected branch manipulation
+            try:
+                current_branch = self.monitor.get_current_branch()
+            except Exception:
+                # If we can't determine branch, fail safe
+                return False
+
+            if current_branch in self.PROTECTED_BRANCHES:
                  logger.warning(f"BLOCKED: Direct push to protected branch '{current_branch}'")
                  return False
 
