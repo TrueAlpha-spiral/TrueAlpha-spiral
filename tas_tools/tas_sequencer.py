@@ -76,6 +76,7 @@ def sequence_artifact(filepath, h_seed=TAS_HUMAN_SIG, genome_id="TAS_GENOME_V1")
         "h_seed": h_seed,
         "cert_id": cert_id,
         "timestamp": timestamp,
+        "paradata_trail": [],
         "signatures": [
             {
                 "signer": h_seed,
