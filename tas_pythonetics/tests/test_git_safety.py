@@ -44,3 +44,21 @@ def test_guard_allows_safe_operations():
     assert guard.authorize_command("git add .") is True
     assert guard.authorize_command("git commit -m 'fix'") is True
     assert guard.authorize_command("git push origin feature-branch") is True
+
+def test_guard_blocks_complex_force_pushes():
+    monitor = GitStateMonitor()
+    monitor.get_current_branch = MagicMock(return_value="feature-branch")
+    guard = GitActionGuard(monitor)
+
+    assert guard.authorize_command("git push origin --force-with-lease") is False
+    assert guard.authorize_command("git push origin +main") is False
+    assert guard.authorize_command("git push origin --force") is False
+    assert guard.authorize_command("git push --force origin") is False
+
+def test_guard_allows_safe_plus_in_other_commands():
+    monitor = GitStateMonitor()
+    monitor.get_current_branch = MagicMock(return_value="feature-branch")
+    guard = GitActionGuard(monitor)
+
+    # Adding a file with + in name should be allowed
+    assert guard.authorize_command("git add +filename.txt") is True
