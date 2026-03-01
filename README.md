@@ -90,6 +90,8 @@ graph TD
 - `/demos/` — toy 2D manifold with forbidden regions
 - `/audits/` — vendored verification logs (read-only)
   - `/audits/vend-logs/` — locked Phase 1/2 audit artifacts
+- `/docs/specs/` — Formal specifications and architectural documents
+  - [`the_y_knot.md`](docs/specs/the_y_knot.md) — The Y-Knot: Admissible Bifurcation in TAS_DNA
 
 ---
 
