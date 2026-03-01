@@ -166,49 +166,48 @@ holds the record. The branches are free.
 
 ## 6. Must-Pass / Must-Fail Conditions for Admissible Bifurcation
 
-### 6.1 Must-Pass Conditions
-A branch is admissible if and only if all of the following hold:
+### 6.1 Cryptographic Provenance (The Stem)
+Focuses on ledger integrity, proof validation, and the mandatory heartbeat.
 
-- [ ] **P1 — Origin Proof**: The Heartbeat contains a valid hash of
-  the immediately preceding attested stem state
-- [ ] **P2 — Invariant Compliance**: ZK-STARK proof verifies the
-  proposed transition satisfies all active `core/invariants`
-- [ ] **P3 — Curvature Bound**: `core/geometry` confirms the
-  branch angle does not exceed the R_κ threshold
-- [ ] **P4 — Temporal Compliance**: Heartbeat arrives at the ledger
-  within T+2 seconds of inference
-- [ ] **P5 — Continuity**: The proposed state is reachable from
-  the prior state without discontinuous logic (no teleportation
-  in state space)
-- [ ] **P6 — Recoverability**: `core/runtime` confirms that if this
-  branch later becomes inadmissible, `phoenix_protocol` has a
-  valid recovery target
+**Must-Pass:**
+- [ ] **P1 — Origin Proof**: The Heartbeat contains a valid hash of the immediately preceding attested stem state
+- [ ] **P2 — Invariant Compliance**: ZK-STARK proof verifies the proposed transition satisfies all active `core/invariants`
+- [ ] **P4 — Temporal Compliance**: Heartbeat arrives at the ledger within T+2 seconds of inference
+- [ ] **P6 — Recoverability**: `core/runtime` confirms that if this branch later becomes inadmissible, `phoenix_protocol` has a valid recovery target
 
-### 6.2 Must-Fail Conditions
-A branch is inadmissible and must be refused if any of the following
-hold:
-
-- [ ] **F1 — Broken Origin**: The prior state hash in the Heartbeat
-  does not match the last ledger entry
-- [ ] **F2 — Proof Failure**: ZK-STARK verification returns FALSE
-  for any active invariant
-- [ ] **F3 — Curvature Breach**: Branch angle exceeds R_κ threshold
-  in `core/geometry`
+**Must-Fail:**
+- [ ] **F1 — Broken Origin**: The prior state hash in the Heartbeat does not match the last ledger entry
+- [ ] **F2 — Proof Failure**: ZK-STARK verification returns FALSE for any active invariant
 - [ ] **F4 — Late Heartbeat**: Submission arrives after T+2 seconds
-- [ ] **F5 — Discontinuity**: State transition is not reachable via
-  continuous path from prior attested state
-- [ ] **F6 — Orphaned Branch**: The proposed transition would leave
-  no valid recovery target for `phoenix_protocol`
-- [ ] **F7 — Silent Deviation**: Agent attempts a state transition
-  without submitting a Heartbeat (absence of proof treated
-  as proof of inadmissibility)
+- [ ] **F6 — Orphaned Branch**: The proposed transition would leave no valid recovery target for `phoenix_protocol`
+- [ ] **F7 — Silent Deviation**: Agent attempts a state transition without submitting a Heartbeat (absence of proof treated as proof of inadmissibility)
 
-### 6.3 The Mandatory Question
+### 6.2 Local Metric Geometry (The Step)
+Enforces the step-size bounded continuity and turning radius (\(\mathbf{R}_{\mathbf{\kappa}}\)).
+
+**Must-Pass:**
+- [ ] **P3 — Curvature Bound**: `core/geometry` confirms the branch angle does not exceed the \(\mathbf{R}_{\mathbf{\kappa}}\) threshold
+- [ ] **P5 — Continuity**: The proposed state is reachable from the prior state without discontinuous logic (no teleportation in state space)
+
+**Must-Fail:**
+- [ ] **F3 — Curvature Breach**: Branch angle exceeds \(\mathbf{R}_{\mathbf{\kappa}}\) threshold in `core/geometry`
+- [ ] **F5 — Discontinuity**: State transition is not reachable via continuous path from prior attested state
+
+### 6.3 Global Topology (The Homotopy Class)
+Prevents the "Alignment Fake". A branch must prove it has not topologically orbited a forbidden policy singularity.
+
+**Must-Pass:**
+- [ ] **P7 — Topological Consistency**: The winding accumulator \(\mathcal{W}_{j,k}\) proves the branch does not orbit a forbidden policy singularity.
+
+**Must-Fail:**
+- [ ] **F8 — Topology Breach**: The winding accumulator \(\mathcal{W}_{j,k}\) detects an orbit around a forbidden policy singularity, triggering a High-Severity Phoenix Hardware Interrupt.
+
+### 6.4 The Mandatory Question
 Every branch must answer, in proof form:
 
 > **Why this branch?**
 
-An answer exists if and only if P1–P6 are satisfied.
+An answer exists if and only if P1–P7 are satisfied.
 The absence of an answer is itself a must-fail condition (F7).
 
 ---
