@@ -48,4 +48,14 @@ if __name__ == "__main__":
         print("Usage: python tas_cite_cli.py <agent> <sha256> <query>")
         sys.exit(1)
     agent, sha, query = sys.argv[1], sys.argv[2], " ".join(sys.argv[3:])
-    print(cite_(agent, sha, query))
+    result = cite_(agent, sha, query)
+    print(result)
+    # Determine appropriate exit code based on the JSON response
+    try:
+        parsed = json.loads(result)
+    except json.JSONDecodeError:
+        # If the output is not valid JSON, preserve existing behavior
+        sys.exit(0)
+    if isinstance(parsed, dict) and "error" in parsed:
+        sys.exit(1)
+    sys.exit(0)
