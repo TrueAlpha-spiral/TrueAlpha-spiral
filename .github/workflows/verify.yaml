@@ -4,7 +4,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Verify timeline manifest integrity
         run: |
           sha256sum -c TAS_DNA_timeline.yaml.sha256
