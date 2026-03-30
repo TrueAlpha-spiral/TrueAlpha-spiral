@@ -213,3 +213,147 @@ def test_metabolic_cycle_efficiency_with_no_cycles():
     mc = MetabolicCycle()
     assert mc.overall_efficiency == pytest.approx(0.0)
     assert mc.is_metabolically_viable is False
+
+
+# ---------------------------------------------------------------------------
+# TAIBOMEntry — construction and fingerprint
+# ---------------------------------------------------------------------------
+
+from tas_pythonetics.organic_mechanics import TAIBOMEntry, TAIBOMManifest, IdentityValidator
+
+
+def test_taibom_entry_valid_construction():
+    entry = TAIBOMEntry(
+        name="core.physics",
+        version="1.0.0",
+        origin="tas://core/physics",
+        trust_level="VERIFIED",
+        compliance_tags=("TAS-P7",),
+    )
+    assert entry.name == "core.physics"
+    assert entry.trust_level == "VERIFIED"
+    assert len(entry.fingerprint) == 64  # SHA-256 hex
+
+
+def test_taibom_entry_invalid_trust_level():
+    with pytest.raises(ValueError, match="trust_level"):
+        TAIBOMEntry(name="x", version="1.0", origin="tas://x", trust_level="UNKNOWN")
+
+
+def test_taibom_entry_fingerprint_deterministic():
+    e1 = TAIBOMEntry(name="a", version="1", origin="b", trust_level="VERIFIED")
+    e2 = TAIBOMEntry(name="a", version="1", origin="b", trust_level="VERIFIED")
+    assert e1.fingerprint == e2.fingerprint
+
+
+def test_taibom_entry_fingerprint_unique_for_different_origins():
+    e1 = TAIBOMEntry(name="a", version="1", origin="origin1", trust_level="VERIFIED")
+    e2 = TAIBOMEntry(name="a", version="1", origin="origin2", trust_level="VERIFIED")
+    assert e1.fingerprint != e2.fingerprint
+
+
+# ---------------------------------------------------------------------------
+# TAIBOMManifest — append, lookup, and trust metrics
+# ---------------------------------------------------------------------------
+
+def test_taibom_manifest_append_and_lookup():
+    manifest = TAIBOMManifest("manifest-001")
+    entry = TAIBOMEntry(name="dep.x", version="2.0", origin="tas://dep/x", trust_level="VERIFIED")
+    manifest.append(entry)
+    assert len(manifest.entries) == 1
+    assert manifest.lookup("dep.x") is entry
+
+
+def test_taibom_manifest_lookup_missing_returns_none():
+    manifest = TAIBOMManifest("manifest-002")
+    assert manifest.lookup("nonexistent") is None
+
+
+def test_taibom_manifest_fully_verified():
+    manifest = TAIBOMManifest("manifest-003")
+    manifest.append(TAIBOMEntry(name="a", version="1", origin="o", trust_level="VERIFIED"))
+    manifest.append(TAIBOMEntry(name="b", version="1", origin="o", trust_level="VERIFIED"))
+    assert manifest.is_fully_verified() is True
+
+
+def test_taibom_manifest_not_fully_verified_when_untrusted():
+    manifest = TAIBOMManifest("manifest-004")
+    manifest.append(TAIBOMEntry(name="a", version="1", origin="o", trust_level="VERIFIED"))
+    manifest.append(TAIBOMEntry(name="b", version="1", origin="o", trust_level="UNTRUSTED"))
+    assert manifest.is_fully_verified() is False
+    assert manifest.untrusted_count == 1
+
+
+def test_taibom_manifest_not_fully_verified_when_provisional():
+    manifest = TAIBOMManifest("manifest-006")
+    manifest.append(TAIBOMEntry(name="a", version="1", origin="o", trust_level="VERIFIED"))
+    manifest.append(TAIBOMEntry(name="b", version="1", origin="o", trust_level="PROVISIONAL"))
+    assert manifest.is_fully_verified() is False
+
+
+def test_taibom_manifest_empty_is_not_fully_verified():
+    manifest = TAIBOMManifest("manifest-005")
+    assert manifest.is_fully_verified() is False
+
+
+def test_taibom_manifest_empty_id_raises():
+    with pytest.raises(ValueError):
+        TAIBOMManifest("")
+
+
+# ---------------------------------------------------------------------------
+# IdentityValidator — validation and registration
+# ---------------------------------------------------------------------------
+
+def test_identity_validator_accepts_valid_token():
+    iv = IdentityValidator()
+    result = iv.validate("test_data_39367")
+    assert result["valid"] is True
+    assert result["fingerprint"] is not None
+
+
+def test_identity_validator_rejects_empty_token():
+    iv = IdentityValidator()
+    result = iv.validate("")
+    assert result["valid"] is False
+    assert "Empty" in result["reason"]
+
+
+def test_identity_validator_rejects_invalid_marker():
+    iv = IdentityValidator()
+    result = iv.validate("invalid_identity")
+    assert result["valid"] is False
+    assert "invalid" in result["reason"]
+
+
+def test_identity_validator_rejects_token_not_in_registered_set():
+    iv = IdentityValidator(valid_tokens=["token_a"])
+    result = iv.validate("token_b")
+    assert result["valid"] is False
+
+
+def test_identity_validator_accepts_registered_token():
+    iv = IdentityValidator(valid_tokens=["token_a"])
+    result = iv.validate("token_a")
+    assert result["valid"] is True
+
+
+def test_identity_validator_register_rejects_invalid_marker():
+    iv = IdentityValidator()
+    with pytest.raises(ValueError):
+        iv.register("invalid_token")
+
+
+def test_identity_validator_register_rejects_empty():
+    iv = IdentityValidator()
+    with pytest.raises(ValueError):
+        iv.register("")
+
+
+def test_identity_validator_fingerprint_is_sha256():
+    iv = IdentityValidator()
+    result = iv.validate("mytoken")
+    import hashlib
+    expected = hashlib.sha256(b"mytoken").hexdigest()
+    assert result["fingerprint"] == expected
+
