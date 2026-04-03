@@ -73,7 +73,7 @@ def test_tas_recursive_authenticate_refinement():
                 break
 
     if not found:
-        pytest.skip("Could not find a 1-step refinement chain")
+        pytest.fail("Could not find a 1-step refinement chain")
 
     result = TAS_recursive_authenticate(statement, context)
 
