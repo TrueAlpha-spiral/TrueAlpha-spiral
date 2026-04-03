@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from hashlib import sha256
-from .context_binding import compute_contextual_hash
 from .drift_detection import detect_drift, initiate_self_heal
 from .recursion import TruthSpiral
 
