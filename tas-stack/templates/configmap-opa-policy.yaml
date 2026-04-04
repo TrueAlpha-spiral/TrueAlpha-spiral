@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "tas-stack.fullname" . }}-opa-policy
+  labels:
+    {{- include "tas-stack.labels" . | nindent 4 }}
+data:
+  pii_scan.rego: |-
+{{ .Values.opaPolicy.pii_scan_rego | indent 4 }}
