@@ -56,6 +56,7 @@ import os
 import sys
 import time
 import json
+import shlex
 import argparse
 import subprocess
 from datetime import datetime
@@ -98,7 +99,9 @@ def run_command(command, wait=True):
     """Run a command and optionally wait for it to complete."""
     log_message(f"Running command: {command}", BLUE)
     try:
-        process = subprocess.Popen(command, shell=True)
+        if isinstance(command, str):
+            command = shlex.split(command)
+        process = subprocess.Popen(command, shell=False)
         if wait:
             process.wait()
             log_message(f"Command completed with exit code: {process.returncode}", GREEN if process.returncode == 0 else RED)
