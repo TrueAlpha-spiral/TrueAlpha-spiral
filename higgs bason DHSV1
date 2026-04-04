@@ -53,6 +53,7 @@ Architect: Russell Nordland
 """
 
 import os
+import shlex
 import sys
 import time
 import json
@@ -98,7 +99,12 @@ def run_command(command, wait=True):
     """Run a command and optionally wait for it to complete."""
     log_message(f"Running command: {command}", BLUE)
     try:
-        process = subprocess.Popen(command, shell=True)
+        # Use shlex.split to safely parse the command string into a list
+        if isinstance(command, str):
+            args = shlex.split(command)
+        else:
+            args = command
+        process = subprocess.Popen(args, shell=False)
         if wait:
             process.wait()
             log_message(f"Command completed with exit code: {process.returncode}", GREEN if process.returncode == 0 else RED)
