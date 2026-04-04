@@ -1,6 +1,5 @@
 import logging
 import subprocess
-import os
 import shlex
 
 # Configure logging
