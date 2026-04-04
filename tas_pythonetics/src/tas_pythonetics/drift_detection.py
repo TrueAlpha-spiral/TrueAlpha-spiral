@@ -7,5 +7,7 @@ def detect_drift(output) -> bool:
 
 def initiate_self_heal(statement):
     # simple placeholder: trigger corrective recursion
-    # In this simulation, we append " [HEALED]" to the statement.
-    return f"{statement} [HEALED]"
+    # In this simulation, healing clears the "DRIFT" marker and
+    # appends " [HEALED]" to indicate a corrective pass occurred.
+    healed_statement = statement.replace("DRIFT", "").strip()
+    return f"{healed_statement} [HEALED]"
