@@ -3,7 +3,7 @@ Run this with:  python codex_tas_runner.py
 It will feed a single system+user prompt into OpenAI Codex, receive a bash
 script, execute it line-by-line, and print a summary JSON.
 """
-import os, subprocess, json, hashlib, time, shlex
+import os, subprocess, json, hashlib, time, shlex, re
 from tas_pythonetics.ethics import TAS_Heartproof
 
 try:
@@ -25,7 +25,7 @@ Produce a POSIX-compliant bash script that:
 
 def get_codex_script():
     if openai is None:
-        return ""
+        raise RuntimeError("OpenAI SDK is not installed or failed to import")
     resp = openai.ChatCompletion.create(
         model="gpt-4o-code",  # or "gpt-4o"
         messages=[{"role":"system","content":SYSTEM}]
@@ -50,6 +50,22 @@ POSIX_KEYWORDS = {
     'if', 'then', 'else', 'elif', 'fi', 'while', 'for', 'in', 'do', 'done', 'case', 'esac', '!', '{', '}'
 }
 
+_OPERATOR_RE = re.compile(r'(&&|\|\||[;|])')
+
+def _split_operators(tokens):
+    """Re-tokenize shlex tokens so embedded operators are separate tokens.
+
+    For example ``["echo", "ok;wget", "x"]`` becomes
+    ``["echo", "ok", ";", "wget", "x"]``.
+    """
+    result = []
+    for token in tokens:
+        parts = _OPERATOR_RE.split(token)
+        for part in parts:
+            if part:  # skip empty strings from split
+                result.append(part)
+    return result
+
 def validate_script(script):
     if not TAS_Heartproof(script):
         return False, "Unethical content detected"
@@ -70,6 +86,8 @@ def validate_script(script):
 
         if not tokens:
             continue
+
+        tokens = _split_operators(tokens)
 
         # Simple tokenizer to split by operators like ;, &&, ||, |
         cmd_tokens = []
