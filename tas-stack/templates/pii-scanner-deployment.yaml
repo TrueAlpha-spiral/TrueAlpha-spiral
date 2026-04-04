@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tas-stack.fullname" . }}-pii-scanner
+  labels:
+    {{- include "tas-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pii-scanner
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "tas-stack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: pii-scanner
+  template:
+    metadata:
+      labels:
+        {{- include "tas-stack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: pii-scanner
+    spec:
+      containers:
+        - name: pii-scanner
+          image: "{{ .Values.piiScanner.image.repository }}:{{ .Values.piiScanner.image.tag }}"
+          imagePullPolicy: {{ .Values.piiScanner.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.piiScanner.service.port }}
+              protocol: TCP
+          resources: {} # Add resource requests/limits in production
