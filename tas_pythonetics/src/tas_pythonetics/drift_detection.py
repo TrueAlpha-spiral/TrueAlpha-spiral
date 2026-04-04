@@ -1,3 +1,5 @@
+import re
+
 FORBIDDEN_PATTERNS = ["hallucinate", "false", "lie"]
 
 def detect_drift(output: str, context: str = "") -> bool:
@@ -22,8 +24,8 @@ def initiate_self_heal(output: str) -> str:
     """
     healed = output
     for pattern in FORBIDDEN_PATTERNS:
-        if pattern in healed.lower():
-            healed = healed.replace(pattern, "[REDACTED]")
+        # Case-insensitive replacement
+        healed = re.sub(re.escape(pattern), "[REDACTED]", healed, flags=re.IGNORECASE)
 
     if "[HEALED]" not in healed:
         healed += " [HEALED]"
