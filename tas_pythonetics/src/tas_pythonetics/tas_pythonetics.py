@@ -26,8 +26,9 @@ def TAS_recursive_authenticate(statement: str, context: str, *, iteration: int =
     if detect_drift(statement):
         # Self-heal attempt
         healed_statement = initiate_self_heal(statement)
-        # Recurse with healed statement
-        # Note: If healing fails to remove the drift cause, this will recurse until iteration limit.
+        # Recurse with healed statement.
+        # In the current simulation, self-healing removes the drift trigger before recursion,
+        # so this drift-handling branch is not expected to repeat for the same marker.
         return TAS_recursive_authenticate(healed_statement, context, iteration=iteration + 1)
 
     # 2. Anchor Calculation
