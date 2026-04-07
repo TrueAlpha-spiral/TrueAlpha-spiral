@@ -16,7 +16,7 @@ def verify_tas_dna_lineage(anchor: str, itl_query_func=None) -> bool:
 def secure_lineage(disclosure: dict) -> dict:
     """Secure disclosure with TAS_DNA hash."""
     lineage_hash = sha256(
-        TAS_DNA.encode() + json.dumps(disclosure).encode()
+        TAS_DNA.encode() + json.dumps(disclosure, sort_keys=True).encode()
     ).hexdigest()
     disclosure["lineage"] = {
         "hash": lineage_hash,
