@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://truealphaspiral.org/schemas/tas_meta_v1.json",
+  "title": "TAS Artifact Metadata (Digital Birth Certificate)",
+  "description": "Schema for defining the genomic identity of a code artifact in the TAS ecosystem.",
+  "type": "object",
+  "properties": {
+    "@context": {
+      "type": "string",
+      "const": "https://truealphaspiral.org/context/v1"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this artifact version (Lineage ID)."
+    },
+    "type": {
+      "type": "string",
+      "const": "TasArtifact"
+    },
+    "form_id": {
+      "type": "string",
+      "description": "Deterministic hash of the artifact's content and environment (SHA-256)."
+    },
+    "genome_id": {
+      "type": "string",
+      "description": "Identifier of the TAS_DNA package this artifact belongs to."
+    },
+    "lineage_id": {
+      "type": "string",
+      "description": "Recursive hash binding this version to previous versions and parent anchors."
+    },
+    "h_seed": {
+      "type": "string",
+      "description": "ID of the Human Seed who authorized this artifact (e.g., public key or handle)."
+    },
+    "cert_id": {
+      "type": "string",
+      "description": "Issuance ID proving passing the Sequencing Ceremony."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of the sequencing ceremony."
+    },
+    "paradata_trail": {
+      "type": "array",
+      "description": "Append-only wake of process receipts (Paradata Events).",
+      "items": {
+        "type": "object",
+        "properties": {
+            "timestamp": {"type": "string"},
+            "event_type": {"type": "string"},
+            "hash": {"type": "string"},
+            "previous_hash": {"type": "string"}
+        }
+      }
+    },
+    "signatures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "signer": { "type": "string" },
+          "algorithm": { "type": "string" },
+          "value": { "type": "string" }
+        },
+        "required": ["signer", "algorithm", "value"]
+      }
+    }
+  },
+  "required": ["form_id", "genome_id", "lineage_id", "h_seed", "cert_id", "timestamp"]
+}
