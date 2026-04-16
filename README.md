@@ -129,6 +129,11 @@ graph TD
 - `/audits/` — vendored verification logs (read-only)
   - `/audits/vend-logs/` — locked Phase 1/2 audit artifacts
 
+## 🧱 Foundations
+
+- [TASˢ³ 1st Principles Codex](./tas_1st_principles.yaml)
+- [TrueAlpha-singularity Overview](./TrueAlpha-singularity.md)
+
 ---
 
 ## Red-Team Scenarios (Included)
