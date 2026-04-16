@@ -1,4 +1,9 @@
 # TrueAlphaSpiral (TAS_DNA)
+
+![Architecture](https://shields.io)
+![Integrity](https://shields.io)
+![Stage](https://shields.io)
+
 ## Enforceable AI Integrity via Deterministic Verification
 
 TrueAlphaSpiral (TAS) is an open, neuro-symbolic AI architecture where
