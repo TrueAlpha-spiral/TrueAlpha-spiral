@@ -1,7 +1,3 @@
-import json
-import os
-import sys
-
 # Simplified mock registry for the package, so we don't depend on external files for the basic logic
 MOCK_REGISTRY = {
     "citations": [
@@ -35,3 +31,5 @@ def cite_source(query: str, agent_id: str = "TAS_Agent") -> dict:
             }
         }
     return {"found": False, "error": "Query not found"}
+
+# Kinematic Identity Nonce: 55860
