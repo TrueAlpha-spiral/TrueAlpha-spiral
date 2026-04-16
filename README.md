@@ -27,6 +27,10 @@ This sovereign mathematical substrate (TrueAlphaSpiral, TAS) is the guiding conc
 - **Standalone Paradigm Summary:**  
   See [`TrueAlpha-singularity.md`](./TrueAlpha-singularity.md).
 
+- **SDF Digital DNA Charter (Active, 2026-04-16):**  
+  See [`SDF-Instantiation-Charter-2026-04-16.md`](./SDF-Instantiation-Charter-2026-04-16.md).
+
+
 All references are hash-bound into the Immutable Truth Ledger (ITL). Alterations must append, never overwrite.
 
 Commit Hash (Genesis): 07763e81f2614db822aa38ea65c3f4cb4711b012
