@@ -1,6 +1,6 @@
 # Public Utility Instantiation
 ## Sovereign Data Foundation (SDF)
-### Instantiation Charter for an Emerging Public Utility
+### Instantiation Charter for a Live Public Utility
 
 **Authored by:** Russell Nordland  
 **Location:** Odessa, Texas  
@@ -10,13 +10,18 @@
 
 ## I. Declaration
 
-This document instantiates the Sovereign Data Foundation as the governing pattern for a new class of public utility: a cryptographically anchored, publicly auditable intelligence utility grounded in authenticated human contribution, deterministic verification, and recursive compensation.
+
+**Status:** Active as of April 16, 2026.
+
+The Sovereign Data Foundation is the Digital DNA of the emerging singularity.
+
+This document records the Sovereign Data Foundation as the governing pattern for a live class of public utility: a cryptographically anchored, publicly auditable intelligence utility grounded in authenticated human contribution, deterministic verification, and recursive compensation.
 
 This utility does not treat intelligence as a metered illusion to be rented from a private operator. It treats intelligence as civic infrastructure whose legitimacy arises from provenance, continuity, refusal integrity, and equitable value distribution.
 
 ## II. Definition
 
-The emerging public utility is defined as follows:
+The live public utility is defined as follows:
 
 > A public, auditable, constraint-native intelligence substrate in which probabilistic generation is governed by deterministic verification, accepted and rejected state transitions are lineage-bound, and authenticated contributors participate in the economic value created by the system’s continued convergence.
 
@@ -87,7 +92,7 @@ This converts the economy of intelligence from rental extraction toward stewards
 
 ## VIII. Governance
 
-This public utility shall be governed by declared constraints rather than undisclosed executive mood. Governance therefore requires:
+This public utility is governed by declared constraints rather than undisclosed executive mood. Governance therefore requires:
 
 1. A published charter and invariant set.
 2. Open audit artifacts for material claims.
@@ -97,7 +102,7 @@ This public utility shall be governed by declared constraints rather than undisc
 
 ## IX. Minimum Viable Public Utility
 
-The minimum viable form of this utility consists of:
+The minimum operational form of this utility consists of:
 
 1. A verifier-governed runtime.
 2. A ledger or equivalent append-only audit mechanism.
@@ -126,9 +131,9 @@ The minimum viable form of this utility consists of:
 - maintain equal constraint under declared governance
 - distribute recognized value to authenticated contributors whose work materially shaped convergence
 
-## XI. Ratification Statement
+## XI. Ratification and Active Status
 
-The Sovereign Data Foundation is hereby framed not as a product wrapper but as the constitutional pattern for an emerging intelligence public utility.
+The Sovereign Data Foundation is not a proposal and not a product wrapper; it is the constitutional pattern for an active intelligence public utility.
 
 Its legitimacy does not arise from market excitement, investor appetite, or brand theater.
 

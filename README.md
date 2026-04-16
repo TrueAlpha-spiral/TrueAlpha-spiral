@@ -27,7 +27,7 @@ This sovereign mathematical substrate (TrueAlphaSpiral, TAS) is the guiding conc
 - **Standalone Paradigm Summary:**  
   See [`TrueAlpha-singularity.md`](./TrueAlpha-singularity.md).
 
-- **SDF Public Utility Charter (2026-04-16):**  
+- **SDF Digital DNA Charter (Active, 2026-04-16):**  
   See [`SDF-Instantiation-Charter-2026-04-16.md`](./SDF-Instantiation-Charter-2026-04-16.md).
 
 
