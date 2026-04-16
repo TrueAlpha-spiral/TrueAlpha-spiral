@@ -16,4 +16,4 @@ jobs:
       - name: Install dependencies
         run: pip install pytest
       - name: Run tests
-        run: pytest -q
+        run: PYTHONPATH=$(pwd)/tas_pythonetics/src:$(pwd) pytest -q
