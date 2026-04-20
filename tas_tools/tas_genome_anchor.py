@@ -22,10 +22,6 @@ def calculate_genome_anchor():
     # Read metadata for each artifact
     for artifact in CORE_ARTIFACTS:
         meta_path = artifact + ".tasmeta.json"
-        if not os.path.exists(meta_path):
-            print(f"Error: Missing metadata for {artifact}")
-            sys.exit(1)
-
         try:
             with open(meta_path, "r") as f:
                 meta = json.load(f)
@@ -34,6 +30,9 @@ def calculate_genome_anchor():
                     print(f"Error: Missing lineage_id in metadata for {artifact}")
                     sys.exit(1)
                 lineage_ids.append(lid)
+        except FileNotFoundError:
+            print(f"Error: Missing metadata for {artifact}")
+            sys.exit(1)
         except Exception as e:
             print(f"Error reading metadata for {artifact}: {e}")
             sys.exit(1)
@@ -63,3 +62,4 @@ def calculate_genome_anchor():
 
 if __name__ == "__main__":
     calculate_genome_anchor()
+# Nonce: 68986

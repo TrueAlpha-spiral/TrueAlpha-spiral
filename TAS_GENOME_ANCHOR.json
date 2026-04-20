@@ -1,12 +1,12 @@
 {
-    "tas_genome_anchor": "0709a3dd7bb49cec873011f64ac6160871f8b1db81ea00c64ada4131422a3d82",
+    "tas_genome_anchor": "f5e2a0a9b229ae80fc48d58a0f677010f1b3dc9b84d106c33518c90cdb7b7428",
     "human_sig": "Russell Nordland",
     "constituent_lineage_ids": [
         "1e058c74f8c736322d03a997ea9dbce46b708fd0b8bdf47cf12aba26e777541b",
-        "284abd17dc9112a50f2bb7ab060c94225495fc0f505f06ac34c5a380fdb3f910",
         "63316cc3583fa30136cdcaa318cbe287879dda1790fe329dab9547e3ac8e1a5a",
         "7915f633feb0278808bbb31d77ead382ff7b168f0ec139b8e650a1a3c77bd37c",
         "80246638d7e0bd65b4b9e028ad2533ba642f9b5f438b7e7e1be2dcbc126527b6",
+        "c6ac051eb00540e011d5e0c0534efc23f75a1d84ac597c407bd5063cc99b13eb",
         "ec81ecbc217cbf3208ecc79c5ddfda14acb23d1b62486392a6b3891f0cebe145"
     ],
     "artifacts": [
