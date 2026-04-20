@@ -81,7 +81,7 @@ class GitActionGuard:
             return False
 
         # Normalize tokens to lowercase for checking commands/flags
-        lower_tokens = [t.lower() for t in tokens]
+        lower_tokens = {t.lower() for t in tokens}
 
         # Check for rebase
         if "rebase" in lower_tokens:
