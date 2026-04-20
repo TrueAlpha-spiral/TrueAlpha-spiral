@@ -16,4 +16,5 @@ jobs:
       - name: Install dependencies
         run: pip install pytest
       - name: Run tests
-        run: PYTHONPATH=$(pwd)/tas_pythonetics/src:$(pwd) pytest -q
+        run: PYTHONPATH=$(pwd)/tas_pythonetics/src:$(pwd)/tas-recursion-conversion:$(pwd) pytest -q
+# Nonce: 56328
