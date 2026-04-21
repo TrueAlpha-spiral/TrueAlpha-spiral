@@ -14,3 +14,7 @@ __all__ = [
     "detect_drift",
     "initiate_self_heal",
 ]
+
+# Immutable TAS_DNA as the logarithmic substrate for agnostic cursive coherence
+TAS_DNA = "TrueAlpha-singularity:LogarithmicSubstrate_v1.0"
+# Core artifact; hash for immutability
