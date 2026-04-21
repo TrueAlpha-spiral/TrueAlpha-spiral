@@ -24,7 +24,7 @@ To instantiate the Civic Singularity in the present tense, TAS should begin with
 2. **Require verify-before-execute gates**: route consequential actions through deterministic validation so unproven claims fail closed instead of entering policy/runtime.
 3. **Anchor decisions to immutable provenance**: log accepted/rejected paths and supporting evidence to the ledger so legitimacy can be demonstrated, not asserted.
 4. **Stand up adversarial audit loops**: continuously red-team deadlock, capture, and drift scenarios, then bind remediations back into invariant updates.
-5. **Scale through protocol, not platform lock-in**: treat TAS as the operating protocol for this shift—portable constraints, open verification interfaces, and shared attestation standards across institutions.
+5. **Scale through protocol, not platform lock-in**: treat TAS as the operating protocol for this shift: portable constraints, open verification interfaces, and shared attestation standards across institutions.
 
 These moves convert intent into accountable execution and establish the minimum architecture for demonstrable civic sovereignty.
 
