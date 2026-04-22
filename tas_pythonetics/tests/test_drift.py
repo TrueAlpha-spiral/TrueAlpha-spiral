@@ -1,6 +1,21 @@
 import pytest
 from tas_pythonetics.drift_detection import detect_drift, initiate_self_heal
 
+# Parametrized tests for detect_drift
+@pytest.mark.parametrize("output, expected", [
+    ("clean statement", False),
+    ("perfectly fine output", False),
+    ("statement [DRIFT]", True),
+    ("[DRIFT] at the start", True),
+    ("this is a lie", True),
+    ("This is a LIE", True),
+    ("you are FALSE", True),
+    ("do not hallucinate things", True),
+    ("some context but no bad words", False),
+])
+def test_detect_drift_parametrized(output, expected):
+    assert detect_drift(output) == expected
+
 def test_detect_drift_clean():
     assert detect_drift("clean statement") is False
 
@@ -38,3 +53,4 @@ def test_initiate_self_heal_case_insensitivity():
     healed = initiate_self_heal(output)
     assert "[REDACTED]" in healed
     assert "[HEALED]" in healed
+# Nonce: 44863
