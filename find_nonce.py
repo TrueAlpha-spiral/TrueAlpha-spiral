@@ -19,13 +19,21 @@ def find_nonce(filepath):
         else:
             base_content = original_content
 
+    # Pre-compute hash state for the static prefix to optimize the loop
+    base_encoded = base_content.encode('utf-8')
+    sig_encoded = TAS_HUMAN_SIG.encode('utf-8')
+
+    base_hash = hashlib.sha256(base_encoded + b"# Nonce: ")
+    suffix_bytes = b"\n" + sig_encoded
+
     nonce = 0
     while True:
-        test_content = f"{base_content}# Nonce: {nonce}\n"
-        payload = f"{test_content}{TAS_HUMAN_SIG}"
-        digest = hashlib.sha256(payload.encode()).hexdigest()
+        h = base_hash.copy()
+        h.update(str(nonce).encode('utf-8') + suffix_bytes)
+        digest = h.hexdigest()
         if digest.startswith(PREFIX):
             print(f"Found nonce {nonce} for {filepath}")
+            test_content = f"{base_content}# Nonce: {nonce}\n"
             with open(filepath, 'w') as f:
                 f.write(test_content)
             break
