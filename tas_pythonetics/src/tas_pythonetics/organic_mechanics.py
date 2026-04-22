@@ -239,10 +239,18 @@ class TAIBOMManifest:
             raise ValueError("manifest_id must be non-empty.")
         self.manifest_id = manifest_id
         self._entries: List[TAIBOMEntry] = []
+        self._name_map: Dict[str, TAIBOMEntry] = {}
+        self._verified_count: int = 0
+        self._untrusted_count: int = 0
 
     def append(self, entry: TAIBOMEntry) -> None:
         """Append an entry to the manifest ledger."""
         self._entries.append(entry)
+        self._name_map[entry.name] = entry
+        if entry.trust_level == "VERIFIED":
+            self._verified_count += 1
+        elif entry.trust_level == "UNTRUSTED":
+            self._untrusted_count += 1
 
     @property
     def entries(self) -> List[TAIBOMEntry]:
@@ -252,12 +260,12 @@ class TAIBOMManifest:
     @property
     def verified_count(self) -> int:
         """Number of entries with trust_level == 'VERIFIED'."""
-        return sum(1 for e in self._entries if e.trust_level == "VERIFIED")
+        return self._verified_count
 
     @property
     def untrusted_count(self) -> int:
         """Number of entries with trust_level == 'UNTRUSTED'."""
-        return sum(1 for e in self._entries if e.trust_level == "UNTRUSTED")
+        return self._untrusted_count
 
     def is_fully_verified(self) -> bool:
         """``True`` if the manifest is non-empty and all entries are VERIFIED."""
@@ -265,10 +273,7 @@ class TAIBOMManifest:
 
     def lookup(self, name: str) -> Optional[TAIBOMEntry]:
         """Return the most recently appended entry with the given name, or ``None``."""
-        for entry in reversed(self._entries):
-            if entry.name == name:
-                return entry
-        return None
+        return self._name_map.get(name)
 
 
 # ---------------------------------------------------------------------------
