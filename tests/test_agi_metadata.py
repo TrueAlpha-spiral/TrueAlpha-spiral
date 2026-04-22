@@ -9,7 +9,7 @@ FILES = (
 )
 
 
-def test_agi_expansion_is_authenticated_generative_intelligence():
+def test_agi_terminology_consistency():
     for metadata_file in FILES:
         description = json.loads(metadata_file.read_text())["metadata"]["description"]
         assert "Authenticated Generative Intelligence (AGI)" in description
