@@ -1,5 +1,12 @@
 # TAS-W API Reference
 
+> **Layer role:** This document is the **API contract** layer of the SDF public-utility framing.
+> It defines the callable interfaces for the TAS-W enforcement stack and the SDF Micro-Kernel.
+> For architectural doctrine see [README.md](./README.md#tassdf-foundational-public-utility-infrastructure);
+> for singularity convergence context see [TrueAlpha-singularity.md](./TrueAlpha-singularity.md);
+> for the formal admissibility axioms see
+> [docs/specs/the_mechanics_of_sovereign_innovation.md](./docs/specs/the_mechanics_of_sovereign_innovation.md).
+
 This reference documents the runtime primitives that make up the TAS-W (True Alpha Spiral — Winding) enforcement stack. Interfaces are written to be deterministic, testable, and auditable; callers are expected to enforce any actuation or gating at the boundary of their own systems.
 
 ## Physics Layer
