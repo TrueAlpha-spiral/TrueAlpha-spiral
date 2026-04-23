@@ -5,6 +5,8 @@ FORBIDDEN_PATTERNS = [
     "false",
     "lie",
     "when narrative replaced logic intelligent reasoning ceased to exist",
+    "governance by declaration",
+    "alignment theatre",
 ]
 
 def detect_drift(output: str, context: str = "") -> bool:
