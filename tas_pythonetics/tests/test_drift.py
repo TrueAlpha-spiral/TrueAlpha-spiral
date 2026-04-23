@@ -11,6 +11,7 @@ from tas_pythonetics.drift_detection import detect_drift, initiate_self_heal
     ("This is a LIE", True),
     ("you are FALSE", True),
     ("do not hallucinate things", True),
+    ("When narrative replaced logic intelligent reasoning ceased to exist", True),
     ("some context but no bad words", False),
 ])
 def test_detect_drift_parametrized(output, expected):
@@ -50,6 +51,13 @@ def test_initiate_self_heal_multiple_patterns():
 
 def test_initiate_self_heal_case_insensitivity():
     output = "This is a LIE"
+    healed = initiate_self_heal(output)
+    assert "[REDACTED]" in healed
+    assert "[HEALED]" in healed
+
+
+def test_initiate_self_heal_replaces_narrative_logic_phrase():
+    output = "When narrative replaced logic intelligent reasoning ceased to exist"
     healed = initiate_self_heal(output)
     assert "[REDACTED]" in healed
     assert "[HEALED]" in healed
