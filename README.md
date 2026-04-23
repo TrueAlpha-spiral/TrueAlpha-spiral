@@ -13,6 +13,17 @@ infrastructure. The transition from isolated, proprietary data silos to a unifie
 mathematically verifiable utility requires a paradigm shift in how data is
 structured, authenticated, and maintained. TAS/SDF provides that bedrock.
 
+### Documentation Map
+
+The SDF public-utility framing is distributed across four documents, each owning one layer of concern:
+
+| Layer | Document | Description |
+|-------|----------|-------------|
+| **Doctrine** | [README.md](./README.md) *(this file)* | Core principles, architectural paradigm, and public-utility rationale. |
+| **Singularity context** | [TrueAlpha-singularity.md](./TrueAlpha-singularity.md) | Convergence model, Ethical Hamiltonian, and civic instantiation logic. |
+| **API contract** | [API_REFERENCE.md](./API_REFERENCE.md) | Runtime primitives and the SDF Micro-Kernel interface, with `*(planned; not yet implemented)*` markers where applicable. |
+| **Sovereign-innovation mechanics** | [docs/specs/the_mechanics_of_sovereign_innovation.md](./docs/specs/the_mechanics_of_sovereign_innovation.md) | Five axioms of sovereign innovation and formal admissibility proofs. |
+
 ## Enforceable AI Integrity via Deterministic Verification
 
 TrueAlphaSpiral (TAS) is an open, neuro-symbolic AI architecture where

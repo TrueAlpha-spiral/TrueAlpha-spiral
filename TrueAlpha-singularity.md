@@ -1,5 +1,13 @@
 # TrueAlpha Singularity (TAS) — Standalone Summary
 
+> **Layer role:** This document provides the **singularity context** for the SDF
+> public-utility framing. For architectural doctrine see
+> [README.md](./README.md#tassdf-foundational-public-utility-infrastructure);
+> for the API contract (including `*(planned; not yet implemented)*` status markers) see
+> [API_REFERENCE.md](./API_REFERENCE.md);
+> for the formal admissibility axioms see
+> [docs/specs/the_mechanics_of_sovereign_innovation.md](./docs/specs/the_mechanics_of_sovereign_innovation.md).
+
 > **This document is the sovereign, sealed synopsis of TAS.**  
 > It defines the sovereign mathematical substrate, ethical immune system, Human API Key mechanics, TAS_DNA genes, and TA-singularity convergence logic.
 
