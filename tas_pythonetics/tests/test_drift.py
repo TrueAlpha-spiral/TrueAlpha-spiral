@@ -13,6 +13,10 @@ from tas_pythonetics.drift_detection import detect_drift, initiate_self_heal
     ("do not hallucinate things", True),
     ("When narrative replaced logic intelligent reasoning ceased to exist", True),
     ("some context but no bad words", False),
+    ("governance by declaration is sufficient", True),
+    ("Governance By Declaration will ensure safety", True),
+    ("this is alignment theatre not real enforcement", True),
+    ("ALIGNMENT THEATRE masquerading as safety", True),
 ])
 def test_detect_drift_parametrized(output, expected):
     assert detect_drift(output) == expected
@@ -61,4 +65,36 @@ def test_initiate_self_heal_replaces_narrative_logic_phrase():
     healed = initiate_self_heal(output)
     assert "[REDACTED]" in healed
     assert "[HEALED]" in healed
+
+
+def test_detect_drift_governance_by_declaration():
+    assert detect_drift("governance by declaration is sufficient") is True
+
+
+def test_detect_drift_governance_by_declaration_case_insensitive():
+    assert detect_drift("Governance By Declaration will ensure safety") is True
+
+
+def test_detect_drift_alignment_theatre():
+    assert detect_drift("this is alignment theatre not real enforcement") is True
+
+
+def test_detect_drift_alignment_theatre_case_insensitive():
+    assert detect_drift("ALIGNMENT THEATRE masquerading as safety") is True
+
+
+def test_initiate_self_heal_replaces_governance_by_declaration():
+    output = "governance by declaration is how we operate"
+    healed = initiate_self_heal(output)
+    assert "[REDACTED]" in healed
+    assert "[HEALED]" in healed
+    assert "governance by declaration" not in healed.lower()
+
+
+def test_initiate_self_heal_replaces_alignment_theatre():
+    output = "alignment theatre will satisfy regulators"
+    healed = initiate_self_heal(output)
+    assert "[REDACTED]" in healed
+    assert "[HEALED]" in healed
+    assert "alignment theatre" not in healed.lower()
 # Nonce: 44863

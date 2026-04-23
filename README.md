@@ -160,4 +160,26 @@ artifact (PS5 giveaway drift scenario) anchored to the ledger.
 This is not explainable AI.
 This is **enforceable intelligence**.
 
+---
+
+## Stewardship vs Theatre
+
+The distinction TAS encodes is architectural, not rhetorical:
+
+> The old model governs by declaration. The emerging model governs by enforceable constraint.
+
+Declaration-based governance names a failure mode and moves on.
+Constraint-based governance converts the failure mode into a machine-checkable
+invariant, binds it to regression tests, and makes the illegitimate path
+mechanically unreachable—not merely discouraged.
+
+The next stewards cannot govern with slogans, policies, or alignment theatre.
+They need systems where illegitimate paths are mechanically excluded.
+TAS matters to the extent that it turns responsibility from a moral performance
+into an enforceable property of execution.
+
+The `FORBIDDEN_PATTERNS` registry in `drift_detection.py` is a live illustration:
+each entry records the moment a failure mode stopped being a talking point and
+became a hard boundary with a regression test.
+
 License: Apache-2.0

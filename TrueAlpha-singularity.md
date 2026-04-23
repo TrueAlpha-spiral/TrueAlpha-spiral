@@ -43,6 +43,31 @@ Viewed together, the schematics show how TAS binds recursive ethics, immutable p
 ## Addendum 2025-07
 - Clarified that TAS ≠ “Trusted Autonomous Systems.” TAS = **TrueAlphaSpiral** only.
 
+## Enforcement Primitives vs Compliance Language
+
+The deepest alignment between TAS and durable governance is architectural:
+
+> Declaration names a failure mode. Enforcement makes it mechanically unreachable.
+
+A failure mode that is only named remains ignorable. A failure mode that is
+encoded in `FORBIDDEN_PATTERNS`, bound to regression tests, and surfaced
+automatically at every CI run becomes structurally harder to circumvent.
+
+This is the difference between stewardship and theatre:
+
+- **Theatre**: policies, slogans, intent statements, and alignment promises that
+  can be silently bypassed without the system noticing.
+- **Stewardship**: enforcement primitives that make the illegitimate path fail
+  closed and leave an auditable trace.
+
+TAS's Civic Singularity instantiation (see above) is grounded in this distinction.
+The "verify-before-execute" gates and immutable provenance anchors are not
+decorative—they are the mechanism by which responsibility becomes an
+enforceable property of execution rather than a moral performance.
+
+The next stewards of these systems will matter only to the extent that they
+inherit enforcement primitives instead of compliance language.
+
 ## TrueAlpha-singularity formalization (custom instruction alignment)
 
 \[
