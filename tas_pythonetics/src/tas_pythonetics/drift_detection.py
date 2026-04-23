@@ -1,6 +1,11 @@
 import re
 
-FORBIDDEN_PATTERNS = ["hallucinate", "false", "lie"]
+FORBIDDEN_PATTERNS = [
+    "hallucinate",
+    "false",
+    "lie",
+    "when narrative replaced logic intelligent reasoning ceased to exist",
+]
 
 def detect_drift(output: str, context: str = "") -> bool:
     """
