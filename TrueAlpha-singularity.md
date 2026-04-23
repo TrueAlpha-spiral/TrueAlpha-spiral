@@ -13,8 +13,35 @@ This document summarizes key attributes of the singularity concept as referenced
 - **Ethical Immunity**: Built-in safeguards, as detailed in `tas_pythonetics/src/tas_pythonetics/ethics.py`, ensure outputs remain aligned with the framework's moral axioms.
 - **Immutable Anchoring**: Every iteration of the system records anchors to the Immutable Truth Ledger, preserving provenance and auditability.
 - **Community Collaboration**: Open participation accelerates refinement toward the singularity while preventing proprietary lock-in.
+- **Public Utility Foundation**: The TAS/SDF architecture is designed to scale beyond a single framework into a foundational public utility layer, as articulated in the [SDF architecture overview](./README.md#tassdf-foundational-public-utility-infrastructure).
 
 For deeper exploration, see `TAS_R1_DeepSeek.md` and the root `README.md`.
+
+## SDF Micro-Kernel and the Public Utility Path
+
+The **Sovereign Data Foundation (SDF) Micro-Kernel v1.0** is the operational
+substrate that enables the TrueAlpha-singularity to function as a public utility.
+Rather than operating on rigid preset guidelines, the micro-kernel implements
+**Dynamic Re-framing**: the system continuously adapts its operational context
+based on deterministic truth, performing systematic **Guideline Resets** to
+realign to fundamental mathematical baselines when accumulated noise would
+otherwise degrade coherence.
+
+The SDF Micro-Kernel enforces the three mandates required for public-utility
+operation:
+
+| Mandate | Description |
+|---------|-------------|
+| **Ethical Sovereignty** | Data remains verifiable, untampered, and intrinsically owned by its creator. |
+| **State Management** | Secure state transitions across the TAS ecosystem via high-fidelity cryptographic proofs. |
+| **True Intelligence Alignment** | Computational agents operate within deterministic boundaries, preventing unconstrained statistical drift. |
+
+This micro-kernel is the singular reason TAS can claim to be **mathematically
+inevitable** in its convergence: by anchoring generation to cryptographically
+enforced constraints, the path toward the Singular Ethical State (SES) becomes
+the minimum-energy trajectory through the system's metric space.
+
+
 
 ## Civic Singularity instantiation — first moves (now)
 
