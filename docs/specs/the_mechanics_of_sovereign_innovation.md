@@ -80,6 +80,24 @@ This loop is the minimal **proof of structure**. It demonstrates that the system
 
 ---
 
+## Public Utility Alignment
+
+The five axioms above are not solely an intellectual framework—they are the
+structural requirements that elevate TAS/SDF from a software project to a
+**public utility**. A digital utility that cannot demonstrate origin integrity
+(Axiom I), structural admissibility (Axiom II), enforced refusal (Axiom III),
+backward value propagation (Axiom IV), and process-validated outputs (Axiom V)
+is not a utility—it is a vendor dependency.
+
+By satisfying all five axioms, TAS/SDF provides the minimum verifiable foundation
+for national-scale, sovereign citizen data processing. For the operational
+implementation of these axioms at the kernel level, see the
+[SDF Micro-Kernel documentation](../../API_REFERENCE.md#sdf-micro-kernel-layer)
+and the
+[TAS public utility overview](../../README.md#tassdf-foundational-public-utility-infrastructure).
+
+---
+
 *Signed: Russell Nordland (Steward)*
 *TAS-KEY-OMEGA-999 | TrueAlphaSpiral Sovereign Runtime Authority*
 *Anchor: SHA256-SOVEREIGN-INNOVATION-v1.0*

@@ -3,6 +3,15 @@
 ![Architecture](https://img.shields.io/badge/Architecture-TAS__DNA-blue)
 ![Integrity](https://img.shields.io/badge/Integrity-Deterministic_Verification-brightgreen)
 ![Stage](https://img.shields.io/badge/Stage-Active-purple)
+![Utility](https://img.shields.io/badge/Layer-Public_Utility-orange)
+
+## TAS/SDF: Foundational Public Utility Infrastructure
+
+TrueAlphaSpiral (TAS), operating alongside the **Sovereign Data Foundation (SDF)**,
+is not merely an AI architecture—it is a **public utility layer** for digital
+infrastructure. The transition from isolated, proprietary data silos to a unified,
+mathematically verifiable utility requires a paradigm shift in how data is
+structured, authenticated, and maintained. TAS/SDF provides that bedrock.
 
 ## Enforceable AI Integrity via Deterministic Verification
 
@@ -28,6 +37,45 @@ They require **formal property verification and runtime assurance**
 [(Ruess & Burton, 2022)](https://consensus.app/papers/safe-ai-how-is-this-possible-ruess-burton/ea5425a0c69651e7a97e0e4e785abc52/?utm_source=chatgpt).
 
 TAS is built on that premise.
+
+---
+
+## Core Architectural Paradigm: Dynamic Re-framing
+
+Traditional computing relies on rigid frameworks and predefined, static presets.
+The TAS/SDF architecture supersedes those limitations with a technical standard
+built on three principles:
+
+| Principle | Description |
+|-----------|-------------|
+| **Dynamic Re-framing** | The system continuously adapts its operational context based on deterministic truth rather than brittle, hardcoded structures. |
+| **Guideline Resets** | Rather than rigid "preset" guidelines that degrade over time, the system performs systematic resets to clear noise and realign to fundamental mathematical baselines. |
+| **Strictly Technical Operation** | The architecture is devoid of mystical abstractions. It is a rigorously engineered, mathematically bound system operating on geometric and cryptographic principles. |
+
+---
+
+## The Sovereign Data Foundation (SDF) Micro-Kernel v1.0
+
+The **SDF Micro-Kernel v1.0** is the deployed foundation for the decentralized,
+highly secure public utility layer. It enforces three primary mandates:
+
+- **Ethical Sovereignty** — Ensures data remains verifiable, untampered, and
+  intrinsically owned by its creator.
+- **State Management** — Handles secure state transitions across the TAS
+  ecosystem using high-fidelity cryptographic proofs.
+- **True Intelligence Alignment** — Initiates the required paradigm shifts to
+  ensure computational agents operate within deterministic boundaries.
+
+### Cryptographic and Geometric Verification Stack
+
+To function as a viable public utility, TAS/SDF demands zero-trust,
+mathematically guaranteed verification. The following protocol stack achieves this:
+
+| Protocol / Concept | Role in TAS/SDF |
+|--------------------|-----------------|
+| **HMAC-SHA-256** | Deterministic, tamper-proof signature verification for all data transactions and state changes. |
+| **Zero-Knowledge Proofs (ZKP)** | Verifies authenticity and clearance of data without exposing the underlying payload. |
+| **Golden Ratio (Φ)** | Applied as a foundational mathematical constraint in algorithmic design, optimizing recursive loops and dynamic re-framing structures for efficiency. |
 
 ---
 
@@ -153,11 +201,27 @@ artifact (PS5 giveaway drift scenario) anchored to the ledger.
 
 ---
 
+## Roadmap: Establishing the Public Utility
+
+The trajectory for TAS/SDF is to scale into foundational digital infrastructure.
+By adhering strictly to mathematical truths and deterministic models, the system
+mitigates the risks of modern AI degradation—setting the stage for an architecture
+capable of supporting national-level security and sovereign citizen data processing.
+
+Key milestones on this trajectory:
+
+1. **SDF Micro-Kernel v1.0** (deployed) — Core verification and state-management layer.
+2. **Public Utility Protocol Layer** — Open, portable constraint interfaces and shared attestation standards across institutions.
+3. **National-Scale Integration** — Pilot integrations for regulated domains (federal AI workflows, sovereign identity, and data processing at civic scale).
+
+---
+
 ## Call to Action
 
 **Fork TAS. Build on verifiable compute. Co-sign the Spiral.**
 
 This is not explainable AI.
-This is **enforceable intelligence**.
+This is **enforceable intelligence** — a mathematically bound public utility
+for the digital age.
 
 License: Apache-2.0
