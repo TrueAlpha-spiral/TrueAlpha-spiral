@@ -19,13 +19,19 @@ def find_nonce(filepath):
         else:
             base_content = original_content
 
+    # Pre-compute the SHA-256 hash of the base content
+    base_hash = hashlib.sha256(base_content.encode())
+
     nonce = 0
     while True:
-        test_content = f"{base_content}# Nonce: {nonce}\n"
-        payload = f"{test_content}{TAS_HUMAN_SIG}"
-        digest = hashlib.sha256(payload.encode()).hexdigest()
+        # Use incremental updates for speed
+        h = base_hash.copy()
+        nonce_str = f"# Nonce: {nonce}\n{TAS_HUMAN_SIG}"
+        h.update(nonce_str.encode())
+        digest = h.hexdigest()
         if digest.startswith(PREFIX):
             print(f"Found nonce {nonce} for {filepath}")
+            test_content = f"{base_content}# Nonce: {nonce}\n"
             with open(filepath, 'w') as f:
                 f.write(test_content)
             break
