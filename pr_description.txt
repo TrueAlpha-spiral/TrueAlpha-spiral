@@ -1,0 +1,6 @@
+Title: 🧪 [testing improvement] Add missing tests for EnergyState.__post_init__ validation
+
+Description:
+🎯 **What:** The `EnergyState` class in `tasw_hamiltonian.py` had an untested `__post_init__` method that handles total float conversion, missing component tolerance, and kinetic/potential sum validation.
+📊 **Coverage:** A new suite of unit tests has been added to `tas_pythonetics/tests/core/physics/test_tasw_hamiltonian.py` covering: float conversion for totals, valid sums passing, valid sums with floating-point tolerance passing, invalid sums raising `ValueError`, total fields set to `NaN`/`Inf` skipping checks, and cases where 1 or 0 components are provided skipping sum validation checks.
+✨ **Result:** The `EnergyState.__post_init__` validation logic now has 100% test coverage, significantly reducing the risk of regressions in TAS-W Hamiltonian state generation.
