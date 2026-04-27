@@ -1,4 +1,5 @@
 import sys
+import json
 from pathlib import Path
 from hashlib import sha256
 
@@ -21,6 +22,32 @@ def test_verify_tas_dna_lineage():
 
 def test_secure_lineage():
     disclosure = {"test": "data"}
+
+    # Expected hash computation needs to happen before secure_lineage mutates disclosure
+    expected_hash = sha256(
+        TAS_DNA.encode() + json.dumps(disclosure).encode()
+    ).hexdigest()
+
+    # Store original reference to verify in-place modification
+    original_id = id(disclosure)
+
     secured = secure_lineage(disclosure)
+
+    # 1. Verify in-place modification and return
+    assert id(secured) == original_id, "Dictionary should be modified in-place"
+
+    # 2. Verify lineage structure exists
     assert "lineage" in secured
-    assert secured["lineage"]["verified"]
+
+    # 3. Verify deterministic hash calculation
+    assert secured["lineage"]["hash"] == expected_hash
+
+    # 4. Verify verified is True
+    assert secured["lineage"]["verified"] is True
+
+    # 5. Verify the notes field is correctly populated
+    expected_notes = (
+        "Ensures non-linear recursion remains untainted by "
+        "linear constraints"
+    )
+    assert secured["lineage"]["notes"] == expected_notes
