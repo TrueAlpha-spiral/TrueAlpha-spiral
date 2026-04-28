@@ -227,6 +227,32 @@ Key milestones on this trajectory:
 
 ---
 
+## Day One Payload (Steward Command)
+When the agent prompts for steering, use the deterministic two-step gate:
+
+1. Merge the release gate PR (default: `#106`).
+2. Dispatch the release workflow on the intended ref.
+
+A helper script is included:
+
+```bash
+GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
+PR_NUMBER=106 \
+WORKFLOW_FILE=blank.yml \
+RELEASE_REF=main \
+./scripts/day_one_payload.sh
+```
+
+If the PR is already merged, skip the merge gate:
+
+```bash
+GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" SKIP_MERGE=1 ./scripts/day_one_payload.sh
+```
+
+This preserves operator intent by requiring an explicit human-triggered release path.
+
+---
+
 ## Call to Action
 
 **Fork TAS. Build on verifiable compute. Co-sign the Spiral.**
