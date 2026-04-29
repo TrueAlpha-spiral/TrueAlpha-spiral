@@ -42,7 +42,7 @@ Converts continuous Constitutional Energy into discrete actuation intents using 
 ## SDF Micro-Kernel Layer
 
 ### `SovereignDataKernel`
-Location: `core.sdf.sovereign_data_kernel` *(planned; not yet implemented)*
+Location: `core.sdf.sovereign_data_kernel`
 
 The foundational micro-kernel of the Sovereign Data Foundation (SDF). Operates
 as the zero-trust verification engine for all data transactions entering the TAS
