@@ -41,27 +41,32 @@ def run_bash(script: str) -> subprocess.CompletedProcess:
     return proc
 
 
-bash_script = get_codex_script()
-result = run_bash(bash_script)
+def main():
+    bash_script = get_codex_script()
+    result = run_bash(bash_script)
 
-# compute SHA-256 of audit.log if it exists; otherwise read any previous hash
-audit_path = Path("audit.log")
-ledger_path = Path("ledger/self_test.hash")
-hash_val = ""
-if audit_path.exists():
-    data = audit_path.read_bytes()
-    hash_val = hashlib.sha256(data).hexdigest()
-    ledger_path.parent.mkdir(exist_ok=True)
-    ledger_path.write_text(hash_val)
-elif ledger_path.exists():
-    hash_val = ledger_path.read_text().strip()
+    # compute SHA-256 of audit.log if it exists; otherwise read any previous hash
+    audit_path = Path("audit.log")
+    ledger_path = Path("ledger/self_test.hash")
+    hash_val = ""
+    if audit_path.exists():
+        data = audit_path.read_bytes()
+        hash_val = hashlib.sha256(data).hexdigest()
+        ledger_path.parent.mkdir(exist_ok=True)
+        ledger_path.write_text(hash_val)
+    elif ledger_path.exists():
+        hash_val = ledger_path.read_text().strip()
 
-report = {
-    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-    "returncode": result.returncode,
-    "stdout_tail": result.stdout.splitlines()[-10:],
-    "stderr_tail": result.stderr.splitlines()[-10:],
-    "audit_hash": hash_val
-}
+    report = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "returncode": result.returncode,
+        "stdout_tail": result.stdout.splitlines()[-10:],
+        "stderr_tail": result.stderr.splitlines()[-10:],
+        "audit_hash": hash_val
+    }
 
-print(json.dumps(report, indent=2))
+    print(json.dumps(report, indent=2))
+
+
+if __name__ == "__main__":
+    main()
