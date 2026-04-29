@@ -228,28 +228,36 @@ Key milestones on this trajectory:
 ---
 
 ## Day One Payload (Steward Command)
-When the agent prompts for steering, use the deterministic two-step gate:
 
-1. Merge the release gate PR (default: `#106`).
-2. Dispatch the release workflow on the intended ref.
+**PR #106 is historical substrate** (already merged). The Day One gate is now
+the release-docker / sovereign-intent / receipt-emission process run against
+the **active head SHA**.
 
-A helper script is included:
+When the agent prompts for steering, use the deterministic gate:
+
+1. Identify the active PR head SHA.
+2. Dispatch the release workflow against that exact SHA.
+
+A helper script is included. The current verification workflow is `blank.yml`;
+`release-docker.yaml` is the target release-gate workflow:
 
 ```bash
 GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
-PR_NUMBER=106 \
 WORKFLOW_FILE=blank.yml \
-RELEASE_REF=main \
 ./scripts/day_one_payload.sh
 ```
 
-If the PR is already merged, skip the merge gate:
+To target a specific commit SHA explicitly:
 
 ```bash
-GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" SKIP_MERGE=1 ./scripts/day_one_payload.sh
+GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" HEAD_SHA=<sha> ./scripts/day_one_payload.sh
 ```
 
-This preserves operator intent by requiring an explicit human-triggered release path.
+This preserves operator intent by requiring an explicit human-triggered release path
+verified against the active process state — not just a merged PR or a passing badge.
+
+See [DAY_ONE_STEWARD_DIRECTIVE.md](./DAY_ONE_STEWARD_DIRECTIVE.md) for the full
+operational boundary and clean invariant.
 
 ---
 
