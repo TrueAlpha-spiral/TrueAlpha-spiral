@@ -93,7 +93,8 @@ class GitActionGuard:
              return False
 
         # Check for push operations
-        if "push" in lower_tokens:
+        # "git stash push" is a stash operation, not a remote push; exclude it.
+        if "push" in lower_tokens and "stash" not in lower_tokens:
             # Check for force flags
             for token in lower_tokens:
                 if token == "-f" or token.startswith("--force") or token.startswith("--delete"):

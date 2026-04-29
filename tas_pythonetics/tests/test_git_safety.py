@@ -62,3 +62,25 @@ def test_guard_allows_safe_plus_in_other_commands():
 
     # Adding a file with + in name should be allowed
     assert guard.authorize_command("git add +filename.txt") is True
+
+
+def test_guard_allows_stash_push():
+    monitor = GitStateMonitor()
+    monitor.get_current_branch = MagicMock(return_value="main")
+    guard = GitActionGuard(monitor)
+
+    # "git stash push" is a local stash operation, not a remote push;
+    # it must be allowed even on protected branches.
+    assert guard.authorize_command("git stash push") is True
+    assert guard.authorize_command("git stash push -m 'WIP stash before sync'") is True
+
+
+def test_guard_blocks_remote_push_on_protected_branch_but_not_stash():
+    monitor = GitStateMonitor()
+    monitor.get_current_branch = MagicMock(return_value="main")
+    guard = GitActionGuard(monitor)
+
+    # Remote push to a protected branch is blocked …
+    assert guard.authorize_command("git push origin main") is False
+    # … but stashing on the same branch is allowed.
+    assert guard.authorize_command("git stash push -m 'WIP: save local changes'") is True
