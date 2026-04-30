@@ -229,14 +229,19 @@ Key milestones on this trajectory:
 
 ## Day One Payload (Steward Command)
 
+**Repository:** `TrueAlpha-spiral/TrueAlpha-spiral`
+
 **PR #106 is historical substrate** (already merged). The Day One gate is now
 the release-docker / sovereign-intent / receipt-emission process run against
 the **active head SHA**.
 
 When the agent prompts for steering, use the deterministic gate:
 
-1. Identify the active PR head SHA.
-2. Dispatch the release workflow against that exact SHA.
+1. Confirm that [`README.md`](./README.md) exists on the `main` branch of
+   `TrueAlpha-spiral/TrueAlpha-spiral` (repository and branch must be set
+   explicitly — missing either causes a 404 from the GitHub API).
+2. Identify the active PR head SHA.
+3. Dispatch the release workflow against that exact SHA.
 
 A helper script is included. The current verification workflow is `blank.yml`;
 `release-docker.yaml` is the target release-gate workflow:
@@ -252,6 +257,25 @@ To target a specific commit SHA explicitly:
 ```bash
 GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" HEAD_SHA=<sha> ./scripts/day_one_payload.sh
 ```
+
+### Genesis Witness Node & Receipt Emitter
+
+For cryptographic proof-of-provenance, use the SDF Phase I steward script
+([`scripts/day-one-payload-steward.py`](./scripts/day-one-payload-steward.py)):
+
+```bash
+# Verify an artifact and emit a signed receipt (dry-run)
+python scripts/day-one-payload-steward.py \
+  --artifact README.md \
+  --parent-hash sha256:<parent-sha> \
+  --author-id <your-id> \
+  --invariant "4 ≡ four" \
+  --dry-run
+```
+
+This implements the Proof-of-Provenance Protocol v0.1, transforming the TAS
+architecture from a declarative constitution into executable, cryptographically
+verifiable infrastructure.
 
 This preserves operator intent by requiring an explicit human-triggered release path
 verified against the active process state — not just a merged PR or a passing badge.
