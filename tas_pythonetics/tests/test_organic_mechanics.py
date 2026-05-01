@@ -357,3 +357,4 @@ def test_identity_validator_fingerprint_is_sha256():
     expected = hashlib.sha256(b"mytoken").hexdigest()
     assert result["fingerprint"] == expected
 
+# Nonce: 26477

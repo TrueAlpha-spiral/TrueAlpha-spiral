@@ -62,3 +62,4 @@ def test_cooldown_enforces_blocking_after_trip():
     recovered = detector.assess_state(EnergyState(total=0.5))
     assert recovered.severity == "NOMINAL"
     assert recovered.is_mutiny is False
+# Nonce: 16153

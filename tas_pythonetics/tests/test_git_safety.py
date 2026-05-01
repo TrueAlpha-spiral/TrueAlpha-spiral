@@ -84,3 +84,4 @@ def test_guard_blocks_remote_push_on_protected_branch_but_not_stash():
     assert guard.authorize_command("git push origin main") is False
     # … but stashing on the same branch is allowed.
     assert guard.authorize_command("git stash push -m 'WIP: save local changes'") is True
+# Nonce: 15069

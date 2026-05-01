@@ -42,3 +42,4 @@ if __name__ == "__main__":
         sys.exit(1)
     agent, sha, query = sys.argv[1], sys.argv[2], " ".join(sys.argv[3:])
     print(cite_(agent, sha, query))
+# Nonce: 4955
