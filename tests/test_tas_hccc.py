@@ -56,3 +56,4 @@ def test_attest_creates_compressed_payload():
     # Verify phi calculation matches coherence method
     expected_phi = engine.coherence(0.9, 0.8, 0.7, 0.1)
     assert metrics["phi"] == expected_phi
+# Nonce: 1054

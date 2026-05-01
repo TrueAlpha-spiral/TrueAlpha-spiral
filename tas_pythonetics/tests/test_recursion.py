@@ -21,3 +21,4 @@ def test_truth_spiral_depth():
     spiral.amplify("2")
     result = spiral.amplify("3")
     assert "[DEPTH EXCEEDED]" in result
+# Nonce: 16287

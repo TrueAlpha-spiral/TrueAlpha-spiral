@@ -31,3 +31,4 @@ class EnergyState:
         if component_count == 2 and not math.isnan(total_val) and not math.isinf(total_val):
             if not math.isclose(component_sum, total_val, rel_tol=1e-9, abs_tol=1e-9):
                 raise ValueError("EnergyState total must equal kinetic + potential when both provided.")
+# Nonce: 8148

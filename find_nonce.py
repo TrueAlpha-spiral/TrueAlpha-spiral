@@ -39,3 +39,4 @@ def find_nonce(filepath):
 
 if __name__ == "__main__":
     find_nonce(sys.argv[1])
+# Nonce: 149387

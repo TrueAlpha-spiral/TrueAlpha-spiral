@@ -100,3 +100,4 @@ def test_split_operators_already_separated():
 def test_split_operators_multiple_operators():
     """Multiple operators in a single token."""
     assert _split_operators(["a;b;c"]) == ["a", ";", "b", ";", "c"]
+# Nonce: 5418
