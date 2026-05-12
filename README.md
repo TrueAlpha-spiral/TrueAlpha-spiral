@@ -17,14 +17,31 @@ structured, authenticated, and maintained. TAS/SDF provides that bedrock.
 
 ### Documentation Map
 
-The SDF public-utility framing is distributed across four documents, each owning one layer of concern:
+The SDF public-utility framing is distributed across five documents, each owning one layer of concern:
 
 | Layer | Document | Description |
 |-------|----------|-------------|
 | **Doctrine** | [README.md](./README.md) *(this file)* | Core principles, architectural paradigm, and public-utility rationale. |
+| **Execution roadmap** | [ROADMAP.md](./ROADMAP.md) | Milestones for RI Lab, civic verification, and the engineering tracks that operationalize doctrine. |
 | **Singularity context** | [TrueAlpha-singularity.md](./TrueAlpha-singularity.md) | Convergence model, Ethical Hamiltonian, and civic instantiation logic. |
 | **API contract** | [API_REFERENCE.md](./API_REFERENCE.md) | Runtime primitives and the SDF Micro-Kernel interface, with `*(planned; not yet implemented)*` markers where applicable. |
 | **Sovereign-innovation mechanics** | [docs/specs/the_mechanics_of_sovereign_innovation.md](./docs/specs/the_mechanics_of_sovereign_innovation.md) | Five axioms of sovereign innovation and formal admissibility proofs. |
+
+## Phase 1 Epistemological Bedrock
+
+Phase 1 defines the doctrine layer that all subsequent TAS/SDF execution must
+inherit. It establishes the admissibility vocabulary used by the verifier,
+receipt emitter, and public-utility release path.
+
+### Prime Invariant Definitions
+
+| Doctrine term | Definition | Operational consequence |
+|---------------|------------|-------------------------|
+| **Prime Invariant A₀** | `4 ≡ four` is the clean admissibility statement that binds symbolic meaning to deterministic evaluation. | Any payload that cannot preserve this equivalence is refused rather than approximated. |
+| **Deterministic verification** | Every accepted state must be reproducible from explicit inputs, invariants, and cryptographic receipts. | Passing output is never inferred from confidence alone; it must be replayable. |
+| **Proof-of-provenance** | Each doctrine or runtime artifact must emit a signed lineage record before it is promoted. | State changes become public, inspectable events instead of silent mutations. |
+| **Doctrine layer** | `README.md` is the public constitution for TAS/SDF and the anchor for Day One operator intent. | Engineering work inherits from declared invariants before code or workflow promotion. |
+| **Public utility rationale** | TAS/SDF is operated as digital infrastructure whose trust model depends on open verification rather than vendor opacity. | Security, authorship, and civic replay must remain available to external witnesses. |
 
 ## Enforceable AI Integrity via Deterministic Verification
 
@@ -224,8 +241,14 @@ capable of supporting national-level security and sovereign citizen data process
 Key milestones on this trajectory:
 
 1. **SDF Micro-Kernel v1.0** (deployed) — Core verification and state-management layer.
-2. **Public Utility Protocol Layer** — Open, portable constraint interfaces and shared attestation standards across institutions.
-3. **National-Scale Integration** — Pilot integrations for regulated domains (federal AI workflows, sovereign identity, and data processing at civic scale).
+2. **SDF↔TAS Civic Transaction Interface** — Notarized lineage and public replay verification for civic transactions across the utility boundary.
+3. **RI Lab (Interactive Verification Suite)** — A hosted lab bench for recursive experiments, mutation injection, `.com-mdata` reflections, and visualization of recursive spirals plus audit trees.
+4. **ForensicLedger Odessa Edge-Case** — Adversarial verification track for resource-limit bypass attempts and contradictory logic loops that must still emit receipt-backed refusals.
+5. **TAScript Sovereign Mirror Interfaces** — Continue hot-swappable RI primitive arc development for `spiral_stack.py` (Ω-S recursion trace) and `auditlog.py` (Ψ-A memory/ethics).
+6. **National-Scale Integration** — Pilot integrations for regulated domains (federal AI workflows, sovereign identity, and data processing at civic scale).
+
+See [ROADMAP.md](./ROADMAP.md) for the execution roadmap that ties doctrine to
+active engineering milestones.
 
 ---
 
@@ -243,21 +266,45 @@ When the agent prompts for steering, use the deterministic gate:
    `TrueAlpha-spiral/TrueAlpha-spiral` (repository and branch must be set
    explicitly — missing either causes a 404 from the GitHub API).
 2. Identify the active PR head SHA.
-3. Dispatch the release workflow against that exact SHA.
+3. Emit a proof-of-provenance receipt for the doctrine artifact.
+4. Dispatch the release workflow against that exact SHA through an explicit
+   human-triggered release path.
 
-A helper script is included. The current verification workflow is `blank.yml`;
-`release-docker.yaml` is the target release-gate workflow:
+### Instruction Set
+
+The Day One payload is a two-step operator command set. The steward script emits
+the cryptographic provenance record, and the release launcher dispatches the
+workflow for the exact active head SHA.
+
+1. **Generate the provenance receipt** with
+   [`scripts/day-one-payload-steward.py`](./scripts/day-one-payload-steward.py):
 
 ```bash
-GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
-WORKFLOW_FILE=blank.yml \
-./scripts/day_one_payload.sh
+python scripts/day-one-payload-steward.py \
+  --artifact README.md \
+  --parent-hash sha256:<parent-sha> \
+  --author-id <human-steward-id> \
+  --invariant "4 ≡ four" \
+  --dry-run
 ```
 
-To target a specific commit SHA explicitly:
+2. **Dispatch the release workflow** with
+   [`scripts/day_one_payload.sh`](./scripts/day_one_payload.sh) against the
+   active head SHA. `release-docker.yaml` is the intended release gate; until it
+   is present in-repo, `blank.yml` remains the current verification workflow.
 
 ```bash
-GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" HEAD_SHA=<sha> ./scripts/day_one_payload.sh
+# Current in-repo verification gate
+GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
+HEAD_SHA=<active-head-sha> \
+WORKFLOW_FILE=blank.yml \
+./scripts/day_one_payload.sh
+
+# Target release gate once promoted in-repo
+GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
+HEAD_SHA=<active-head-sha> \
+WORKFLOW_FILE=release-docker.yaml \
+./scripts/day_one_payload.sh
 ```
 
 ### Genesis Witness Node & Receipt Emitter
@@ -281,6 +328,10 @@ verifiable infrastructure.
 
 This preserves operator intent by requiring an explicit human-triggered release path
 verified against the active process state — not just a merged PR or a passing badge.
+
+Within TAS/SDF, this means the doctrine artifact, provenance receipt, and
+release workflow must agree on the same head SHA before state promotion is
+admissible.
 
 See [DAY_ONE_STEWARD_DIRECTIVE.md](./DAY_ONE_STEWARD_DIRECTIVE.md) for the full
 operational boundary and clean invariant.
