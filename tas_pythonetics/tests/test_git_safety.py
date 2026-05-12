@@ -36,6 +36,15 @@ def test_guard_blocks_push_to_protected():
     # Should allow non-push commands
     assert guard.authorize_command("git status") is True
 
+def test_guard_blocks_push_targeting_protected_branch_from_feature_branch():
+    monitor = GitStateMonitor()
+    monitor.get_current_branch = MagicMock(return_value="feature-branch")
+    guard = GitActionGuard(monitor)
+
+    assert guard.authorize_command("git push origin main") is False
+    assert guard.authorize_command("git push origin feature-branch:main") is False
+    assert guard.authorize_command("git push origin HEAD:refs/heads/main") is False
+
 def test_guard_allows_safe_operations():
     monitor = GitStateMonitor()
     monitor.get_current_branch = MagicMock(return_value="feature-branch")
