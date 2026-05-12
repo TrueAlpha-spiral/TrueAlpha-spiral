@@ -36,7 +36,7 @@ def test_guard_blocks_push_to_protected():
     # Should allow non-push commands
     assert guard.authorize_command("git status") is True
 
-def test_guard_blocks_push_targeting_protected_branch_from_feature_branch():
+def test_guard_blocks_push_to_protected_branch():
     monitor = GitStateMonitor()
     monitor.get_current_branch = MagicMock(return_value="feature-branch")
     guard = GitActionGuard(monitor)
@@ -44,6 +44,7 @@ def test_guard_blocks_push_targeting_protected_branch_from_feature_branch():
     assert guard.authorize_command("git push origin main") is False
     # Ambiguous single positional is treated fail-safe when it names a protected branch.
     assert guard.authorize_command("git push main") is False
+    assert guard.authorize_command("git push origin main:") is False
     assert guard.authorize_command("git push origin feature-branch:main") is False
     assert guard.authorize_command("git push origin HEAD:refs/heads/main") is False
 

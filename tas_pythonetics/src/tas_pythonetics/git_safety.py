@@ -73,6 +73,17 @@ class GitActionGuard:
             return ref[len("heads/"):]
         return ref
 
+    def _single_arg_targets_protected_branch(self, arg: str, protected: set[str]) -> bool:
+        candidate = self._normalize_branch_ref(arg.lstrip("+")).lower()
+        return ":" in arg or candidate in protected
+
+    @staticmethod
+    def _extract_destination_ref(refspec: str) -> str:
+        if ":" not in refspec:
+            return refspec
+        source, destination = refspec.split(":", 1)
+        return destination or source
+
     def _push_targets_protected_branch(self, tokens: list[str]) -> bool:
         lower_tokens = [t.lower() for t in tokens]
         if "push" not in lower_tokens:
@@ -116,14 +127,13 @@ class GitActionGuard:
             refspecs = []
         elif len(positionals) == 1:
             # Single positional is ambiguous (repository or refspec).
-            # Treat it as a refspec only when it explicitly targets a protected branch.
-            candidate = self._normalize_branch_ref(positionals[0].lstrip("+")).lower()
-            refspecs = [positionals[0]] if ":" in positionals[0] or candidate in protected else []
+            # Treat it as a refspec only when it can target a protected branch.
+            refspecs = [positionals[0]] if self._single_arg_targets_protected_branch(positionals[0], protected) else []
         else:
             refspecs = positionals[1:]
 
         for refspec in refspecs:
-            destination = refspec.split(":")[-1] if ":" in refspec else refspec
+            destination = self._extract_destination_ref(refspec)
             destination = self._normalize_branch_ref(destination.lstrip("+")).lower()
             if destination in protected:
                 return True
