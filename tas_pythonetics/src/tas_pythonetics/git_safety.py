@@ -85,6 +85,15 @@ class GitActionGuard:
         source, destination = refspec.split(":", 1)
         return destination or source
 
+    @staticmethod
+    def _looks_like_repository_locator(value: str) -> bool:
+        if "://" in value:
+            return True
+        if ":" not in value:
+            return False
+        source, destination = value.split(":", 1)
+        return "/" in destination and ("@" in source or "." in source)
+
     def _push_targets_protected_branch(self, tokens: list[str]) -> bool:
         lower_tokens = [t.lower() for t in tokens]
         if "push" not in lower_tokens:
@@ -129,7 +138,12 @@ class GitActionGuard:
         elif len(positionals) == 1:
             # Single positional is ambiguous (repository or refspec).
             # Treat it as a refspec only when it can target a protected branch.
-            refspecs = [positionals[0]] if self._single_arg_targets_protected_branch(positionals[0], protected) else []
+            refspecs = (
+                [positionals[0]]
+                if not self._looks_like_repository_locator(positionals[0])
+                and self._single_arg_targets_protected_branch(positionals[0], protected)
+                else []
+            )
         else:
             refspecs = positionals[1:]
 
