@@ -65,6 +65,96 @@ class GitActionGuard:
     def __init__(self, monitor: GitStateMonitor):
         self.monitor = monitor
 
+    @staticmethod
+    def _normalize_branch_ref(ref: str) -> str:
+        if ref.startswith("refs/heads/"):
+            return ref[len("refs/heads/"):]
+        if ref.startswith("heads/"):
+            return ref[len("heads/"):]
+        return ref
+
+    def _single_arg_targets_protected_branch(self, arg: str, protected: set[str]) -> bool:
+        candidate = self._extract_destination_ref(arg)
+        candidate = self._normalize_branch_ref(candidate.lstrip("+")).lower()
+        return candidate in protected
+
+    @staticmethod
+    def _extract_destination_ref(refspec: str) -> str:
+        if ":" not in refspec:
+            return refspec
+        source, destination = refspec.split(":", 1)
+        if destination == "":
+            # "source:" pushes to source-named branch on remote.
+            return source
+        return destination
+
+    @staticmethod
+    def _looks_like_repository_locator(value: str) -> bool:
+        if "://" in value:
+            return True
+        if ":" not in value:
+            return False
+        source, destination = value.split(":", 1)
+        return "/" in destination and ("@" in source or "." in source)
+
+    def _push_targets_protected_branch(self, tokens: list[str]) -> bool:
+        lower_tokens = [t.lower() for t in tokens]
+        if "push" not in lower_tokens:
+            return False
+
+        push_index = lower_tokens.index("push")
+        args = tokens[push_index + 1:]
+
+        options_with_value = {
+            "-o",
+            "--push-option",
+            "-u",
+            "--set-upstream",
+            "--repo",
+            "--receive-pack",
+            "--exec",
+        }
+
+        positionals = []
+        i = 0
+        while i < len(args):
+            token = args[i]
+            lower_token = token.lower()
+            if token == "--":
+                positionals.extend(args[i + 1:])
+                break
+
+            if lower_token.startswith("-"):
+                if lower_token in options_with_value and i + 1 < len(args):
+                    i += 2
+                    continue
+                i += 1
+                continue
+
+            positionals.append(token)
+            i += 1
+
+        protected = {b.lower() for b in self.PROTECTED_BRANCHES}
+
+        if not positionals:
+            refspecs = []
+        elif len(positionals) == 1:
+            # Single positional is ambiguous (repository or refspec).
+            # Treat it as a refspec only when it can target a protected branch.
+            is_repo = self._looks_like_repository_locator(positionals[0])
+            targets_protected = self._single_arg_targets_protected_branch(positionals[0], protected)
+            refspecs = [positionals[0]] if (not is_repo and targets_protected) else []
+        else:
+            refspecs = positionals[1:]
+
+        for refspec in refspecs:
+            destination = self._extract_destination_ref(refspec)
+            destination = self._normalize_branch_ref(destination.lstrip("+")).lower()
+            if destination in protected:
+                return True
+
+        return False
+
     def authorize_command(self, command: str) -> bool:
         """
         Check if a command is safe to execute given the current state.
@@ -110,6 +200,10 @@ class GitActionGuard:
                     return False
 
             # Check for protected branch manipulation
+            if self._push_targets_protected_branch(tokens):
+                logger.warning(f"BLOCKED: Push targeting protected branch is not allowed '{command}'")
+                return False
+
             try:
                 current_branch = self.monitor.get_current_branch()
             except Exception:

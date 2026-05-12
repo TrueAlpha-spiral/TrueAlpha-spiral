@@ -36,6 +36,19 @@ def test_guard_blocks_push_to_protected():
     # Should allow non-push commands
     assert guard.authorize_command("git status") is True
 
+def test_guard_blocks_push_to_protected_branch():
+    monitor = GitStateMonitor()
+    monitor.get_current_branch = MagicMock(return_value="feature-branch")
+    guard = GitActionGuard(monitor)
+
+    assert guard.authorize_command("git push origin main") is False
+    # Ambiguous single positional is treated fail-safe when it names a protected branch.
+    assert guard.authorize_command("git push main") is False
+    assert guard.authorize_command("git push origin main:") is False
+    assert guard.authorize_command("git push origin :main") is False
+    assert guard.authorize_command("git push origin feature-branch:main") is False
+    assert guard.authorize_command("git push origin HEAD:refs/heads/main") is False
+
 def test_guard_allows_safe_operations():
     monitor = GitStateMonitor()
     monitor.get_current_branch = MagicMock(return_value="feature-branch")
@@ -44,6 +57,8 @@ def test_guard_allows_safe_operations():
     assert guard.authorize_command("git add .") is True
     assert guard.authorize_command("git commit -m 'fix'") is True
     assert guard.authorize_command("git push origin feature-branch") is True
+    assert guard.authorize_command("git push origin feature-branch:other-feature") is True
+    assert guard.authorize_command("git push git@github.com:example/repo.git") is True
 
 def test_guard_blocks_complex_force_pushes():
     monitor = GitStateMonitor()
