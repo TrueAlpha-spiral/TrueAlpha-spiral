@@ -56,6 +56,8 @@ def test_guard_allows_safe_operations():
     assert guard.authorize_command("git add .") is True
     assert guard.authorize_command("git commit -m 'fix'") is True
     assert guard.authorize_command("git push origin feature-branch") is True
+    assert guard.authorize_command("git push origin feature-branch:other-feature") is True
+    assert guard.authorize_command("git push git@github.com:example/repo.git") is True
 
 def test_guard_blocks_complex_force_pushes():
     monitor = GitStateMonitor()

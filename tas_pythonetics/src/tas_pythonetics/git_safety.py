@@ -74,8 +74,9 @@ class GitActionGuard:
         return ref
 
     def _single_arg_targets_protected_branch(self, arg: str, protected: set[str]) -> bool:
-        candidate = self._normalize_branch_ref(arg.lstrip("+")).lower()
-        return ":" in arg or candidate in protected
+        candidate = self._extract_destination_ref(arg)
+        candidate = self._normalize_branch_ref(candidate.lstrip("+")).lower()
+        return candidate in protected
 
     @staticmethod
     def _extract_destination_ref(refspec: str) -> str:
