@@ -110,14 +110,17 @@ class GitActionGuard:
             positionals.append(token)
             i += 1
 
+        protected = {b.lower() for b in self.PROTECTED_BRANCHES}
+
         if not positionals:
             refspecs = []
         elif len(positionals) == 1:
-            # Could be either a repository name or an implicit refspec; fail safe.
-            refspecs = [positionals[0]]
+            # Single positional is ambiguous (repository or refspec).
+            # Treat it as a refspec only when it explicitly targets a protected branch.
+            candidate = self._normalize_branch_ref(positionals[0].lstrip("+")).lower()
+            refspecs = [positionals[0]] if ":" in positionals[0] or candidate in protected else []
         else:
             refspecs = positionals[1:]
-        protected = {b.lower() for b in self.PROTECTED_BRANCHES}
 
         for refspec in refspecs:
             destination = refspec.split(":")[-1] if ":" in refspec else refspec
