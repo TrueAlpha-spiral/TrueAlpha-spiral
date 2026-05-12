@@ -293,14 +293,18 @@ python scripts/day-one-payload-steward.py \
    active head SHA. `release-docker.yaml` is the intended release gate; until it
    is present in-repo, `blank.yml` remains the current verification workflow.
 
+Use the current in-repo verification gate today:
+
 ```bash
-# Current in-repo verification gate
 GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
 HEAD_SHA=<active-head-sha> \
 WORKFLOW_FILE=blank.yml \
 ./scripts/day_one_payload.sh
+```
 
-# Target release gate once promoted in-repo
+Use the target release gate once it is promoted in-repo:
+
+```bash
 GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
 HEAD_SHA=<active-head-sha> \
 WORKFLOW_FILE=release-docker.yaml \

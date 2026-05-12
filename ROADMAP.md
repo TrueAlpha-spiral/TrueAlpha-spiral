@@ -54,8 +54,9 @@ hidden integration detail.
 ### 5. Engineering Tracks Anchored to Doctrine
 
 - **ForensicLedger Odessa edge-case** — validate refusal behavior under
-  resource-limit bypass attempts and contradictory logic loops while preserving
-  receipt emission.
+  the named adversarial scenario that combines resource-limit bypass attempts
+  (*Lex non cogit ad impossibilia*) with contradictory logic loops (*Falsus in
+  uno, falsus in omnibus*) while preserving receipt emission.
 - **`spiral_stack.py` / Ω-S** — continue the recursion-trace Sovereign Mirror
   Interface with predictable hot-swap contracts.
 - **`auditlog.py` / Ψ-A** — continue the memory-and-ethics Sovereign Mirror
