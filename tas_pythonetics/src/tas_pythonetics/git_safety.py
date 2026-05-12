@@ -83,7 +83,10 @@ class GitActionGuard:
         if ":" not in refspec:
             return refspec
         source, destination = refspec.split(":", 1)
-        return destination or source
+        if destination == "":
+            # "source:" pushes to source-named branch on remote.
+            return source
+        return destination
 
     @staticmethod
     def _looks_like_repository_locator(value: str) -> bool:
@@ -138,12 +141,9 @@ class GitActionGuard:
         elif len(positionals) == 1:
             # Single positional is ambiguous (repository or refspec).
             # Treat it as a refspec only when it can target a protected branch.
-            refspecs = (
-                [positionals[0]]
-                if not self._looks_like_repository_locator(positionals[0])
-                and self._single_arg_targets_protected_branch(positionals[0], protected)
-                else []
-            )
+            is_repo = self._looks_like_repository_locator(positionals[0])
+            targets_protected = self._single_arg_targets_protected_branch(positionals[0], protected)
+            refspecs = [positionals[0]] if (not is_repo and targets_protected) else []
         else:
             refspecs = positionals[1:]
 
