@@ -45,6 +45,7 @@ def test_guard_blocks_push_to_protected_branch():
     # Ambiguous single positional is treated fail-safe when it names a protected branch.
     assert guard.authorize_command("git push main") is False
     assert guard.authorize_command("git push origin main:") is False
+    assert guard.authorize_command("git push origin :main") is False
     assert guard.authorize_command("git push origin feature-branch:main") is False
     assert guard.authorize_command("git push origin HEAD:refs/heads/main") is False
 
