@@ -87,7 +87,6 @@ Assign owner and milestone:
 3. Runtime/performance fixes after rebase
    - #67 Implement missing functions in tas_pythonetics
    - #76 Initialize and update TAS artifact metadata
-   - #115 Fix circular import and consolidate tas_pythonetics directory
 
 ## 5) Merge gates
 
