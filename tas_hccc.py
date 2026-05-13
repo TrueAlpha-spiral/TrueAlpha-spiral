@@ -93,7 +93,9 @@ class CursiveCoherenceEngine:
         if a_c < 1 or s_c < 2:
             raise ValueError("TAS-SES requires ≥1 A_C and ≥2 S_C anchors")
 
-    def coherence(self, entailment: float, trust: float, lineage: float, contradiction: float) -> float:
+    def coherence(
+        self, entailment: float, trust: float, lineage: float, contradiction: float
+    ) -> float:
         raw = (
             self.alpha * entailment
             + self.beta * trust
@@ -140,7 +142,9 @@ class MerkleBatch:
     """Accumulates cells into Merkle trees and persists batches."""
 
     def __init__(self, batch_size: int = 10, out_dir: str = "hccc_roots"):
-        from merkletools import MerkleTools  # Imported lazily to avoid dependency if unused
+        from merkletools import (
+            MerkleTools,
+        )  # Imported lazily to avoid dependency if unused
 
         self.batch_size = batch_size
         self.out_dir = Path(out_dir)
@@ -162,7 +166,9 @@ class MerkleBatch:
         with filepath.open("w", encoding="utf-8") as f:
             for i, c in enumerate(self.cells):
                 proof = self.mt.get_proof(i)
-                f.write(json.dumps(asdict(c) | {"proof": proof}) + "\n")
+                d = c.__dict__.copy()
+                d["proof"] = proof
+                f.write(json.dumps(d) + "\n")
         # Reset for next batch
         self.cells.clear()
         from merkletools import MerkleTools
@@ -175,7 +181,11 @@ def verify_cell(cell_json: str, merkle_root: str) -> bool:
     from merkletools import MerkleTools
 
     cell = json.loads(cell_json)
-    core = {k: v for k, v in cell.items() if k not in {"sig_ed", "sig_pq", "pk_ed", "pk_pq", "proof"}}
+    core = {
+        k: v
+        for k, v in cell.items()
+        if k not in {"sig_ed", "sig_pq", "pk_ed", "pk_pq", "proof"}
+    }
     leaf = hashlib.sha256(_deterministic_json(core).encode()).hexdigest()
     mt = MerkleTools(hash_type="sha256")
     return mt.validate_proof(cell.get("proof", []), leaf, merkle_root)
@@ -200,10 +210,12 @@ if __name__ == "__main__":
         PolicyAnchor("source:sc:2", "S_C", "Source attestation two"),
     ]
     cce = CursiveCoherenceEngine("TAS-SES", anchors, mgi_status="active")
-    cce_cell = cce.attest("CCE", entailment=0.9, trust=0.88, lineage=0.92, contradiction=0.05)
+    cce_cell = cce.attest(
+        "CCE", entailment=0.9, trust=0.88, lineage=0.92, contradiction=0.05
+    )
     batch.add_cell(cce_cell.sign(sk))
     # Explicit flush of remaining cells if batch not full
     if batch.cells:
         batch._commit()
     print(f"Batches written to {batch.out_dir}")
-# Nonce: 315601
+# Nonce: 107966
