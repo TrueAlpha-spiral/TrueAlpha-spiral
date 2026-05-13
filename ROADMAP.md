@@ -62,6 +62,13 @@ hidden integration detail.
 - **`auditlog.py` / Ψ-A** — continue the memory-and-ethics Sovereign Mirror
   Interface with deterministic audit output.
 
+### Release 2026.05 Candidate Governance
+
+The active release cleanup and PR triage baseline is tracked in
+[`docs/release/release-2026-05-pr-triage.md`](./docs/release/release-2026-05-pr-triage.md),
+including branch lock policy, open-PR categorization, merge order, merge gates,
+batching lanes, stale/close conversion criteria, and final RC freeze checks.
+
 ### 6. National-Scale Integration
 
 The terminal milestone is national-scale adoption: federal AI workflows,
