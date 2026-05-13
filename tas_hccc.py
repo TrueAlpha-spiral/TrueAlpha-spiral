@@ -162,7 +162,9 @@ class MerkleBatch:
         with filepath.open("w", encoding="utf-8") as f:
             for i, c in enumerate(self.cells):
                 proof = self.mt.get_proof(i)
-                f.write(json.dumps(asdict(c) | {"proof": proof}) + "\n")
+                d = c.__dict__.copy()
+                d["proof"] = proof
+                f.write(json.dumps(d) + "\n")
         # Reset for next batch
         self.cells.clear()
         from merkletools import MerkleTools
