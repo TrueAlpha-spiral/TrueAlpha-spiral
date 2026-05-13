@@ -20,7 +20,7 @@ Snapshot generated from open pull requests on 2026-05-13.
 - PR #152 — chore: execute Day One Steward Directive (area:general, risk:medium, priority:P1, release-candidate:yes)
 - PR #154 — docs: add Verity Gate promotion logic (area:docs, risk:low, priority:P1, release-candidate:yes)
 
-### Deferable (post-release backlog)
+### Deferrable (post-release backlog)
 
 - PR #14 — Add Sovereign Singularity onboarding blurb (stale, updated 2025-07-22)
 - PR #15 — Press Release²: enhanced Codex runner (close, updated 2025-07-22)
@@ -83,7 +83,6 @@ Assign owner and milestone:
 2. Low-risk docs/tests ready lane
    - #138 🧪 [testing improvement] Add comprehensive tests for secure_lineage
    - #139 🧪 [testing improvement] Add tests for citation.py
-   - #154 docs: add Verity Gate promotion logic
    - #159 🧪 Add unit tests for calculate_sha256 in tas_shadow_scan
 3. Runtime/performance fixes after rebase
    - #67 Implement missing functions in tas_pythonetics
