@@ -1,6 +1,9 @@
-Title: 🧪 [testing improvement] Add missing tests for EnergyState.__post_init__ validation
+Title: 🔒 [security fix] Implement AlgorithmicPolymath and harden runtime refusal consistency gate
 
 Description:
-🎯 **What:** The `EnergyState` class in `tasw_hamiltonian.py` had an untested `__post_init__` method that handles total float conversion, missing component tolerance, and kinetic/potential sum validation.
-📊 **Coverage:** A new suite of unit tests has been added to `tas_pythonetics/tests/core/physics/test_tasw_hamiltonian.py` covering: float conversion for totals, valid sums passing, valid sums with floating-point tolerance passing, invalid sums raising `ValueError`, total fields set to `NaN`/`Inf` skipping checks, and cases where 1 or 0 components are provided skipping sum validation checks.
-✨ **Result:** The `EnergyState.__post_init__` validation logic now has 100% test coverage, significantly reducing the risk of regressions in TAS-W Hamiltonian state generation.
+🎯 **What:** Implemented `AlgorithmicPolymath`, the runtime constraint coordinator, and audited the bridge layer (`bridge.py`), admissibility gateway (`gates.py`), and ledger/receipt paths.
+🛡️ **Risk:** Previously, if a raw exception occurred during conduit execution or admissibility evaluation, the execution could crash raw or escape the boundaries of the `RefusalArtifact` requirement. A broken or non-existent lineage or authority could bypass some runtime rules if handled improperly by the calling context.
+🔧 **Solution:**
+- Created `AlgorithmicPolymath` which explicitly binds the execution to a human API key, scoped authority, lineage anchor, and a ledger, failing closed and emitting a `RefusalArtifact` on any missing or invalid state.
+- Wrapped the execution code inside `tas_openai_execute` and `tas_admissibility_gateway` in broad `try...except` blocks to catch unexpected errors and return `RefusalArtifact` or failed `GateResult` objects.
+- Added must-fail tests proving that missing authority, malformed scope, missing lineage, malformed conduit output, and ledger append failures correctly emit a `RefusalArtifact` without crashing.
