@@ -37,7 +37,25 @@ def tas_admissibility_gateway(candidate_payload: Any) -> GateResult:
     if unexpected:
         return GateResult(False, "schema", f"Unexpected fields: {sorted(unexpected)}")
 
-    candidate = CandidateResponse.from_mapping(candidate_payload)
+    paradata = candidate_payload.get("tas_paradata", {})
+    if not isinstance(paradata, dict):
+        return GateResult(False, "schema", "tas_paradata must be an object")
+
+    paradata_required = set(
+        TAS_CANDIDATE_RESPONSE_SCHEMA["properties"]["tas_paradata"]["required"]
+    )
+    missing_paradata = paradata_required - set(paradata)
+    if missing_paradata:
+        return GateResult(
+            False,
+            "schema",
+            f"Missing required paradata fields: {sorted(missing_paradata)}",
+        )
+
+    try:
+        candidate = CandidateResponse.from_mapping(candidate_payload)
+    except (TypeError, ValueError) as exc:
+        return GateResult(False, "schema", f"Candidate coercion failed: {exc}")
 
     if candidate.decision != "candidate":
         return GateResult(
@@ -56,7 +74,6 @@ def tas_admissibility_gateway(candidate_payload: Any) -> GateResult:
     if not candidate.proposed_output.strip():
         return GateResult(False, "Φ", "Proposed output is empty", candidate)
 
-    paradata = candidate.tas_paradata
     if paradata.get("tool_path") != "openai.responses":
         return GateResult(False, "GENE_C01", "Missing OpenAI Responses tool path", candidate)
 
