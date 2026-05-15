@@ -73,20 +73,45 @@ class CandidateResponse:
     known_limitations: list[str] = field(default_factory=list)
     tas_paradata: dict[str, Any] = field(default_factory=dict)
 
+    @staticmethod
+    def _coerce_confidence(value: Any) -> float:
+        try:
+            return float(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("confidence must be numeric") from exc
+
+    @staticmethod
+    def _coerce_known_limitations(value: Any) -> list[str]:
+        if not isinstance(value, list):
+            raise ValueError("known_limitations must be a list")
+        return [str(item) for item in value]
+
+    @staticmethod
+    def _coerce_paradata(value: Any) -> dict[str, Any]:
+        if not isinstance(value, dict):
+            raise ValueError("tas_paradata must be an object")
+        return dict(value)
+
     @classmethod
     def from_mapping(cls, payload: Mapping[str, Any]) -> "CandidateResponse":
-        """Build a candidate object from parsed JSON-like data."""
+        """Build a candidate object from parsed JSON-like data.
+
+        Malformed conduit output raises ValueError so the TAS gateway can reject
+        the candidate cleanly instead of allowing parsing exceptions to escape.
+        """
         return cls(
             decision=str(payload.get("decision", "")),
             claim_type=str(payload.get("claim_type", "")),
-            confidence=float(payload.get("confidence", -1.0)),
+            confidence=cls._coerce_confidence(payload.get("confidence", -1.0)),
             requires_web_verification=bool(payload.get("requires_web_verification")),
             requires_human_authorization=bool(
                 payload.get("requires_human_authorization")
             ),
             proposed_output=str(payload.get("proposed_output", "")),
-            known_limitations=list(payload.get("known_limitations", [])),
-            tas_paradata=dict(payload.get("tas_paradata", {})),
+            known_limitations=cls._coerce_known_limitations(
+                payload.get("known_limitations", [])
+            ),
+            tas_paradata=cls._coerce_paradata(payload.get("tas_paradata", {})),
         )
 
     def to_dict(self) -> dict[str, Any]:
