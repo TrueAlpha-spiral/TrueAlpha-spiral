@@ -79,62 +79,68 @@ def tas_openai_execute(
     output, OpenAI execution errors, and TAS gate failures all emit a
     RefusalArtifact instead of allowing raw crashes or silent acceptance.
     """
-    if human_api_key is None or scoped_authority is None:
-        return RefusalArtifact(reason="Missing authority anchor")
-
-    if not human_api_key.validate():
-        return RefusalArtifact(reason="Invalid HumanAPI Key")
-
-    if not scoped_authority.allows(OPENAI_RESPONSES_ACTION):
-        return RefusalArtifact(reason="Scope does not authorize OpenAI execution")
-
-    execution_client = client if client is not None else _default_client()
-    if isinstance(execution_client, RefusalArtifact):
-        return execution_client
-
-    prompt_hash = _hash_prompt(prompt)
-    conduit_prompt = json.dumps(
-        {
-            "prompt": prompt,
-            "tas_paradata_requirements": {
-                "input_hash": prompt_hash,
-                "model": model,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "tool_path": "openai.responses",
-                "receipt_required": True,
-            },
-        },
-        sort_keys=True,
-    )
-
     try:
-        response = execution_client.responses.create(
-            model=model,
-            input=conduit_prompt,
-            text={"format": _schema_format()},
+        if human_api_key is None or scoped_authority is None:
+            return RefusalArtifact(reason="Missing authority anchor")
+
+        if not human_api_key.validate():
+            return RefusalArtifact(reason="Invalid HumanAPI Key")
+
+        if not scoped_authority.allows(OPENAI_RESPONSES_ACTION):
+            return RefusalArtifact(reason="Scope does not authorize OpenAI execution")
+
+        execution_client = client if client is not None else _default_client()
+        if isinstance(execution_client, RefusalArtifact):
+            return execution_client
+
+        prompt_hash = _hash_prompt(prompt)
+        conduit_prompt = json.dumps(
+            {
+                "prompt": prompt,
+                "tas_paradata_requirements": {
+                    "input_hash": prompt_hash,
+                    "model": model,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "tool_path": "openai.responses",
+                    "receipt_required": True,
+                },
+            },
+            sort_keys=True,
+        )
+
+        try:
+            response = execution_client.responses.create(
+                model=model,
+                input=conduit_prompt,
+                text={"format": _schema_format()},
+            )
+        except Exception as exc:
+            return RefusalArtifact(
+                reason="OpenAI conduit execution failed",
+                details={"stage": "openai.responses.create", "error": str(exc)},
+            )
+
+        candidate = _candidate_from_response(response)
+        if isinstance(candidate, RefusalArtifact):
+            return candidate
+
+        candidate.setdefault("tas_paradata", {})["input_hash"] = prompt_hash
+        candidate["tas_paradata"].setdefault("model", model)
+        candidate["tas_paradata"].setdefault("tool_path", "openai.responses")
+        candidate["tas_paradata"].setdefault("receipt_required", True)
+
+        gate_result = tas_admissibility_gateway(candidate)
+        if not gate_result.admissible:
+            return RefusalArtifact.from_gate_result(gate_result)
+
+        return ProvenanceReceipt.from_response(
+            response=response,
+            human_api_key=human_api_key,
+            scoped_authority=scoped_authority,
+            gate_result=gate_result,
         )
     except Exception as exc:
         return RefusalArtifact(
-            reason="OpenAI conduit execution failed",
-            details={"stage": "openai.responses.create", "error": str(exc)},
+            reason="Unhandled runtime exception in TAS bridge",
+            details={"error": str(exc)},
         )
-
-    candidate = _candidate_from_response(response)
-    if isinstance(candidate, RefusalArtifact):
-        return candidate
-
-    candidate.setdefault("tas_paradata", {})["input_hash"] = prompt_hash
-    candidate["tas_paradata"].setdefault("model", model)
-    candidate["tas_paradata"].setdefault("tool_path", "openai.responses")
-    candidate["tas_paradata"].setdefault("receipt_required", True)
-
-    gate_result = tas_admissibility_gateway(candidate)
-    if not gate_result.admissible:
-        return RefusalArtifact.from_gate_result(gate_result)
-
-    return ProvenanceReceipt.from_response(
-        response=response,
-        human_api_key=human_api_key,
-        scoped_authority=scoped_authority,
-        gate_result=gate_result,
-    )
