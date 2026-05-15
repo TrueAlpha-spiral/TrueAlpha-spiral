@@ -32,7 +32,7 @@ def _schema_format() -> dict[str, Any]:
     }
 
 
-def _message_content_from_response(response: Any) -> str:
+def _message_content_from_response(response: Any) -> Any:
     output_text = getattr(response, "output_text", "")
     if output_text:
         return output_text
@@ -53,9 +53,17 @@ def _candidate_from_response(response: Any) -> dict[str, Any] | RefusalArtifact:
             reason="OpenAI response did not contain candidate content",
             details={"stage": "structured_output"},
         )
+    if not isinstance(output_text, str):
+        return RefusalArtifact(
+            reason="OpenAI response candidate content was not a string",
+            details={
+                "stage": "structured_output",
+                "content_type": type(output_text).__name__,
+            },
+        )
     try:
         payload = json.loads(output_text)
-    except json.JSONDecodeError as exc:
+    except (json.JSONDecodeError, TypeError) as exc:
         return RefusalArtifact(
             reason="OpenAI response was not valid JSON",
             details={"stage": "structured_output", "error": str(exc)},
