@@ -74,6 +74,19 @@ def test_malformed_json_refuses():
     assert result.reason == "OpenAI response was not valid JSON"
 
 
+def test_non_string_candidate_content_refuses():
+    result = tas_openai_execute(
+        HumanAPIKey("HumanAPIKey001"),
+        ScopedAuthority(authority="HumanAPIKey001"),
+        "draft a candidate",
+        client=FakeClient([{"type": "text", "text": "not a JSON string"}]),
+    )
+
+    assert isinstance(result, RefusalArtifact)
+    assert result.reason == "OpenAI response candidate content was not a string"
+    assert result.details["content_type"] == "list"
+
+
 def test_non_object_tas_paradata_refuses_before_mutation():
     result = tas_openai_execute(
         HumanAPIKey("HumanAPIKey001"),
