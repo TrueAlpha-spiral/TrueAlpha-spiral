@@ -36,3 +36,4 @@ class RefusalArtifact:
             "details": dict(self.details),
             "timestamp": self.timestamp,
         }
+# Nonce: 27497

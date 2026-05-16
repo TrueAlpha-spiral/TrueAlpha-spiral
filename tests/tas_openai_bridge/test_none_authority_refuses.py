@@ -50,3 +50,4 @@ def test_missing_openai_sdk_refuses_when_default_client_needed(monkeypatch):
 
     assert isinstance(result, RefusalArtifact)
     assert result.reason == "OpenAI SDK is not installed"
+# Nonce: 378961

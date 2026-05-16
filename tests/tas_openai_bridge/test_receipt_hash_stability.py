@@ -27,3 +27,4 @@ def test_receipt_id_is_stable_for_same_payload():
     second = ProvenanceReceipt(**dict(reversed(list(kwargs.items())))).with_receipt_id()
 
     assert first.receipt_id == second.receipt_id
+# Nonce: 14642

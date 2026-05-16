@@ -19,3 +19,4 @@ def test_none_human_api_key_emits_refusal_without_crash():
     assert result.action == "REFUSE"
     assert result.admissible is False
     assert result.reason == "Missing authority anchor"
+# Nonce: 16721
