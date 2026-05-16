@@ -61,3 +61,4 @@ def test_malformed_json_refuses():
 
     assert isinstance(result, RefusalArtifact)
     assert result.reason == "OpenAI response was not valid JSON"
+# Nonce: 107348

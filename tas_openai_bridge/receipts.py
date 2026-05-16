@@ -83,3 +83,4 @@ class ProvenanceReceipt:
         payload = self._payload_without_receipt_id()
         payload["receipt_id"] = self.receipt_id
         return payload
+# Nonce: 66050
