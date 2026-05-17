@@ -1,5 +1,12 @@
 import hashlib
 import time
+from tas_pythonetics.refusal import RefusalArtifact
+
+class PhoenixError(Exception):
+    """Carries the immutable RefusalArtifact up the stack to prevent silent failure."""
+    def __init__(self, artifact):
+        self.artifact = artifact
+        super().__init__(f"TAS Refusal [{artifact.refusal_code}]: {artifact.refusal_reason}")
 
 class SovereignInnovationValidator:
     """
@@ -18,7 +25,13 @@ class SovereignInnovationValidator:
     def declare_origin(self, author, purpose, artifact_content):
         """Axiom I - Origin Integrity"""
         if self.genesis is not None:
-            raise ValueError("Origin already declared")
+            refusal = RefusalArtifact(
+                refusal_code="MALFORMED_RECORD",
+                refusal_reason="Origin already declared",
+                claim_text="Origin Declaration"
+            )
+            self.refusals.append(refusal.to_dict())
+            raise PhoenixError(refusal) # Fail closed instead of returning None
 
         timestamp = time.time()
         artifact_hash = self._hash(artifact_content)
@@ -40,90 +53,93 @@ class SovereignInnovationValidator:
 
     def _check_invariant_triple(self, artifact, previous_hash):
         """Axiom II - The Invariant Triple"""
-        # Form: structure matches declared content
         if not artifact.get("content"):
-            return False, "Failed Form: Missing content"
+            return False, "Failed Form: Missing content", "MALFORMED_RECORD"
 
         calculated_hash = self._hash(artifact["content"])
         if artifact.get("hash") != calculated_hash:
-            return False, "Failed Form: Hash mismatch"
+            return False, "Failed Form: Hash mismatch", "LINEAGE_BREAK"
 
-        # Function: semantic role specific, bounded, coherent
         if not artifact.get("role"):
-             return False, "Failed Function: Missing semantic role"
+             return False, "Failed Function: Missing semantic role", "MALFORMED_RECORD"
 
-        # Faithfulness: cryptographic parentage link
         if artifact.get("parent_hash") != previous_hash:
-             return False, "Failed Faithfulness: Invalid parent hash"
+             return False, "Failed Faithfulness: Invalid parent hash", "LINEAGE_BREAK"
 
-        return True, ""
+        return True, "", ""
 
     def submit_artifact(self, artifact, process_dependency_count=1):
         """
         Processes an artifact submission.
-        Validates Axiom II, logs refusal (Axiom III) or appends to chain.
-        Also validates Axiom V (Process Over State) via dependency count.
+        Validates Axiom II, logs refusal (Axiom III), and throws a PhoenixError on failure.
         """
         if not self.genesis:
-            raise ValueError("Origin must be declared first")
+            refusal = RefusalArtifact(
+                refusal_code="MISSING_AUTHORITY",
+                refusal_reason="Origin must be declared first",
+                claim_text="Artifact Submission"
+            )
+            self.refusals.append(refusal.to_dict())
+            raise PhoenixError(refusal) # Exception blocks downstream step progression
 
         previous_hash = self.chain[-1]["hash"]
 
         # Axiom V - Process Over State
-        # Sovereignty is minimum energy configuration where C_dep = 1
         if process_dependency_count > 1:
-            refusal_event = {
-                "type": "refusal",
-                "reason": "Axiom V violation: C_dep > 1",
-                "artifact": artifact,
-                "timestamp": time.time()
-            }
-            self.refusals.append(refusal_event)
-            # Add refusal to chain as first-class artifact (Axiom III)
+            refusal = RefusalArtifact(
+                refusal_code="PROCESS_MUTATION",
+                refusal_reason="Axiom V violation: C_dep > 1",
+                claim_text="Artifact Submission"
+            )
+            self.refusals.append(refusal.to_dict())
+
             refusal_hash = self._hash("refusal", artifact.get("hash", ""), previous_hash)
             self.chain.append({
                 "type": "refusal_record",
                 "hash": refusal_hash,
                 "parent_hash": previous_hash,
-                "event": refusal_event
+                "event": refusal.to_dict()
             })
-            return False, "Refused: Process dependency count > 1"
+            raise PhoenixError(refusal)
 
-        # Provide calculated hash if not provided for convenience in testing
         if "hash" not in artifact and "content" in artifact:
             artifact["hash"] = self._hash(artifact["content"])
 
-        is_valid, reason = self._check_invariant_triple(artifact, previous_hash)
+        is_valid, reason, code = self._check_invariant_triple(artifact, previous_hash)
 
         if not is_valid:
             # Axiom III - Refusal as Proof
-            refusal_event = {
-                "type": "refusal",
-                "reason": reason,
-                "artifact": artifact,
-                "timestamp": time.time()
-            }
-            self.refusals.append(refusal_event)
-            # Add refusal to chain as first-class artifact
+            refusal = RefusalArtifact(
+                refusal_code=code,
+                refusal_reason=reason,
+                claim_text="Artifact Submission"
+            )
+            self.refusals.append(refusal.to_dict())
+
             refusal_hash = self._hash("refusal", artifact.get("hash", ""), previous_hash)
             self.chain.append({
                 "type": "refusal_record",
                 "hash": refusal_hash,
                 "parent_hash": previous_hash,
-                "event": refusal_event
+                "event": refusal.to_dict()
             })
-            return False, f"Refused: {reason}"
+            raise PhoenixError(refusal)
 
         # Admissible - add to chain
         self.chain.append(artifact)
-        return True, "Attested"
+        return True
 
     def trigger_compensation(self, value, artifact_hash):
         """Axiom IV - Recursive Compensation"""
         if not self.genesis:
-             raise ValueError("Origin not declared")
+             refusal = RefusalArtifact(
+                 refusal_code="MISSING_AUTHORITY",
+                 refusal_reason="Origin not declared",
+                 claim_text="Trigger Compensation"
+             )
+             self.refusals.append(refusal.to_dict())
+             raise PhoenixError(refusal)
 
-        # Find artifact in chain
         artifact_index = -1
         for i, a in enumerate(self.chain):
              if a.get("hash") == artifact_hash:
@@ -131,11 +147,13 @@ class SovereignInnovationValidator:
                  break
 
         if artifact_index == -1:
-             raise ValueError("Artifact not found in lineage")
-
-        # Simple recursive compensation: distribute value to ancestors
-        # For simplicity, distribute equally among all valid ancestors
-        # up to the origin
+             refusal = RefusalArtifact(
+                 refusal_code="LINEAGE_BREAK",
+                 refusal_reason="Artifact not found in lineage",
+                 claim_text="Trigger Compensation"
+             )
+             self.refusals.append(refusal.to_dict())
+             raise PhoenixError(refusal)
 
         ancestors = []
         current_idx = artifact_index
@@ -144,7 +162,6 @@ class SovereignInnovationValidator:
             if item.get("type") != "refusal_record":
                  ancestors.append(item)
 
-            # traverse back
             found_parent = False
             if "parent_hash" in item:
                  parent_hash = item["parent_hash"]
@@ -184,12 +201,10 @@ class SovereignInnovationValidator:
          for item in self.chain:
              if item.get("type") not in ("origin", "refusal_record"):
                  has_contribution = True
-                 has_attestation = True # Since it's in the chain
+                 has_attestation = True
 
-         # In a real system, verification (Phi-gate logs) would be a separate explicit step,
-         # but for this minimal model, contribution + attestation implies verification.
          has_verification = has_contribution and has_attestation
 
          return (has_origin and has_contribution and has_verification and
                  has_refusal and has_attestation and has_compensation)
-# Nonce: 106094
+# Nonce: 43295

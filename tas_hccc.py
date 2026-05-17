@@ -91,7 +91,16 @@ class CursiveCoherenceEngine:
         a_c = sum(1 for a in self.anchors if a.kind == "A_C")
         s_c = sum(1 for a in self.anchors if a.kind == "S_C")
         if a_c < 1 or s_c < 2:
-            raise ValueError("TAS-SES requires ≥1 A_C and ≥2 S_C anchors")
+            from tas_pythonetics.refusal import RefusalArtifact
+            import sys, os
+            sys.path.append(os.path.join(os.getcwd(), 'tas-recursion-conversion'))
+            from tas_governance.core.invariants.sovereign_innovation import PhoenixError
+            refusal = RefusalArtifact(
+                refusal_code="MALFORMED_RECORD",
+                refusal_reason="TAS-SES requires ≥1 A_C and ≥2 S_C anchors",
+                claim_text="Anchor mix validation",
+            )
+            raise PhoenixError(refusal)
 
     def coherence(self, entailment: float, trust: float, lineage: float, contradiction: float) -> float:
         raw = (
