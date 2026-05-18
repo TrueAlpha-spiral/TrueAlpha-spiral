@@ -3,6 +3,10 @@ from types import SimpleNamespace
 
 from tas_openai_bridge import (
     InMemoryLedger,
+    LedgerAuthority,
+    PerspectiveContext,
+    PerspectiveOperator,
+    PerspectiveProvenanceReceipt,
     ProvenanceReceipt,
     RefusalArtifact,
     response_text_format,
@@ -45,6 +49,23 @@ class FakeClient:
     def __init__(self, output_text):
         self.responses = FakeResponses(output_text)
 
+
+def valid_perspective_context():
+    return PerspectiveContext(
+        pi_i=PerspectiveOperator(
+            observer_locus="Russell Nordland",
+            human_api_key_id="HumanAPIKey001",
+            data_anchor="DATA_ANCHOR_001",
+            temporal_index=1,
+            curvature_value=1.0,
+        ),
+        provenance_receipt=PerspectiveProvenanceReceipt(
+            receipt_id="PI_I_RECEIPT_001",
+            identity_anchor="HumanAPIKey001",
+            lineage_hash="lineage_hash_001",
+        ),
+        ledger_authority=LedgerAuthority(root_anchor="TAS_ROOT", authority_diameter=1.0),
+    )
 
 def candidate(**overrides):
     payload = {
@@ -96,7 +117,12 @@ def test_authority_validate_exception_refuses_without_crashing():
         def validate(self):
             raise AttributeError("broken anchor")
 
-    result = tas_openai_execute(ExplodingHumanAPIKey(), ScopedAuthority(), "prompt", client=FakeClient(candidate()))
+    result = tas_openai_execute(
+        ExplodingHumanAPIKey(),
+        ScopedAuthority(),
+        "prompt",
+        client=FakeClient(candidate()),
+    )
 
     assert isinstance(result, RefusalArtifact)
     assert result.reason == "Invalid HumanAPI Key"
@@ -111,9 +137,24 @@ def test_scope_denial_refuses_before_openai_execution():
     assert client.responses.calls == []
 
 
-def test_schema_required_for_openai_responses_call():
+def test_missing_perspective_context_refuses_before_openai_execution():
     client = FakeClient(candidate())
     result = tas_openai_execute(HumanAPIKey(), ScopedAuthority(), "prompt", client=client)
+
+    assert isinstance(result, RefusalArtifact)
+    assert result.reason == "Unwitnessed Intent Void"
+    assert client.responses.calls == []
+
+
+def test_schema_required_for_openai_responses_call():
+    client = FakeClient(candidate())
+    result = tas_openai_execute(
+        HumanAPIKey(),
+        ScopedAuthority(),
+        "prompt",
+        client=client,
+        perspective_context=valid_perspective_context(),
+    )
 
     assert isinstance(result, ProvenanceReceipt)
     text_format = client.responses.calls[0]["text"]["format"]
@@ -131,6 +172,7 @@ def test_gate_refusal_is_recorded_when_candidate_is_not_admissible():
         "prompt",
         client=FakeClient(candidate(decision="needs_more_context")),
         ledger=ledger,
+        perspective_context=valid_perspective_context(),
     )
 
     assert isinstance(result, RefusalArtifact)
@@ -152,6 +194,7 @@ def test_successful_candidate_returns_provenance_receipt_and_ledger_record():
         "prompt",
         client=FakeClient(candidate()),
         ledger=ledger,
+        perspective_context=valid_perspective_context(),
     )
 
     assert isinstance(result, ProvenanceReceipt)

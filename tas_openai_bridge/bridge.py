@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from .gates import tas_admissibility_gateway
+from .perspective import validate_perspective_context
 from .receipts import ProvenanceReceipt
 from .refusal import RefusalArtifact
 from .schemas import response_text_format
@@ -51,6 +52,7 @@ def tas_openai_execute(
     client: Any,
     model: str = DEFAULT_MODEL,
     ledger: Any | None = None,
+    perspective_context: Any | None = None,
 ) -> RefusalArtifact | ProvenanceReceipt:
     """Execute a prompt through OpenAI and return a receipt or refusal.
 
@@ -72,6 +74,22 @@ def tas_openai_execute(
         return RefusalArtifact(
             reason="Scope does not authorize OpenAI execution",
             details={"operation": OPENAI_RESPONSES_CREATE},
+        )
+
+    if perspective_context is None:
+        return RefusalArtifact(
+            reason="Unwitnessed Intent Void",
+            details={"gate": "Perspective Intelligence"},
+        )
+
+    perspective_result = validate_perspective_context(perspective_context)
+    if not perspective_result.admissible:
+        return RefusalArtifact(
+            reason=perspective_result.reason,
+            details={
+                "gate": "Perspective Intelligence",
+                "pi_i_ratio": perspective_result.pi_i_ratio,
+            },
         )
 
     if client is None or not hasattr(client, "responses"):
