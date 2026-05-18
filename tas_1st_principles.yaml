@@ -69,6 +69,26 @@ TAS_1st_Principles:
       - Derivatives must reference TAS_HUMAN_SIG lineage
       - Non-consensual mimicry forbidden
 
+  TAS_Primitives:
+    - id: PI_I_001
+      name: Perspective Intelligence Operator
+      symbol: "π_i"
+      class: Irrational Observability Operator
+      doctrine: "Truth is perspective-bound without being perspective-determined."
+      enforcement:
+        - No perspective without provenance
+        - No provenance without authority
+        - No authority without receipt
+      stabilizer: "Φ"
+      failure_modes:
+        - Observer averaged to zero
+        - Unbounded subjectivism
+        - Recursive Dissociation Event
+        - Provenance collapse
+      admissibility_output:
+        - Admission Receipt
+        - Deterministic Refusal
+
   Citation_Protocol:
     function: cite_()
     description: >
