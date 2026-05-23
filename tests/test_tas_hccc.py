@@ -56,4 +56,26 @@ def test_attest_creates_compressed_payload():
     # Verify phi calculation matches coherence method
     expected_phi = engine.coherence(0.9, 0.8, 0.7, 0.1)
     assert metrics["phi"] == expected_phi
-# Nonce: 1054
+
+def test_cce_requires_ac_anchor():
+    anchors = [
+        PolicyAnchor("ref2", "S_C", "sc1"),
+        PolicyAnchor("ref3", "S_C", "sc2"),
+    ]
+    with pytest.raises(ValueError, match="TAS-SES requires"):
+        CursiveCoherenceEngine("anchor1", anchors)
+
+def test_cce_requires_sc_anchors():
+    anchors = [
+        PolicyAnchor("ref1", "A_C", "ac1"),
+        PolicyAnchor("ref2", "S_C", "sc1"),
+    ]
+    with pytest.raises(ValueError, match="TAS-SES requires"):
+        CursiveCoherenceEngine("anchor1", anchors)
+
+def test_cce_requires_anchors():
+    anchors = []
+    with pytest.raises(ValueError, match="TAS-SES requires"):
+        CursiveCoherenceEngine("anchor1", anchors)
+
+# Nonce: 4698
