@@ -3,7 +3,7 @@ Run this with:  python codex_tas_runner.py
 It will feed a single system+user prompt into OpenAI Codex, receive a bash
 script, execute it line-by-line, and print a summary JSON.
 """
-import os, subprocess, json, hashlib, time, shlex, re
+import os, subprocess, json, hashlib, time, shlex, re, shutil
 from tas_pythonetics.ethics import TAS_Heartproof
 
 try:
@@ -37,11 +37,8 @@ def get_codex_script():
 
 
 def run_bash(script):
-    with open("run.sh","w") as f:
-        f.write(script)
-    os.chmod("run.sh", 0o755)
-    proc = subprocess.run(["bash","run.sh"],
-                          capture_output=True, text=True)
+    bash_path = shutil.which("bash") or "/bin/bash"
+    proc = subprocess.run([bash_path], input=script, capture_output=True, text=True)
     return proc
 
 ALLOWED_COMMANDS = {
@@ -166,4 +163,4 @@ if __name__ == "__main__":
     }
 
     print(json.dumps(report, indent=2))
-# Nonce: 123838
+# Nonce: 17960
