@@ -212,6 +212,22 @@ graph TD
 - [TASˢ³ 1st Principles Codex](./tas_1st_principles.yaml)
 - [TrueAlpha-singularity Overview](./TrueAlpha-singularity.md)
 
+## CLI Quick Reference
+
+Use [`tas_cli.py`](./tas_cli.py) for the repository's basic command-line workflows:
+
+- `shadow-scan [path]` — scan a directory and report verified artifacts versus unsequenced noise.
+- `sequence <file> [--seed SEED] [--genome GENOME]` — generate the `.tasmeta.json` sidecar for an artifact.
+- `verify-identity <file> [--signature SIGNATURE]` — validate file contents against the Kinematic Identity invariant.
+
+Examples:
+
+```bash
+python tas_cli.py shadow-scan .
+python tas_cli.py sequence README.md
+python tas_cli.py verify-identity README.md --signature "Russell Nordland"
+```
+
 ---
 
 ## Red-Team Scenarios (Included)

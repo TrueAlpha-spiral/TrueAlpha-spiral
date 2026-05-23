@@ -16,24 +16,51 @@ except ImportError:
     verify_kinematic_identity = None
     PhoenixError = None
 
+class TASHelpFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+    pass
+
 def main():
-    parser = argparse.ArgumentParser(description="TAS CLI: TrueAlphaSpiral Toolkit")
+    parser = argparse.ArgumentParser(
+        description="TAS CLI: TrueAlphaSpiral Toolkit",
+        epilog=(
+            "Examples:\n"
+            "  python tas_cli.py shadow-scan .\n"
+            "  python tas_cli.py sequence README.md\n"
+            "  python tas_cli.py verify-identity README.md --signature 'Russell Nordland'"
+        ),
+        formatter_class=TASHelpFormatter,
+    )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # shadow-scan
-    scan_parser = subparsers.add_parser("shadow-scan", help="Scan repository for unsequenced artifacts")
-    scan_parser.add_argument("path", nargs="?", default=".", help="Path to scan")
+    scan_parser = subparsers.add_parser(
+        "shadow-scan",
+        help="Scan a directory for sequenced and unsequenced artifacts",
+        description="Scan a directory and classify artifacts as verified living braid entries or unsequenced noise.",
+        formatter_class=TASHelpFormatter,
+    )
+    scan_parser.add_argument("path", nargs="?", default=".", help="Directory path to scan")
 
     # sequence
-    seq_parser = subparsers.add_parser("sequence", help="Perform Sequencing Ceremony on an artifact")
+    seq_parser = subparsers.add_parser(
+        "sequence",
+        help="Create TAS metadata for an artifact",
+        description="Run the sequencing ceremony for a file and emit the matching .tasmeta.json sidecar.",
+        formatter_class=TASHelpFormatter,
+    )
     seq_parser.add_argument("file", help="File to sequence")
-    seq_parser.add_argument("--seed", default=TAS_HUMAN_SIG, help="Human Seed ID")
-    seq_parser.add_argument("--genome", default="TAS_GENOME_V1", help="Genome ID")
+    seq_parser.add_argument("--seed", default=TAS_HUMAN_SIG, help="Human Seed ID used in the metadata")
+    seq_parser.add_argument("--genome", default="TAS_GENOME_V1", help="Genome ID recorded in the metadata")
 
     # verify-identity
-    verify_parser = subparsers.add_parser("verify-identity", help="Verify the Kinematic Identity (Prime Invariant) of a file")
-    verify_parser.add_argument("file", help="Path to file to verify")
-    verify_parser.add_argument("--signature", default=TAS_HUMAN_SIG, help="Human Signature (Anchor)")
+    verify_parser = subparsers.add_parser(
+        "verify-identity",
+        help="Verify a file against the Kinematic Identity invariant",
+        description="Verify a file's contents against the Prime Invariant using the provided anchor signature.",
+        formatter_class=TASHelpFormatter,
+    )
+    verify_parser.add_argument("file", help="Path to the file to verify")
+    verify_parser.add_argument("--signature", default=TAS_HUMAN_SIG, help="Human signature anchor to verify against")
 
     args = parser.parse_args()
 
