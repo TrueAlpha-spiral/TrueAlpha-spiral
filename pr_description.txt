@@ -1,9 +1,10 @@
-Title: 🔒 [security fix] Implement AlgorithmicPolymath and harden runtime refusal consistency gate
+🎯 **What:** The testing gap addressed
+The broad exception handling blocks in `tas_openai_execute` within `tas_openai_bridge/bridge.py` lacked explicit unit tests to ensure they return a `RefusalArtifact` rather than propagating unhandled runtime exceptions.
 
-Description:
-🎯 **What:** Implemented `AlgorithmicPolymath`, the runtime constraint coordinator, and audited the bridge layer (`bridge.py`), admissibility gateway (`gates.py`), and ledger/receipt paths.
-🛡️ **Risk:** Previously, if a raw exception occurred during conduit execution or admissibility evaluation, the execution could crash raw or escape the boundaries of the `RefusalArtifact` requirement. A broken or non-existent lineage or authority could bypass some runtime rules if handled improperly by the calling context.
-🔧 **Solution:**
-- Created `AlgorithmicPolymath` which explicitly binds the execution to a human API key, scoped authority, lineage anchor, and a ledger, failing closed and emitting a `RefusalArtifact` on any missing or invalid state.
-- Wrapped the execution code inside `tas_openai_execute` and `tas_admissibility_gateway` in broad `try...except` blocks to catch unexpected errors and return `RefusalArtifact` or failed `GateResult` objects.
-- Added must-fail tests proving that missing authority, malformed scope, missing lineage, malformed conduit output, and ledger append failures correctly emit a `RefusalArtifact` without crashing.
+📊 **Coverage:** What scenarios are now tested
+1. **Gateway Failure:** Covered by mocking `tas_admissibility_gateway` to raise an exception.
+2. **Receipt Generation Failure:** Covered by mocking `ProvenanceReceipt.from_response` to raise an exception.
+Both scenarios verify that a `RefusalArtifact` is emitted containing the reason "Unhandled runtime exception in TAS bridge" along with the error details.
+
+✨ **Result:** The improvement in test coverage
+The safety net for `tas_openai_execute` is now fully tested. We have confidence that the fail-closed policy (emitting `RefusalArtifact` instead of crashing) behaves as intended under severe system failures.
