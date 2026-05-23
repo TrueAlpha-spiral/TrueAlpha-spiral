@@ -91,7 +91,7 @@ class CursiveCoherenceEngine:
         a_c = sum(1 for a in self.anchors if a.kind == "A_C")
         s_c = sum(1 for a in self.anchors if a.kind == "S_C")
         if a_c < 1 or s_c < 2:
-            raise ValueError("TAS-SES requires ≥1 A_C and ≥2 S_C anchors")
+            raise ValueError("TAS-SES requires >=1 A_C and >=2 S_C anchors")
 
     def coherence(self, entailment: float, trust: float, lineage: float, contradiction: float) -> float:
         raw = (
@@ -206,4 +206,4 @@ if __name__ == "__main__":
     if batch.cells:
         batch._commit()
     print(f"Batches written to {batch.out_dir}")
-# Nonce: 315601
+# Nonce: 122545
