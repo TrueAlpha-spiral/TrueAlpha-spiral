@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import sys
 import unittest
@@ -27,7 +28,9 @@ class TestTasCliHelp(unittest.TestCase):
     def test_sequence_help_includes_defaults(self):
         result = self.run_cli("sequence", "--help")
 
-        self.assertIn("emit the matching .tasmeta.json sidecar", result.stdout)
-        self.assertIn("Human Seed ID used in the metadata", result.stdout)
-        self.assertIn("(default: Russell Nordland)", result.stdout)
-        self.assertIn("(default: TAS_GENOME_V1)", result.stdout)
+        normalized_stdout = re.sub(r'\s+', ' ', result.stdout)
+
+        self.assertIn("emit the matching .tasmeta.json sidecar", normalized_stdout)
+        self.assertIn("Human Seed ID used in the metadata", normalized_stdout)
+        self.assertIn("(default: Russell Nordland)", normalized_stdout)
+        self.assertIn("(default: TAS_GENOME_V1)", normalized_stdout)
