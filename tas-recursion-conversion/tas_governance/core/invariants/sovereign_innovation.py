@@ -133,6 +133,9 @@ class SovereignInnovationValidator:
         if artifact_index == -1:
              raise ValueError("Artifact not found in lineage")
 
+        # Build hash to index map from the subset of the chain up to the artifact index
+        hash_to_index = {a.get("hash"): i for i, a in enumerate(self.chain[:artifact_index]) if a.get("hash") is not None}
+
         # Simple recursive compensation: distribute value to ancestors
         # For simplicity, distribute equally among all valid ancestors
         # up to the origin
@@ -148,11 +151,11 @@ class SovereignInnovationValidator:
             found_parent = False
             if "parent_hash" in item:
                  parent_hash = item["parent_hash"]
-                 for j in range(current_idx - 1, -1, -1):
-                     if self.chain[j].get("hash") == parent_hash:
-                         current_idx = j
+                 if parent_hash in hash_to_index:
+                     parent_idx = hash_to_index[parent_hash]
+                     if parent_idx < current_idx:
+                         current_idx = parent_idx
                          found_parent = True
-                         break
             if not found_parent:
                 if current_idx > 0 and self.chain[0]["hash"] == item.get("parent_hash"):
                      current_idx = 0
