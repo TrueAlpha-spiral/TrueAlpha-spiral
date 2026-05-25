@@ -27,16 +27,24 @@ class ParadataEvent:
         self.context_hash = context_hash
         self.previous_hash = previous_hash
 
-        # Optimize hash calculation: compute once at creation, cache it based on the payload string
-        self._cached_payload_str = None
+        # Optimize hash calculation: compute once at creation, cache it using mutation flag
+        self._is_mutated = True
         self._cached_hash = None
         self.hash = self._calculate_hash()
+
+    def __setattr__(self, name, value):
+        super().__setattr__(name, value)
+        if name not in ("_is_mutated", "_cached_hash", "hash"):
+            super().__setattr__("_is_mutated", True)
 
     def _calculate_hash(self) -> str:
         """
         Create a SHA-256 hash of the event contents + previous hash.
         This creates the tamper-evident chain.
         """
+        if not self._is_mutated:
+            return self._cached_hash
+
         payload = {
             "timestamp": self.timestamp,
             "event_type": self.event_type,
@@ -47,14 +55,10 @@ class ParadataEvent:
         # Ensure deterministic JSON serialization
         payload_str = json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
-        # If payload matches cached payload string, return cached hash
-        if self._cached_payload_str == payload_str:
-            return self._cached_hash
-
-        # Update cache if it changed
+        # Update cache
         calculated = hashlib.sha256(payload_str.encode()).hexdigest()
-        self._cached_payload_str = payload_str
         self._cached_hash = calculated
+        self._is_mutated = False
         return calculated
 
     def to_dict(self) -> Dict[str, Any]:
@@ -180,4 +184,4 @@ class ParadoxReconciler:
         if not self.paradoxes:
             return None
         return max(self.paradoxes, key=lambda x: x["coherence_score"])
-# Nonce: 48226
+# Nonce: 108652
