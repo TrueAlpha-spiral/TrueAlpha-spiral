@@ -22,14 +22,56 @@ class ParadataEvent:
     ):
         self.timestamp = datetime.now(timezone.utc).isoformat()
         self.event_id = str(uuid.uuid4())
-        self.event_type = event_type
-        self.data = data
-        self.context_hash = context_hash
-        self.previous_hash = previous_hash
 
-        # Optimize hash calculation: compute once at creation, cache it based on the payload string
-        self._cached_payload_str = None
+        # Internal fields
+        self._event_type = event_type
+        self._data = data
+        self._context_hash = context_hash
+        self._previous_hash = previous_hash
+
+        # Optimize hash calculation: track dirty state
+        self._is_dirty = True
         self._cached_hash = None
+        self.hash = self._calculate_hash()
+
+    @property
+    def event_type(self):
+        return self._event_type
+
+    @event_type.setter
+    def event_type(self, value):
+        self._event_type = value
+        self._is_dirty = True
+        self.hash = self._calculate_hash()
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+        self._is_dirty = True
+        self.hash = self._calculate_hash()
+
+    @property
+    def context_hash(self):
+        return self._context_hash
+
+    @context_hash.setter
+    def context_hash(self, value):
+        self._context_hash = value
+        self._is_dirty = True
+        self.hash = self._calculate_hash()
+
+    @property
+    def previous_hash(self):
+        return self._previous_hash
+
+    @previous_hash.setter
+    def previous_hash(self, value):
+        self._previous_hash = value
+        self._is_dirty = True
         self.hash = self._calculate_hash()
 
     def _calculate_hash(self) -> str:
@@ -37,34 +79,33 @@ class ParadataEvent:
         Create a SHA-256 hash of the event contents + previous hash.
         This creates the tamper-evident chain.
         """
+        if not self._is_dirty and self._cached_hash is not None:
+            return self._cached_hash
+
         payload = {
             "timestamp": self.timestamp,
-            "event_type": self.event_type,
-            "data": self.data,
-            "context_hash": self.context_hash,
-            "previous_hash": self.previous_hash,
+            "event_type": self._event_type,
+            "data": self._data,
+            "context_hash": self._context_hash,
+            "previous_hash": self._previous_hash,
         }
         # Ensure deterministic JSON serialization
         payload_str = json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
-        # If payload matches cached payload string, return cached hash
-        if self._cached_payload_str == payload_str:
-            return self._cached_hash
-
         # Update cache if it changed
         calculated = hashlib.sha256(payload_str.encode()).hexdigest()
-        self._cached_payload_str = payload_str
         self._cached_hash = calculated
+        self._is_dirty = False
         return calculated
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "timestamp": self.timestamp,
             "event_id": self.event_id,
-            "event_type": self.event_type,
-            "data": self.data,
-            "context_hash": self.context_hash,
-            "previous_hash": self.previous_hash,
+            "event_type": self._event_type,
+            "data": self._data,
+            "context_hash": self._context_hash,
+            "previous_hash": self._previous_hash,
             "hash": self.hash,
         }
 
@@ -180,4 +221,4 @@ class ParadoxReconciler:
         if not self.paradoxes:
             return None
         return max(self.paradoxes, key=lambda x: x["coherence_score"])
-# Nonce: 48226
+# Nonce: 222677
