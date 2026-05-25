@@ -61,6 +61,7 @@ class GitActionGuard:
     Intercepts and validates Git commands before execution.
     """
     PROTECTED_BRANCHES = ["main", "master", "production"]
+    _NORMALIZED_PROTECTED_BRANCHES = frozenset(b.lower() for b in PROTECTED_BRANCHES)
 
     def __init__(self, monitor: GitStateMonitor):
         self.monitor = monitor
@@ -134,7 +135,7 @@ class GitActionGuard:
             positionals.append(token)
             i += 1
 
-        protected = {b.lower() for b in self.PROTECTED_BRANCHES}
+        protected = self._NORMALIZED_PROTECTED_BRANCHES
 
         if not positionals:
             refspecs = []
@@ -229,4 +230,4 @@ class GitActionGuard:
                 logger.error(f"Command failed: {e}")
                 return False
         return False
-# Nonce: 165955
+# Nonce: 60228
