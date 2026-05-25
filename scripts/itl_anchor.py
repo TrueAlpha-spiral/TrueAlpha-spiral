@@ -1,4 +1,4 @@
-import hashlib, pathlib, json, datetime, requests
+import hashlib, pathlib, datetime, requests
 
 def sha_tree(root="tas_pythonetics"):
     h = hashlib.sha256()
@@ -16,4 +16,4 @@ payload = {
 # Replace with real TAS_ITL_API endpoint/token
 requests.post("https://tas.itl/anchor", json=payload)
 print("ITL anchor submitted:", payload["hash"])
-# Nonce: 176589
+# Nonce: 99166
