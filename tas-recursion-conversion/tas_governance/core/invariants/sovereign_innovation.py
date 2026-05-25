@@ -123,15 +123,13 @@ class SovereignInnovationValidator:
         if not self.genesis:
              raise ValueError("Origin not declared")
 
-        # Find artifact in chain
-        artifact_index = -1
-        for i, a in enumerate(self.chain):
-             if a.get("hash") == artifact_hash:
-                 artifact_index = i
-                 break
+        # O(N) build: map hashes to their first occurrence index in the chain
+        hash_to_idx = {a.get("hash"): i for i, a in enumerate(self.chain) if "hash" in a}
 
-        if artifact_index == -1:
+        if artifact_hash not in hash_to_idx:
              raise ValueError("Artifact not found in lineage")
+
+        artifact_index = hash_to_idx[artifact_hash]
 
         # Simple recursive compensation: distribute value to ancestors
         # For simplicity, distribute equally among all valid ancestors
@@ -144,17 +142,18 @@ class SovereignInnovationValidator:
             if item.get("type") != "refusal_record":
                  ancestors.append(item)
 
-            # traverse back
+            # O(1) traverse back
             found_parent = False
             if "parent_hash" in item:
                  parent_hash = item["parent_hash"]
-                 for j in range(current_idx - 1, -1, -1):
-                     if self.chain[j].get("hash") == parent_hash:
-                         current_idx = j
-                         found_parent = True
-                         break
+                 p_idx = hash_to_idx.get(parent_hash)
+                 # Ensure we only traverse backwards
+                 if p_idx is not None and p_idx < current_idx:
+                     current_idx = p_idx
+                     found_parent = True
+
             if not found_parent:
-                if current_idx > 0 and self.chain[0]["hash"] == item.get("parent_hash"):
+                if current_idx > 0 and self.chain[0].get("hash") == item.get("parent_hash"):
                      current_idx = 0
                      ancestors.append(self.chain[0])
                 else:
@@ -192,4 +191,4 @@ class SovereignInnovationValidator:
 
          return (has_origin and has_contribution and has_verification and
                  has_refusal and has_attestation and has_compensation)
-# Nonce: 106094
+# Nonce: 73520
