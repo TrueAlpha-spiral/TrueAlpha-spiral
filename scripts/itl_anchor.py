@@ -14,6 +14,7 @@ payload = {
     "version": "0.1.0",
 }
 # Replace with real TAS_ITL_API endpoint/token
-requests.post("https://tas.itl/anchor", json=payload)
+response = requests.post("https://tas.itl/anchor", json=payload, timeout=10)
+response.raise_for_status()
 print("ITL anchor submitted:", payload["hash"])
-# Nonce: 176589
+# Nonce: 34567
