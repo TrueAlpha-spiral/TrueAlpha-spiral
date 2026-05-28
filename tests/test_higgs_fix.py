@@ -1,6 +1,5 @@
 import pytest
 import importlib.util
-import importlib.machinery
 import os
 import sys
 import unittest.mock
@@ -54,4 +53,4 @@ def test_run_command_prevents_injection():
         assert args_passed[0] == ["echo", "hello;", "rm", "-rf", "/"], "shlex.split should properly tokenize"
     finally:
         subprocess.Popen = original_popen
-# Nonce: 96641
+# Nonce: 295670
