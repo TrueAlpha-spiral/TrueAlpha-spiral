@@ -37,8 +37,10 @@ class TestSentientLockIntegration:
 
     def test_full_triple_validation_success(self, lock):
         """Test successful verification of a small composition window (3 micro-blocks)."""
+        # Empty lineage_hash so the first block anchors to genesis_root instead of an
+        # arbitrary placeholder.
         parent_node = {
-            "lineage_hash": "initial_anchor_placeholder",
+            "lineage_hash": "",
             "content": "Genesis course",
         }
 
