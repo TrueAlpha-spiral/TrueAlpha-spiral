@@ -20,6 +20,7 @@ class ParadataEvent:
     def __init__(
         self, event_type: str, data: Any, context_hash: str, previous_hash: str
     ):
+        self._is_mutated = True
         self.timestamp = datetime.now(timezone.utc).isoformat()
         self.event_id = str(uuid.uuid4())
         self.event_type = event_type
@@ -32,41 +33,48 @@ class ParadataEvent:
         self._cached_hash = None
         self.hash = self._calculate_hash()
 
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if key not in ("_is_mutated", "_cached_hash", "hash", "_cached_payload_str"):
+            self._is_mutated = True
+
     def _calculate_hash(self) -> str:
         """
         Create a SHA-256 hash of the event contents + previous hash.
         This creates the tamper-evident chain.
         """
+        # If payload hasn't mutated and we have a cached hash, return it directly
+        if not getattr(self, "_is_mutated", True) and getattr(self, "_cached_hash", None) is not None:
+            return self._cached_hash
+
         payload = {
-            "timestamp": self.timestamp,
-            "event_type": self.event_type,
-            "data": self.data,
-            "context_hash": self.context_hash,
-            "previous_hash": self.previous_hash,
+            "timestamp": getattr(self, "timestamp", None),
+            "event_type": getattr(self, "event_type", None),
+            "data": getattr(self, "data", None),
+            "context_hash": getattr(self, "context_hash", None),
+            "previous_hash": getattr(self, "previous_hash", None),
         }
         # Ensure deterministic JSON serialization
         payload_str = json.dumps(payload, sort_keys=True, separators=(",", ":"))
-
-        # If payload matches cached payload string, return cached hash
-        if self._cached_payload_str == payload_str:
-            return self._cached_hash
 
         # Update cache if it changed
         calculated = hashlib.sha256(payload_str.encode()).hexdigest()
         self._cached_payload_str = payload_str
         self._cached_hash = calculated
+        self._is_mutated = False
         return calculated
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "timestamp": self.timestamp,
-            "event_id": self.event_id,
-            "event_type": self.event_type,
-            "data": self.data,
-            "context_hash": self.context_hash,
-            "previous_hash": self.previous_hash,
-            "hash": self.hash,
+            "timestamp": getattr(self, "timestamp", None),
+            "event_id": getattr(self, "event_id", None),
+            "event_type": getattr(self, "event_type", None),
+            "data": getattr(self, "data", None),
+            "context_hash": getattr(self, "context_hash", None),
+            "previous_hash": getattr(self, "previous_hash", None),
+            "hash": getattr(self, "hash", None),
         }
+
 
 
 class ParadataTrail:
@@ -180,4 +188,4 @@ class ParadoxReconciler:
         if not self.paradoxes:
             return None
         return max(self.paradoxes, key=lambda x: x["coherence_score"])
-# Nonce: 48226
+# Nonce: 108761
