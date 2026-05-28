@@ -123,12 +123,10 @@ class SovereignInnovationValidator:
         if not self.genesis:
              raise ValueError("Origin not declared")
 
+        hash_to_index = {a.get("hash"): i for i, a in enumerate(self.chain) if a.get("hash")}
+
         # Find artifact in chain
-        artifact_index = -1
-        for i, a in enumerate(self.chain):
-             if a.get("hash") == artifact_hash:
-                 artifact_index = i
-                 break
+        artifact_index = hash_to_index.get(artifact_hash, -1)
 
         if artifact_index == -1:
              raise ValueError("Artifact not found in lineage")
@@ -148,11 +146,11 @@ class SovereignInnovationValidator:
             found_parent = False
             if "parent_hash" in item:
                  parent_hash = item["parent_hash"]
-                 for j in range(current_idx - 1, -1, -1):
-                     if self.chain[j].get("hash") == parent_hash:
-                         current_idx = j
+                 if parent_hash in hash_to_index:
+                     parent_idx = hash_to_index[parent_hash]
+                     if parent_idx < current_idx:
+                         current_idx = parent_idx
                          found_parent = True
-                         break
             if not found_parent:
                 if current_idx > 0 and self.chain[0]["hash"] == item.get("parent_hash"):
                      current_idx = 0
