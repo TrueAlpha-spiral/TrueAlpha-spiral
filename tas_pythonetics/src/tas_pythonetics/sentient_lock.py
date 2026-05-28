@@ -114,7 +114,9 @@ class SentientLock:
             )
 
         # --- FAITHFULNESS ---
-        parent_lineage = parent_node.get("lineage_hash", "")
+        # Fall back to genesis_root so the first block is always anchored to the
+        # Phase 0 bootstrap rather than accepting an arbitrary parent lineage.
+        parent_lineage = parent_node.get("lineage_hash", "") or self.genesis_root
         expected_lineage = hashlib.sha256(
             f"{parent_lineage}:{content}".encode()
         ).hexdigest()
