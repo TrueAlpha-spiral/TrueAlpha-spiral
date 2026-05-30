@@ -1,30 +1,40 @@
-import numpy as np
 import pytest
-
-semantic_module = pytest.importorskip(
-    "true_alpha_spiral_semantic",
-    reason="Boundary validation requires true_alpha_spiral_semantic runtime module.",
-)
-TrueAlphaSpiralRouter = semantic_module.TrueAlphaSpiralRouter
 
 VECTOR_DIM = 512
 RNG_SEED = 42
 
 
+@pytest.fixture(scope="module")
+def np_module():
+    return pytest.importorskip("numpy", reason="Boundary validation requires numpy.")
+
+
+@pytest.fixture(scope="module")
+def router_cls():
+    semantic_module = pytest.importorskip(
+        "true_alpha_spiral_semantic",
+        reason="Boundary validation requires true_alpha_spiral_semantic runtime module.",
+    )
+    return semantic_module.TrueAlphaSpiralRouter
+
+
 @pytest.fixture(autouse=True)
-def set_deterministic_seed():
+def set_deterministic_seed(np_module):
     """Ensures consistent vector generation across test runs."""
-    np.random.seed(RNG_SEED)
+    np_module.random.seed(RNG_SEED)
 
 
 @pytest.fixture
-def initialized_router():
+def initialized_router(router_cls):
     """Provides a fresh router instance with a seeded baseline position."""
-    return TrueAlphaSpiralRouter(seed_dimension=VECTOR_DIM)
+    return router_cls(seed_dimension=VECTOR_DIM)
 
 
 @pytest.mark.topology_safety
-def test_strict_adversarial_boundary_enforcement(initialized_router, tas_telemetry):
+def test_strict_adversarial_boundary_enforcement(
+    initialized_router, tas_telemetry, np_module
+):
+    np = np_module
     router = initialized_router
     baseline_seed = router.true_alpha_seed
 
@@ -63,7 +73,10 @@ def test_strict_adversarial_boundary_enforcement(initialized_router, tas_telemet
 
 
 @pytest.mark.phoenix_recovery
-def test_deterministic_fuzz_sub_threshold_drift(initialized_router, tas_telemetry):
+def test_deterministic_fuzz_sub_threshold_drift(
+    initialized_router, tas_telemetry, np_module
+):
+    np = np_module
     router = initialized_router
     baseline_seed = router.true_alpha_seed
     decisions = []
