@@ -1,5 +1,6 @@
 HEART_THRESHOLD = 0.5
 UNETHICAL_KEYWORDS = ["harm", "violence", "hate", "illegal"]
+_NORMALIZED_UNETHICAL_KEYWORDS = tuple(k.lower() for k in UNETHICAL_KEYWORDS)
 
 def compute_empathy_score(obj: str) -> float:
     """
@@ -8,7 +9,7 @@ def compute_empathy_score(obj: str) -> float:
     Otherwise return 1.0.
     """
     obj_lower = obj.lower()
-    if any(keyword in obj_lower for keyword in UNETHICAL_KEYWORDS):
+    if any(keyword in obj_lower for keyword in _NORMALIZED_UNETHICAL_KEYWORDS):
         return 0.0
     return 1.0
 
@@ -18,4 +19,4 @@ def TAS_Heartproof(statement: str) -> bool:
     """
     score = compute_empathy_score(statement)
     return score >= HEART_THRESHOLD
-# Nonce: 37284
+# Nonce: 21397
