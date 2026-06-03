@@ -108,16 +108,20 @@ class SentientLock:
         Executes a deterministic refusal and forces a clean fail-closed state.
         """
         # 1. ANNIHILATION: Rewrite active state vector to a hard-coded null_state
-        faulty_node["content"] = "null_state"
-        faulty_node["hash"] = "0x0000000000000000000000000000000000000000000000000000000000000000"
-        faulty_node["authenticated_content_weight"] = 0.0
-        faulty_node["subjective_context_weight"] = 1.0
-        faulty_node["coherence_score"] = 0.0
+        if isinstance(faulty_node, dict):
+            faulty_node["content"] = "null_state"
+            faulty_node["hash"] = "0x0000000000000000000000000000000000000000000000000000000000000000"
+            faulty_node["authenticated_content_weight"] = 0.0
+            faulty_node["subjective_context_weight"] = 1.0
+            faulty_node["coherence_score"] = 0.0
+            origin_index = faulty_node.get("index")
+        else:
+            origin_index = None
 
         # 2. THE REFUSAL LEDGER LOG: Generate a signed boundary event / refusal artifact
         refusal_artifact = {
             "timestamp": time.time(),
-            "origin_index": faulty_node.get("index"),
+            "origin_index": origin_index,
             "error_signature": error_message,
             "human_anchor_witness": self.human_sig,
             "status": "SEVERED"
