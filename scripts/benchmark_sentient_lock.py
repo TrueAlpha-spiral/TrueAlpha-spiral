@@ -7,7 +7,7 @@ import time
 sys.path.append(os.getcwd())
 sys.path.append(os.path.join(os.getcwd(), 'tas_pythonetics/src'))
 
-from tas_pythonetics.sentient_lock import SentientLock
+from tas_pythonetics.sentient_lock import SentientLock, DilithiumSigner
 
 def create_valid_node(index, content, genesis_root, parent_hash):
     node = {
@@ -21,11 +21,7 @@ def create_valid_node(index, content, genesis_root, parent_hash):
     node["hash"] = hashlib.sha256(raw_payload.encode('utf-8')).hexdigest()
 
     lineage_payload = f"{node['hash']}:{parent_hash}"
-    node["lineage_hash"] = hmac.new(
-        genesis_root.encode('utf-8'),
-        lineage_payload.encode('utf-8'),
-        hashlib.sha256
-    ).hexdigest()
+    node["lineage_hash"] = DilithiumSigner.sign(genesis_root.encode('utf-8'), lineage_payload.encode('utf-8'))
     return node
 
 def run_benchmark():
@@ -72,8 +68,9 @@ def run_benchmark():
     print("\n--- Summary of Scorch Semantics ---")
     print(f"Total Refusal Artifacts Generated: {len(lock.refusal_ledger)}")
     for artifact in lock.refusal_ledger:
-        print(f"- Origin Index {artifact['origin_index']}: {artifact['error_signature']}")
+        origin_index = artifact.details.get('origin_index', 'Unknown')
+        print(f"- Origin Index {origin_index}: {artifact.reason}")
 
 if __name__ == "__main__":
     run_benchmark()
-# Nonce: 18534
+# Nonce: 1089

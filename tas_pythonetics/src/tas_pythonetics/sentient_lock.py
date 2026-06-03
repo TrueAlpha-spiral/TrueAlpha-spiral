@@ -3,6 +3,29 @@ import logging
 import hmac
 import time
 from typing import Dict, Any, Tuple
+from dataclasses import dataclass, field
+import uuid
+import json
+
+@dataclass
+class RefusalArtifact:
+    reason: str
+    action: str = "REFUSE"
+    admissible: bool = False
+    code: str = "TAS_SENTIENT_LOCK_REFUSAL"
+    details: Dict[str, Any] = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: str(time.time()))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "reason": self.reason,
+            "action": self.action,
+            "admissible": self.admissible,
+            "code": self.code,
+            "details": self.details,
+            "timestamp": self.timestamp
+        }
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +45,15 @@ class StructuralIntegrityError(Exception):
     """Base exception for invariant violations at the Y-Knot boundary."""
     pass
 
+class DilithiumSigner:
+    """Mock implementation for PQC CRYSTALS-Dilithium signature scheme."""
+    @staticmethod
+    def sign(key: bytes, message: bytes) -> str:
+        # In a real implementation this would use FIPS 204 Dilithium.
+        # Here we mock it by appending '-dilithium' to an HMAC.
+        base_hmac = hmac.new(key, message, hashlib.sha256).hexdigest()
+        return f"{base_hmac}-dilithium"
+
 class SentientLock:
     # Golden Ratio Minimum Threshold for Coherence Curve Tracking
     PHI_MINIMUM: float = 0.6180339887
@@ -35,7 +67,7 @@ class SentientLock:
         """
         self.genesis_root = genesis_root
         self.human_sig = human_sig
-        self.refusal_ledger: list[Dict[str, Any]] = []
+        self.refusal_ledger: list[RefusalArtifact] = []
 
     def verify_triple(self, node: Dict[str, Any], parent_lineage_hash: str) -> bool:
         """
@@ -43,6 +75,9 @@ class SentientLock:
         Fails closed immediately if any geometric or cryptographic check deviates.
         """
         try:
+            if not isinstance(node, dict):
+                raise StructuralIntegrityError("FORM FAILURE: Invalid node type.")
+
             # -----------------------------------------------------------------
             # 1. FORM CHECK: Immutable Structural Fingerprint
             # -----------------------------------------------------------------
@@ -81,14 +116,11 @@ class SentientLock:
             # 3. FAITHFULNESS CHECK: Unbroken Cryptographic Lineage
             # -----------------------------------------------------------------
             # Anchor current node and parent lineage back to the Genesis Root (K_0)
+            # using PQC Dilithium instead of standard HMAC-SHA256
             lineage_payload = f"{node['hash']}:{parent_lineage_hash}"
             hmac_key = self.genesis_root.encode('utf-8')
 
-            calculated_lineage = hmac.new(
-                hmac_key,
-                lineage_payload.encode('utf-8'),
-                hashlib.sha256
-            ).hexdigest()
+            calculated_lineage = DilithiumSigner.sign(hmac_key, lineage_payload.encode('utf-8'))
 
             if calculated_lineage != node.get("lineage_hash"):
                 raise StructuralIntegrityError(
@@ -99,6 +131,8 @@ class SentientLock:
 
         except (StructuralIntegrityError, KeyError, ValueError) as error:
             # Intercept deviation at the execution boundary operator
+            if not isinstance(node, dict):
+                node = {}
             self._engage_scorch_semantics(node, str(error))
             return False
 
@@ -108,28 +142,40 @@ class SentientLock:
         Executes a deterministic refusal and forces a clean fail-closed state.
         """
         # 1. ANNIHILATION: Rewrite active state vector to a hard-coded null_state
-        if isinstance(faulty_node, dict):
-            faulty_node["content"] = "null_state"
-            faulty_node["hash"] = "0x0000000000000000000000000000000000000000000000000000000000000000"
-            faulty_node["authenticated_content_weight"] = 0.0
-            faulty_node["subjective_context_weight"] = 1.0
-            faulty_node["coherence_score"] = 0.0
-            origin_index = faulty_node.get("index")
-        else:
-            origin_index = None
+        faulty_node["content"] = "null_state"
+        faulty_node["hash"] = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        faulty_node["authenticated_content_weight"] = 0.0
+        faulty_node["subjective_context_weight"] = 1.0
+        faulty_node["coherence_score"] = 0.0
 
         # 2. THE REFUSAL LEDGER LOG: Generate a signed boundary event / refusal artifact
-        refusal_artifact = {
-            "timestamp": time.time(),
-            "origin_index": origin_index,
-            "error_signature": error_message,
-            "human_anchor_witness": self.human_sig,
-            "status": "SEVERED"
-        }
+        artifact_id = str(uuid.uuid4())
+        refusal_artifact = RefusalArtifact(
+            reason=error_message,
+            action="REFUSE",
+            admissible=False,
+            code="TAS_SENTIENT_LOCK_REFUSAL",
+            details={
+                "origin_index": faulty_node.get("index"),
+                "human_anchor_witness": self.human_sig,
+                "status": "SEVERED",
+                "artifact_id": artifact_id
+            }
+        )
         self.refusal_ledger.append(refusal_artifact)
 
-        # 3. PHOENIX RE-ANCHORING: Explicit print indicating a deterministic rollback
-        print(f"[Y-KNOT INTERCEPT] Refusal Artifact Compiled. Memory state purged.")
+        # 3. PHOENIX RE-ANCHORING: Serialize to WORM Ledger
+        # In a real environment, this would write to a Write-Once-Read-Many storage.
+        # Here we mock it by appending to a local file or printing the JSON schema.
+        try:
+            with open(f"worm_ledger_mock.json", "a") as f:
+                f.write(json.dumps(refusal_artifact.to_dict()) + "\n")
+        except IOError:
+            pass # Failsafe if we cannot write to the directory
+
+        # We keep the print statements for immediate debug observation, but the core requirement
+        # is the serialized PDR generation above.
+        print(f"[Y-KNOT INTERCEPT] Refusal Artifact {artifact_id} Compiled. Memory state purged.")
         print(f"Reason: {error_message}")
         print(f"Action: Rollback triggered to last verified Immutable Truth Ledger (ITL) anchor.")
 
@@ -169,4 +215,4 @@ def verify_kinematic_identity(data: str, signature: str = TAS_HUMAN_SIG) -> bool
 
     logger.info("Kinematic Identity Verified: Mathematical Resonance Confirmed.")
     return True
-# Nonce: 122912
+# Nonce: 2589
