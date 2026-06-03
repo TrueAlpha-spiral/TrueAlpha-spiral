@@ -75,6 +75,12 @@ class TestSentientLock(unittest.TestCase):
         self.assertEqual(faulty_node["content"], "null_state")
         self.assertIn("FAITHFULNESS FAILURE", self.lock.refusal_ledger[0]["error_signature"])
 
+    def test_verify_triple_fail_invalid_node_type(self):
+        result = self.lock.verify_triple(None, self.parent_hash)
+        self.assertFalse(result)
+        self.assertEqual(len(self.lock.refusal_ledger), 1)
+        self.assertIn("FORM FAILURE", self.lock.refusal_ledger[0]["error_signature"])
+
     def test_verify_kinematic_identity_pass(self):
         # Mock sha256 to return a hash starting with the correct prefix
         mock_hash = MagicMock()
