@@ -1,8 +1,75 @@
 import unittest
+import hashlib
+import hmac
 from unittest.mock import patch, MagicMock
-from tas_pythonetics.sentient_lock import verify_kinematic_identity, PhoenixError, TAS_KINEMATIC_PREFIX
+from tas_pythonetics.sentient_lock import verify_kinematic_identity, PhoenixError, TAS_KINEMATIC_PREFIX, SentientLock, StructuralIntegrityError, DilithiumSigner
 
 class TestSentientLock(unittest.TestCase):
+
+
+    def setUp(self):
+        self.genesis_root = "K_0_ROOT_HASH_MOCK"
+        self.human_sig = "Russell Nordland"
+        self.lock = SentientLock(self.genesis_root, self.human_sig)
+
+        self.valid_node = {
+            "index": 1,
+            "content": "Valid Content",
+            "authenticated_content_weight": 0.8,
+            "subjective_context_weight": 0.2,
+            "coherence_score": 0.618034
+        }
+
+        # Calculate valid form hash
+        raw_payload = f"1:Valid Content"
+        self.valid_node["hash"] = hashlib.sha256(raw_payload.encode('utf-8')).hexdigest()
+
+        self.parent_hash = "PARENT_HASH_MOCK"
+
+        # Calculate valid lineage hash
+        lineage_payload = f"{self.valid_node['hash']}:{self.parent_hash}"
+        self.valid_node["lineage_hash"] = DilithiumSigner.sign(self.genesis_root.encode('utf-8'), lineage_payload.encode('utf-8'))
+
+    def test_verify_triple_pass(self):
+        result = self.lock.verify_triple(self.valid_node, self.parent_hash)
+        self.assertTrue(result)
+        self.assertEqual(len(self.lock.refusal_ledger), 0)
+
+    def test_verify_triple_fail_form(self):
+        faulty_node = self.valid_node.copy()
+        faulty_node["hash"] = "invalid_hash"
+        result = self.lock.verify_triple(faulty_node, self.parent_hash)
+        self.assertFalse(result)
+        self.assertEqual(len(self.lock.refusal_ledger), 1)
+        self.assertEqual(faulty_node["content"], "null_state")
+        self.assertIn("FORM FAILURE", self.lock.refusal_ledger[0].reason)
+
+    def test_verify_triple_fail_function_subjective_weight(self):
+        faulty_node = self.valid_node.copy()
+        faulty_node["subjective_context_weight"] = 0.9
+        result = self.lock.verify_triple(faulty_node, self.parent_hash)
+        self.assertFalse(result)
+        self.assertEqual(len(self.lock.refusal_ledger), 1)
+        self.assertEqual(faulty_node["content"], "null_state")
+        self.assertIn("FUNCTION FAILURE", self.lock.refusal_ledger[0].reason)
+
+    def test_verify_triple_fail_function_coherence(self):
+        faulty_node = self.valid_node.copy()
+        faulty_node["coherence_score"] = 0.5
+        result = self.lock.verify_triple(faulty_node, self.parent_hash)
+        self.assertFalse(result)
+        self.assertEqual(len(self.lock.refusal_ledger), 1)
+        self.assertEqual(faulty_node["content"], "null_state")
+        self.assertIn("FUNCTION FAILURE", self.lock.refusal_ledger[0].reason)
+
+    def test_verify_triple_fail_faithfulness(self):
+        faulty_node = self.valid_node.copy()
+        faulty_node["lineage_hash"] = "invalid_lineage"
+        result = self.lock.verify_triple(faulty_node, self.parent_hash)
+        self.assertFalse(result)
+        self.assertEqual(len(self.lock.refusal_ledger), 1)
+        self.assertEqual(faulty_node["content"], "null_state")
+        self.assertIn("FAITHFULNESS FAILURE", self.lock.refusal_ledger[0].reason)
 
     def test_verify_kinematic_identity_pass(self):
         # Mock sha256 to return a hash starting with the correct prefix
@@ -40,4 +107,4 @@ class TestSentientLock(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-# Nonce: 49039
+# Nonce: 87099
