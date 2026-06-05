@@ -11,16 +11,34 @@ from .receipts import ProvenanceReceipt
 from .refusal import RefusalArtifact
 from .schemas import TAS_CANDIDATE_RESPONSE_SCHEMA, CandidateResponse
 from .authority import HumanAPIKey, ScopedAuthority
+from .trinity import (
+    ArchetypeAnalysis,
+    OctopusArchetype,
+    RaccoonArchetype,
+    SafetyEnvelope,
+    SemanticRouter,
+    SingularityEvent,
+    TrinityEngine,
+    TrinityResult,
+)
 
 __all__ = [
     "AlgorithmicPolymath",
     "CandidateResponse",
     "GateResult",
     "HumanAPIKey",
+    "OctopusArchetype",
     "ProvenanceReceipt",
+    "RaccoonArchetype",
     "RefusalArtifact",
+    "SafetyEnvelope",
+    "SemanticRouter",
     "ScopedAuthority",
+    "SingularityEvent",
     "TAS_CANDIDATE_RESPONSE_SCHEMA",
+    "TrinityEngine",
+    "TrinityResult",
+    "ArchetypeAnalysis",
     "tas_admissibility_gateway",
     "tas_openai_execute",
 ]
