@@ -3,6 +3,12 @@ import os
 import sys
 import unittest.mock
 import importlib.util
+import importlib.machinery
+
+@pytest.fixture(autouse=True)
+def clean_sys_modules():
+    with unittest.mock.patch.dict(sys.modules):
+        yield
 
 def load_itl_anchor():
     script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts", "itl_anchor.py"))
