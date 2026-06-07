@@ -68,6 +68,9 @@ class CredentialEnvelope:
     def compute_deterministic_hash(self) -> str:
         """Replaces Python's process-randomized hash() with deterministic SHA-256."""
         hasher = hashlib.sha256()
+    def compute_deterministic_hash(self) -> str:
+        """Replaces Python's process-randomized hash() with deterministic SHA-256."""
+        hasher = hashlib.sha256()
         for field_bytes in [
             self.identity_id.encode('utf-8'),
             self.public_key_bytes,
