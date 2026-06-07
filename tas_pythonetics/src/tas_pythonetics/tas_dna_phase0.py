@@ -65,12 +65,15 @@ class CredentialEnvelope:
     def compute_deterministic_hash(self) -> str:
         """Replaces Python's process-randomized hash() with deterministic SHA-256."""
         hasher = hashlib.sha256()
-        hasher.update(self.identity_id.encode('utf-8'))
-        hasher.update(self.public_key_bytes)
-        hasher.update(str(self.issuance_timestamp).encode('utf-8'))
-        if self.lineage_parent_hash:
-            hasher.update(self.lineage_parent_hash.encode('utf-8'))
-        hasher.update(self.issuer_did.encode('utf-8'))
+        for field_bytes in [
+            self.identity_id.encode('utf-8'),
+            self.public_key_bytes,
+            str(self.issuance_timestamp).encode('utf-8'),
+            (self.lineage_parent_hash or "").encode('utf-8'),
+            self.issuer_did.encode('utf-8')
+        ]:
+            hasher.update(len(field_bytes).to_bytes(4, 'big'))
+            hasher.update(field_bytes)
         return hasher.hexdigest()
 
 # --- Perimeter Control ---
