@@ -125,6 +125,8 @@ class IdentityRegistry:
         old_envelope = self._registry[identity_id]
         # Free the old key mapping, bind the new one
         old_envelope = self._registry[identity_id]
+        # Free the old key mapping, bind the new one
+        old_envelope = self._registry[identity_id]
         if new_envelope.public_key_bytes in self._key_map and self._key_map[new_envelope.public_key_bytes] != identity_id:
             raise InvariantViolation("Cryptographic material duplicate detected. Registry entry refused.")
 
