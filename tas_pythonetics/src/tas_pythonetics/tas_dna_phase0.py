@@ -39,7 +39,7 @@ class Ed25519VerifiableContract(VerificationContract):
         except (InvalidSignature, ValueError, TypeError) as e:
             raise CryptographicFailure(f"Deterministic verification failed: {str(e)}")
 
-    def rotate_key(self, current_envelope: 'CredentialEnvelope', new_public_key: bytes, authorization_signature: bytes) -> 'CredentialEnvelope':
+    def rotate_key(self, current_envelope: 'CredentialEnvelope', new_public_key: bytes, authorization_signature: bytes, timestamp: Optional[int] = None) -> 'CredentialEnvelope':
         # Rule: The rotation request must be signed by the CURRENT key to prove authorized lineage transition
         rotation_manifest = b"ROTATE_TO:" + new_public_key
 
@@ -49,7 +49,7 @@ class Ed25519VerifiableContract(VerificationContract):
         return CredentialEnvelope(
             identity_id=current_envelope.identity_id,
             public_key_bytes=new_public_key,
-            issuance_timestamp=int(time.time()),
+            issuance_timestamp=timestamp if timestamp is not None else int(time.time()),
             lineage_parent_hash=current_envelope.compute_deterministic_hash()  # Deterministic SHA-256 lineage
         )
 
