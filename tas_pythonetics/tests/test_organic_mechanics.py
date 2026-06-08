@@ -357,4 +357,20 @@ def test_identity_validator_fingerprint_is_sha256():
     expected = hashlib.sha256(b"mytoken").hexdigest()
     assert result["fingerprint"] == expected
 
-# Nonce: 26477
+
+
+def test_metabolic_cycle_overall_efficiency_zero_consumed():
+    mc = MetabolicCycle()
+    assert mc.overall_efficiency == 0.0
+
+def test_taibom_manifest_verified_count():
+    manifest = TAIBOMManifest("manifest-007")
+    manifest.append(TAIBOMEntry(name="a", version="1", origin="o", trust_level="VERIFIED"))
+    assert manifest.verified_count == 1
+
+def test_identity_validator_register_valid_token():
+    iv = IdentityValidator()
+    iv.register("valid_token_123")
+    assert iv.validate("valid_token_123")["valid"] is True
+
+# Nonce: 103693
