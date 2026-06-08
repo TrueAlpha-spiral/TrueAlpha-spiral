@@ -167,7 +167,7 @@ class MutinyDetector:
             trip=False,
         )
 
-    def _emit(self, event: MutinyEvent, trip: bool) -> MutinyEvent:
+    def _emit(self, event: MutinyEvent, *, trip: bool) -> MutinyEvent:
         if trip:
             self._last_trip_time = event.timestamp
         return event
