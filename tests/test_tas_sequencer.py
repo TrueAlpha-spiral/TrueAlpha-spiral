@@ -1,5 +1,4 @@
 import pytest
-import os
 import hashlib
 from tas_tools.tas_sequencer import calculate_sha256
 
