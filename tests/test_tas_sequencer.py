@@ -17,12 +17,12 @@ def test_calculate_sha256_success(tmp_path):
 
     assert actual_hash == expected_hash
 
-def test_calculate_sha256_file_not_found():
+def test_calculate_sha256_file_not_found(tmp_path):
     """Test calculate_sha256 handles non-existent files gracefully."""
-    non_existent_file = "path/to/non_existent_file.txt"
+    non_existent_file = tmp_path / "non_existent_file.txt"
 
     # Ensure it returns None as implemented in the function
-    result = calculate_sha256(non_existent_file)
+    result = calculate_sha256(str(non_existent_file))
 
     assert result is None
 
