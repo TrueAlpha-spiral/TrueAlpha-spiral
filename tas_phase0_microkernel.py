@@ -154,4 +154,4 @@ if boot_receipt["status"] == "BOOTSTRAP_LOCKED":
     print(f"Initial Capability Token: {boot_receipt['canonical_manifest']['initial_capability_token']}")
 else:
     print(f"\n[TAS_K BOOT FAILURE] Status: {boot_receipt['status']} at {kernel.current_state}")
-# Nonce: 125486
+# Nonce: 28197
