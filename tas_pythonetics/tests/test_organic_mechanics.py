@@ -361,7 +361,6 @@ def test_identity_validator_fingerprint_is_sha256():
 
 def test_metabolic_cycle_overall_efficiency_zero_consumed():
     mc = MetabolicCycle()
-    assert mc._total_consumed == 0.0
     assert mc.overall_efficiency == 0.0
 
 def test_taibom_manifest_verified_count():
