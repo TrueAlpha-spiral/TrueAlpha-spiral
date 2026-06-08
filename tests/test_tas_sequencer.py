@@ -1,10 +1,5 @@
-import os
 import hashlib
-import sys
 from pathlib import Path
-
-# Adjust PYTHONPATH just in case
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from tas_tools.tas_sequencer import calculate_sha256
 
