@@ -371,6 +371,6 @@ def test_taibom_manifest_verified_count():
 def test_identity_validator_register_valid_token():
     iv = IdentityValidator()
     iv.register("valid_token_123")
-    assert "valid_token_123" in iv._valid_tokens
+    assert iv.validate("valid_token_123")["valid"] is True
 
 # Nonce: 103693
