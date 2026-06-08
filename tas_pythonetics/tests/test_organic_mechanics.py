@@ -215,6 +215,12 @@ def test_metabolic_cycle_efficiency_with_no_cycles():
     assert mc.is_metabolically_viable is False
 
 
+def test_metabolic_cycle_overall_efficiency_zero_consumed():
+    mc = MetabolicCycle()
+    assert mc.overall_efficiency == 0.0
+
+
+
 # ---------------------------------------------------------------------------
 # TAIBOMEntry — construction and fingerprint
 # ---------------------------------------------------------------------------
@@ -357,4 +363,4 @@ def test_identity_validator_fingerprint_is_sha256():
     expected = hashlib.sha256(b"mytoken").hexdigest()
     assert result["fingerprint"] == expected
 
-# Nonce: 26477
+# Nonce: 78219
