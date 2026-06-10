@@ -1,11 +1,3 @@
-💡 **What:**
-Extracted `obj.lower()` out of the `any()` generator expression in `compute_empathy_score` within `tas_pythonetics/src/tas_pythonetics/ethics.py`.
-
-🎯 **Why:**
-Previously, `obj.lower()` was called redundantly inside the generator for every keyword iterated through from `UNETHICAL_KEYWORDS`. By hoisting the method call before the loop, we prevent $N$ redundant string allocations and conversions, resulting in a cleaner and noticeably faster execution profile.
-
-📊 **Measured Improvement:**
-Created a benchmark script `scripts/benchmark_ethics.py`.
-- **Baseline (Before Optimization):** ~0.6317 seconds for 100,000 executions.
-- **After Optimization:** ~0.4457 seconds for 100,000 executions.
-- **Improvement:** ~29.4% reduction in execution time for processing texts with the ethics filter.
+🎯 **What:** Adding unit tests for the `calculate_sha256` function in `tas_tools/tas_sequencer.py`.
+📊 **Coverage:** Added explicit testing for valid file parsing, handling of large files (exceeding the standard 64KB read chunk size), and proper error handling logic (catching the exception and returning `None`) for non-existent missing files.
+✨ **Result:** Improved test coverage across standard IO functions inside the `tas_sequencer`, ensuring proper file IO hash generation without unhandled errors.

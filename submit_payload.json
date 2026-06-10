@@ -1,0 +1,5 @@
+{
+  "branch": "test-calculate-sha256-tas-sequencer",
+  "pr_title": "🧪 [testing improvement] Test tas_sequencer.py calculate_sha256",
+  "pr_body": "🎯 **What:** Adding unit tests for the `calculate_sha256` function in `tas_tools/tas_sequencer.py`.\n📊 **Coverage:** Added explicit testing for valid file parsing, handling of large files (exceeding the standard 64KB read chunk size), and proper error handling logic (catching the exception and returning `None`) for non-existent missing files.\n✨ **Result:** Improved test coverage across standard IO functions inside the `tas_sequencer`, ensuring proper file IO hash generation without unhandled errors."
+}
