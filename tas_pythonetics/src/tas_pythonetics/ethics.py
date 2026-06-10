@@ -8,9 +8,10 @@ def compute_empathy_score(obj: str) -> float:
     Otherwise return 1.0.
     """
     obj_lower = obj.lower()
-    for keyword in UNETHICAL_KEYWORDS:
-        if keyword in obj_lower:
-            return 0.0
+    import re
+    pattern = r"\b(" + "|".join(UNETHICAL_KEYWORDS) + r")\b"
+    if re.search(pattern, obj_lower):
+        return 0.0
     return 1.0
 
 def TAS_Heartproof(statement: str) -> bool:
