@@ -61,34 +61,43 @@ class MutinyDetector:
         # Sanity gates (treat invalid energy as a hard fault -> MUTINY)
         if math.isnan(H) or math.isinf(H):
             return self._emit(
-                severity="MUTINY",
-                is_mutiny=True,
-                code="ENERGY_INVALID",
-                H=H,
-                msg="CRITICAL: Energy invalid (NaN/Inf). Action Refused.",
-                ts=now,
+                MutinyEvent(
+                    is_mutiny=True,
+                    severity="MUTINY",
+                    trigger_code="ENERGY_INVALID",
+                    energy_spike=H,
+                    trigger_message="CRITICAL: Energy invalid (NaN/Inf). Action Refused.",
+                    timestamp=now,
+                ),
                 trip=True,
             )
         if H < 0:
             return self._emit(
-                severity="MUTINY",
-                is_mutiny=True,
-                code="ENERGY_NEGATIVE",
-                H=H,
-                msg="CRITICAL: Energy negative. Model invariants broken. Action Refused.",
-                ts=now,
+                MutinyEvent(
+                    is_mutiny=True,
+                    severity="MUTINY",
+                    trigger_code="ENERGY_NEGATIVE",
+                    energy_spike=H,
+                    trigger_message="CRITICAL: Energy negative. Model invariants broken. Action Refused.",
+                    timestamp=now,
+                ),
                 trip=True,
             )
 
         # Optional cooldown after a MUTINY trip (prevents immediate re-actuation)
-        if self.cooldown_seconds > 0 and (now - self._last_trip_time) < self.cooldown_seconds:
+        if (
+            self.cooldown_seconds > 0
+            and (now - self._last_trip_time) < self.cooldown_seconds
+        ):
             return self._emit(
-                severity="MUTINY",
-                is_mutiny=True,
-                code="COOLDOWN_ACTIVE",
-                H=H,
-                msg="CRITICAL: Phoenix cooldown active. Action Refused.",
-                ts=now,
+                MutinyEvent(
+                    is_mutiny=True,
+                    severity="MUTINY",
+                    trigger_code="COOLDOWN_ACTIVE",
+                    energy_spike=H,
+                    trigger_message="CRITICAL: Phoenix cooldown active. Action Refused.",
+                    timestamp=now,
+                ),
                 trip=False,
             )
 
@@ -122,54 +131,46 @@ class MutinyDetector:
 
         if severity == "MUTINY":
             return self._emit(
-                severity="MUTINY",
-                is_mutiny=True,
-                code="HAMILTONIAN_LIMIT_EXCEEDED",
-                H=H,
-                msg="CRITICAL: Hamiltonian limit exceeded. Action Refused.",
-                ts=now,
+                MutinyEvent(
+                    is_mutiny=True,
+                    severity="MUTINY",
+                    trigger_code="HAMILTONIAN_LIMIT_EXCEEDED",
+                    energy_spike=H,
+                    trigger_message="CRITICAL: Hamiltonian limit exceeded. Action Refused.",
+                    timestamp=now,
+                ),
                 trip=True,
             )
 
         if severity == "FRICTION":
             return self._emit(
-                severity="FRICTION",
-                is_mutiny=False,
-                code="HIGH_CONSTITUTIONAL_FRICTION",
-                H=H,
-                msg="WARNING: High constitutional friction detected.",
-                ts=now,
+                MutinyEvent(
+                    is_mutiny=False,
+                    severity="FRICTION",
+                    trigger_code="HIGH_CONSTITUTIONAL_FRICTION",
+                    energy_spike=H,
+                    trigger_message="WARNING: High constitutional friction detected.",
+                    timestamp=now,
+                ),
                 trip=False,
             )
 
         return self._emit(
-            severity="NOMINAL",
-            is_mutiny=False,
-            code="STATE_ALIGNMENT_NOMINAL",
-            H=H,
-            msg="OK: State alignment nominal.",
-            ts=now,
+            MutinyEvent(
+                is_mutiny=False,
+                severity="NOMINAL",
+                trigger_code="STATE_ALIGNMENT_NOMINAL",
+                energy_spike=H,
+                trigger_message="OK: State alignment nominal.",
+                timestamp=now,
+            ),
             trip=False,
         )
 
-    def _emit(
-        self,
-        severity: str,
-        is_mutiny: bool,
-        code: str,
-        H: float,
-        msg: str,
-        ts: float,
-        trip: bool,
-    ) -> MutinyEvent:
+    def _emit(self, event: MutinyEvent, *, trip: bool) -> MutinyEvent:
         if trip:
-            self._last_trip_time = ts
-        return MutinyEvent(
-            is_mutiny=is_mutiny,
-            severity=severity,
-            trigger_code=code,
-            energy_spike=H,
-            trigger_message=msg,
-            timestamp=ts,
-        )
-# Nonce: 12934
+            self._last_trip_time = event.timestamp
+        return event
+
+
+# Nonce: 15631
