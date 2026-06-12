@@ -10,7 +10,7 @@ def sha_tree(root="tas_pythonetics"):
 payload = {
     "hash": sha_tree(),
     "author": "Russell Nordland",
-    "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+    "timestamp": datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z",
     "version": "0.1.0",
 }
 # Replace with real TAS_ITL_API endpoint/token
