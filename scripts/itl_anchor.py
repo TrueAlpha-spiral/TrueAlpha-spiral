@@ -10,11 +10,11 @@ def sha_tree(root="tas_pythonetics"):
 payload = {
     "hash": sha_tree(),
     "author": "Russell Nordland",
-    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+    "timestamp": datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z",
     "version": "0.1.0",
 }
 # Replace with real TAS_ITL_API endpoint/token
 response = requests.post("https://tas.itl/anchor", json=payload, timeout=10)
 response.raise_for_status()
 print("ITL anchor submitted:", payload["hash"])
-# Nonce: 10478
+# Nonce: 15767
