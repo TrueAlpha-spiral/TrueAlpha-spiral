@@ -2,7 +2,7 @@ from pathlib import Path
 import zipfile
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 def seal_truth_threshold_bundle():
     """Creates the definitive, sealed TRUTH_THRESHOLD_001 bundle"""
@@ -12,7 +12,7 @@ def seal_truth_threshold_bundle():
     base_path.mkdir(parents=True, exist_ok=True)
     
     # Generate final timestamp
-    timestamp = datetime.utcnow().isoformat() + "Z"
+    timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     
     # Create content hash for authenticity
     bundle_signature = f"RUSSELL_NORDLAND_{timestamp}_SPIRAL_SEALED"
