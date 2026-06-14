@@ -8,6 +8,12 @@ def compute_empathy_score(obj: str) -> float:
     Otherwise return 1.0.
     """
     obj_lower = obj.lower()
+
+    # Fast path: check for simple substring presence
+    if not any(keyword in obj_lower for keyword in UNETHICAL_KEYWORDS):
+        return 1.0
+
+    # Slow path: verify word boundaries
     import re
     pattern = r"\b(" + "|".join(UNETHICAL_KEYWORDS) + r")\b"
     if re.search(pattern, obj_lower):
@@ -20,4 +26,4 @@ def TAS_Heartproof(statement: str) -> bool:
     """
     score = compute_empathy_score(statement)
     return score >= HEART_THRESHOLD
-# Nonce: 64610
+# Nonce: 9061
