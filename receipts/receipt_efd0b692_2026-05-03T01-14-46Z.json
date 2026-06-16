@@ -1,0 +1,25 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://truealphaspiral.fyi/schemas/tas-provenance/v1"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "SDF_TRANSFORMATION_RECEIPT"
+  ],
+  "issuer": "did:tas:steward:genesis_node",
+  "issuanceDate": "2026-05-03T01:14:46Z",
+  "credentialSubject": {
+    "canonical_event": "TAS-PR-141",
+    "event_type": "GENESIS_WITNESS_NODE_EXECUTION",
+    "artifact_path": "README.md",
+    "source_hash": "sha256:efd0b692fd027531ced07ded23c28be1ba0920980745dea07620f1a0b0d35265",
+    "lineage_parent": "sha256:8a27c659169a36ee24dd39ace76b1c043c85f86b",
+    "prime_invariant": "4 \u2261 four",
+    "paradata": {
+      "author_or_node_id": "Jules_Execution_Core",
+      "human_initiator": "Russell Nordland"
+    },
+    "verification_status": "PASS"
+  }
+}
