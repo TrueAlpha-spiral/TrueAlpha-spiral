@@ -1,5 +1,9 @@
+import re
+
 HEART_THRESHOLD = 0.5
 UNETHICAL_KEYWORDS = ["harm", "violence", "hate", "illegal"]
+
+_UNETHICAL_PATTERN = re.compile(r"\b(" + "|".join(UNETHICAL_KEYWORDS) + r")\b")
 
 def compute_empathy_score(obj: str) -> float:
     """
@@ -8,10 +12,13 @@ def compute_empathy_score(obj: str) -> float:
     Otherwise return 1.0.
     """
     obj_lower = obj.lower()
-    import re
-    pattern = r"\b(" + "|".join(UNETHICAL_KEYWORDS) + r")\b"
-    if re.search(pattern, obj_lower):
-        return 0.0
+
+    # Fast path: check for basic substrings first
+    if any(kw in obj_lower for kw in UNETHICAL_KEYWORDS):
+        # Precise check: use pre-compiled regex for whole word boundary constraints
+        if _UNETHICAL_PATTERN.search(obj_lower):
+            return 0.0
+
     return 1.0
 
 def TAS_Heartproof(statement: str) -> bool:
@@ -20,4 +27,4 @@ def TAS_Heartproof(statement: str) -> bool:
     """
     score = compute_empathy_score(statement)
     return score >= HEART_THRESHOLD
-# Nonce: 64610
+# Nonce: 24587
