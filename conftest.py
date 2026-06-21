@@ -52,3 +52,4 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[None]):
         return
 
     report.sections.append(("tas_telemetry", telemetry_blob))
+# Nonce: 91029

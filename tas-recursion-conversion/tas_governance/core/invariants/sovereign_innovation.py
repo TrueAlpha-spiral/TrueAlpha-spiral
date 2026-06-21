@@ -195,4 +195,4 @@ class SovereignInnovationValidator:
 
          return (has_origin and has_contribution and has_verification and
                  has_refusal and has_attestation and has_compensation)
-# Nonce: 106094
+# Nonce: 59559

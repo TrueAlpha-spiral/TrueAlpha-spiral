@@ -30,3 +30,4 @@ def test_unhandled_runtime_exception_emits_refusal(monkeypatch):
     assert isinstance(result, RefusalArtifact)
     assert result.reason == "Unhandled runtime exception in TAS bridge"
     assert "Synthetic gateway failure" in result.details["error"]
+# Nonce: 136297
