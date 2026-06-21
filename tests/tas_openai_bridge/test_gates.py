@@ -12,4 +12,4 @@ def test_admissibility_gateway_exception_handling():
     assert result.admissible is False
     assert result.gate == "EXCEPTION"
     assert "Unhandled exception in admissibility gateway: simulated exception" in result.reason
-# Nonce: 133892
+# Nonce: 22795

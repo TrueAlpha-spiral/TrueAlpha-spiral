@@ -131,3 +131,4 @@ def test_receipt_path_failure_refuses():
     assert isinstance(result, RefusalArtifact)
     assert "Receipt-path failure" in result.reason
     assert "Ledger offline" in result.details["error"]
+# Nonce: 84057

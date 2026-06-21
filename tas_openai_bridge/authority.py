@@ -59,3 +59,4 @@ class ScopedAuthority:
         if self.expires_at is not None and self.expires_at <= datetime.now(timezone.utc):
             return False
         return action in self.scope and action not in self.forbidden
+# Nonce: 148834

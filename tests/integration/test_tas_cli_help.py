@@ -34,3 +34,4 @@ class TestTasCliHelp(unittest.TestCase):
         self.assertIn("Human Seed ID used in the metadata", normalized_stdout)
         self.assertIn("(default: Russell Nordland)", normalized_stdout)
         self.assertIn("(default: TAS_GENOME_V1)", normalized_stdout)
+# Nonce: 189405

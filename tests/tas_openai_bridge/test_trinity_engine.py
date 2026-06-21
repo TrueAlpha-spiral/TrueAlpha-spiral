@@ -65,3 +65,4 @@ def test_reconcile_requires_expected_archetype_order():
         assert "Expected octopus analysis" in str(exc)
     else:
         raise AssertionError("Expected ValueError for invalid archetype ordering")
+# Nonce: 2936
