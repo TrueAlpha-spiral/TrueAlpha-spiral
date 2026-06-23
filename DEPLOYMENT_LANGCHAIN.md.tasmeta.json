@@ -1,0 +1,18 @@
+{
+  "id": "c40f406066096dca679084facbbd29e52f08351b032fdbf9dda8a7dc54b7bc60",
+  "type": "TasArtifact",
+  "form_id": "6e9edd8080a39285f1b06ccca42a70c8ddfcb3092bd3cb680d4d773b949d63bd",
+  "genome_id": "TAS_GENOME_V1",
+  "lineage_id": "c40f406066096dca679084facbbd29e52f08351b032fdbf9dda8a7dc54b7bc60",
+  "h_seed": "Russell Nordland",
+  "cert_id": "1b1b5af4-9242-4367-8610-eba74158e526",
+  "timestamp": "2026-06-23T01:33:40.149778+00:00",
+  "paradata_trail": [],
+  "signatures": [
+    {
+      "signer": "Russell Nordland",
+      "algorithm": "TAS_HUMAN_SIG_V1",
+      "value": "signed_by_ceremony"
+    }
+  ]
+}
