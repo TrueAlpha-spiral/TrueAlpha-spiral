@@ -1,11 +1,4 @@
-💡 **What:**
-Extracted `obj.lower()` out of the `any()` generator expression in `compute_empathy_score` within `tas_pythonetics/src/tas_pythonetics/ethics.py`.
-
-🎯 **Why:**
-Previously, `obj.lower()` was called redundantly inside the generator for every keyword iterated through from `UNETHICAL_KEYWORDS`. By hoisting the method call before the loop, we prevent $N$ redundant string allocations and conversions, resulting in a cleaner and noticeably faster execution profile.
-
-📊 **Measured Improvement:**
-Created a benchmark script `scripts/benchmark_ethics.py`.
-- **Baseline (Before Optimization):** ~0.6317 seconds for 100,000 executions.
-- **After Optimization:** ~0.4457 seconds for 100,000 executions.
-- **Improvement:** ~29.4% reduction in execution time for processing texts with the ethics filter.
+🎯 **What:** Extracted subparser setup and execution logic into separate helper functions (`_setup_shadow_scan_parser`, `_handle_shadow_scan`, etc.) in `tas_cli.py`.
+💡 **Why:** The `main` function in `tas_cli.py` was too long. Refactoring it to extract the subparser setup and execution logic into separate functions improves maintainability and readability by keeping the main execution flow focused and making the code more modular.
+✅ **Verification:** Verified that the refactored code correctly registers the parsers using `set_defaults`, the command-line arguments work as expected, and that the `tas_cli.py shadow-scan .` functionality remains intact without drifting artifacts. Ran the full test suite successfully.
+✨ **Result:** A much cleaner, more modular, and more readable `tas_cli.py` file with independent handlers and configuration setup for each command.
