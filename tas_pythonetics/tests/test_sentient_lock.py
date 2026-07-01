@@ -83,12 +83,13 @@ class TestSentientLock(unittest.TestCase):
     def test_verify_kinematic_identity_fail(self):
         # Mock sha256 to return a hash with incorrect prefix
         mock_hash = MagicMock()
-        mock_hash.hexdigest.return_value = "0000abcdef123456" # Not 1618
+        bad_prefix = "0" if TAS_KINEMATIC_PREFIX[0] != "0" else "1"
+        mock_hash.hexdigest.return_value = f"{bad_prefix}000abcdef123456"
 
         with patch('hashlib.sha256', return_value=mock_hash):
             with self.assertRaises(PhoenixError) as cm:
                 verify_kinematic_identity("invalid_data")
-            self.assertIn("Expected prefix '1618'", str(cm.exception))
+            self.assertIn(f"Expected prefix '{TAS_KINEMATIC_PREFIX}'", str(cm.exception))
 
     def test_verify_kinematic_identity_signature(self):
         # Ensure signature is used in payload
@@ -107,4 +108,4 @@ class TestSentientLock(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-# Nonce: 55579
+# Nonce: 8349
