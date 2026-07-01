@@ -48,9 +48,9 @@ def test_run_command_prevents_injection():
         hb.run_command("echo 'hello'; rm -rf /", wait=False)
 
         # In the fixed version, args should be a list, and shell should be False
-        assert kwargs_passed.get("shell") == False, "shell=False must be set"
+        assert kwargs_passed.get("shell") is False, "shell=False must be set"
         assert isinstance(args_passed[0], list), "Command must be tokenized into a list"
         assert args_passed[0] == ["echo", "hello;", "rm", "-rf", "/"], "shlex.split should properly tokenize"
     finally:
         subprocess.Popen = original_popen
-# Nonce: 295670
+# Nonce: 193778
