@@ -65,6 +65,52 @@ def _default_client() -> Any | RefusalArtifact:
     return OpenAI()
 
 
+def _check_authority(
+    human_api_key: HumanAPIKey | None, scoped_authority: ScopedAuthority | None
+) -> RefusalArtifact | None:
+    if human_api_key is None or scoped_authority is None:
+        return RefusalArtifact(reason="Missing authority anchor")
+
+    if not human_api_key.validate():
+        return RefusalArtifact(reason="Invalid HumanAPI Key")
+
+    if not scoped_authority.allows(OPENAI_RESPONSES_ACTION):
+        return RefusalArtifact(reason="Scope does not authorize OpenAI execution")
+
+    return None
+
+
+def _build_conduit_payload(prompt: str, prompt_hash: str, model: str) -> str:
+    return json.dumps(
+        {
+            "prompt": prompt,
+            "tas_paradata_requirements": {
+                "input_hash": prompt_hash,
+                "model": model,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "tool_path": "openai.responses",
+                "receipt_required": True,
+            },
+        },
+        sort_keys=True,
+    )
+
+
+def _parse_candidate_payload(
+    response: Any, prompt_hash: str, model: str
+) -> dict[str, Any] | RefusalArtifact:
+    candidate = _candidate_from_response(response)
+    if isinstance(candidate, RefusalArtifact):
+        return candidate
+
+    candidate.setdefault("tas_paradata", {})["input_hash"] = prompt_hash
+    candidate["tas_paradata"].setdefault("model", model)
+    candidate["tas_paradata"].setdefault("tool_path", "openai.responses")
+    candidate["tas_paradata"].setdefault("receipt_required", True)
+
+    return candidate
+
+
 def tas_openai_execute(
     human_api_key: HumanAPIKey | None,
     scoped_authority: ScopedAuthority | None,
@@ -80,33 +126,16 @@ def tas_openai_execute(
     RefusalArtifact instead of allowing raw crashes or silent acceptance.
     """
     try:
-        if human_api_key is None or scoped_authority is None:
-            return RefusalArtifact(reason="Missing authority anchor")
-
-        if not human_api_key.validate():
-            return RefusalArtifact(reason="Invalid HumanAPI Key")
-
-        if not scoped_authority.allows(OPENAI_RESPONSES_ACTION):
-            return RefusalArtifact(reason="Scope does not authorize OpenAI execution")
+        authority_refusal = _check_authority(human_api_key, scoped_authority)
+        if authority_refusal:
+            return authority_refusal
 
         execution_client = client if client is not None else _default_client()
         if isinstance(execution_client, RefusalArtifact):
             return execution_client
 
         prompt_hash = _hash_prompt(prompt)
-        conduit_prompt = json.dumps(
-            {
-                "prompt": prompt,
-                "tas_paradata_requirements": {
-                    "input_hash": prompt_hash,
-                    "model": model,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "tool_path": "openai.responses",
-                    "receipt_required": True,
-                },
-            },
-            sort_keys=True,
-        )
+        conduit_prompt = _build_conduit_payload(prompt, prompt_hash, model)
 
         try:
             response = execution_client.responses.create(
@@ -120,14 +149,9 @@ def tas_openai_execute(
                 details={"stage": "openai.responses.create", "error": str(exc)},
             )
 
-        candidate = _candidate_from_response(response)
+        candidate = _parse_candidate_payload(response, prompt_hash, model)
         if isinstance(candidate, RefusalArtifact):
             return candidate
-
-        candidate.setdefault("tas_paradata", {})["input_hash"] = prompt_hash
-        candidate["tas_paradata"].setdefault("model", model)
-        candidate["tas_paradata"].setdefault("tool_path", "openai.responses")
-        candidate["tas_paradata"].setdefault("receipt_required", True)
 
         gate_result = tas_admissibility_gateway(candidate)
         if not gate_result.admissible:
