@@ -60,6 +60,7 @@
     "embla-carousel-react": "^8.3.0",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "form-data": "^4.0.4",
     "framer-motion": "^11.13.1",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.453.0",
@@ -111,5 +112,8 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
+  },
+  "overrides": {
+    "form-data": "4.0.4"
   }
 }
