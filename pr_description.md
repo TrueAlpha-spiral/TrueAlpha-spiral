@@ -2,3 +2,4 @@
 💡 **Why:** The `main` function in `tas_cli.py` was too long. Refactoring it to extract the subparser setup and execution logic into separate functions improves maintainability and readability by keeping the main execution flow focused and making the code more modular.
 ✅ **Verification:** Verified that the refactored code correctly registers the parsers using `set_defaults`, the command-line arguments work as expected, and that the `tas_cli.py shadow-scan .` functionality remains intact without drifting artifacts. Ran the full test suite successfully.
 ✨ **Result:** A much cleaner, more modular, and more readable `tas_cli.py` file with independent handlers and configuration setup for each command.
+# Nonce: 75881
