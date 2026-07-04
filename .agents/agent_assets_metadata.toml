@@ -6,3 +6,9 @@ id = "snhYxEw2SFn0Gkhx6tbKV"
 uri = "file://exports/genesis-project-export.zip"
 type = "unspecified"
 title = "Genesis Project Export (code + assets, no secrets)"
+
+[[outputs]]
+id = "sA9O3hTj9SDZzHo4ca801"
+uri = "file://exports/genesis-app-code.zip"
+type = "unspecified"
+title = "Genesis App Code (client + server + shared + configs)"
