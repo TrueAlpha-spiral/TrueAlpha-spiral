@@ -345,7 +345,7 @@ app.use((req, res, next) => {
       if (existsSync('./python_api_watchdog.py')) {
         log('Starting Python API Watchdog (PERMANENT SOLUTION)');
         const pythonWatchdog = spawn('python', ['python_api_watchdog.py'], {
-          stdio: 'inherit',
+          stdio: 'ignore',
           detached: true
         });
         
