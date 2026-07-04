@@ -1,8 +1,18 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles, HelpingHand, Terminal } from "lucide-react";
+import { Shield, Moon, Sun, BarChart4, AlertTriangle, Activity, FileText, Zap, Share2, Stethoscope, Layers, Box, Sparkles, HelpingHand, Terminal, LogIn, LogOut, User } from "lucide-react";
 import { useTheme } from "@/components/ui/theme-provider";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -21,6 +31,58 @@ function ThemeToggle() {
       )}
       <span className="sr-only">Toggle theme</span>
     </Button>
+  );
+}
+
+function AuthButton() {
+  const { user, isLoading, isAuthenticated, logout } = useAuth();
+
+  if (isLoading) return null;
+
+  if (!isAuthenticated) {
+    return (
+      <Button variant="default" size="sm" asChild>
+        <a href="/api/login">
+          <LogIn className="mr-2 h-4 w-4" />
+          Sign In
+        </a>
+      </Button>
+    );
+  }
+
+  const initials = [user?.firstName, user?.lastName]
+    .filter(Boolean)
+    .map((n) => n![0])
+    .join("") || user?.email?.[0]?.toUpperCase() || "U";
+
+  const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || "Account";
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={user?.profileImageUrl || ""} alt={displayName} />
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{displayName}</p>
+            {user?.email && (
+              <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
+            )}
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => logout()} className="cursor-pointer text-destructive focus:text-destructive">
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -153,6 +215,7 @@ export default function Header() {
               Enterprise Plans
             </Link>
           </Button>
+          <AuthButton />
           <ThemeToggle />
         </div>
       </div>
