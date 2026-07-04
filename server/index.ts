@@ -7,6 +7,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
 import { spawn } from "child_process";
 import { existsSync } from "fs";
+import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 
 // Import analytics functions
 import { analyzeConceptDrift, generateIntegrityReport, getEntityMetrics } from './services/cross-dimensional-analytics';
@@ -86,7 +87,9 @@ app.use((req, res, next) => {
 (async () => {
   try {
     log("Starting server initialization...");
+    await setupAuth(app);
     const server = await registerRoutes(app);
+    registerAuthRoutes(app);
     log("Routes registered successfully");
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

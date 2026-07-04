@@ -68,3 +68,6 @@ author = 39796624
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Start application"
+
+[agent]
+integrations = ["javascript_log_in_with_replit:2.0.0"]
