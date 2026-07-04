@@ -9,6 +9,7 @@ packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "ghostscript", "gobject
 [deployment]
 deploymentTarget = "gce"
 run = ["sh", "-c", "npm run dev"]
+ignorePorts = true
 
 [[ports]]
 localPort = 3000
@@ -60,9 +61,12 @@ author = "agent"
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Start"

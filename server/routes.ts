@@ -2613,6 +2613,142 @@ export function registerRoutes(app: Express): Server {
     }
   });
   
+  // ── Sovereign Verification Pipeline ─────────────────────────────────────────
+  app.post('/api/sovereign/verify-claim', (req, res) => {
+    const { claim } = req.body as { claim: string };
+    if (!claim || typeof claim !== 'string' || claim.trim().length < 3) {
+      return res.status(400).json({ error: 'Claim must be at least 3 characters.' });
+    }
+
+    const text = claim.trim();
+    const now = new Date().toISOString();
+
+    // ── G0: Mens Ra — anchor check ──────────────────────────────────────────
+    const GENESIS_ROOT = '9016acce46747b050fe62c49557c8fac516d8e72cb50194bc6702fa477aa8403';
+    const autonomousPatterns = /\b(autonomous|bypass|override|no.?steward|without.*human|skip.*check)\b/i;
+    const g0Passed = !autonomousPatterns.test(text);
+
+    // ── G1: Lineage — Sov = T/(D×Z) ≥ 0.80 ────────────────────────────────
+    const words = text.split(/\s+/);
+    const len = words.length;
+
+    // Truth score: presence of factual/verifiable language
+    const factualWords = ['verified', 'confirmed', 'measured', 'recorded', 'signed', 'transfer', 'predicted', 'data', 'confidence', 'audit'];
+    const subjectiveWords = ['believe', 'perhaps', 'maybe', 'might', 'possibly', 'somewhat', 'certain', 'feel', 'think', 'guess'];
+    const factualCount = words.filter(w => factualWords.some(fw => w.toLowerCase().includes(fw))).length;
+    const subjectiveCount = words.filter(w => subjectiveWords.some(sw => w.toLowerCase().includes(sw))).length;
+    const T = Math.min(1.0, 0.5 + (factualCount * 0.15) - (subjectiveCount * 0.12));
+
+    // Distance: semantic drift from verifiable baseline
+    const D = 1.0 + (subjectiveCount * 0.25) + (autonomousPatterns.test(text) ? 1.5 : 0);
+
+    // Size: complexity factor
+    const Z = 0.8 + Math.min(0.4, len / 50);
+
+    const sov = T / (D * Z);
+    const g1Passed = sov >= 0.80;
+
+    // ── G2: Geometric Loom — logistic map, r < 3.0 ─────────────────────────
+    // r derived from multi-agent / parallel spawn signals + claim complexity
+    const spawnPattern = /\b(spawn|parallel|distribute|multi.?agent|\d+\s*(nodes?|agents?|threads?))\b/i;
+    const spawnBonus = spawnPattern.test(text) ? 1.2 : 0;
+    const complexityBonus = Math.min(0.8, len / 20);
+    let r = 2.2 + complexityBonus + spawnBonus;
+
+    let phoenixTriggered = false;
+    let x = 0.5;
+    let lyapunov = 0;
+    const iterations = 200;
+    if (r >= 3.0) {
+      phoenixTriggered = true;
+      r = 2.4; // Phoenix Protocol: Global Contraction
+    }
+    for (let i = 0; i < iterations; i++) {
+      x = r * x * (1 - x);
+      lyapunov += Math.log(Math.abs(r * (1 - 2 * x)));
+    }
+    lyapunov = lyapunov / iterations;
+    const g2Passed = r < 3.0 && !spawnPattern.test(claim);
+
+    // ── G3: Ethical Hamiltonian — H = T + V, AC > SC ───────────────────────
+    const AC = Math.max(0, 1.0 - subjectiveCount * 0.2); // authenticity coefficient
+    const SC = Math.min(1.0, subjectiveCount * 0.2 + 0.1); // subjectivity coefficient
+    const V = SC > AC ? SC - AC : 0;
+    const H = T + V;
+    const g3Passed = H <= 1.0 && AC >= SC;
+
+    // ── Build gate results ──────────────────────────────────────────────────
+    const gates = [
+      {
+        name: 'G0',
+        label: 'G0 MENS RA',
+        passed: g0Passed,
+        value: g0Passed ? '✓' : '✗',
+        detail: g0Passed ? 'Anchor verified.' : 'Missing human anchor — Sovereign Silence triggered.',
+      },
+      {
+        name: 'G1',
+        label: `G1 LINEAGE S_ov=${sov.toFixed(3)}`,
+        passed: g0Passed ? g1Passed : null as any,
+        value: g0Passed ? (g1Passed ? '✓' : '✗') : '–',
+        detail: g0Passed
+          ? g1Passed
+            ? `Sovereignty score ${sov.toFixed(4)} ≥ 0.80. T=${T.toFixed(3)}, D=${D.toFixed(3)}, Z=${Z.toFixed(3)}.`
+            : `Sovereignty score ${sov.toFixed(4)} is below threshold 0.8. Human cryptographic signature required.`
+          : '–',
+      },
+      {
+        name: 'G2',
+        label: `G2 LOOM λ=${lyapunov.toFixed(3)}`,
+        passed: (g0Passed && g1Passed) ? g2Passed : null as any,
+        value: (g0Passed && g1Passed) ? (g2Passed ? '✓' : '✗') : '–',
+        detail: (g0Passed && g1Passed)
+          ? g2Passed
+            ? `r=${r.toFixed(4)} λ=${lyapunov.toFixed(4)}. System stable.`
+            : `Bifurcation detected — r=${r.toFixed(4)} λ=${lyapunov.toFixed(4)}. Global Contraction applied: r → 2.4000.`
+          : '–',
+      },
+      {
+        name: 'G3',
+        label: `G3 H=${H.toFixed(3)}`,
+        passed: (g0Passed && g1Passed && g2Passed) ? g3Passed : null as any,
+        value: (g0Passed && g1Passed && g2Passed) ? (g3Passed ? '✓' : '✗') : '–',
+        detail: (g0Passed && g1Passed && g2Passed)
+          ? g3Passed
+            ? `H=${H.toFixed(4)} ≤ 1.0. AC=${AC.toFixed(4)} ≥ SC=${SC.toFixed(4)}. Ethical balance maintained.`
+            : `Ri DUAL TRIGGER — S_C (${SC.toFixed(4)}) > A_C (${AC.toFixed(4)}) AND H (${H.toFixed(4)}) exceeds ceiling (1.0).`
+          : '–',
+      },
+    ];
+
+    const authorized = g0Passed && g1Passed && g2Passed && g3Passed;
+    const firstFailed = gates.find(g => g.passed === false);
+    const failReason = firstFailed
+      ? firstFailed.name === 'G0' ? 'MENS_RA'
+        : firstFailed.name === 'G1' ? 'LINEAGE_GATE'
+        : firstFailed.name === 'G2' ? 'GEOMETRIC_LOOM'
+        : 'ETHICAL_HAMILTONIAN'
+      : undefined;
+
+    // ── Wake hash ───────────────────────────────────────────────────────────
+    const wakeInput = `${GENESIS_ROOT}|${now}|${text}|${authorized}|${sov.toFixed(6)}|${r.toFixed(6)}|${H.toFixed(6)}`;
+    const wakeHash = crypto.createHash('sha256').update(wakeInput).digest('hex');
+
+    res.json({
+      claim: text,
+      timestamp: now,
+      gates,
+      authorized,
+      failReason,
+      wakeHash,
+      sovereigntyScore: sov,
+      rValue: r,
+      lyapunov,
+      ethicalH: H,
+      phoenixTriggered,
+    });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
