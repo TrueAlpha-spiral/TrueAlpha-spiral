@@ -38,15 +38,6 @@ externalPort = 8080
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Run"
-author = 39796624
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py"
-
-[[workflows.workflow]]
 name = "Project"
 mode = "parallel"
 author = "agent"
