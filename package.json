@@ -50,7 +50,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
-    "concurrently": "^9.1.2",
+    "concurrently": "^10.0.3",
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
