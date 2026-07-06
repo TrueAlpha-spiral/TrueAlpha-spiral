@@ -1,0 +1,76 @@
+# Bridge Contract: GitHub Copilot ↔ Replit ↔ Jules
+# This file is the single source of truth for all three platforms.
+# Each agent reads this to understand entry points, test commands,
+# locked files, and permitted scopes.
+
+schema_version: "1.0"
+
+project:
+  name: TrueAlphaSpiral (TAS)
+  language: python
+  python_version: "3.x"
+  entry_point: demo_tas.py
+
+# Canonical test command — all agents must use this to verify changes
+testing:
+  command: "PYTHONPATH=$(pwd)/tas_pythonetics/src:$(pwd)/tas-recursion-conversion:$(pwd) pytest -q"
+  framework: pytest
+  config_file: pytest.ini
+
+# Files that must never be modified by any automated agent without human approval
+locked_files:
+  - README.md
+  - AGENTS.md
+  - valid_identity.txt
+  - LICENSE_RIDER.txt
+  - TAS_GENOME_ANCHOR.json
+  - citation.bib
+  - tas_1st_principles.yaml
+  - DAY_ONE_STEWARD_DIRECTIVE.md
+
+# Directories safe for agents to read and modify (within their scope)
+editable_paths:
+  - tas_pythonetics/
+  - tas-recursion-conversion/
+  - tas_openai_bridge/
+  - scripts/
+  - tests/
+  - docs/
+  - core/
+
+# Agent definitions and their permitted operation scopes
+agents:
+  copilot:
+    platform: github-copilot
+    description: "GitHub Copilot coding agent (cloud)"
+    permitted_scopes:
+      - code.read
+      - code.write
+      - tests.run
+      - docs.write
+    config: .github/copilot-setup-steps.yml
+
+  jules:
+    platform: google-jules
+    description: "Jules autonomous coding agent (Google)"
+    permitted_scopes:
+      - code.read
+      - code.write
+      - tests.run
+    guidance: AGENTS.md
+
+  replit:
+    platform: replit
+    description: "Replit collaborative IDE environment"
+    permitted_scopes:
+      - code.read
+      - code.write
+      - tests.run
+    config: .replit
+
+# CI synchronization — workflow that all platforms trigger on PR
+ci:
+  workflow: .github/workflows/bridge-sync.yml
+  required_checks:
+    - validate-bridge-config
+    - run-tests

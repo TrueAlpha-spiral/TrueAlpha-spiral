@@ -1,0 +1,33 @@
+run = "python demo_tas.py"
+language = "python3"
+entrypoint = "demo_tas.py"
+
+[nix]
+channel = "stable-23_11"
+
+[env]
+PYTHONPATH = "tas_pythonetics/src:tas-recursion-conversion:."
+
+[interpreter]
+for = ["python3"]
+
+  [interpreter.command]
+  args = ["stderred", "--", "prybar-python3", "-q", "--ps1", "\u0001\u001b[33m\u0002\u0001\u001b[00m\u0002 ", "-i"]
+  env = {LD_PRELOAD = "${pkgs.stderred}/lib/stderred.so", GIT_TERMINAL_PROMPT = "0"}
+
+[packager]
+language = "python3"
+
+  [packager.features]
+  enabledForHosting = false
+  packageSearch = true
+  guessImports = true
+
+[unitTest]
+language = "python3"
+
+[languages.python3]
+pattern = "**/*.py"
+
+  [languages.python3.languageServer]
+  start = "pylsp"

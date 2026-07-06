@@ -1,0 +1,52 @@
+name: Bridge Sync
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-bridge-config:
+    name: Validate bridge_config.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install pyyaml
+        run: pip install pyyaml
+
+      - name: Validate bridge_config.yaml is parseable YAML
+        run: |
+          python - <<'EOF'
+          import yaml, sys
+          with open("bridge_config.yaml") as f:
+              cfg = yaml.safe_load(f)
+          required = ["schema_version", "project", "testing", "locked_files", "agents", "ci"]
+          missing = [k for k in required if k not in cfg]
+          if missing:
+              print(f"bridge_config.yaml is missing required keys: {missing}", file=sys.stderr)
+              sys.exit(1)
+          print("bridge_config.yaml is valid.")
+          EOF
+
+  run-tests:
+    name: Run Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install pytest pyyaml jsonschema
+
+      - name: Run tests
+        run: PYTHONPATH=$(pwd)/tas_pythonetics/src:$(pwd)/tas-recursion-conversion:$(pwd) pytest -q

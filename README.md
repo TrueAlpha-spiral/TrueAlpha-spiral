@@ -6,6 +6,8 @@
 ![Integrity](https://img.shields.io/badge/Integrity-Deterministic_Verification-brightgreen)
 ![Stage](https://img.shields.io/badge/Stage-Active-purple)
 ![Utility](https://img.shields.io/badge/Layer-Public_Utility-orange)
+[![Open in Replit](https://replit.com/badge/github/TrueAlpha-spiral/TrueAlpha-spiral)](https://replit.com/github/TrueAlpha-spiral/TrueAlpha-spiral)
+[![Bridge Sync](https://github.com/TrueAlpha-spiral/TrueAlpha-spiral/actions/workflows/bridge-sync.yml/badge.svg)](https://github.com/TrueAlpha-spiral/TrueAlpha-spiral/actions/workflows/bridge-sync.yml)
 
 ## TAS/SDF: Foundational Public Utility Infrastructure
 
