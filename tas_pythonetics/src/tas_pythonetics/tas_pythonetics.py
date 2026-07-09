@@ -1,10 +1,8 @@
 from hashlib import sha256
 import logging
-from .context_binding import compute_contextual_hash
 from .drift_detection import detect_drift, initiate_self_heal
 from .recursion import TruthSpiral
 from .ethics import TAS_Heartproof
-from .citation import cite_source
 from .paradata import ParadataTrail, ParadoxReconciler
 from .git_safety import GitStateMonitor
 
@@ -145,4 +143,4 @@ def TAS_FLAG_DRIFT(statement: str) -> str:
     Mark the statement as drifted.
     """
     return f"{statement} [DRIFT]"
-# Nonce: 37368
+# Nonce: 156058
