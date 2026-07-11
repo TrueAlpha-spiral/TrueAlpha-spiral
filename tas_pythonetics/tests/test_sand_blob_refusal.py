@@ -1,9 +1,7 @@
 import hashlib
 import json
-import os
-import tempfile
 import unittest
-from pathlib import Path
+from unittest.mock import mock_open, patch
 
 from tas_pythonetics.sentient_lock import SentientLock, TAS_HUMAN_SIG
 
@@ -32,19 +30,18 @@ class TestSandBlobRefusal(unittest.TestCase):
         sand_blob["hash"] = hashlib.sha256(raw_payload.encode("utf-8")).hexdigest()
         sand_blob["lineage_hash"] = "UNLINEAGED_SAND_BLOB"
 
-        previous_cwd = os.getcwd()
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            try:
-                os.chdir(tmp_dir)
-                admitted = lock.verify_triple(sand_blob, parent_lineage_hash)
-                worm_path = Path(tmp_dir) / "worm_ledger_mock.json"
-                serialized = [
-                    json.loads(line)
-                    for line in worm_path.read_text(encoding="utf-8").splitlines()
-                    if line.strip()
-                ]
-            finally:
-                os.chdir(previous_cwd)
+        with patch("builtins.open", mock_open()) as mocked_open:
+            admitted = lock.verify_triple(sand_blob, parent_lineage_hash)
+            mocked_open.assert_called_once_with("worm_ledger_mock.json", "a")
+            handle = mocked_open()
+            written_data = "".join(
+                call.args[0] for call in handle.write.call_args_list
+            )
+            serialized = [
+                json.loads(line)
+                for line in written_data.splitlines()
+                if line.strip()
+            ]
 
         self.assertFalse(admitted)
         self.assertEqual(sand_blob["content"], "null_state")
@@ -55,7 +52,9 @@ class TestSandBlobRefusal(unittest.TestCase):
         self.assertFalse(refusal_block["admissible"])
         self.assertEqual(refusal_block["code"], "TAS_SENTIENT_LOCK_REFUSAL")
         self.assertIn("FAITHFULNESS FAILURE", refusal_block["reason"])
-        self.assertEqual(refusal_block["details"]["human_anchor_witness"], TAS_HUMAN_SIG)
+        self.assertEqual(
+            refusal_block["details"]["human_anchor_witness"], TAS_HUMAN_SIG
+        )
         self.assertEqual(refusal_block["details"]["origin_index"], 255)
         self.assertEqual(refusal_block["details"]["status"], "SEVERED")
 
