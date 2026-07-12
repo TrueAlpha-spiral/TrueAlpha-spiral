@@ -11,6 +11,22 @@ from .receipts import ProvenanceReceipt
 from .refusal import RefusalArtifact
 from .schemas import TAS_CANDIDATE_RESPONSE_SCHEMA, CandidateResponse
 from .authority import HumanAPIKey, ScopedAuthority
+
+from .governance_runtime import (
+    GovernanceRuntimeLedger,
+    audit_event,
+    runtime_attestation_body,
+)
+from .kms import HMACKeyResolver, HumanAuthorizationResolver, RuntimeKeyResolver
+from .registry_checkpoint import (
+    AntiRollbackState,
+    AuthorityLookupProof,
+    InMemoryRegistrySigningKeyResolver,
+    RegistryCheckpoint,
+    RegistryVerificationError,
+    accept_authority_lookup,
+    build_checkpoint,
+)
 from .trinity import (
     ArchetypeAnalysis,
     OctopusArchetype,
@@ -40,6 +56,19 @@ __all__ = [
     "TrinityResult",
     "ArchetypeAnalysis",
     "tas_admissibility_gateway",
+    "AntiRollbackState",
+    "AuthorityLookupProof",
+    "GovernanceRuntimeLedger",
+    "HMACKeyResolver",
+    "HumanAuthorizationResolver",
+    "InMemoryRegistrySigningKeyResolver",
+    "RegistryCheckpoint",
+    "RegistryVerificationError",
+    "RuntimeKeyResolver",
+    "accept_authority_lookup",
+    "audit_event",
+    "build_checkpoint",
+    "runtime_attestation_body",
     "tas_openai_execute",
 ]
 # Nonce: 120693
