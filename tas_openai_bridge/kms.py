@@ -5,7 +5,68 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 import hmac
-from typing import Protocol
+import json
+from typing import Any, Protocol
+
+HUMAN_AUTHORIZATION_DOMAIN = "TAS-HUMAN-AUTHORIZATION-V1"
+DEFAULT_CANONICALIZATION_VERSION = "tas-canonical-json-v1"
+
+
+def human_authorization_message(
+    *,
+    credential_id: str,
+    candidate_hash: str,
+    requested_operation: str,
+    canonicalization_version: str = DEFAULT_CANONICALIZATION_VERSION,
+    domain: str = HUMAN_AUTHORIZATION_DOMAIN,
+    context: dict[str, Any] | None = None,
+) -> bytes:
+    """Build the steward authorization envelope bytes signed outside the runtime.
+
+    The envelope binds who authorized, exactly what candidate was authorized, which
+    operation was requested, and the canonicalization/domain version used to
+    interpret the signed payload. The runtime may verify this message through a
+    resolver, but it never receives steward private key material.
+    """
+
+    required = {
+        "domain": domain,
+        "credential_id": credential_id,
+        "candidate_hash": candidate_hash,
+        "requested_operation": requested_operation,
+        "canonicalization_version": canonicalization_version,
+    }
+    for field_name, value in required.items():
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{field_name} is required for human authorization")
+    payload = {**required, "context": context or {}}
+    return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+
+
+def verify_human_authorization_envelope(
+    resolver: "HumanAuthorizationResolver",
+    *,
+    credential_id: str,
+    candidate_hash: str,
+    requested_operation: str,
+    signature: str,
+    canonicalization_version: str = DEFAULT_CANONICALIZATION_VERSION,
+    domain: str = HUMAN_AUTHORIZATION_DOMAIN,
+    context: dict[str, Any] | None = None,
+) -> bool:
+    """Verify a domain-separated steward envelope with fail-closed key lookup."""
+
+    if resolver is None or not resolver.is_known_authority(credential_id):
+        return False
+    message = human_authorization_message(
+        credential_id=credential_id,
+        candidate_hash=candidate_hash,
+        requested_operation=requested_operation,
+        canonicalization_version=canonicalization_version,
+        domain=domain,
+        context=context,
+    )
+    return resolver.verify_human_authorization(credential_id, message, signature)
 
 
 class RuntimeKeyResolver(Protocol):

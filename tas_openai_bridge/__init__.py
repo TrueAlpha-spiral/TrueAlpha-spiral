@@ -17,7 +17,15 @@ from .governance_runtime import (
     audit_event,
     runtime_attestation_body,
 )
-from .kms import HMACKeyResolver, HumanAuthorizationResolver, RuntimeKeyResolver
+from .kms import (
+    DEFAULT_CANONICALIZATION_VERSION,
+    HUMAN_AUTHORIZATION_DOMAIN,
+    HMACKeyResolver,
+    HumanAuthorizationResolver,
+    RuntimeKeyResolver,
+    human_authorization_message,
+    verify_human_authorization_envelope,
+)
 from .registry_checkpoint import (
     AntiRollbackState,
     AuthorityLookupProof,
@@ -59,6 +67,8 @@ __all__ = [
     "AntiRollbackState",
     "AuthorityLookupProof",
     "GovernanceRuntimeLedger",
+    "DEFAULT_CANONICALIZATION_VERSION",
+    "HUMAN_AUTHORIZATION_DOMAIN",
     "HMACKeyResolver",
     "HumanAuthorizationResolver",
     "InMemoryRegistrySigningKeyResolver",
@@ -66,9 +76,11 @@ __all__ = [
     "RegistryVerificationError",
     "RuntimeKeyResolver",
     "accept_authority_lookup",
+    "human_authorization_message",
     "audit_event",
     "build_checkpoint",
     "runtime_attestation_body",
+    "verify_human_authorization_envelope",
     "tas_openai_execute",
 ]
 # Nonce: 120693

@@ -13,6 +13,8 @@ from tas_openai_bridge import (
     accept_authority_lookup,
     audit_event,
     build_checkpoint,
+    human_authorization_message,
+    verify_human_authorization_envelope,
 )
 from tas_openai_bridge.registry_checkpoint import canonical_hash
 
@@ -305,3 +307,58 @@ def test_missing_verifier_and_empty_entry_checkpoint_fail_closed():
 
     with pytest.raises(RegistryVerificationError, match="keys are required"):
         InMemoryRegistrySigningKeyResolver(None)
+
+
+def test_human_authorization_envelope_binds_candidate_operation_and_domain():
+    resolver = HMACKeyResolver(human_keys={"ed25519:human": b"human-secret"})
+    message = human_authorization_message(
+        credential_id="ed25519:human",
+        candidate_hash="sha256:candidate",
+        requested_operation="openai.responses.create",
+        context={"lease_id": "lease-1"},
+    )
+    signature = resolver.sign_human_authorization("ed25519:human", message)
+
+    assert verify_human_authorization_envelope(
+        resolver,
+        credential_id="ed25519:human",
+        candidate_hash="sha256:candidate",
+        requested_operation="openai.responses.create",
+        signature=signature,
+        context={"lease_id": "lease-1"},
+    )
+    assert not verify_human_authorization_envelope(
+        resolver,
+        credential_id="ed25519:human",
+        candidate_hash="sha256:other-candidate",
+        requested_operation="openai.responses.create",
+        signature=signature,
+        context={"lease_id": "lease-1"},
+    )
+    assert not verify_human_authorization_envelope(
+        resolver,
+        credential_id="ed25519:human",
+        candidate_hash="sha256:candidate",
+        requested_operation="filesystem.write",
+        signature=signature,
+        context={"lease_id": "lease-1"},
+    )
+
+
+def test_unknown_human_authority_fails_closed():
+    resolver = HMACKeyResolver(human_keys={})
+
+    assert not verify_human_authorization_envelope(
+        resolver,
+        credential_id="ed25519:unknown",
+        candidate_hash="sha256:candidate",
+        requested_operation="openai.responses.create",
+        signature="base64:anything",
+    )
+
+    with pytest.raises(ValueError, match="credential_id is required"):
+        human_authorization_message(
+            credential_id="",
+            candidate_hash="sha256:candidate",
+            requested_operation="openai.responses.create",
+        )
