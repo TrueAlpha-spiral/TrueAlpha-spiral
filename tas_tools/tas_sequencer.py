@@ -33,7 +33,9 @@ def calculate_sha256(filepath):
 def sequence_artifact(filepath, h_seed=TAS_HUMAN_SIG, genome_id="TAS_GENOME_V1"):
     """
     Perform the Sequencing Ceremony on a file.
-    Generates a .tasmeta.json file.
+
+    The ceremony records provenance attribution only. It does not create or
+    imply cryptographic human authorization.
     """
     if not os.path.exists(filepath):
         logger.error(f"File not found: {filepath}")
@@ -51,44 +53,46 @@ def sequence_artifact(filepath, h_seed=TAS_HUMAN_SIG, genome_id="TAS_GENOME_V1")
             with open(meta_path, 'r') as f:
                 old_meta = json.load(f)
                 previous_lineage = old_meta.get("lineage_id")
-                # If we are re-sequencing, we might want to grab the *current* lineage ID
-                # to be the *parent* of the new one.
-                # In this simple model, we just hash it into the new one.
                 logger.info(f"Found previous lineage: {previous_lineage}")
-        except:
-            pass
+        except (OSError, json.JSONDecodeError) as exc:
+            logger.warning(f"Ignoring unreadable prior metadata {meta_path}: {exc}")
 
-    # Generate Lineage ID
-    # Lineage = H(Form + PrevLineage + Seed + Timestamp)
     timestamp = datetime.now(timezone.utc).isoformat()
     lineage_content = f"{form_id}{previous_lineage or ''}{h_seed}{timestamp}{genome_id}"
     lineage_id = hashlib.sha256(lineage_content.encode()).hexdigest()
-
-    # Generate Cert ID (UUID for this specific issuance)
     cert_id = str(uuid.uuid4())
 
     meta = {
-        "id": lineage_id, # Lineage ID serves as the version ID
+        "id": lineage_id,
         "type": "TasArtifact",
         "form_id": form_id,
         "genome_id": genome_id,
         "lineage_id": lineage_id,
+        "parent_lineage_id": previous_lineage,
         "h_seed": h_seed,
         "cert_id": cert_id,
         "timestamp": timestamp,
         "paradata_trail": [],
-        "signatures": [
+        "authorization": {
+            "status": "not_provided",
+            "cryptographically_verified": False,
+            "reason": "sequencing_ceremony_is_provenance_only"
+        },
+        "attestations": [
             {
-                "signer": h_seed,
-                "algorithm": "TAS_HUMAN_SIG_V1",
-                "value": "signed_by_ceremony" # Placeholder for real crypto sig
+                "attestor": h_seed,
+                "type": "TAS_CEREMONIAL_ATTRIBUTION_V1",
+                "value": "attributed_by_sequencing_ceremony",
+                "cryptographic": False
             }
-        ]
+        ],
+        "signatures": []
     }
 
     try:
         with open(meta_path, 'w') as f:
             json.dump(meta, f, indent=2)
+            f.write("\n")
         print(f"Sequencing complete for {filepath}")
         print(f"  Form ID: {form_id}")
         print(f"  Lineage ID: {lineage_id}")
@@ -108,4 +112,4 @@ if __name__ == "__main__":
     genome_id = sys.argv[3] if len(sys.argv) > 3 else "TAS_GENOME_V1"
 
     sequence_artifact(filepath, h_seed, genome_id)
-# Nonce: 20970
+# Nonce: 171859
