@@ -1,4 +1,5 @@
 import copy
+import decimal
 import json
 from datetime import datetime, timezone
 
@@ -136,18 +137,16 @@ def test_state_delta_over_limit_is_refused(components):
     assert failure["detail_code"] == "STATE_DELTA_TOO_LARGE"
 
 
-def test_duplicate_key_is_canonicalization_refusal_and_signed(components):
-    gatekeeper, _, receipt_signer = components
+def test_duplicate_key_is_ingress_rejected_without_a_signed_receipt(components):
+    gatekeeper, _, _ = components
     raw = b'{"credential_id":"first","credential_id":"second"}'
 
     result = gatekeeper.process_payload(raw)
 
-    assert result["state"] == "REFUSED"
+    assert result["state"] == "INGRESS_REJECTED"
     assert result["candidate_hash"] is None
-    assert result["receipt"]["rule_evaluation_logs"][0]["detail_code"] == "DUPLICATE_KEY"
-    assert receipt_signer.verify(
-        _serialize_canonical(result["receipt"]), result["receipt_signature"]
-    )
+    assert result["error_code"] == "DUPLICATE_KEY"
+    assert "receipt" not in result
 
 
 def test_non_finite_number_is_refused(components):
@@ -158,8 +157,41 @@ def test_non_finite_number_is_refused(components):
         + ZERO_HASH.encode()
         + b'","history":[]}}'
     )
-    assert result["state"] == "REFUSED"
-    assert result["receipt"]["rule_evaluation_logs"][0]["detail_code"] == "NON_FINITE_NUMBER"
+    assert result["state"] == "INGRESS_REJECTED"
+    assert result["error_code"] == "NON_FINITE_NUMBER"
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("12345678901234567890123456789", "12345678901234567890123456789"),
+        ("9" * 128, "9" * 128),
+        ("1234567890123456789012345678900", "1234567890123456789012345678900"),
+        ("0.00000000000000000000000000012345678901234567890123456789", "0.00000000000000000000000000012345678901234567890123456789"),
+    ],
+)
+def test_decimal_canonicalization_is_exact_outside_ambient_precision(source, expected):
+    original_context = decimal.getcontext().copy()
+    try:
+        decimal.getcontext().prec = 28
+        assert _serialize_canonical(decimal.Decimal(source)) == expected.encode("ascii")
+    finally:
+        decimal.setcontext(original_context)
+
+
+def test_hostile_json_nesting_is_a_bounded_ingress_rejection(components):
+    gatekeeper, _, _ = components
+    raw = b'{"x":' + (b"[" * 2_000) + b"0" + (b"]" * 2_000) + b"}"
+
+    result = gatekeeper.process_payload(raw)
+
+    assert result == {
+        "state": "INGRESS_REJECTED",
+        "candidate_hash": None,
+        "authorization_hash": None,
+        "raw_payload_hash": gatekeeper.compute_hash(raw),
+        "error_code": "MAX_DEPTH_EXCEEDED",
+    }
 
 
 def test_same_raw_input_and_fixed_clock_produce_identical_receipt(components):

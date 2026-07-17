@@ -153,23 +153,41 @@ def _validate_text(value: str) -> None:
 
 
 def _canonical_decimal(value: decimal.Decimal) -> bytes:
+    """Render a finite Decimal exactly, independently of the active context."""
     if not value.is_finite():
         raise GatekeeperError("NON_FINITE_NUMBER", "Non-finite numbers are forbidden.")
 
-    if value.is_zero():
+    sign, coefficient, exponent = value.as_tuple()
+    if not any(coefficient):
         return b"0"
 
-    digits = len(value.as_tuple().digits)
-    adjusted = value.adjusted()
-    if digits > 128 or abs(adjusted) > 308:
+    # Remove only insignificant trailing coefficient zeros.  Unlike normalize(),
+    # this does not round according to decimal.getcontext().prec.
+    digits = list(coefficient)
+    while digits[-1] == 0:
+        digits.pop()
+        exponent += 1
+
+    significant_digits = len(digits)
+    adjusted = exponent + significant_digits - 1
+    if significant_digits > 128 or abs(adjusted) > 308:
         raise GatekeeperError("NUMBER_OUT_OF_RANGE", "Number exceeds canonical numeric bounds.")
 
-    normalized = value.normalize()
-    rendered = format(normalized, "f")
-    if "." in rendered:
-        rendered = rendered.rstrip("0").rstrip(".")
-    if rendered == "-0":
-        rendered = "0"
+    coefficient_text = "".join(str(digit) for digit in digits)
+    if exponent >= 0:
+        rendered = coefficient_text + ("0" * exponent)
+    else:
+        decimal_point = len(coefficient_text) + exponent
+        if decimal_point > 0:
+            rendered = (
+                coefficient_text[:decimal_point]
+                + "."
+                + coefficient_text[decimal_point:]
+            )
+        else:
+            rendered = "0." + ("0" * -decimal_point) + coefficient_text
+    if sign:
+        rendered = "-" + rendered
     return rendered.encode("ascii")
 
 
@@ -368,6 +386,10 @@ class TASLogosGatekeeper:
             )
         except GatekeeperError:
             raise
+        except RecursionError as exc:
+            raise GatekeeperError(
+                "MAX_DEPTH_EXCEEDED", "JSON nesting exceeds the configured limit."
+            ) from exc
         except (json.JSONDecodeError, decimal.InvalidOperation, ValueError) as exc:
             raise GatekeeperError("MALFORMED_JSON", "Payload is not valid strict JSON.") from exc
 
@@ -550,30 +572,16 @@ class TASLogosGatekeeper:
             )
             state = "ADMITTED" if admitted else "REFUSED"
         except GatekeeperError as error:
-            receipt = {
-                "receipt_version": RECEIPT_VERSION,
-                "gatekeeper_id": self.gatekeeper_id,
-                "canonicalization_version": CANONICALIZATION_VERSION,
-                "rule_set_version": RULE_SET_VERSION,
-                "state": "REFUSED",
-                "evaluated_at": self._timestamp(),
-                "raw_payload_hash": raw_hash,
-                "candidate_hash": None,
-                "authorization_hash": None,
-                "rule_evaluation_logs": [
-                    {
-                        "rule_id": "CANONICALIZATION",
-                        "status": "FAILED",
-                        "detail_code": error.code,
-                    }
-                ],
-            }
-            finalized = self._finalize_receipt(receipt)
+            # Canonicalization failures are malformed ingress, not evaluated
+            # transitions.  Keep them outside the signed receipt pipeline so an
+            # unauthenticated sender cannot turn invalid transport into durable
+            # constitutional evidence.
             return {
-                "state": "REFUSED",
+                "state": "INGRESS_REJECTED",
                 "candidate_hash": None,
                 "authorization_hash": None,
-                **finalized,
+                "raw_payload_hash": raw_hash,
+                "error_code": error.code,
             }
 
         receipt = {
