@@ -247,9 +247,9 @@ class HMACReceiptSigner:
             or signature.get("key_id") != self.key_id
         ):
             return False
-        expected = self.sign(receipt_bytes)["value"]
-        supplied = signature.get("value", "")
-        return hmac.compare_digest(expected, supplied)
+        domain_bound = RECEIPT_DOMAIN.encode("ascii") + b"\x00" + receipt_bytes
+        expected = hmac.new(self._key, domain_bound, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, signature.get("value", ""))
 
 
 class HMACLineageResolver:
