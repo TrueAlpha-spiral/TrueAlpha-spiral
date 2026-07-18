@@ -2,9 +2,13 @@ import argparse
 import sys
 import os
 
-# Ensure local imports work for tas_tools (in root) and tas_pythonetics (in tas_pythonetics/src)
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(), 'tas_pythonetics/src'))
+# Ensure local imports work for tas_tools (in root) and tas_pythonetics (in tas_pythonetics/src).
+# Anchored to the script's own directory rather than os.getcwd() to prevent CWD-based module
+# import hijacking: an attacker who controls the working directory cannot shadow legitimate
+# modules by placing a same-named .py file there.
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _SCRIPT_DIR)
+sys.path.insert(1, os.path.join(_SCRIPT_DIR, 'tas_pythonetics/src'))
 
 from tas_tools.tas_shadow_scan import scan_repository, print_report
 from tas_tools.tas_sequencer import sequence_artifact, TAS_HUMAN_SIG
