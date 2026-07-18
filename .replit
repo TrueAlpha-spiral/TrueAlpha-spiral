@@ -7,9 +7,10 @@ channel = "stable-24_05"
 packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "ghostscript", "gobject-introspection", "gtk3", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "qhull", "rustc", "tcl", "tk"]
 
 [deployment]
-deploymentTarget = "gce"
-run = ["sh", "-c", "npm run dev"]
+deploymentTarget = "vm"
+run = ["npm", "run", "start"]
 ignorePorts = true
+build = ["npm", "run", "build"]
 
 [[ports]]
 localPort = 3000
