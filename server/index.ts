@@ -29,16 +29,17 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // Handle Replit domains
+    // In production, only allow explicitly trusted origins
+    const allowedOrigins: string[] = [];
     if (process.env.REPLIT_DOMAINS) {
-      const replitDomains = process.env.REPLIT_DOMAINS.split(',').map(domain => `https://${domain.trim()}`);
-      if (origin && replitDomains.indexOf(origin) !== -1) {
-        return callback(null, true);
-      }
+      allowedOrigins.push(...process.env.REPLIT_DOMAINS.split(',').map(domain => `https://${domain.trim()}`));
     }
-    
-    // Default allow for safety
-    callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Reject all other cross-origin requests (credentials are enabled)
+    callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

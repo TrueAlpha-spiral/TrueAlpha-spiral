@@ -1,0 +1,1 @@
+- [Deployment security scan gate](deploy-security-scan.md) — deploys block only on critical npm CVEs; "connection lost" scan failures are transient, just retry.
