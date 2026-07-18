@@ -22,3 +22,6 @@ args = "python tas_cli.py --help"
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[agent]
+expertMode = true
