@@ -110,6 +110,83 @@ export function registerRoutes(app: Express): Server {
     });
   });
   
+  // TAS_DNA framework: status and document access
+  app.get('/api/tas-dna/status', async (_req, res) => {
+    try {
+      const path = await import('path');
+      const fs = await import('fs/promises');
+      const root = path.resolve(process.cwd(), 'tas_dna');
+      let moduleCount = 0;
+      let docCount = 0;
+      const walk = async (dir: string): Promise<void> => {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) await walk(full);
+          else if (entry.name.endsWith('.py')) moduleCount++;
+          else if (entry.name.endsWith('.md') || entry.name.endsWith('.mdx')) docCount++;
+        }
+      };
+      await walk(root);
+      res.json({
+        framework: 'TAS_DNA',
+        source: 'github.com/TrueAlpha-spiral/TrueAlpha-spiral (main)',
+        pythonModules: moduleCount,
+        documents: docCount,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Error reading tas_dna status:', err);
+      res.status(500).json({ error: 'TAS_DNA framework not available' });
+    }
+  });
+
+  app.get('/api/tas-dna/docs', async (_req, res) => {
+    try {
+      const path = await import('path');
+      const fs = await import('fs/promises');
+      const root = path.resolve(process.cwd(), 'tas_dna');
+      const docs: { id: string; title: string }[] = [];
+      const walk = async (dir: string): Promise<void> => {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) await walk(full);
+          else if (entry.name.endsWith('.md') || entry.name.endsWith('.mdx')) {
+            const rel = path.relative(root, full);
+            docs.push({ id: rel, title: entry.name.replace(/\.(md|mdx)$/, '') });
+          }
+        }
+      };
+      await walk(root);
+      docs.sort((a, b) => a.id.localeCompare(b.id));
+      res.json(docs);
+    } catch (err) {
+      console.error('Error listing tas_dna docs:', err);
+      res.status(500).json({ error: 'Failed to list TAS_DNA documents' });
+    }
+  });
+
+  app.get('/api/tas-dna/docs/:docId(*)', async (req, res) => {
+    try {
+      const path = await import('path');
+      const fs = await import('fs/promises');
+      const root = path.resolve(process.cwd(), 'tas_dna');
+      const requested = path.resolve(root, req.params.docId);
+      if (!requested.startsWith(root + path.sep)) {
+        return res.status(400).json({ error: 'Invalid document path' });
+      }
+      if (!/\.(md|mdx)$/.test(requested)) {
+        return res.status(400).json({ error: 'Only markdown documents are served' });
+      }
+      const data = await fs.readFile(requested, 'utf8');
+      res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+      res.send(data);
+    } catch (err) {
+      res.status(404).json({ error: 'Document not found' });
+    }
+  });
+
   // Python API status endpoint
   app.get('/api/python-status', async (_req, res) => {
     try {

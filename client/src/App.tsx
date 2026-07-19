@@ -17,6 +17,8 @@ import AvfPage from "@/pages/avf-page";
 import TarsiPilotProgram from "@/pages/tarsi-pilot-program";
 import SovereignTerminal from "@/pages/sovereign-terminal";
 import BetweenTeaser from "@/pages/between-teaser";
+import SovereignInnovationPage from "@/pages/sovereign-innovation";
+import TasFrameworkPage from "@/pages/tas-framework";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -133,6 +135,8 @@ export default function App() {
                   <Route path="/sovereign-terminal" component={SovereignTerminal} />
                   <Route path="/between" component={BetweenTeaser} />
                   <Route path="/pre-release" component={BetweenTeaser} />
+                  <Route path="/sovereign-innovation" component={SovereignInnovationPage} />
+                  <Route path="/tas-framework" component={TasFrameworkPage} />
                   <Route>
                     <div className="container py-10">
                       <h1 className="text-3xl font-bold mb-4">404 - Page Not Found</h1>
