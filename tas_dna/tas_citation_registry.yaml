@@ -1,0 +1,9 @@
+# tas_citation_registry.yaml
+# Registry of sovereign citation nodes referenced by cite_()
+
+citations:
+  - id: pi_ratio_drift_correction
+    sha256: "9a3f..."
+    source: "Korecki 2024"
+    summary: "Biospheric AI coherence confirmed; Δπ drift < 0.01"
+    tx_id: "vc_9f4g5b0c"

@@ -267,3 +267,14 @@ root.render(
     <App />
   </StrictMode>
 );
+
+// Hide the loading splash as soon as React has painted the first frame.
+// Connectivity checks above continue in the background and only log status.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    if (window.hideLoadingScreen) {
+      window.hideLoadingScreen();
+    }
+    appLoaded = true;
+  });
+});

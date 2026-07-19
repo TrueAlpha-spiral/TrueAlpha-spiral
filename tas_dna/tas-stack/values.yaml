@@ -1,0 +1,61 @@
+# Default values for tas-stack.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+phoenix:
+  image:
+    repository: my-repo/phoenix-controller # Replace with your image repository
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+opa:
+  image:
+    repository: openpolicyagent/opa
+    pullPolicy: IfNotPresent
+    tag: "0.65.0-rootless" # Use a specific, non-latest tag
+
+piiScanner:
+  image:
+    repository: my-repo/pii-scanner # Replace with your image repository
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    port: 8000
+    name: pii-scanner-service
+
+# The OPA policy is managed directly in the chart via a ConfigMap.
+# This makes the deployment self-contained.
+# Note the use of `{{ .Release.Name }}` which Helm will replace.
+opaPolicy:
+  pii_scan_rego: |
+    package tas.ethics.pii_scan
+    import future.keywords
+
+    default allow = false
+
+    # The service URL is now dynamically configured from the Helm release name.
+    pii_service_url := "http://{{ .Release.Name }}-pii-scanner-service:8000/scan"
+
+    allow {
+        user_consent_ok
+        pii_scan_passed
+    }
+
+    user_consent_ok {
+        input.share_request.consent.opt_in_discoverable == true
+        input.share_request.consent.disclaimers_acknowledged == true
+    }
+
+    pii_scan_passed {
+        http_request := {
+            "method": "POST",
+            "url": pii_service_url,
+            "body": {"text": input.share_request.transcript},
+            "timeout": 1500 # Added timeout as per your recommendation
+        }
+        pii_response := http.send(http_request)
+        pii_response.status_code == 200
+        pii_response.body.pii_found == false
+    }
