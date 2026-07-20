@@ -11,6 +11,29 @@ logger = logging.getLogger(__name__)
 # Golden Ratio for coherence calculation (approximate)
 PHI = 1.61803398875
 
+# Formal ParaData framework constants.
+# PARADATA identifies the cursive-computation paradigm version under which every
+# execution path is actively written and cryptographically verified, producing an
+# immutable receipt of its logic (TAS/SDF sovereign digital infrastructure).
+PARADATA = "TAS-PARADATA-1"
+
+# Axiom P0 — Equivalence: data identity is preserved across all transformations.
+AXIOM_P0 = "EQUIVALENCE"
+
+# Axiom P1 — Admissibility: autonomous boundary rules govern every state transition.
+AXIOM_P1 = "ADMISSIBILITY"
+
+# Canonical execution sequence shared across every scale of the system:
+# Origin → Authority → Candidate → Verification → Execution/Refusal → Receipt
+EXECUTION_SEQUENCE = (
+    "ORIGIN",
+    "AUTHORITY",
+    "CANDIDATE",
+    "VERIFICATION",
+    "EXECUTION",
+    "RECEIPT",
+)
+
 
 class ParadataEvent:
     """
