@@ -163,17 +163,24 @@ def _canonical_decimal(value: decimal.Decimal) -> bytes:
 
     # Remove only insignificant trailing coefficient zeros.  Unlike normalize(),
     # this does not round according to decimal.getcontext().prec.
-    digits = list(coefficient)
-    while digits[-1] == 0:
-        digits.pop()
-        exponent += 1
+    trailing_zeros = 0
+    for digit in reversed(coefficient):
+        if digit != 0:
+            break
+        trailing_zeros += 1
+
+    if trailing_zeros:
+        digits = list(coefficient[:-trailing_zeros])
+        exponent += trailing_zeros
+    else:
+        digits = list(coefficient)
 
     significant_digits = len(digits)
     adjusted = exponent + significant_digits - 1
     if significant_digits > 128 or abs(adjusted) > 308:
         raise GatekeeperError("NUMBER_OUT_OF_RANGE", "Number exceeds canonical numeric bounds.")
 
-    coefficient_text = "".join(str(digit) for digit in digits)
+    coefficient_text = "".join([str(digit) for digit in digits])
     if exponent >= 0:
         rendered = coefficient_text + ("0" * exponent)
     else:
