@@ -17,6 +17,7 @@ ContextSnapshot          §3.2, §4     Semantic Sovereignty (frozen snapshot)
 UniversalVerifierKernel  §3.3         Execution Sovereignty (nine-check monitor)
 DeploymentProfile        §6           S0–S5 maturity levels
 PhoenixRecovery          §8           Failure, recovery, reconstitution
+SovereignRuntime         PoC          Lineage-constrained forward pass
 """
 from .gene import TASGene, Decision
 from .wakechain import WakeChain, WakeLink, LinkKind
@@ -41,6 +42,7 @@ from .recovery.phoenix_recovery import (
     RecoveryPhase,
     RecoveryViolation,
 )
+from .runtime import LineageDecision, NullCollapse, SovereignRuntime
 
 __all__ = [
     # Evidentiary layer
@@ -64,6 +66,10 @@ __all__ = [
     "PROFILES",
     "current_profile",
     "profile_for",
+    # Runtime guardrail
+    "LineageDecision",
+    "NullCollapse",
+    "SovereignRuntime",
     # Recovery
     "PhoenixRecovery",
     "RecoveryRecord",
