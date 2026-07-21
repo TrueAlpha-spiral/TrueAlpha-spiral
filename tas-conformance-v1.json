@@ -1,0 +1,27 @@
+{
+  "suite_id": "tas-conformance-v1",
+  "vector_format_version": 1,
+  "protocol_version": "tas-v1",
+  "canonicalization": "RFC8785-JCS",
+  "signature_algorithm": "Ed25519",
+  "signature_specification": "RFC8032",
+  "vectors": [
+    "tas-v1-ed25519-valid-001",
+    "tas-v1-ed25519-invalid-altered-message-001",
+    "tas-v1-ed25519-invalid-wrong-domain-001",
+    "tas-v1-ed25519-invalid-wrong-public-key-001",
+    "tas-v1-ed25519-invalid-truncated-signature-001",
+    "tas-v1-ed25519-invalid-noncanonical-json-001",
+    "tas-v1-merkle-empty-001",
+    "tas-v1-merkle-single-leaf-001",
+    "tas-v1-merkle-two-leaf-001",
+    "tas-v1-merkle-three-leaf-promotion-001",
+    "tas-v1-merkle-four-leaf-001",
+    "tas-v1-merkle-invalid-reordered-leaves-001",
+    "tas-v1-merkle-invalid-wrong-domain-001"
+  ],
+  "suite_sha256": "25f1e814350b46295867e8774ca5d052e771546b7374e7e8893a67ef065ab6f2",
+  "merkle_hash_algorithm": "SHA-256",
+  "merkle_odd_node_rule": "PROMOTE_UNCHANGED",
+  "merkle_leaf_ordering": "PRESERVE_INPUT_ORDER"
+}

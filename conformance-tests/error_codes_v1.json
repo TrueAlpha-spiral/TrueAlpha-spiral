@@ -1,0 +1,10 @@
+{
+  "protocol_version": "tas-v1",
+  "errors": {
+    "ERR_SIGNATURE_INVALID": "The Ed25519 verification returned false (math mismatch).",
+    "ERR_SIGNATURE_LENGTH": "The signature is not exactly 64 bytes.",
+    "ERR_PUBLIC_KEY_LENGTH": "The public key is not exactly 32 bytes.",
+    "ERR_NON_CANONICAL_ENCODING": "The raw input is not encoded as RFC8785-JCS canonical JSON.",
+    "ERR_MERKLE_ROOT_MISMATCH": "The computed Merkle root does not match the supplied root."
+  }
+}

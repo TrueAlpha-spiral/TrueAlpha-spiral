@@ -1,0 +1,88 @@
+[
+  {
+    "vector_id": "tas-v1-ed25519-valid-001",
+    "protocol_version": "tas-v1",
+    "algorithm": "Ed25519",
+    "description": "Standard valid signature. All components correct.",
+    "domain": {
+      "system": "TAS",
+      "version": "v1",
+      "purpose": "SIG",
+      "header_hex": "5441530076310053494700"
+    },
+    "input": {
+      "account_id": "acc_01j2f8x",
+      "amount": 5000,
+      "nonce": 42,
+      "timestamp": 1781639800
+    },
+    "private_key_seed_hex": "0101010101010101010101010101010101010101010101010101010101010101",
+    "public_key_hex": "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+    "expected_canonical_message_hex": "7b226163636f756e745f6964223a226163635f30316a32663878222c22616d6f756e74223a353030302c226e6f6e6365223a34322c2274696d657374616d70223a313738313633393830307d",
+    "expected_signing_preimage_hex": "54415300763100534947007b226163636f756e745f6964223a226163635f30316a32663878222c22616d6f756e74223a353030302c226e6f6e6365223a34322c2274696d657374616d70223a313738313633393830307d",
+    "expected_signature_hex": "881a5241ff8153d8079b8ea4e932f36e6373d8695fa7a1ff3be198ee49aead0356a32ebc6d4650cad2ffc81af4475c8231bc551aa906d27fac794d6929213c07",
+    "expected_result": "ACCEPT"
+  },
+  {
+    "vector_id": "tas-v1-ed25519-invalid-altered-message-001",
+    "base_vector": "tas-v1-ed25519-valid-001",
+    "description": "Valid signature for original message, but input amount changed. Signature must fail verification.",
+    "mutation": {
+      "field": "input.amount",
+      "original": 5000,
+      "replacement": 5001
+    },
+    "expected_result": "REJECT",
+    "expected_error": "ERR_SIGNATURE_INVALID",
+    "expected_failure_stage": "SIGNATURE_VERIFICATION"
+  },
+  {
+    "vector_id": "tas-v1-ed25519-invalid-wrong-domain-001",
+    "base_vector": "tas-v1-ed25519-valid-001",
+    "description": "Signature generated using 'BLOCK' domain tag instead of 'SIG'. Must fail.",
+    "mutation": {
+      "field": "domain.purpose",
+      "original": "SIG",
+      "replacement": "BLOCK",
+      "new_header_hex": "54415300763100424c4f434b00"
+    },
+    "expected_result": "REJECT",
+    "expected_error": "ERR_SIGNATURE_INVALID",
+    "expected_failure_stage": "SIGNATURE_VERIFICATION"
+  },
+  {
+    "vector_id": "tas-v1-ed25519-invalid-wrong-public-key-001",
+    "base_vector": "tas-v1-ed25519-valid-001",
+    "description": "Signature is valid for Key A, but verified against Key B.",
+    "mutation": {
+      "field": "public_key_hex",
+      "original": "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+      "replacement": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+    },
+    "expected_result": "REJECT",
+    "expected_error": "ERR_SIGNATURE_INVALID",
+    "expected_failure_stage": "SIGNATURE_VERIFICATION"
+  },
+  {
+    "vector_id": "tas-v1-ed25519-invalid-truncated-signature-001",
+    "base_vector": "tas-v1-ed25519-valid-001",
+    "description": "Signature byte array is too short (63 bytes instead of 64).",
+    "mutation": {
+      "field": "expected_signature_hex",
+      "truncation_length": 126
+    },
+    "expected_result": "REJECT",
+    "expected_error": "ERR_SIGNATURE_LENGTH",
+    "expected_failure_stage": "DESERIALIZATION_OR_VERIFICATION"
+  },
+  {
+    "vector_id": "tas-v1-ed25519-invalid-noncanonical-json-001",
+    "base_vector": "tas-v1-ed25519-valid-001",
+    "description": "Input JSON is valid but not canonical (extra space). Must be rejected BEFORE signature check.",
+    "raw_input_override_hex": "7b226e6f6e6365223a2034327d",
+    "note": "Represents valid JSON with whitespace. Validator must check JCS compliance first.",
+    "expected_result": "REJECT",
+    "expected_error": "ERR_NON_CANONICAL_ENCODING",
+    "expected_failure_stage": "CANONICALIZATION_CHECK"
+  }
+]

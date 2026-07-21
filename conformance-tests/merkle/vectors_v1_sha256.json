@@ -1,0 +1,327 @@
+[
+  {
+    "vector_id": "tas-v1-merkle-empty-001",
+    "protocol_version": "tas-v1",
+    "hash_algorithm": "SHA-256",
+    "domain": {
+      "system": "TAS",
+      "version": "v1",
+      "empty_header_hex": "54415300763100454d50545900"
+    },
+    "leaves": [],
+    "expected_levels": [],
+    "expected_empty_preimage_hex": "54415300763100454d50545900",
+    "expected_root_hash": "7d40a933978fa27f15737cac2221141f6d42191f0ef16caa6619cca0f7667cfc",
+    "expected_result": "ACCEPT"
+  },
+  {
+    "vector_id": "tas-v1-merkle-single-leaf-001",
+    "protocol_version": "tas-v1",
+    "hash_algorithm": "SHA-256",
+    "domain": {
+      "system": "TAS",
+      "version": "v1",
+      "leaf_header_hex": "544153007631004c45414600",
+      "node_header_hex": "544153007631004e4f444500"
+    },
+    "odd_node_rule": "PROMOTE_UNCHANGED",
+    "leaf_ordering": "PRESERVE_INPUT_ORDER",
+    "leaves": [
+      {
+        "input": {
+          "account_id": "acc_01",
+          "amount": 100,
+          "nonce": 1,
+          "timestamp": 1781639800
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_hash": "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72"
+      }
+    ],
+    "expected_levels": [
+      [
+        "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72"
+      ]
+    ],
+    "expected_root_hash": "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72",
+    "expected_result": "ACCEPT"
+  },
+  {
+    "vector_id": "tas-v1-merkle-two-leaf-001",
+    "protocol_version": "tas-v1",
+    "hash_algorithm": "SHA-256",
+    "domain": {
+      "system": "TAS",
+      "version": "v1",
+      "leaf_header_hex": "544153007631004c45414600",
+      "node_header_hex": "544153007631004e4f444500"
+    },
+    "odd_node_rule": "PROMOTE_UNCHANGED",
+    "leaf_ordering": "PRESERVE_INPUT_ORDER",
+    "leaves": [
+      {
+        "input": {
+          "account_id": "acc_01",
+          "amount": 100,
+          "nonce": 1,
+          "timestamp": 1781639800
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_hash": "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72"
+      },
+      {
+        "input": {
+          "account_id": "acc_02",
+          "amount": 200,
+          "nonce": 2,
+          "timestamp": 1781639801
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_hash": "5a1784bf4112161f6cc29f54662deda77d815f7a29a5dc3889443cecbb1fd779"
+      }
+    ],
+    "expected_levels": [
+      [
+        "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72",
+        "5a1784bf4112161f6cc29f54662deda77d815f7a29a5dc3889443cecbb1fd779"
+      ],
+      [
+        "ec4c6aa06277e7d5297ad52ab6148edbd68b1e29926fb105ccf83c4ee46189c7"
+      ]
+    ],
+    "expected_root_hash": "ec4c6aa06277e7d5297ad52ab6148edbd68b1e29926fb105ccf83c4ee46189c7",
+    "expected_result": "ACCEPT"
+  },
+  {
+    "vector_id": "tas-v1-merkle-three-leaf-promotion-001",
+    "protocol_version": "tas-v1",
+    "hash_algorithm": "SHA-256",
+    "domain": {
+      "system": "TAS",
+      "version": "v1",
+      "leaf_header_hex": "544153007631004c45414600",
+      "node_header_hex": "544153007631004e4f444500"
+    },
+    "odd_node_rule": "PROMOTE_UNCHANGED",
+    "leaf_ordering": "PRESERVE_INPUT_ORDER",
+    "leaves": [
+      {
+        "input": {
+          "account_id": "acc_01",
+          "amount": 100,
+          "nonce": 1,
+          "timestamp": 1781639800
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_hash": "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72"
+      },
+      {
+        "input": {
+          "account_id": "acc_02",
+          "amount": 200,
+          "nonce": 2,
+          "timestamp": 1781639801
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_hash": "5a1784bf4112161f6cc29f54662deda77d815f7a29a5dc3889443cecbb1fd779"
+      },
+      {
+        "input": {
+          "account_id": "acc_03",
+          "amount": 300,
+          "nonce": 3,
+          "timestamp": 1781639802
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3033222c22616d6f756e74223a3330302c226e6f6e6365223a332c2274696d657374616d70223a313738313633393830327d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3033222c22616d6f756e74223a3330302c226e6f6e6365223a332c2274696d657374616d70223a313738313633393830327d",
+        "expected_leaf_hash": "1a473f1347e9ee43063944f912da11d5e4c70d812759020b9e1e863eba722e33"
+      }
+    ],
+    "expected_levels": [
+      [
+        "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72",
+        "5a1784bf4112161f6cc29f54662deda77d815f7a29a5dc3889443cecbb1fd779",
+        "1a473f1347e9ee43063944f912da11d5e4c70d812759020b9e1e863eba722e33"
+      ],
+      [
+        "ec4c6aa06277e7d5297ad52ab6148edbd68b1e29926fb105ccf83c4ee46189c7",
+        "1a473f1347e9ee43063944f912da11d5e4c70d812759020b9e1e863eba722e33"
+      ],
+      [
+        "858436aa61078215de43439a4e278d5c9064f4c8ed9cc1713cf849513839e557"
+      ]
+    ],
+    "expected_root_hash": "858436aa61078215de43439a4e278d5c9064f4c8ed9cc1713cf849513839e557",
+    "expected_result": "ACCEPT"
+  },
+  {
+    "vector_id": "tas-v1-merkle-four-leaf-001",
+    "protocol_version": "tas-v1",
+    "hash_algorithm": "SHA-256",
+    "domain": {
+      "system": "TAS",
+      "version": "v1",
+      "leaf_header_hex": "544153007631004c45414600",
+      "node_header_hex": "544153007631004e4f444500"
+    },
+    "odd_node_rule": "PROMOTE_UNCHANGED",
+    "leaf_ordering": "PRESERVE_INPUT_ORDER",
+    "leaves": [
+      {
+        "input": {
+          "account_id": "acc_01",
+          "amount": 100,
+          "nonce": 1,
+          "timestamp": 1781639800
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_hash": "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72"
+      },
+      {
+        "input": {
+          "account_id": "acc_02",
+          "amount": 200,
+          "nonce": 2,
+          "timestamp": 1781639801
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_hash": "5a1784bf4112161f6cc29f54662deda77d815f7a29a5dc3889443cecbb1fd779"
+      },
+      {
+        "input": {
+          "account_id": "acc_03",
+          "amount": 300,
+          "nonce": 3,
+          "timestamp": 1781639802
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3033222c22616d6f756e74223a3330302c226e6f6e6365223a332c2274696d657374616d70223a313738313633393830327d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3033222c22616d6f756e74223a3330302c226e6f6e6365223a332c2274696d657374616d70223a313738313633393830327d",
+        "expected_leaf_hash": "1a473f1347e9ee43063944f912da11d5e4c70d812759020b9e1e863eba722e33"
+      },
+      {
+        "input": {
+          "account_id": "acc_04",
+          "amount": 400,
+          "nonce": 4,
+          "timestamp": 1781639803
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3034222c22616d6f756e74223a3430302c226e6f6e6365223a342c2274696d657374616d70223a313738313633393830337d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3034222c22616d6f756e74223a3430302c226e6f6e6365223a342c2274696d657374616d70223a313738313633393830337d",
+        "expected_leaf_hash": "fc5a9baedf8d3646c92b9e70b09e66f4a8b4e5b549385a381106b9e0f2958b53"
+      }
+    ],
+    "expected_levels": [
+      [
+        "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72",
+        "5a1784bf4112161f6cc29f54662deda77d815f7a29a5dc3889443cecbb1fd779",
+        "1a473f1347e9ee43063944f912da11d5e4c70d812759020b9e1e863eba722e33",
+        "fc5a9baedf8d3646c92b9e70b09e66f4a8b4e5b549385a381106b9e0f2958b53"
+      ],
+      [
+        "ec4c6aa06277e7d5297ad52ab6148edbd68b1e29926fb105ccf83c4ee46189c7",
+        "69a081d21f0f8834ff0ebfe7820d4639f3a766d1a2c4a0256cd79b1b47def77e"
+      ],
+      [
+        "1f79a14622d3686103aace92f73710230041af3adbfad94e48c0633cb5553701"
+      ]
+    ],
+    "expected_root_hash": "1f79a14622d3686103aace92f73710230041af3adbfad94e48c0633cb5553701",
+    "expected_result": "ACCEPT"
+  },
+  {
+    "vector_id": "tas-v1-merkle-invalid-reordered-leaves-001",
+    "base_vector": "tas-v1-merkle-four-leaf-001",
+    "description": "The supplied root is for the protocol-defined order, but leaves are reordered.",
+    "mutation": {
+      "field": "leaves",
+      "operation": "REVERSE_ORDER"
+    },
+    "leaves": [
+      {
+        "input": {
+          "account_id": "acc_04",
+          "amount": 400,
+          "nonce": 4,
+          "timestamp": 1781639803
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3034222c22616d6f756e74223a3430302c226e6f6e6365223a342c2274696d657374616d70223a313738313633393830337d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3034222c22616d6f756e74223a3430302c226e6f6e6365223a342c2274696d657374616d70223a313738313633393830337d",
+        "expected_leaf_hash": "fc5a9baedf8d3646c92b9e70b09e66f4a8b4e5b549385a381106b9e0f2958b53"
+      },
+      {
+        "input": {
+          "account_id": "acc_03",
+          "amount": 300,
+          "nonce": 3,
+          "timestamp": 1781639802
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3033222c22616d6f756e74223a3330302c226e6f6e6365223a332c2274696d657374616d70223a313738313633393830327d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3033222c22616d6f756e74223a3330302c226e6f6e6365223a332c2274696d657374616d70223a313738313633393830327d",
+        "expected_leaf_hash": "1a473f1347e9ee43063944f912da11d5e4c70d812759020b9e1e863eba722e33"
+      },
+      {
+        "input": {
+          "account_id": "acc_02",
+          "amount": 200,
+          "nonce": 2,
+          "timestamp": 1781639801
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3032222c22616d6f756e74223a3230302c226e6f6e6365223a322c2274696d657374616d70223a313738313633393830317d",
+        "expected_leaf_hash": "5a1784bf4112161f6cc29f54662deda77d815f7a29a5dc3889443cecbb1fd779"
+      },
+      {
+        "input": {
+          "account_id": "acc_01",
+          "amount": 100,
+          "nonce": 1,
+          "timestamp": 1781639800
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_preimage_hex": "544153007631004c454146007b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_hash": "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72"
+      }
+    ],
+    "provided_root_hash": "1f79a14622d3686103aace92f73710230041af3adbfad94e48c0633cb5553701",
+    "actual_root_hash": "4f04fd95ad11a85d149ff9d4483dd4d785c7ca18632e8c060c20b8467fef9484",
+    "expected_result": "REJECT",
+    "expected_error": "ERR_MERKLE_ROOT_MISMATCH",
+    "expected_failure_stage": "ROOT_COMPARISON"
+  },
+  {
+    "vector_id": "tas-v1-merkle-invalid-wrong-domain-001",
+    "base_vector": "tas-v1-merkle-single-leaf-001",
+    "description": "A leaf hash calculated using the NODE domain instead of LEAF must not match the expected root.",
+    "mutation": {
+      "field": "domain.purpose",
+      "original": "LEAF",
+      "replacement": "NODE",
+      "new_header_hex": "544153007631004e4f444500"
+    },
+    "leaves": [
+      {
+        "input": {
+          "account_id": "acc_01",
+          "amount": 100,
+          "nonce": 1,
+          "timestamp": 1781639800
+        },
+        "expected_canonical_hex": "7b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_preimage_hex": "544153007631004e4f4445007b226163636f756e745f6964223a226163635f3031222c22616d6f756e74223a3130302c226e6f6e6365223a312c2274696d657374616d70223a313738313633393830307d",
+        "expected_leaf_hash": "9388b5e04ba77e1fc45df1e171711c07e756307716691c253f080d080bcdb8ee"
+      }
+    ],
+    "provided_root_hash": "e312a4a15ddd4bd242c90d06f127b88af1b876b289e6904d1ece90fc4d196c72",
+    "actual_root_hash": "9388b5e04ba77e1fc45df1e171711c07e756307716691c253f080d080bcdb8ee",
+    "expected_result": "REJECT",
+    "expected_error": "ERR_MERKLE_ROOT_MISMATCH",
+    "expected_failure_stage": "ROOT_COMPARISON"
+  }
+]
