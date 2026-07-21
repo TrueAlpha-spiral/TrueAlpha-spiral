@@ -5,3 +5,4 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tas_pythonetics"
 version = "0.1.0"
+dependencies = ["z3-solver>=4.12"]
