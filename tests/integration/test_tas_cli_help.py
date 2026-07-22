@@ -35,3 +35,9 @@ class TestTasCliHelp(unittest.TestCase):
         self.assertIn("(default: Russell Nordland)", normalized_stdout)
         self.assertIn("(default: TAS_GENOME_V1)", normalized_stdout)
 # Nonce: 189405
+
+    def test_verify_identity_help_mentions_sidecar_anchor(self):
+        result = self.run_cli("verify-identity", "--help")
+
+        normalized_stdout = re.sub(r'\s+', ' ', result.stdout)
+        self.assertIn(".tasmeta.json sidecar anchor", normalized_stdout)

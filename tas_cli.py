@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import json
 
 # Ensure local imports work for tas_tools (in root) and tas_pythonetics (in tas_pythonetics/src).
 # Anchored to the script's own directory rather than os.getcwd() to prevent CWD-based module
@@ -11,7 +12,7 @@ sys.path.insert(0, _SCRIPT_DIR)
 sys.path.insert(1, os.path.join(_SCRIPT_DIR, 'tas_pythonetics/src'))
 
 from tas_tools.tas_shadow_scan import scan_repository, print_report
-from tas_tools.tas_sequencer import sequence_artifact, TAS_HUMAN_SIG
+from tas_tools.tas_sequencer import sequence_artifact, calculate_sha256, TAS_HUMAN_SIG, TAS_META_EXT
 
 # Try to import tas_pythonetics modules, handle if not present (though we just added path)
 try:
@@ -58,6 +59,32 @@ def _setup_sequence_parser(subparsers):
     seq_parser.add_argument("--genome", default="TAS_GENOME_V1", help="Genome ID recorded in the metadata")
     seq_parser.set_defaults(func=_handle_sequence)
 
+
+def _load_sidecar_metadata(target_file):
+    meta_path = target_file + TAS_META_EXT
+    if not os.path.exists(meta_path):
+        raise PhoenixError(f"Missing TAS sidecar anchor: {meta_path}")
+
+    with open(meta_path, 'r', encoding='utf-8') as f:
+        metadata = json.load(f)
+
+    required_fields = {"form_id", "lineage_id", "h_seed", "timestamp", "signatures"}
+    missing = sorted(required_fields - metadata.keys())
+    if missing:
+        raise PhoenixError(f"Malformed TAS sidecar anchor: missing {', '.join(missing)}")
+
+    current_form_id = calculate_sha256(target_file)
+    if current_form_id != metadata.get("form_id"):
+        raise PhoenixError(
+            "Sovereign Structural Violation: sidecar form_id does not match "
+            f"current artifact hash ({current_form_id})."
+        )
+
+    if not metadata.get("lineage_id"):
+        raise PhoenixError("Malformed TAS sidecar anchor: empty lineage_id")
+
+    return meta_path, metadata
+
 def _handle_verify_identity(args):
     if verify_kinematic_identity is None:
         print("Error: tas_pythonetics module not found or failed to load.")
@@ -75,9 +102,13 @@ def _handle_verify_identity(args):
         with open(target_file, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        verify_kinematic_identity(content, args.signature)
+        meta_path, metadata = _load_sidecar_metadata(target_file)
+        anchor_signature = args.signature or metadata["h_seed"]
+        verify_kinematic_identity(content, anchor_signature)
         print("\n[SUCCESS] Kinematic Identity Verified.")
         print("The structural integrity holds under the Prime Invariant.")
+        print(f"Sidecar Anchor: {meta_path}")
+        print(f"ITL Lineage: {metadata['lineage_id']}")
     except PhoenixError as e:
         print(f"\n[FAILURE] PhoenixError Triggered:\n{e}")
         sys.exit(1)
@@ -89,7 +120,7 @@ def _setup_verify_identity_parser(subparsers):
     verify_parser = subparsers.add_parser(
         "verify-identity",
         help="Verify a file against the Kinematic Identity invariant",
-        description="Verify a file's contents against the Prime Invariant using the provided anchor signature.",
+        description="Verify a file's contents against the Prime Invariant and its .tasmeta.json sidecar anchor.",
         formatter_class=TASHelpFormatter,
     )
     verify_parser.add_argument("file", help="Path to the file to verify")
