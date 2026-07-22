@@ -166,4 +166,4 @@ class RefusalArtifact:
             "details":            dict(self.details),
             "refusal_receipt_id": self.refusal_receipt_id,
         }
-# Nonce: 27497
+# Nonce: 3557
