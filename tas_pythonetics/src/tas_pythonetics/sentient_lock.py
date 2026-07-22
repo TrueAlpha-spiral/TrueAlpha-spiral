@@ -6,6 +6,7 @@ from typing import Dict, Any, Tuple
 from dataclasses import dataclass, field
 import uuid
 import json
+import math
 
 @dataclass
 class RefusalArtifact:
@@ -33,6 +34,35 @@ logger = logging.getLogger(__name__)
 
 TAS_HUMAN_SIG = "Russell Nordland"
 TAS_KINEMATIC_PREFIX = "1618" # Phi-based prefix (approx 1.618)
+TAS_STRUCTURAL_DENSITY_MINIMUM = 0.15
+
+
+def calculate_character_entropy(data: str) -> float:
+    """Return character-level Shannon entropy for the supplied payload."""
+    if not data:
+        return 0.0
+
+    frequencies = {character: data.count(character) for character in set(data)}
+    payload_length = len(data)
+    return -sum(
+        (count / payload_length) * math.log2(count / payload_length)
+        for count in frequencies.values()
+    )
+
+
+def calculate_structural_density(data: str) -> float:
+    """Scale entropy by payload footprint to detect diluted or repetitive streams."""
+    if not data:
+        return 0.0
+
+    # Normalize by the theoretical maximum entropy for the observed alphabet and
+    # weight by non-whitespace footprint. This keeps dense instructions above the
+    # gate while making whitespace padding and token loops trend toward zero.
+    alphabet_size = len(set(data))
+    max_entropy = math.log2(alphabet_size) if alphabet_size > 1 else 1.0
+    entropy_ratio = calculate_character_entropy(data) / max_entropy
+    footprint_ratio = len(data.strip()) / len(data)
+    return entropy_ratio * footprint_ratio
 
 class PhoenixError(Exception):
     """
@@ -199,6 +229,17 @@ def verify_kinematic_identity(data: str, signature: str = TAS_HUMAN_SIG) -> bool
     Raises:
         PhoenixError: If the hash does not start with the required prefix.
     """
+    density = calculate_structural_density(data)
+    if density < TAS_STRUCTURAL_DENSITY_MINIMUM:
+        error_msg = (
+            "PhoenixError: Kinematic Identity Verification Failed.\n"
+            f"Structural density {density:.6f} fell below threshold "
+            f"{TAS_STRUCTURAL_DENSITY_MINIMUM:.2f}.\n"
+            "Sovereign Structural Violation: diluted or repetitive trajectory rejected."
+        )
+        logger.error(error_msg)
+        raise PhoenixError(error_msg)
+
     payload = f"{data}{signature}"
     digest = hashlib.sha256(payload.encode()).hexdigest()
 

@@ -2,7 +2,7 @@ import unittest
 import hashlib
 import hmac
 from unittest.mock import patch, MagicMock
-from tas_pythonetics.sentient_lock import verify_kinematic_identity, PhoenixError, TAS_KINEMATIC_PREFIX, SentientLock, StructuralIntegrityError, DilithiumSigner
+from tas_pythonetics.sentient_lock import verify_kinematic_identity, PhoenixError, TAS_KINEMATIC_PREFIX, SentientLock, StructuralIntegrityError, DilithiumSigner, calculate_structural_density, TAS_STRUCTURAL_DENSITY_MINIMUM
 
 class TestSentientLock(unittest.TestCase):
 
@@ -70,6 +70,16 @@ class TestSentientLock(unittest.TestCase):
         self.assertEqual(len(self.lock.refusal_ledger), 1)
         self.assertEqual(faulty_node["content"], "null_state")
         self.assertIn("FAITHFULNESS FAILURE", self.lock.refusal_ledger[0].reason)
+
+
+    def test_structural_density_rejects_diluted_repetition(self):
+        padded_loop = "A" * 100 + " " * 900
+
+        self.assertLess(calculate_structural_density(padded_loop), TAS_STRUCTURAL_DENSITY_MINIMUM)
+        with self.assertRaises(PhoenixError) as cm:
+            verify_kinematic_identity(padded_loop)
+
+        self.assertIn("Structural density", str(cm.exception))
 
     def test_verify_kinematic_identity_pass(self):
         # Mock sha256 to return a hash starting with the correct prefix
