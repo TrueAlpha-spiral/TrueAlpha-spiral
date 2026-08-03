@@ -1,7 +1,8 @@
 import base64
 import os
 import sys
-from dataclasses import replace
+from dataclasses import dataclass, replace
+from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -10,6 +11,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from admission_gate import (
     AUTHORIZATION_DOMAIN,
+    AdmissionGate,
     AdmissionGatekeeper,
     AuthoritySnapshot,
     AuthenticatedLineageVerifier,
@@ -45,6 +47,17 @@ class Resolver:
             == (self.snapshot.credential_id, self.snapshot.checkpoint_hash)
             else None
         )
+
+
+@dataclass
+class PartialAuthoritySnapshot:
+    authority_epoch: int
+    checkpoint_hash: str
+    context_snapshot_hash: str
+    algorithm: str
+    public_key: str
+    valid_until: str
+    revoked: bool = False
 
 
 def _gate():
@@ -191,6 +204,10 @@ def test_fractional_second_past_expiry_is_refused():
     assert result["receipt"]["failure_code"] == "AUTHORIZATION_REFUSED"
 
 
+def test_admission_gate_alias_maps_to_gatekeeper():
+    assert AdmissionGate is AdmissionGatekeeper
+
+
 def test_context_is_verified_before_candidate_is_parsed():
     gate, authority, _, context, _ = _gate()
     _, envelope = _request(authority, context)
@@ -222,6 +239,62 @@ def test_authority_snapshot_cannot_swap_context_mid_flight():
         result["receipt"]["failure_code"]
         == "CONTEXT_AUTHORITY_MISMATCH"
     )
+
+
+def test_partial_snapshot_fails_context_authority_validation_closed():
+    gate = AdmissionGate.__new__(AdmissionGate)
+    context = ContextSnapshot.build(
+        namespace_id="tas:core",
+        context_sequence=0,
+        definition_ids=["a" * 64],
+        invariant_set_id="b" * 64,
+        authority_binding_hash="c" * 64,
+        parent_context_hash=None,
+        effective_epoch=1,
+    )
+    snapshot = PartialAuthoritySnapshot(
+        authority_epoch=1,
+        checkpoint_hash="d" * 64,
+        context_snapshot_hash=context.context_snapshot_hash,
+        algorithm="Ed25519",
+        public_key="pubkey-1",
+        valid_until="2030-01-01T00:00:00Z",
+    )
+    envelope = {
+        "context_snapshot_hash": context.context_snapshot_hash,
+        "authority_checkpoint_hash": "d" * 64,
+    }
+
+    assert not gate._context_authority_valid(envelope, context, snapshot)
+
+
+def test_record_lineage_unavailable_returns_cutoff_with_missing_parent():
+    gate = AdmissionGate.__new__(AdmissionGate)
+    gate.gatekeeper_id = "gk-01"
+    gate.ledger = MagicMock()
+    gate.ledger.get_receipt.return_value = None
+    gate.receipt_signer = MagicMock()
+
+    result = gate._record(
+        envelope={
+            "parent_receipt_hash": "0" * 64,
+            "candidate_hash": "1" * 64,
+            "nonce": "nonce-123",
+        },
+        snapshot=None,
+        context=None,
+        candidate={"data": "test"},
+        raw_candidate_hash="2" * 64,
+        current_time="2026-08-03T13:10:00Z",
+        admitted=False,
+        failure="INVALID_LINEAGE",
+    )
+
+    assert result == {
+        "resulting_state": "CUTOFF",
+        "failure_code": "LINEAGE_UNAVAILABLE",
+        "durable_receipt": False,
+    }
 
 
 def test_context_lineage_cannot_teleport_across_unrelated_contexts():

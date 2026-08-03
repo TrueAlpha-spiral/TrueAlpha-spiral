@@ -523,16 +523,19 @@ class AdmissionGatekeeper:
     ) -> bool:
         if snapshot is None:
             return False
-        return (
-            snapshot.context_snapshot_hash == context.context_snapshot_hash
-            and snapshot.context_snapshot_hash
-            == envelope["context_snapshot_hash"]
-            and snapshot.checkpoint_hash
-            == envelope["authority_checkpoint_hash"]
-            and snapshot.authority_epoch == context.effective_epoch
-            and context.authority_binding_hash
-            == authority_binding_hash(snapshot)
-        )
+        try:
+            return (
+                snapshot.context_snapshot_hash == context.context_snapshot_hash
+                and snapshot.context_snapshot_hash
+                == envelope["context_snapshot_hash"]
+                and snapshot.checkpoint_hash
+                == envelope["authority_checkpoint_hash"]
+                and snapshot.authority_epoch == context.effective_epoch
+                and context.authority_binding_hash
+                == authority_binding_hash(snapshot)
+            )
+        except (AttributeError, KeyError, TypeError, ValueError):
+            return False
 
     def _context_lineage_valid(
         self, envelope: Mapping[str, Any], context: ContextSnapshot
@@ -690,3 +693,6 @@ class AdmissionGatekeeper:
                 "failure_code": "RECEIPT_PRESERVATION_UNAVAILABLE",
                 "durable_receipt": False,
             }
+
+
+AdmissionGate = AdmissionGatekeeper
