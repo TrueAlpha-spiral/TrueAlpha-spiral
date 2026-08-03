@@ -9,7 +9,7 @@ Collecting pluggy<2,>=1.5 (from pytest)
   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
 Requirement already satisfied: pygments>=2.7.2 in /usr/lib/python3/dist-packages (from pytest) (2.17.2)
 Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 386.5/386.5 kB 6.4 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 386.5/386.5 kB 13.5 MB/s eta 0:00:00
 Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
 Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
 Installing collected packages: pluggy, iniconfig, pytest
