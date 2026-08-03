@@ -12,6 +12,7 @@ import hashlib
 import os
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Protocol
 
@@ -80,6 +81,19 @@ def authority_binding_hash(snapshot: AuthoritySnapshot) -> str:
         "valid_until": snapshot.valid_until,
     }
     return domain_hash(AUTHORITY_BINDING_DOMAIN, body)
+
+
+def _parse_timestamp(value: Any) -> datetime:
+    if not isinstance(value, str) or not value:
+        raise ValueError("timestamp must be a non-empty string")
+    normalized = f"{value[:-1]}+00:00" if value.endswith("Z") else value
+    try:
+        moment = datetime.fromisoformat(normalized)
+    except ValueError as error:
+        raise ValueError("invalid timestamp") from error
+    if moment.tzinfo is None:
+        raise ValueError("timestamp must include a timezone offset")
+    return moment.astimezone(timezone.utc)
 
 
 class AuthorityResolver(Protocol):
@@ -549,8 +563,12 @@ class AdmissionGatekeeper:
             return False
         if (
             envelope["signature_algorithm"] != snapshot.algorithm
-            or current_time > snapshot.valid_until
         ):
+            return False
+        try:
+            if _parse_timestamp(current_time) > _parse_timestamp(snapshot.valid_until):
+                return False
+        except ValueError:
             return False
         try:
             signature = base64.b64decode(envelope["signature"], validate=True)

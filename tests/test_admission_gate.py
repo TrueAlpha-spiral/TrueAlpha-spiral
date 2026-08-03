@@ -167,6 +167,30 @@ def test_public_key_cannot_forge_authorization_signature():
     assert result["durable_receipt"]
 
 
+def test_expired_offset_timestamp_is_refused():
+    gate, authority, _, context, _ = _gate()
+    candidate, envelope = _request(authority, context)
+    result = gate.evaluate(
+        raw_candidate=candidate,
+        raw_envelope=envelope,
+        current_time="2030-01-01T00:00:00-01:00",
+    )
+    assert result["resulting_state"] == "REFUSED"
+    assert result["receipt"]["failure_code"] == "AUTHORIZATION_REFUSED"
+
+
+def test_fractional_second_past_expiry_is_refused():
+    gate, authority, _, context, _ = _gate()
+    candidate, envelope = _request(authority, context)
+    result = gate.evaluate(
+        raw_candidate=candidate,
+        raw_envelope=envelope,
+        current_time="2030-01-01T00:00:00.001Z",
+    )
+    assert result["resulting_state"] == "REFUSED"
+    assert result["receipt"]["failure_code"] == "AUTHORIZATION_REFUSED"
+
+
 def test_context_is_verified_before_candidate_is_parsed():
     gate, authority, _, context, _ = _gate()
     _, envelope = _request(authority, context)
