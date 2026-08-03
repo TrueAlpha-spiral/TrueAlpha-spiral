@@ -299,16 +299,23 @@ class FileDecisionLedger:
 
 
 class AuthenticatedLineageVerifier:
-    """Verify bounded, signed receipt ancestry from a ledger reader."""
+    """Verify bounded receipt ancestry against external gatekeeper trust roots."""
 
     def __init__(
         self,
         store: DecisionLedger,
         verifier: SignatureVerifier,
+        trusted_public_keys: set[bytes] | frozenset[bytes],
         max_depth: int = 128,
     ) -> None:
+        trusted_keys = frozenset(trusted_public_keys)
+        if not trusted_keys or any(
+            not isinstance(key, bytes) or not key for key in trusted_keys
+        ):
+            raise ValueError("at least one valid trusted gatekeeper key is required")
         self._store = store
         self._verifier = verifier
+        self._trusted_public_keys = trusted_keys
         self._max_depth = max_depth
 
     def verify(self, receipt_hash: str) -> bool:
@@ -345,6 +352,8 @@ class AuthenticatedLineageVerifier:
             public_key = base64.b64decode(
                 receipt["gatekeeper_public_key"], validate=True
             )
+            if public_key not in self._trusted_public_keys:
+                return False
             body = {
                 key: value
                 for key, value in receipt.items()
