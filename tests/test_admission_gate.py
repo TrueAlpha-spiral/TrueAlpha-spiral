@@ -149,7 +149,9 @@ def test_admitted_decision_is_context_bound_and_recorded_before_return():
     assert result["receipt"]["registry_root"] == context.registry_root
     assert ledger.get_receipt(result["receipt_hash"]) == result["receipt"]
     assert AuthenticatedLineageVerifier(
-        ledger, Secp256k1Verifier()
+        ledger,
+        Secp256k1Verifier(),
+        {gate.receipt_signer.public_key},
     ).verify(result["receipt_hash"])
 
 
@@ -293,7 +295,27 @@ def test_lineage_verifier_rejects_tampered_receipt_content():
         "requested_operation"
     ] = "DELETE"
     assert not AuthenticatedLineageVerifier(
-        ledger, Secp256k1Verifier()
+        ledger,
+        Secp256k1Verifier(),
+        {gate.receipt_signer.public_key},
+    ).verify(result["receipt_hash"])
+
+
+def test_lineage_verifier_rejects_untrusted_gatekeeper_key():
+    gate, authority, ledger, context, _ = _gate()
+    candidate, envelope = _request(authority, context)
+    result = gate.evaluate(
+        raw_candidate=candidate,
+        raw_envelope=envelope,
+        current_time="2029-01-01T00:00:00Z",
+    )
+    untrusted_signer = LocalSecp256k1Signer(
+        ec.generate_private_key(ec.SECP256K1())
+    )
+    assert not AuthenticatedLineageVerifier(
+        ledger,
+        Secp256k1Verifier(),
+        {untrusted_signer.public_key},
     ).verify(result["receipt_hash"])
 
 
@@ -380,7 +402,9 @@ def test_ed25519_decision_survives_store_restart(tmp_path):
         == result["receipt"]
     )
     assert AuthenticatedLineageVerifier(
-        restarted_ledger, Ed25519Verifier()
+        restarted_ledger,
+        Ed25519Verifier(),
+        {receipt_signer.public_key},
     ).verify(result["receipt_hash"])
 
 
