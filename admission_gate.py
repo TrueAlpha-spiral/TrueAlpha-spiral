@@ -347,14 +347,21 @@ class AuthenticatedLineageVerifier:
                 or not self._valid_signature(receipt)
             ):
                 return False
+            sequence = receipt.get("sequence")
+            if (
+                not isinstance(sequence, int)
+                or isinstance(sequence, bool)
+                or sequence < 0
+            ):
+                return False
             if (
                 child is not None
-                and child.get("sequence") != receipt.get("sequence", -1) + 1
+                and child.get("sequence") != sequence + 1
             ):
                 return False
             parent = receipt.get("parent_receipt_hash")
             if parent is None:
-                return receipt.get("sequence") == 0
+                return sequence == 0
             if not isinstance(parent, str):
                 return False
             child, current_hash = receipt, parent
@@ -556,10 +563,15 @@ class AdmissionGatekeeper:
         if parent is None:
             return False
         parent_context_hash = parent.get("context_snapshot_hash")
-        return parent_context_hash in {
-            context.context_snapshot_hash,
-            context.parent_context_hash,
-        }
+        if (
+            not isinstance(parent_context_hash, str)
+            or not _HEX_64.fullmatch(parent_context_hash)
+        ):
+            return False
+        allowed_hashes = {context.context_snapshot_hash}
+        if context.parent_context_hash is not None:
+            allowed_hashes.add(context.parent_context_hash)
+        return parent_context_hash in allowed_hashes
 
     def _authorized(
         self,
@@ -616,9 +628,15 @@ class AdmissionGatekeeper:
                 sequence = 0
             else:
                 parent = self.ledger.get_receipt(parent_hash)
-                if parent is None or not isinstance(parent.get("sequence"), int):
+                parent_sequence = None if parent is None else parent.get("sequence")
+                if (
+                    parent is None
+                    or not isinstance(parent_sequence, int)
+                    or isinstance(parent_sequence, bool)
+                    or parent_sequence < 0
+                ):
                     raise ValueError("unknown lineage parent")
-                sequence = parent["sequence"] + 1
+                sequence = parent_sequence + 1
         except Exception:
             return {
                 "resulting_state": "CUTOFF",

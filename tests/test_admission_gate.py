@@ -21,6 +21,7 @@ from admission_gate import (
     InMemoryDecisionLedger,
     LocalEd25519Signer,
     LocalSecp256k1Signer,
+    RECEIPT_DOMAIN,
     Secp256k1Verifier,
     authority_binding_hash,
     canonical_hash,
@@ -341,6 +342,27 @@ def test_context_lineage_cannot_teleport_across_unrelated_contexts():
     assert result["receipt"]["failure_code"] == "CONTEXT_LINEAGE_REFUSED"
 
 
+def test_root_context_rejects_parent_receipt_without_context_hash():
+    gate, authority, _, context, _ = _gate()
+    garbage_parent = gate.evaluate(
+        raw_candidate=b"{}",
+        raw_envelope=b"not json",
+        current_time="2029-01-01T00:00:00Z",
+    )
+    candidate, envelope = _request(
+        authority,
+        context,
+        parent_receipt_hash=garbage_parent["receipt_hash"],
+    )
+    result = gate.evaluate(
+        raw_candidate=candidate,
+        raw_envelope=envelope,
+        current_time="2029-01-01T00:00:01Z",
+    )
+    assert result["resulting_state"] == "REFUSED"
+    assert result["receipt"]["failure_code"] == "CONTEXT_LINEAGE_REFUSED"
+
+
 def test_duplicate_key_is_rejected_after_context_verification():
     gate, authority, _, context, _ = _gate()
     _, envelope = _request(authority, context)
@@ -396,6 +418,64 @@ def test_lineage_verifier_rejects_tampered_receipt_content():
         Secp256k1Verifier(),
         {gate.receipt_signer.public_key},
     ).verify(result["receipt_hash"])
+
+
+def test_lineage_verifier_rejects_receipt_with_invalid_sequence_type():
+    gate, authority, ledger, context, _ = _gate()
+    candidate, envelope = _request(authority, context)
+    admitted = gate.evaluate(
+        raw_candidate=candidate,
+        raw_envelope=envelope,
+        current_time="2029-01-01T00:00:00Z",
+    )
+    malformed_root_body = {
+        **admitted["receipt"],
+        "sequence": None,
+    }
+    malformed_root_body.pop("signature_algorithm")
+    malformed_root_body.pop("gatekeeper_public_key")
+    malformed_root_body.pop("signature")
+    malformed_root_signature = gate.receipt_signer.sign(
+        RECEIPT_DOMAIN + canonical_json(malformed_root_body)
+    )
+    malformed_root = {
+        **malformed_root_body,
+        "signature_algorithm": gate.receipt_signer.algorithm,
+        "gatekeeper_public_key": base64.b64encode(
+            gate.receipt_signer.public_key
+        ).decode(),
+        "signature": base64.b64encode(malformed_root_signature).decode(),
+    }
+    malformed_root_hash = canonical_hash(malformed_root)
+    ledger.append_decision(malformed_root_hash, malformed_root)
+
+    child_body = {
+        **admitted["receipt"],
+        "sequence": 1,
+        "parent_receipt_hash": malformed_root_hash,
+    }
+    child_body.pop("signature_algorithm")
+    child_body.pop("gatekeeper_public_key")
+    child_body.pop("signature")
+    child_signature = gate.receipt_signer.sign(
+        RECEIPT_DOMAIN + canonical_json(child_body)
+    )
+    child_receipt = {
+        **child_body,
+        "signature_algorithm": gate.receipt_signer.algorithm,
+        "gatekeeper_public_key": base64.b64encode(
+            gate.receipt_signer.public_key
+        ).decode(),
+        "signature": base64.b64encode(child_signature).decode(),
+    }
+    child_hash = canonical_hash(child_receipt)
+    ledger.append_decision(child_hash, child_receipt)
+
+    assert not AuthenticatedLineageVerifier(
+        ledger,
+        Secp256k1Verifier(),
+        {gate.receipt_signer.public_key},
+    ).verify(child_hash)
 
 
 def test_lineage_verifier_rejects_untrusted_gatekeeper_key():
