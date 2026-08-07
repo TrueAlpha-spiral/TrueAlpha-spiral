@@ -1,7 +1,21 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tas_pythonetics"
 version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "cryptography>=42.0.0",
+    "rfc8785>=0.1.4",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
