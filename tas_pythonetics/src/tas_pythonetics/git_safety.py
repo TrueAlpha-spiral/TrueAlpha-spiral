@@ -156,6 +156,28 @@ class GitActionGuard:
 
         return False
 
+    # Global options that redirect Git to a different repository or working tree.
+    # Allowing them would let execution target a repo that the monitor is not watching.
+    _REPO_REDIRECT_PREFIXES = (
+        "-c",
+        "--git-dir",
+        "--work-tree",
+        "--namespace",
+        "--super-prefix",
+        "--exec-path",
+    )
+    _REPO_REDIRECT_EXACT = frozenset(["-C"])
+
+    def _contains_repo_redirect(self, tokens: list[str]) -> bool:
+        for token in tokens:
+            if token in self._REPO_REDIRECT_EXACT:
+                return True
+            lower = token.lower()
+            for prefix in self._REPO_REDIRECT_PREFIXES:
+                if lower == prefix or lower.startswith(prefix + "=") or lower.startswith(prefix + " "):
+                    return True
+        return False
+
     def authorize_command(self, command: str) -> bool:
         """
         Check if a command is safe to execute given the current state.
@@ -168,6 +190,13 @@ class GitActionGuard:
             return False
 
         if not tokens:
+            return False
+
+        # Block any global options that redirect Git to a different repository
+        # or working tree; these would make execution target a repo that the
+        # monitor is not watching, breaking the Repository_monitor == Repository_execution invariant.
+        if self._contains_repo_redirect(tokens):
+            logger.warning(f"BLOCKED: Repository-redirecting global option in '{command}'")
             return False
 
         # Normalize tokens to lowercase for checking commands/flags
@@ -217,12 +246,62 @@ class GitActionGuard:
 
         return True
 
+    def authorize_command_list(self, command: list[str]) -> bool:
+        """
+        Authorize a command expressed as an already-split argument list.
+        This is the canonical path: the list that is authorized is the exact
+        list that will be executed — no string round-trip.
+        """
+        if not command:
+            return False
+
+        # Block repository-redirecting global options.
+        if self._contains_repo_redirect(command):
+            logger.warning(f"BLOCKED: Repository-redirecting global option in {command!r}")
+            return False
+
+        lower_tokens = {t.lower() for t in command}
+
+        if "rebase" in lower_tokens:
+            logger.warning(f"BLOCKED: Rebase is not allowed {command!r}")
+            return False
+
+        if "reset" in lower_tokens and "--hard" in lower_tokens:
+            logger.warning(f"BLOCKED: reset --hard is not allowed {command!r}")
+            return False
+
+        if "push" in lower_tokens and "stash" not in lower_tokens:
+            for token in lower_tokens:
+                if token == "-f" or token.startswith("--force") or token.startswith("--delete"):
+                    logger.warning(f"BLOCKED: Force/Delete push is not allowed {command!r}")
+                    return False
+
+            for token in command:
+                if token.startswith("+"):
+                    logger.warning(f"BLOCKED: Force push via +refspec is not allowed {command!r}")
+                    return False
+
+            if self._push_targets_protected_branch(command):
+                logger.warning(f"BLOCKED: Push targeting protected branch is not allowed {command!r}")
+                return False
+
+            try:
+                current_branch = self.monitor.get_current_branch()
+            except Exception:
+                return False
+
+            if current_branch in self.PROTECTED_BRANCHES:
+                logger.warning(f"BLOCKED: Direct push to protected branch '{current_branch}'")
+                return False
+
+        return True
+
     def execute_safe(self, command: list) -> bool:
         """
         Execute a git command only if authorized.
+        The argument list is authorized and executed as-is — no string round-trip.
         """
-        cmd_str = " ".join(command)
-        if self.authorize_command(cmd_str):
+        if self.authorize_command_list(command):
             try:
                 subprocess.run(command, cwd=self.monitor.repo_path, check=True)
                 return True
