@@ -17,7 +17,7 @@ structured, authenticated, and maintained. TAS/SDF provides that bedrock.
 
 ### Documentation Map
 
-The SDF public-utility framing is distributed across five documents, each owning one layer of concern:
+The SDF public-utility framing is distributed across six documents, each owning one layer of concern:
 
 | Layer | Document | Description |
 |-------|----------|-------------|
@@ -26,6 +26,7 @@ The SDF public-utility framing is distributed across five documents, each owning
 | **Singularity context** | [TrueAlpha-singularity.md](./TrueAlpha-singularity.md) | Convergence model, Ethical Hamiltonian, and civic instantiation logic. |
 | **API contract** | [API_REFERENCE.md](./API_REFERENCE.md) | Runtime primitives and the SDF Micro-Kernel interface, with `*(planned; not yet implemented)*` markers where applicable. |
 | **Sovereign-innovation mechanics** | [docs/specs/the_mechanics_of_sovereign_innovation.md](./docs/specs/the_mechanics_of_sovereign_innovation.md) | Five axioms of sovereign innovation and formal admissibility proofs. |
+| **ASSP integration blueprint** | [docs/assp_integration_blueprint.md](./docs/assp_integration_blueprint.md) | Trust boundaries, atomic execution protocol, verification campaign, IOC work packages, and explicitly tracked implementation gaps. |
 
 ## Phase 1 Epistemological Bedrock
 
