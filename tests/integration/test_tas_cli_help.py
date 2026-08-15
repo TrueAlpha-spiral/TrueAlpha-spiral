@@ -45,5 +45,5 @@ class TestTasCliHelp(unittest.TestCase):
     def test_vertical_slice_help_mentions_canonical_sequence(self):
         result = self.run_cli("vertical-slice", "--help")
         normalized_stdout = re.sub(r'\s+', ' ', result.stdout)
-        self.assertIn("canonical TAS vertical slice", normalized_stdout)
-        self.assertIn("Authority -> Context -> Admission", normalized_stdout)
+        self.assertIn("Execute Authority -> Context -> Admission", normalized_stdout)
+        self.assertIn("Runtime -> Receipt/Refusal", normalized_stdout)
