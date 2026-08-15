@@ -1,5 +1,9 @@
 """Tests for core.recovery.PhoenixRecovery (§8 Sovereign Innovation)."""
 import pytest
+from core.authority.authority_snapshot import AuthoritySnapshot
+from core.semantics.context_snapshot import ContextSnapshot
+from core.vertical_slice import CanonicalVerticalSlice
+from core.wakechain import WakeChain
 from core.recovery.phoenix_recovery import (
     PhoenixRecovery,
     RecoveryRecord,
@@ -148,3 +152,37 @@ class TestPhoenixRecoverySerialisation:
         assert d["initiated_at"] == INITIATED_AT
         assert isinstance(d["failure_receipt_ids"], list)
         assert isinstance(d["phase_history"], list)
+
+
+def test_canonical_slice_refusal_initiates_phoenix_recovery():
+    authority = AuthoritySnapshot.create(
+        principal="tester",
+        credential_reference="key:test",
+        permitted_scope=["other.scope"],
+        effective_epoch="2026-01-01T00:00:00Z",
+        expiry_epoch="2027-01-01T00:00:00Z",
+        jurisdiction="TAS",
+        revocation_condition="written notice",
+    )
+    context = ContextSnapshot.create(
+        namespace="TAS-SDF",
+        epoch="2026-01-01T00:00:00Z",
+        definition_ids=[],
+        invariant_set=["PRIME_INVARIANT"],
+        authority_binding=authority.snapshot_id,
+    )
+    chain = WakeChain.start(author="tester")
+
+    outcome = CanonicalVerticalSlice().execute(
+        origin="recovery-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=chain,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+
+    assert outcome.admitted is False
+    assert outcome.recovery is not None
+    assert outcome.recovery.phase == RecoveryPhase.IDENTIFY_CHECKPOINT
+    assert len(outcome.recovery.failure_receipt_ids) == 1

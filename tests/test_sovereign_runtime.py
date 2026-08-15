@@ -2,7 +2,11 @@ import hashlib
 
 import pytest
 
+from core.authority.authority_snapshot import AuthoritySnapshot
+from core.semantics.context_snapshot import ContextSnapshot
 from core.runtime import SovereignRuntime
+from core.vertical_slice import CanonicalVerticalSlice
+from core.wakechain import WakeChain
 
 
 class _NoopModel:
@@ -36,3 +40,57 @@ def test_parent_hash_must_be_canonical_sha256_hex():
 
     with pytest.raises(ValueError):
         runtime.valid_token_indices("ABC")
+
+
+def _slice_inputs():
+    authority = AuthoritySnapshot.create(
+        principal="tester",
+        credential_reference="key:test",
+        permitted_scope=["codex.run"],
+        effective_epoch="2026-01-01T00:00:00Z",
+        expiry_epoch="2027-01-01T00:00:00Z",
+        jurisdiction="TAS",
+        revocation_condition="written notice",
+    )
+    context = ContextSnapshot.create(
+        namespace="TAS-SDF",
+        epoch="2026-01-01T00:00:00Z",
+        definition_ids=[],
+        invariant_set=["PRIME_INVARIANT"],
+        authority_binding=authority.snapshot_id,
+    )
+    return authority, context
+
+
+def test_canonical_slice_routes_through_runtime_projection():
+    authority, context = _slice_inputs()
+    chain = WakeChain.start(author="tester")
+    runtime = SovereignRuntime(_NoopModel(), vocab_size=128, valid_threshold=32)
+    outcome = CanonicalVerticalSlice().execute(
+        origin="runtime-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=chain,
+        runtime=runtime,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+    assert outcome.admitted is True
+    assert len(outcome.runtime_valid_token_indices) > 0
+
+
+def test_canonical_slice_refuses_on_runtime_null_collapse():
+    authority, context = _slice_inputs()
+    chain = WakeChain.start(author="tester")
+    runtime = SovereignRuntime(_NoopModel(), vocab_size=128, valid_threshold=0)
+    outcome = CanonicalVerticalSlice().execute(
+        origin="runtime-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=chain,
+        runtime=runtime,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+    assert outcome.admitted is False
+    assert outcome.receipt["code"] == "RUNTIME_NULL_COLLAPSE"
