@@ -13,6 +13,11 @@ sys.path.insert(1, os.path.join(_SCRIPT_DIR, 'tas_pythonetics/src'))
 
 from tas_tools.tas_shadow_scan import scan_repository, print_report
 from tas_tools.tas_sequencer import sequence_artifact, calculate_sha256, TAS_HUMAN_SIG, TAS_META_EXT
+from core.authority import AuthoritySnapshot
+from core.runtime import SovereignRuntime
+from core.semantics import ContextSnapshot
+from core.vertical_slice import CanonicalVerticalSlice
+from core.wakechain import WakeChain
 
 # Try to import tas_pythonetics modules, handle if not present (though we just added path)
 try:
@@ -128,6 +133,68 @@ def _setup_verify_identity_parser(subparsers):
     verify_parser.set_defaults(func=_handle_verify_identity)
 
 
+def _handle_vertical_slice(args):
+    timestamp = args.timestamp
+    authority = AuthoritySnapshot.create(
+        principal=args.principal,
+        credential_reference=args.credential_reference,
+        permitted_scope=[args.operation],
+        effective_epoch=args.effective_epoch,
+        expiry_epoch=args.expiry_epoch,
+        jurisdiction=args.jurisdiction,
+        revocation_condition=args.revocation_condition,
+    )
+    context = ContextSnapshot.create(
+        namespace=args.namespace,
+        epoch=args.effective_epoch,
+        definition_ids=[],
+        invariant_set=args.invariant or ["PRIME_INVARIANT"],
+        authority_binding=authority.snapshot_id,
+    )
+    wakechain = WakeChain.start(author=args.principal)
+    runtime = (
+        SovereignRuntime(lambda *_a, **_k: None, vocab_size=max(args.runtime_vocab, 1), valid_threshold=args.runtime_valid_threshold)
+        if args.enable_runtime else None
+    )
+    outcome = CanonicalVerticalSlice().execute(
+        origin=args.origin,
+        operation=args.operation,
+        authority=authority,
+        context=context,
+        wakechain=wakechain,
+        runtime=runtime,
+        timestamp=timestamp,
+        required_invariants=tuple(args.invariant or ["PRIME_INVARIANT"]),
+    )
+    print(json.dumps(outcome.to_dict(), indent=2, sort_keys=True))
+    if not outcome.admitted:
+        sys.exit(1)
+
+
+def _setup_vertical_slice_parser(subparsers):
+    parser = subparsers.add_parser(
+        "vertical-slice",
+        help="Run the canonical TAS vertical slice",
+        description="Execute Authority -> Context -> Admission -> TASGene -> WakeChain -> Runtime -> Receipt/Refusal.",
+        formatter_class=TASHelpFormatter,
+    )
+    parser.add_argument("--origin", required=True, help="Origin intent for the transition")
+    parser.add_argument("--operation", required=True, help="Operation under evaluation")
+    parser.add_argument("--principal", default=TAS_HUMAN_SIG, help="Authority principal")
+    parser.add_argument("--credential-reference", default="key:tas-cli", help="Opaque credential reference")
+    parser.add_argument("--effective-epoch", default="2026-01-01T00:00:00Z", help="Authority/context effective epoch")
+    parser.add_argument("--expiry-epoch", default="2027-01-01T00:00:00Z", help="Authority expiry epoch")
+    parser.add_argument("--jurisdiction", default="TAS", help="Authority jurisdiction")
+    parser.add_argument("--revocation-condition", default="Written revocation by principal", help="Authority revocation condition")
+    parser.add_argument("--namespace", default="TAS-SDF", help="Context namespace")
+    parser.add_argument("--invariant", action="append", help="Required invariant (repeatable)")
+    parser.add_argument("--timestamp", default=None, help="Evaluation timestamp (ISO 8601)")
+    parser.add_argument("--enable-runtime", action="store_true", help="Run runtime boundary projection")
+    parser.add_argument("--runtime-vocab", type=int, default=128, help="Runtime vocabulary size")
+    parser.add_argument("--runtime-valid-threshold", type=int, default=16, help="Runtime valid token threshold")
+    parser.set_defaults(func=_handle_vertical_slice)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="TAS CLI: TrueAlphaSpiral Toolkit",
@@ -144,6 +211,7 @@ def main():
     _setup_shadow_scan_parser(subparsers)
     _setup_sequence_parser(subparsers)
     _setup_verify_identity_parser(subparsers)
+    _setup_vertical_slice_parser(subparsers)
 
     args = parser.parse_args()
 

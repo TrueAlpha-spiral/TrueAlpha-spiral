@@ -1,4 +1,8 @@
 import pytest
+from core.authority.authority_snapshot import AuthoritySnapshot
+from core.semantics.context_snapshot import ContextSnapshot
+from core.vertical_slice import CanonicalVerticalSlice
+from core.wakechain import WakeChain
 
 VECTOR_DIM = 512
 RNG_SEED = 42
@@ -107,4 +111,34 @@ def test_deterministic_fuzz_sub_threshold_drift(
     assert len(router.compliance_history_stack) <= 5
     for similarity in similarities:
         assert similarity > 0.8
+
+
+def test_canonical_vertical_slice_enforces_authority_context_boundary():
+    authority = AuthoritySnapshot.create(
+        principal="boundary-tester",
+        credential_reference="key:boundary",
+        permitted_scope=["codex.run"],
+        effective_epoch="2026-01-01T00:00:00Z",
+        expiry_epoch="2027-01-01T00:00:00Z",
+        jurisdiction="TAS",
+        revocation_condition="written notice",
+    )
+    context = ContextSnapshot.create(
+        namespace="TAS-SDF",
+        epoch="2026-01-01T00:00:00Z",
+        definition_ids=[],
+        invariant_set=["PRIME_INVARIANT"],
+        authority_binding="0" * 64,
+    )
+    chain = WakeChain.start(author="boundary-tester")
+    outcome = CanonicalVerticalSlice().execute(
+        origin="boundary-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=chain,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+    assert outcome.admitted is False
+    assert outcome.receipt["decision_state"] == "REFUSED"
 # Nonce: 7371

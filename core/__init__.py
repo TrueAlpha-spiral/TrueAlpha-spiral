@@ -43,6 +43,7 @@ from .recovery.phoenix_recovery import (
     RecoveryViolation,
 )
 from .runtime import LineageDecision, NullCollapse, SovereignRuntime
+from .vertical_slice import CanonicalVerticalSlice, VerticalSliceOutcome
 
 __all__ = [
     # Evidentiary layer
@@ -70,6 +71,8 @@ __all__ = [
     "LineageDecision",
     "NullCollapse",
     "SovereignRuntime",
+    "CanonicalVerticalSlice",
+    "VerticalSliceOutcome",
     # Recovery
     "PhoenixRecovery",
     "RecoveryRecord",

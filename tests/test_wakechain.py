@@ -4,6 +4,9 @@ Covers §3 (gated recurrence, dual histories) and §10 (Echosystem / WakeChain).
 """
 
 import pytest
+from core.authority.authority_snapshot import AuthoritySnapshot
+from core.semantics.context_snapshot import ContextSnapshot
+from core.vertical_slice import CanonicalVerticalSlice
 from core.gene import TASGene, Decision
 from core.wakechain import WakeChain, WakeLink, LinkKind
 
@@ -176,3 +179,59 @@ class TestSerialisation:
         for key in ("seq", "kind", "event_hash", "parent_hash",
                     "gene_id", "timestamp", "link_hash"):
             assert key in d, f"Missing WakeLink field: {key}"
+
+
+def _slice_inputs(scope: str = "codex.run", *, bind_mismatch: bool = False):
+    authority = AuthoritySnapshot.create(
+        principal="tester",
+        credential_reference="key:test",
+        permitted_scope=[scope],
+        effective_epoch="2026-01-01T00:00:00Z",
+        expiry_epoch="2027-01-01T00:00:00Z",
+        jurisdiction="TAS",
+        revocation_condition="written notice",
+    )
+    context = ContextSnapshot.create(
+        namespace="TAS-SDF",
+        epoch="2026-01-01T00:00:00Z",
+        definition_ids=[],
+        invariant_set=["PRIME_INVARIANT"],
+        authority_binding=("0" * 64 if bind_mismatch else authority.snapshot_id),
+    )
+    return authority, context
+
+
+def test_canonical_slice_appends_admission_link_to_wakechain():
+    authority, context = _slice_inputs("codex.run")
+    chain = WakeChain.start(author="tester")
+
+    outcome = CanonicalVerticalSlice().execute(
+        origin="unit-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=chain,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+
+    assert outcome.admitted is True
+    assert chain.head.kind == LinkKind.ADMISSION
+    assert chain.length == 2
+
+
+def test_canonical_slice_appends_refusal_link_to_wakechain():
+    authority, context = _slice_inputs("other.operation", bind_mismatch=True)
+    chain = WakeChain.start(author="tester")
+
+    outcome = CanonicalVerticalSlice().execute(
+        origin="unit-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=chain,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+
+    assert outcome.admitted is False
+    assert chain.head.kind == LinkKind.REFUSAL
+    assert chain.length == 2

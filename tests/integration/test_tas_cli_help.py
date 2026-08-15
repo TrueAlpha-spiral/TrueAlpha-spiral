@@ -41,3 +41,9 @@ class TestTasCliHelp(unittest.TestCase):
 
         normalized_stdout = re.sub(r'\s+', ' ', result.stdout)
         self.assertIn(".tasmeta.json sidecar anchor", normalized_stdout)
+
+    def test_vertical_slice_help_mentions_canonical_sequence(self):
+        result = self.run_cli("vertical-slice", "--help")
+        normalized_stdout = re.sub(r'\s+', ' ', result.stdout)
+        self.assertIn("Execute Authority -> Context -> Admission", normalized_stdout)
+        self.assertIn("Runtime -> Receipt/Refusal", normalized_stdout)
