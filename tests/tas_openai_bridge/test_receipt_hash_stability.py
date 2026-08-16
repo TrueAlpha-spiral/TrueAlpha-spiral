@@ -68,4 +68,4 @@ def test_canonical_slice_admission_receipt_is_stable_for_fixed_timestamp():
         timestamp=timestamp,
     )
     assert first.receipt["receipt_id"] == second.receipt["receipt_id"]
-# Nonce: 14642
+# Nonce: 21865
