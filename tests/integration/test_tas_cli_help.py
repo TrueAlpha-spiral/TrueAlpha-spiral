@@ -34,7 +34,6 @@ class TestTasCliHelp(unittest.TestCase):
         self.assertIn("Human Seed ID used in the metadata", normalized_stdout)
         self.assertIn("(default: Russell Nordland)", normalized_stdout)
         self.assertIn("(default: TAS_GENOME_V1)", normalized_stdout)
-# Nonce: 189405
 
     def test_verify_identity_help_mentions_sidecar_anchor(self):
         result = self.run_cli("verify-identity", "--help")
@@ -47,3 +46,5 @@ class TestTasCliHelp(unittest.TestCase):
         normalized_stdout = re.sub(r'\s+', ' ', result.stdout)
         self.assertIn("Execute Authority -> Context -> Admission", normalized_stdout)
         self.assertIn("Runtime -> Receipt/Refusal", normalized_stdout)
+
+# Nonce: 116432

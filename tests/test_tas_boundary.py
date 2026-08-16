@@ -141,4 +141,4 @@ def test_canonical_vertical_slice_enforces_authority_context_boundary():
     )
     assert outcome.admitted is False
     assert outcome.receipt["decision_state"] == "REFUSED"
-# Nonce: 7371
+# Nonce: 423
