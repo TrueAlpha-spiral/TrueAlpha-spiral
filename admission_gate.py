@@ -43,12 +43,191 @@ from context_snapshot import (
 AUTHORIZATION_DOMAIN = b"TAS-AUTHORITY-GATE-V1\x00"
 AUTHORITY_BINDING_DOMAIN = b"TAS-AUTHORITY-BINDING-V1\x00"
 RECEIPT_DOMAIN = b"TAS-ADMISSION-RECEIPT-V1\x00"
+REFUSAL_RECEIPT_DOMAIN = b"TAS-REFUSAL-RECEIPT-V1\x00"
 RULE_SET_VERSION = "TAS-PI-GATE-2"
 _HEX_64 = re.compile(r"^[0-9a-f]{64}$")
 _SECP256K1_ORDER = (
     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 )
 
+
+# Gate evaluation order: (field_name, failure_code)
+# Fields map to ``VerifiedGateResult`` attributes; the order determines
+# short-circuit precedence and is the only place that order is declared.
+_GATE_EVALUATION_ORDER: tuple[tuple[str, str], ...] = (
+    ("sig_valid", "GATE_FAIL_SIG_INVALID"),
+    ("authority_valid", "GATE_FAIL_AUTHORITY_INVALID"),
+    ("lineage_valid", "GATE_FAIL_LINEAGE_INVALID"),
+    ("context_valid", "GATE_FAIL_CONTEXT_INVALID"),
+    ("invariant_pass", "GATE_FAIL_INVARIANT_VIOLATION"),
+    ("replay_clean", "GATE_FAIL_REPLAY_DETECTED"),
+)
+
+
+@dataclass(frozen=True)
+class VerifiedGateResult:
+    """Gate results intended to be produced by internal verifier functions.
+
+    This dataclass is publicly instantiable, but ``evaluate_proposal`` only accepts
+    a ``VerifiedGateResult`` (and rejects plain dicts) to keep verification outcomes
+    separate from caller-claimed evidence.
+
+    This separates ``ClaimedVerification`` from ``VerifiedVerification``:
+
+    .. math::
+
+        \\text{ClaimedVerification}
+        \\neq
+        \\text{VerifiedVerification}
+    """
+
+    sig_valid: bool
+    authority_valid: bool
+    lineage_valid: bool
+    context_valid: bool
+    invariant_pass: bool
+    replay_clean: bool      # True  = no replay detected (pass); False = replay (fail)
+    timestamp_ns: int
+    node_attestation: Any
+
+    def first_failed_gate(self) -> str | None:
+        for field, failure in _GATE_EVALUATION_ORDER:
+            if not getattr(self, field):
+                return failure
+        return None
+
+
+def _canonical_safe(value: Any) -> Any:
+    if isinstance(value, bool) or value is None:
+        return value
+    if isinstance(value, int):
+        if -(2**53 - 1) <= value <= 2**53 - 1:
+            return value
+        return str(value)
+    if isinstance(value, float):
+        return str(value)
+    if isinstance(value, bytes):
+        return base64.b64encode(value).decode()
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return [_canonical_safe(item) for item in value]
+    if isinstance(value, tuple):
+        return [_canonical_safe(item) for item in value]
+    if isinstance(value, dict):
+        return {str(key): _canonical_safe(item) for key, item in value.items()}
+    return str(value)
+
+
+def _gate_result_to_evidence_snapshot(result: VerifiedGateResult) -> dict[str, Any]:
+    """Produce a safe, canonical snapshot of gate results for receipt embedding."""
+    ts = result.timestamp_ns
+    if not isinstance(ts, int) or isinstance(ts, bool):
+        ts_str = "0"
+    elif -(2**53 - 1) <= ts <= 2**53 - 1:
+        ts_str = str(ts)
+    else:
+        ts_str = "0"
+    return {
+        "sig_valid": result.sig_valid,
+        "authority_valid": result.authority_valid,
+        "lineage_valid": result.lineage_valid,
+        "context_valid": result.context_valid,
+        "invariant_pass": result.invariant_pass,
+        "replay_clean": result.replay_clean,
+        "timestamp_ns": ts_str,
+        "node_attestation": _canonical_safe(result.node_attestation),
+    }
+
+
+def _deterministic_refusal_receipt(
+    *,
+    proposal_hash: str,
+    gate_result: VerifiedGateResult,
+    failed_gate: str,
+    prior_state_root: str,
+) -> dict[str, Any]:
+    evidence_snapshot = _gate_result_to_evidence_snapshot(gate_result)
+    body: dict[str, Any] = {
+        "schema_version": 1,
+        "proposal_hash": proposal_hash,
+        "evidence": evidence_snapshot,
+        "failed_gate": failed_gate,
+        "prior_state_root": prior_state_root,
+        "delta_s": 0,
+        "timestamp_ns": evidence_snapshot["timestamp_ns"],
+        "node_attestation": evidence_snapshot["node_attestation"],
+        "resulting_state": "REFUSED",
+    }
+    body["receipt_hash"] = hashlib.sha256(
+        REFUSAL_RECEIPT_DOMAIN + canonical_json(body)
+    ).hexdigest()
+    return body
+
+
+def evaluate_proposal(
+    proposal: dict[str, Any],
+    gate_result: VerifiedGateResult,
+    prior_state_root: str,
+) -> Tuple[bool, dict[str, Any]]:
+    """Evaluate gate conditions in fixed order and emit a deterministic receipt.
+
+    Parameters
+    ----------
+    proposal:
+        The candidate proposal dict (P).
+    gate_result:
+        A ``VerifiedGateResult`` whose boolean fields were populated by the
+        caller's internal verification functions — **not** by the caller
+        asserting their own desired outcome.  Each field must represent the
+        result of an actual check, not a claimed result.
+    prior_state_root:
+        64-character lowercase hex string identifying the current state root.
+
+    Returns
+    -------
+    (True,  admission_dict)   when all gate conditions pass.
+    (False, refusal_receipt)  when any gate condition fails (ΔS = 0).
+    """
+    if not isinstance(proposal, dict):
+        raise ValueError("proposal must be a dict")
+    if not isinstance(gate_result, VerifiedGateResult):
+        raise TypeError(
+            "gate_result must be a VerifiedGateResult produced by internal "
+            "verification functions, not a caller-supplied evidence dict"
+        )
+    if not isinstance(prior_state_root, str) or not _HEX_64.fullmatch(
+        prior_state_root
+    ):
+        raise ValueError("prior_state_root must be 64 lowercase hex chars")
+
+    proposal_hash = canonical_hash(proposal)
+    failed_gate = gate_result.first_failed_gate()
+    if failed_gate is not None:
+        return (
+            False,
+            _deterministic_refusal_receipt(
+                proposal_hash=proposal_hash,
+                gate_result=gate_result,
+                failed_gate=failed_gate,
+                prior_state_root=prior_state_root,
+            ),
+        )
+
+    evidence_snapshot = _gate_result_to_evidence_snapshot(gate_result)
+    body: dict[str, Any] = {
+        "schema_version": 1,
+        "proposal_hash": proposal_hash,
+        "evidence": evidence_snapshot,
+        "prior_state_root": prior_state_root,
+        "failed_gate": None,
+        "delta_s": 0,
+        "resulting_state": "ADMITTED",
+    }
+    body["receipt_hash"] = hashlib.sha256(
+        RECEIPT_DOMAIN + canonical_json(body)
+    ).hexdigest()
+    return (True, body)
 
 @dataclass(frozen=True)
 class AuthoritySnapshot:
