@@ -5,15 +5,83 @@ trajectory hash into a deterministic token mask before sampling.  Unvalidated
 vocabulary indices receive a large negative logit bias so probability mass can
 only remain on cryptographically admissible continuations.
 """
+
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 from dataclasses import dataclass
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Sequence
 
 LOGGER = logging.getLogger(__name__)
 DEFAULT_DOMAIN = b"TAS-SOVEREIGN-RUNTIME-LINEAGE-MASK-v1"
+ADMISSIBILITY_DOMAIN = b"TAS-SOVEREIGN-ADMISSIBILITY-v1\0"
+
+
+@dataclass(frozen=True)
+class AdmissibilityObject:
+    """Immutable verifier-to-runtime capability.
+
+    ``commitment`` binds every field that can affect runtime authorization.
+    The runtime always recomputes it rather than trusting the supplied value.
+    """
+
+    candidate_hash: str
+    authority_snapshot_id: str
+    context_snapshot_id: str
+    closed_admitted_action_set: tuple[str, ...]
+    decision: str
+    verifier_id: str
+    commitment: str
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        candidate_hash: str,
+        authority_snapshot_id: str,
+        context_snapshot_id: str,
+        closed_admitted_action_set: Sequence[str],
+        decision: str,
+        verifier_id: str,
+    ) -> "AdmissibilityObject":
+        actions = tuple(sorted(set(closed_admitted_action_set)))
+        fields = {
+            "candidate_hash": candidate_hash,
+            "authority_snapshot_id": authority_snapshot_id,
+            "context_snapshot_id": context_snapshot_id,
+            "closed_admitted_action_set": list(actions),
+            "decision": decision,
+            "verifier_id": verifier_id,
+        }
+        commitment = hashlib.sha256(
+            ADMISSIBILITY_DOMAIN
+            + json.dumps(fields, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        return cls(
+            candidate_hash=candidate_hash,
+            authority_snapshot_id=authority_snapshot_id,
+            context_snapshot_id=context_snapshot_id,
+            closed_admitted_action_set=actions,
+            decision=decision,
+            verifier_id=verifier_id,
+            commitment=commitment,
+        )
+
+    def recompute_commitment(self) -> str:
+        return self.create(
+            candidate_hash=self.candidate_hash,
+            authority_snapshot_id=self.authority_snapshot_id,
+            context_snapshot_id=self.context_snapshot_id,
+            closed_admitted_action_set=self.closed_admitted_action_set,
+            decision=self.decision,
+            verifier_id=self.verifier_id,
+        ).commitment
+
+
+class AdmissionViolation(RuntimeError):
+    """Raised when a runtime action is not exactly authorized by admission."""
 
 
 @dataclass(frozen=True)
@@ -76,6 +144,23 @@ class SovereignRuntime:
         self.logger = logger or LOGGER
         self.decisions: List[LineageDecision] = []
 
+    def authorize_operation(
+        self, operation: str, admissibility: AdmissibilityObject
+    ) -> None:
+        """Fail closed unless ``operation`` is in an intact admitted capability."""
+        if not isinstance(admissibility, AdmissibilityObject):
+            raise AdmissionViolation("missing immutable admissibility object")
+        if admissibility.commitment != admissibility.recompute_commitment():
+            raise AdmissionViolation("admissibility commitment mismatch")
+        if admissibility.decision != "ADMITTED":
+            raise AdmissionViolation("admissibility decision is not ADMITTED")
+        if not admissibility.closed_admitted_action_set:
+            raise AdmissionViolation("closed admitted action set is empty")
+        if operation not in admissibility.closed_admitted_action_set:
+            raise AdmissionViolation(
+                f"operation {operation!r} is outside the closed admitted action set"
+            )
+
     def valid_token_indices(self, parent_hash: str) -> List[int]:
         """Return deterministic admissible token ids for ``parent_hash``."""
         self._validate_parent_hash(parent_hash)
@@ -101,7 +186,9 @@ class SovereignRuntime:
         mask = self._compute_lineage_mask(parent_hash, device=logits.device)
         valid_paths = int(mask.sum().item())
         if valid_paths == 0:
-            raise NullCollapse(f"Null collapse: no admissible tokens for parent {parent_hash}")
+            raise NullCollapse(
+                f"Null collapse: no admissible tokens for parent {parent_hash}"
+            )
         while mask.dim() < logits.dim():
             mask = mask.unsqueeze(0)
         penalty = self.penalty_floor * self.heartbeat_rate
@@ -143,8 +230,12 @@ class SovereignRuntime:
 
     @staticmethod
     def _validate_parent_hash(parent_hash: str) -> None:
-        if len(parent_hash) != 64 or any(c not in "0123456789abcdef" for c in parent_hash):
-            raise ValueError("parent_hash must be a 64-character lowercase SHA-256 hex digest")
+        if len(parent_hash) != 64 or any(
+            c not in "0123456789abcdef" for c in parent_hash
+        ):
+            raise ValueError(
+                "parent_hash must be a 64-character lowercase SHA-256 hex digest"
+            )
 
     @staticmethod
     def _token_digest(parent_hash: str, token_id: int) -> bytes:
@@ -162,5 +253,7 @@ class SovereignRuntime:
         try:
             import torch  # type: ignore
         except ImportError as exc:  # pragma: no cover - exercised where torch is absent
-            raise RuntimeError("SovereignRuntime forward-pass methods require PyTorch") from exc
+            raise RuntimeError(
+                "SovereignRuntime forward-pass methods require PyTorch"
+            ) from exc
         return torch
