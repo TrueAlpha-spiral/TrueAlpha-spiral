@@ -1,10 +1,11 @@
 import hashlib
+from dataclasses import replace
 
 import pytest
 
 from core.authority.authority_snapshot import AuthoritySnapshot
 from core.semantics.context_snapshot import ContextSnapshot
-from core.runtime import SovereignRuntime
+from core.runtime import AdmissionViolation, SovereignRuntime
 from core.vertical_slice import CanonicalVerticalSlice
 from core.wakechain import WakeChain
 
@@ -77,6 +78,48 @@ def test_canonical_slice_routes_through_runtime_projection():
     )
     assert outcome.admitted is True
     assert len(outcome.runtime_valid_token_indices) > 0
+    assert outcome.admissibility.closed_admitted_action_set == ("codex.run",)
+    assert (
+        outcome.admissibility.commitment == outcome.admissibility.recompute_commitment()
+    )
+
+
+def test_runtime_rejects_operation_outside_verifier_closed_set():
+    authority, context = _slice_inputs()
+    runtime = SovereignRuntime(_NoopModel(), vocab_size=128, valid_threshold=32)
+    outcome = CanonicalVerticalSlice().execute(
+        origin="runtime-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=WakeChain.start(author="tester"),
+        runtime=runtime,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+
+    with pytest.raises(AdmissionViolation, match="outside the closed"):
+        runtime.authorize_operation("codex.delete", outcome.admissibility)
+
+
+def test_runtime_recomputes_admissibility_commitment():
+    authority, context = _slice_inputs()
+    runtime = SovereignRuntime(_NoopModel(), vocab_size=128, valid_threshold=32)
+    outcome = CanonicalVerticalSlice().execute(
+        origin="runtime-test",
+        operation="codex.run",
+        authority=authority,
+        context=context,
+        wakechain=WakeChain.start(author="tester"),
+        runtime=runtime,
+        timestamp="2026-07-18T12:00:00Z",
+    )
+    enlarged = replace(
+        outcome.admissibility,
+        closed_admitted_action_set=("codex.delete", "codex.run"),
+    )
+
+    with pytest.raises(AdmissionViolation, match="commitment mismatch"):
+        runtime.authorize_operation("codex.delete", enlarged)
 
 
 def test_canonical_slice_refuses_on_runtime_null_collapse():

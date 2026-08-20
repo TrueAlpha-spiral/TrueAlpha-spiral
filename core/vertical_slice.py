@@ -2,6 +2,7 @@
 
 Authority -> Context -> Admission -> TASGene -> WakeChain -> Runtime -> Receipt.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -15,7 +16,7 @@ from tas_openai_bridge.refusal import RefusalArtifact
 from .authority.authority_snapshot import AuthoritySnapshot
 from .gene import TASGene
 from .recovery.phoenix_recovery import PhoenixRecovery, RecoveryRecord
-from .runtime.sovereign_runtime import SovereignRuntime
+from .runtime.sovereign_runtime import AdmissibilityObject, SovereignRuntime
 from .semantics.context_snapshot import ContextSnapshot
 from .verification.universal_verifier import UniversalVerifierKernel, VerificationResult
 from .wakechain import WakeChain, WakeLink
@@ -25,12 +26,16 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _runtime_parent_hash(parent_gene_id: str | None, authority: AuthoritySnapshot) -> str:
+def _runtime_parent_hash(
+    parent_gene_id: str | None, authority: AuthoritySnapshot
+) -> str:
     if parent_gene_id is None:
         return authority.snapshot_id
     if parent_gene_id.startswith("sha256:") and len(parent_gene_id) == 71:
         return parent_gene_id.split(":", 1)[1]
-    if len(parent_gene_id) == 64 and all(c in "0123456789abcdef" for c in parent_gene_id):
+    if len(parent_gene_id) == 64 and all(
+        c in "0123456789abcdef" for c in parent_gene_id
+    ):
         return parent_gene_id
     return hashlib.sha256(parent_gene_id.encode("utf-8")).hexdigest()
 
@@ -43,6 +48,7 @@ class VerticalSliceOutcome:
     link: WakeLink
     receipt: dict[str, Any]
     runtime_valid_token_indices: tuple[int, ...]
+    admissibility: AdmissibilityObject
     recovery: RecoveryRecord | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,6 +59,12 @@ class VerticalSliceOutcome:
             "wake_link": self.link.to_dict(),
             "receipt": self.receipt,
             "runtime_valid_token_indices": list(self.runtime_valid_token_indices),
+            "admissibility": {
+                **self.admissibility.__dict__,
+                "closed_admitted_action_set": list(
+                    self.admissibility.closed_admitted_action_set
+                ),
+            },
             "recovery": self.recovery.to_dict() if self.recovery else None,
         }
 
@@ -96,7 +108,11 @@ class CanonicalVerticalSlice:
             raise TypeError("wakechain must be a WakeChain")
 
         evaluated_at = timestamp or _now_iso()
-        required = tuple(required_invariants) if required_invariants is not None else tuple(context.invariant_set)
+        required = (
+            tuple(required_invariants)
+            if required_invariants is not None
+            else tuple(context.invariant_set)
+        )
         parent_id = parent_gene_id
         if parent_id is None and wakechain.head.gene_id:
             parent_id = wakechain.head.gene_id
@@ -116,12 +132,21 @@ class CanonicalVerticalSlice:
             parent_gene_id=parent_id,
             required_invariants=required,
         )
+        admissibility = AdmissibilityObject.create(
+            candidate_hash=verification.candidate_hash,
+            authority_snapshot_id=authority.snapshot_id,
+            context_snapshot_id=context.snapshot_id,
+            closed_admitted_action_set=(operation,) if verification.admitted else (),
+            decision="ADMITTED" if verification.admitted else "REFUSED",
+            verifier_id=verification.verifier_id,
+        )
 
         runtime_indices: tuple[int, ...] = ()
         runtime_failure: str | None = None
         if verification.admitted and runtime is not None:
             try:
                 runtime_parent = _runtime_parent_hash(parent_id, authority)
+                runtime.authorize_operation(operation, admissibility)
                 runtime_indices = tuple(runtime.valid_token_indices(runtime_parent))
                 if not runtime_indices:
                     runtime_failure = "RUNTIME_NULL_COLLAPSE"
@@ -160,11 +185,16 @@ class CanonicalVerticalSlice:
                 link=link,
                 receipt=receipt,
                 runtime_valid_token_indices=runtime_indices,
+                admissibility=admissibility,
                 recovery=None,
             )
 
-        failure_reason = verification.failure_reason if runtime_failure is None else runtime_failure
-        failure_code = verification.failure_code if runtime_failure is None else runtime_failure
+        failure_reason = (
+            verification.failure_reason if runtime_failure is None else runtime_failure
+        )
+        failure_code = (
+            verification.failure_code if runtime_failure is None else runtime_failure
+        )
         refusal = RefusalArtifact.for_reason(
             reason=failure_reason or "Admission refused by canonical vertical slice",
             code=failure_code or "ADMISSION_REFUSED",
@@ -179,7 +209,9 @@ class CanonicalVerticalSlice:
             authority=authority.snapshot_id,
             operation=operation,
             parent=parent_id,
-            invariants=required or tuple(context.invariant_set) or ("ADMISSION_REFUSED",),
+            invariants=required
+            or tuple(context.invariant_set)
+            or ("ADMISSION_REFUSED",),
             receipt=refusal_receipt,
         )
         link = wakechain.append(gene)
@@ -195,5 +227,6 @@ class CanonicalVerticalSlice:
             link=link,
             receipt=refusal_receipt,
             runtime_valid_token_indices=runtime_indices,
+            admissibility=admissibility,
             recovery=recovery,
         )

@@ -19,6 +19,7 @@ DeploymentProfile        §6           S0–S5 maturity levels
 PhoenixRecovery          §8           Failure, recovery, reconstitution
 SovereignRuntime         PoC          Lineage-constrained forward pass
 """
+
 from .gene import TASGene, Decision
 from .wakechain import WakeChain, WakeLink, LinkKind
 from .authority.authority_snapshot import AuthoritySnapshot
@@ -42,7 +43,13 @@ from .recovery.phoenix_recovery import (
     RecoveryPhase,
     RecoveryViolation,
 )
-from .runtime import LineageDecision, NullCollapse, SovereignRuntime
+from .runtime import (
+    AdmissionViolation,
+    AdmissibilityObject,
+    LineageDecision,
+    NullCollapse,
+    SovereignRuntime,
+)
 from .vertical_slice import CanonicalVerticalSlice, VerticalSliceOutcome
 
 __all__ = [
@@ -71,6 +78,8 @@ __all__ = [
     "LineageDecision",
     "NullCollapse",
     "SovereignRuntime",
+    "AdmissionViolation",
+    "AdmissibilityObject",
     "CanonicalVerticalSlice",
     "VerticalSliceOutcome",
     # Recovery
