@@ -1,9 +1,23 @@
 import pathlib
-import types
 import pytest
+import importlib.util
+import importlib.abc
+import sys
 
-MODULE_PATH = pathlib.Path(__file__).resolve().parents[1] / "collaboration"
+MODULE_PATH = pathlib.Path(__file__).resolve().parent / "collaboration"
+if not MODULE_PATH.exists():
+    MODULE_PATH = pathlib.Path(__file__).resolve().parents[1] / "collaboration"
 
+class StringLoader(importlib.abc.SourceLoader):
+    def __init__(self, data, path):
+        self.data = data
+        self.path = path
+    def get_source(self, fullname):
+        return self.data
+    def get_data(self, path):
+        return self.data.encode('utf-8')
+    def get_filename(self, fullname):
+        return str(self.path)
 
 def load_module(path: pathlib.Path):
     """Load the 'collaboration' script as a module despite non-Python preamble."""
@@ -16,10 +30,13 @@ def load_module(path: pathlib.Path):
             start = i
             break
     code = "\n".join(lines[start:])
-    module = types.ModuleType("collaboration")
-    exec(code, module.__dict__)
-    return module
 
+    loader = StringLoader(code, path)
+    spec = importlib.util.spec_from_loader("collaboration", loader)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["collaboration"] = module
+    loader.exec_module(module)
+    return module
 
 collaboration = load_module(MODULE_PATH)
 QuantumCollaborationInterface = collaboration.QuantumCollaborationInterface
@@ -61,4 +78,4 @@ def test_invalid_sequence_insufficient_pairs(qci):
     assert result["valid"] is False
     assert result["score"] == pytest.approx(0.3)
     assert result["quantum_pattern_present"] is True
-# Nonce: 34450
+# Nonce: 9258
