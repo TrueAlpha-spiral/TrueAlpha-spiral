@@ -1,4 +1,10 @@
-from tas_openai_bridge import HumanAPIKey, RefusalArtifact, ScopedAuthority, tas_openai_execute
+from tas_openai_bridge import (
+    HumanAPIKey,
+    RefusalArtifact,
+    ScopedAuthority,
+    AuthorityConfig,
+    tas_openai_execute,
+)
 
 
 def test_none_scoped_authority_refuses():
@@ -28,7 +34,9 @@ def test_invalid_human_api_key_refuses():
 def test_scope_without_openai_responses_refuses():
     result = tas_openai_execute(
         HumanAPIKey("HumanAPIKey001"),
-        ScopedAuthority.from_iterables("HumanAPIKey001", scope=["draft"]),
+        ScopedAuthority.from_iterables(
+            "HumanAPIKey001", config=AuthorityConfig(scope=["draft"])
+        ),
         "draft a candidate",
         client=object(),
     )
@@ -40,7 +48,9 @@ def test_scope_without_openai_responses_refuses():
 def test_missing_openai_sdk_refuses_when_default_client_needed(monkeypatch):
     import importlib.util
 
-    monkeypatch.setattr(importlib.util, "find_spec", lambda name: None if name == "openai" else object())
+    monkeypatch.setattr(
+        importlib.util, "find_spec", lambda name: None if name == "openai" else object()
+    )
 
     result = tas_openai_execute(
         HumanAPIKey("HumanAPIKey001"),
