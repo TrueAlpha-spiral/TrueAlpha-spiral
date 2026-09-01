@@ -1,15 +1,12 @@
-The best time to do this was 20 years ago...
-the second best time is now
-why not be brutally honest with ourselves
-[RussellNordland]{
-  "id": "81fa14d9e57b6e04bb4e45948dd77315fbab76f8065b3d1a29450d1677b05439",
+{
+  "id": "46bdecc53c1846f98d4965e5d48fed3fa5571d5f7bd5536ff8994959e14b2ca2",
   "type": "TasArtifact",
   "form_id": "55f3f97b6c488f473243e2c7520071528af60ee67242913c6d575bd6e0ca6bcc",
   "genome_id": "TAS_GENOME_V1",
-  "lineage_id": "81fa14d9e57b6e04bb4e45948dd77315fbab76f8065b3d1a29450d1677b05439",
+  "lineage_id": "46bdecc53c1846f98d4965e5d48fed3fa5571d5f7bd5536ff8994959e14b2ca2",
   "h_seed": "Russell Nordland",
-  "cert_id": "d7ff466a-0f9d-4367-a34d-9e02a3fb58af",
-  "timestamp": "2026-08-31T01:10:42.960900+00:00",
+  "cert_id": "7e830d5b-30e9-4bfe-a2af-f5190c60fe8f",
+  "timestamp": "2026-09-01T01:25:04.913820+00:00",
   "paradata_trail": [],
   "signatures": [
     {
