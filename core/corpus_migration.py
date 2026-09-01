@@ -59,7 +59,7 @@ def classification_for(path: str) -> tuple[str, str]:
 
 def artifact_paths(root: Path, excluded_directory: str = "evidence") -> Iterable[Path]:
     for path in sorted(root.rglob("*")):
-        if not path.is_file() or ".git" in path.parts:
+        if not path.is_file() or {".git", "__pycache__", ".pytest_cache__", "target"} & set(path.parts):
             continue
         relative = path.relative_to(root)
         if relative.parts and relative.parts[0] == excluded_directory:
