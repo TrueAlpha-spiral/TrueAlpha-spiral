@@ -51,6 +51,12 @@ from .runtime import (
     SovereignRuntime,
 )
 from .vertical_slice import CanonicalVerticalSlice, VerticalSliceOutcome
+from .invariant_contract import (
+    CanonicalReceipt,
+    CanonicalTransition,
+    canonical_transition_proof,
+    transition_semantics,
+)
 
 __all__ = [
     # Evidentiary layer
@@ -82,6 +88,11 @@ __all__ = [
     "AdmissibilityObject",
     "CanonicalVerticalSlice",
     "VerticalSliceOutcome",
+    # Canonical semantic contract
+    "CanonicalReceipt",
+    "CanonicalTransition",
+    "canonical_transition_proof",
+    "transition_semantics",
     # Recovery
     "PhoenixRecovery",
     "RecoveryRecord",
