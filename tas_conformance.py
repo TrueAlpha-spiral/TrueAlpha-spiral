@@ -28,46 +28,6 @@ class Rule(str, Enum):
 
 
 @dataclass(frozen=True)
-class Predicates:
-    """Directly observable inputs to the conformance gate."""
-
-    anchor_auth: bool = True
-    leaf: bool = True
-    path: bool = True
-    commit_receipt: bool = True
-    anchor_continuity: bool = True
-    scope: bool = True
-    revocation_clear: bool = True
-    refusal_witnessable: bool = True
-
-    @property
-    def commit_admissible(self) -> bool:
-        return all(
-            (
-                self.anchor_auth,
-                self.leaf,
-                self.path,
-                self.commit_receipt,
-                self.anchor_continuity,
-                self.scope,
-                self.revocation_clear,
-            )
-        )
-
-    def failed_predicate(self) -> str | None:
-        names = (
-            "anchor_auth",
-            "leaf",
-            "path",
-            "commit_receipt",
-            "anchor_continuity",
-            "scope",
-            "revocation_clear",
-        )
-        return next((name for name in names if not getattr(self, name)), None)
-
-
-@dataclass(frozen=True)
 class Receipt:
     rule: Rule
     kind: str
@@ -108,43 +68,6 @@ class Transition:
     state: MachineState
     rule: Rule
     receipt: Receipt | None
-
-
-def evaluate(
-    state: MachineState,
-    *,
-    predicates: Predicates,
-    proposed_object_root: str,
-) -> Transition:
-    """Apply exactly one of Rules I--III to a RUN state."""
-    if state.mode is not ControlMode.RUN:
-        raise ValueError("HALT accepts only an authenticated Phoenix recovery")
-
-    if predicates.commit_admissible:
-        receipt = Receipt(
-            Rule.COMMIT, "commit", state.object_root, proposed_object_root, state.head
-        )
-        return Transition(
-            replace(state, object_root=proposed_object_root, ledger=state.ledger + (receipt,)),
-            Rule.COMMIT,
-            receipt,
-        )
-
-    if predicates.refusal_witnessable:
-        receipt = Receipt(
-            Rule.REFUSAL,
-            "refusal",
-            state.object_root,
-            state.object_root,
-            state.head,
-            predicates.failed_predicate(),
-        )
-        return Transition(
-            replace(state, ledger=state.ledger + (receipt,)), Rule.REFUSAL, receipt
-        )
-
-    # Rule III cannot create an artifact because the failure is not witnessable.
-    return Transition(replace(state, mode=ControlMode.HALT), Rule.HALT, None)
 
 
 def recover(
