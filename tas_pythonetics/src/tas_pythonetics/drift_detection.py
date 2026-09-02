@@ -7,6 +7,8 @@ FORBIDDEN_PATTERNS = [
     "when narrative replaced logic intelligent reasoning ceased to exist",
 ]
 
+_COMPILED_PATTERNS = [re.compile(re.escape(pattern), flags=re.IGNORECASE) for pattern in FORBIDDEN_PATTERNS]
+
 def detect_drift(output: str, context: str = "") -> bool:
     """
     Detect if the output has drifted based on the presence of the [DRIFT] tag
@@ -28,11 +30,10 @@ def initiate_self_heal(output: str) -> str:
     Appends a [HEALED] tag and attempts to correct known drift patterns.
     """
     healed = output
-    for pattern in FORBIDDEN_PATTERNS:
-        # Case-insensitive replacement
-        healed = re.sub(re.escape(pattern), "[REDACTED]", healed, flags=re.IGNORECASE)
+    for pattern in _COMPILED_PATTERNS:
+        healed = pattern.sub("[REDACTED]", healed)
 
     if "[HEALED]" not in healed:
         healed += " [HEALED]"
     return healed
-# Nonce: 25709
+# Nonce: 190924
