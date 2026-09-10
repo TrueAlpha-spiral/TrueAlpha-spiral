@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://truealphaspiral.org/schemas/paradata-receipt.json",
+  "title": "TAS Sovereign Kernel Receipt",
+  "oneOf": [
+    { "$ref": "#/$defs/paradataReceipt" },
+    { "$ref": "#/$defs/refusalReceipt" },
+    { "$ref": "#/$defs/timeoutReceipt" }
+  ],
+  "$defs": {
+    "base": {
+      "type": "object",
+      "required": ["receipt_id", "timestamp", "status", "metadata"],
+      "properties": {
+        "receipt_id": { "type": "string", "format": "uuid" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "enum": ["COMMITTED", "REFUSED", "TIMEOUT"] },
+        "metadata": { "type": "object" }
+      }
+    },
+    "paradataReceipt": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["elapsed_ms"],
+          "properties": {
+            "status": { "const": "COMMITTED" },
+            "elapsed_ms": { "type": "integer", "minimum": 0 }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "refusalReceipt": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["violation_codes"],
+          "properties": {
+            "status": { "const": "REFUSED" },
+            "violation_codes": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "E_INADMISSIBLE_TRAJECTORY",
+                  "E_AUTHENTICATION_FAILURE"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "timeoutReceipt": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["timeout_ms", "reason"],
+          "properties": {
+            "status": { "const": "TIMEOUT" },
+            "timeout_ms": { "type": "integer", "minimum": 0 },
+            "reason": { "const": "AXIOM_OF_EXHAUSTION" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}
