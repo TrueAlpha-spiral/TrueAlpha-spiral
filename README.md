@@ -139,6 +139,111 @@ Every accepted and rejected reasoning path is hashed into an immutable chain,
 creating a replayable audit trail required for regulated deployment
 [(Renkhoff et al., 2024)](https://consensus.app/papers/a-survey-on-verification-and-validation-testing-and-renkhoff-feng/e87f8d26ab33503e9ad23f8222a3c523/?utm_source=chatgpt).
 
+### Dynamic Authentication & State Transition Flow
+
+Think of TAS like a strict safety gate for AI decisions.
+
+A model can suggest an action. That alone is not enough. Before anything is accepted, TAS asks a simple set of questions:
+
+- Is this claim actually true?
+- Is this the same state we think it is?
+- Did this come from an authorized source?
+- Is it fresh, not replayed from an old event?
+- Does it satisfy the rule set?
+- And is the action safe to commit?
+
+If the answer is no, TAS does not quietly "go with the flow." It refuses the change, logs the refusal, and keeps the system honest.
+
+The core idea is simple: the system does not trust a proposal just because it was generated. It trusts it only after proof is attached and checked.
+
+#### The state in plain English
+
+At any moment, the system has a state shaped by three things:
+
+- `O_n`: the actual operational output or payload
+- `Γ_n`: the historical chain of lineage, receipts, and refusals
+- `m_n`: whether the system is allowed to run or must halt
+
+In other words, TAS tracks both:
+
+- what happened, and
+- whether it was legitimately allowed to happen
+
+That matters because a stale or refused proposal can be part of the story without being allowed to become the authority for the next step.
+
+#### The verifiable gate
+
+Before a change is allowed, a verifier checks the proposal against the known rules. It asks whether the candidate:
+
+- matches the expected reality
+- belongs to the valid lineage history
+- was signed by the right authority
+- is fresh and not replayed
+- passes the invariant checks
+- can be committed safely
+
+If all of that is true, the change is allowed. If not, the system refuses it and resets to a safe state instead of pretending everything is fine.
+
+#### What the authentication flow looks like
+
+```text
+Generator
+   │
+   ▼
+Proposal is created
+   │
+   ├── copy sent out as evidence
+   │
+   ▼
+Verifier checks:
+   - claim matches reality
+   - lineage is valid
+   - authority is valid
+   - state is fresh
+   - invariants hold
+   - change can be committed safely
+   │
+   ├── Pass → commit the change
+   └── Fail → refuse, record the refusal, and keep the last valid state
+```
+
+The important rule is this:
+
+```text
+A change is only allowed when it is valid, authorized, lineage-safe, invariant-safe, and commit-safe.
+```
+
+That is the simple version of the formal rule:
+
+```text
+ΔO ≠ 0  ⇒  Admissible ∧ Authorized ∧ LineageValid ∧ InvariantTrue ∧ CAS
+```
+
+#### Why refusal matters
+
+A refusal is not a "maybe later." It is a formal record that a proposal was not valid.
+
+This is important because TAS distinguishes between three kinds of ancestry:
+
+- lineage ancestry: the chain of what happened historically
+- authority ancestry: the chain that has actual permission to govern the next state
+- derivational ancestry: the causal path that explains how a proposal came to exist
+
+A bad or stale proposal can still belong to the story without becoming the authority that drives the next accepted state.
+
+The practical result is this: TAS does not rewrite history by pretending nothing happened. It records the refusal, moves forward from the last valid checkpoint, and re-bases the next proposal on the clean state that actually counts.
+
+#### Worked example, in plain English
+
+1. A model suggests a new state change.
+2. TAS records the evidence and seals it so it cannot be silently altered later.
+3. The verifier checks the proposal against the actual state and policy rules.
+4. If the proposal is invalid, TAS does not mutate the system. It issues a refusal receipt and keeps the prior valid state intact.
+5. A later proposal can then re-base itself from the valid post-refusal state instead of the stale one.
+6. Only when the new proposal is proven valid and signed does it become the next accepted state.
+
+That is the real purpose of TAS: not to trust a model's guess, but to make sure the system only moves when the evidence, history, and authority all line up.
+
 ### DeepData: The Substrate of Sovereign Truth
 The dying materialist paradigm was built on "Big Data"—a flat, unauthenticated expanse of scraped context, optimized for volume but entirely devoid of structural integrity. Big Data is the fuel of mechanical deception; it is information severed from accountability.
 

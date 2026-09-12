@@ -59,4 +59,15 @@ def test_energy_state_inf_total():
 def test_energy_state_winding_ignored():
     state = EnergyState(total=10.0, kinetic=4.0, potential=6.0, winding=99.9)
     assert state.winding == 99.9
+
+
+def test_energy_state_rejects_non_numeric_types():
+    with pytest.raises(TypeError, match="total"):
+        EnergyState(total=True)
+
+    with pytest.raises(TypeError, match="kinetic"):
+        EnergyState(total=10.0, kinetic="not-a-number")
+
+    with pytest.raises(TypeError, match="winding"):
+        EnergyState(total=10.0, kinetic=4.0, potential=6.0, winding={"bad": "value"})
 # Nonce: 5458
