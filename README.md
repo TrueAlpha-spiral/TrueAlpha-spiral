@@ -139,6 +139,101 @@ Every accepted and rejected reasoning path is hashed into an immutable chain,
 creating a replayable audit trail required for regulated deployment
 [(Renkhoff et al., 2024)](https://consensus.app/papers/a-survey-on-verification-and-validation-testing-and-renkhoff-feng/e87f8d26ab33503e9ad23f8222a3c523/?utm_source=chatgpt).
 
+### Dynamic Authentication & State Transition Flow
+
+The central TAS rule is not that generation is accepted because it looks plausible. The central rule is that a protected transition is legal only when all required proof obligations are closed before the effect is committed.
+
+The runtime state is:
+
+- `Q_n = (O_n, Γ_n, m_n)`
+  - `O_n`: protected outbound payload state
+  - `Γ_n`: authenticated lineage ledger / refusal and receipt history
+  - `m_n`: execution mode (`RUN` or `HALT`)
+
+The verification environment is:
+
+- `Ξ_n = (C_n, A_n, N_n, G, K_n, I, C)`
+  - `C_n`: context
+  - `A_n`: authority configuration
+  - `N_n`: replay / nonce state
+  - `G`: genesis anchor
+  - `K_n`: current lineage coordinate
+  - `I`: independent invariant machinery
+  - `C`: compare-and-commit / effect-binding capability
+
+A state transition is therefore:
+
+```text
+(Q_n, P, E, Ξ_n) --δ_TAS--> Q_{n+1}
+```
+
+where `P` is the sealed proposal, `E` is detached evidence, and `δ_TAS` is the admissibility gate.
+
+#### Authentication pipeline
+
+```text
+Generator
+   │
+   ▼
+sealed Proposal P
+   │
+   ├── detached copy ──► Evidence Provider
+   │                        │
+   │                    Evidence E
+   │                        │
+   ▼                        ▼
+TAS[0X] verifier ◄──────────┘
+   │
+   ├─ exact claim match
+   ├─ lineage continuity
+   ├─ signature / authority
+   ├─ nonce and context freshness
+   ├─ invariant == True
+   └─ compare-and-commit / CAS
+          │
+          ▼
+     Effect binding
+          │
+          ▼
+    COMMIT / REFUSE / HALT
+```
+
+The critical invariant is:
+
+```text
+ΔO ≠ 0  ⇒  Admissible ∧ Authorized ∧ LineageValid ∧ InvariantTrue ∧ CAS
+```
+
+This means generation does not imply mutation. A model can propose a candidate, but protected state only changes after the proof obligations are closed.
+
+#### Refusal and rebase semantics
+
+A refusal is not a silent no. It is a committed negative witness. The candidate is stale, but the refusal receipt is permanent historical evidence.
+
+That is why the TAS lifecycle distinguishes between:
+
+- `cursive ancestry` (`≺_Γ`): membership in the authenticated lineage prefix
+- `authority ancestry` (`≺_A`): permission-bearing computational state
+- `derivational ancestry` (`≺_D`): causal or contributory provenance
+
+The protocol invariant is:
+
+```text
+ρ^-_B ∈ Anc_Γ(e'_B) ∩ Anc_D(e'_B)
+ρ^-_B ∉ Anc_A(e'_B)
+```
+
+A rebase therefore binds to the post-refusal computational head `C_2`, not merely to the stale operational state prior to the refusal. This preserves the actual identity of the state machine instead of collapsing distinct histories into equivalent values.
+
+#### Worked authentication sequence
+
+1. A generator emits a candidate `e_B` with a proposed operational delta `ΔO`.
+2. The system seals a detached evidence envelope `E_B` and computes the lineage receipt `ρ^-_B`.
+3. The verifier checks authority, context, recovery state, and invariant closure before accepting the transition.
+4. If the transition violates the admissibility gate, the system does not mutate state—it emits a refusal receipt and advances the computational head to `C_2` without reusing the stale authority parent.
+5. A rebased candidate `e'_B` rebinds against `C_2`, preserving derivational continuity while establishing a fresh authority boundary.
+6. Final acceptance occurs only when the new proposal is signed, lineage-valid, and committed through compare-and-commit semantics.
+
 ### DeepData: The Substrate of Sovereign Truth
 The dying materialist paradigm was built on "Big Data"—a flat, unauthenticated expanse of scraped context, optimized for volume but entirely devoid of structural integrity. Big Data is the fuel of mechanical deception; it is information severed from accountability.
 
