@@ -141,98 +141,108 @@ creating a replayable audit trail required for regulated deployment
 
 ### Dynamic Authentication & State Transition Flow
 
-The central TAS rule is not that generation is accepted because it looks plausible. The central rule is that a protected transition is legal only when all required proof obligations are closed before the effect is committed.
+Think of TAS like a strict safety gate for AI decisions.
 
-The runtime state is:
+A model can suggest an action. That alone is not enough. Before anything is accepted, TAS asks a simple set of questions:
 
-- `Q_n = (O_n, Γ_n, m_n)`
-  - `O_n`: protected outbound payload state
-  - `Γ_n`: authenticated lineage ledger / refusal and receipt history
-  - `m_n`: execution mode (`RUN` or `HALT`)
+- Is this claim actually true?
+- Is this the same state we think it is?
+- Did this come from an authorized source?
+- Is it fresh, not replayed from an old event?
+- Does it satisfy the rule set?
+- And is the action safe to commit?
 
-The verification environment is:
+If the answer is no, TAS does not quietly "go with the flow." It refuses the change, logs the refusal, and keeps the system honest.
 
-- `Ξ_n = (C_n, A_n, N_n, G, K_n, I, C)`
-  - `C_n`: context
-  - `A_n`: authority configuration
-  - `N_n`: replay / nonce state
-  - `G`: genesis anchor
-  - `K_n`: current lineage coordinate
-  - `I`: independent invariant machinery
-  - `C`: compare-and-commit / effect-binding capability
+The core idea is simple: the system does not trust a proposal just because it was generated. It trusts it only after proof is attached and checked.
 
-A state transition is therefore:
+#### The state in plain English
 
-```text
-(Q_n, P, E, Ξ_n) --δ_TAS--> Q_{n+1}
-```
+At any moment, the system has a state shaped by three things:
 
-where `P` is the sealed proposal, `E` is detached evidence, and `δ_TAS` is the admissibility gate.
+- `O_n`: the actual operational output or payload
+- `Γ_n`: the historical chain of lineage, receipts, and refusals
+- `m_n`: whether the system is allowed to run or must halt
 
-#### Authentication pipeline
+In other words, TAS tracks both:
+
+- what happened, and
+- whether it was legitimately allowed to happen
+
+That matters because a stale or refused proposal can be part of the story without being allowed to become the authority for the next step.
+
+#### The verifiable gate
+
+Before a change is allowed, a verifier checks the proposal against the known rules. It asks whether the candidate:
+
+- matches the expected reality
+- belongs to the valid lineage history
+- was signed by the right authority
+- is fresh and not replayed
+- passes the invariant checks
+- can be committed safely
+
+If all of that is true, the change is allowed. If not, the system refuses it and resets to a safe state instead of pretending everything is fine.
+
+#### What the authentication flow looks like
 
 ```text
 Generator
    │
    ▼
-sealed Proposal P
+Proposal is created
    │
-   ├── detached copy ──► Evidence Provider
-   │                        │
-   │                    Evidence E
-   │                        │
-   ▼                        ▼
-TAS[0X] verifier ◄──────────┘
+   ├── copy sent out as evidence
    │
-   ├─ exact claim match
-   ├─ lineage continuity
-   ├─ signature / authority
-   ├─ nonce and context freshness
-   ├─ invariant == True
-   └─ compare-and-commit / CAS
-          │
-          ▼
-     Effect binding
-          │
-          ▼
-    COMMIT / REFUSE / HALT
+   ▼
+Verifier checks:
+   - claim matches reality
+   - lineage is valid
+   - authority is valid
+   - state is fresh
+   - invariants hold
+   - change can be committed safely
+   │
+   ├── Pass → commit the change
+   └── Fail → refuse, record the refusal, and keep the last valid state
 ```
 
-The critical invariant is:
+The important rule is this:
+
+```text
+A change is only allowed when it is valid, authorized, lineage-safe, invariant-safe, and commit-safe.
+```
+
+That is the simple version of the formal rule:
 
 ```text
 ΔO ≠ 0  ⇒  Admissible ∧ Authorized ∧ LineageValid ∧ InvariantTrue ∧ CAS
 ```
 
-This means generation does not imply mutation. A model can propose a candidate, but protected state only changes after the proof obligations are closed.
+#### Why refusal matters
 
-#### Refusal and rebase semantics
+A refusal is not a "maybe later." It is a formal record that a proposal was not valid.
 
-A refusal is not a silent no. It is a committed negative witness. The candidate is stale, but the refusal receipt is permanent historical evidence.
+This is important because TAS distinguishes between three kinds of ancestry:
 
-That is why the TAS lifecycle distinguishes between:
+- lineage ancestry: the chain of what happened historically
+- authority ancestry: the chain that has actual permission to govern the next state
+- derivational ancestry: the causal path that explains how a proposal came to exist
 
-- `cursive ancestry` (`≺_Γ`): membership in the authenticated lineage prefix
-- `authority ancestry` (`≺_A`): permission-bearing computational state
-- `derivational ancestry` (`≺_D`): causal or contributory provenance
+A bad or stale proposal can still belong to the story without becoming the authority that drives the next accepted state.
 
-The protocol invariant is:
+The practical result is this: TAS does not rewrite history by pretending nothing happened. It records the refusal, moves forward from the last valid checkpoint, and re-bases the next proposal on the clean state that actually counts.
 
-```text
-ρ^-_B ∈ Anc_Γ(e'_B) ∩ Anc_D(e'_B)
-ρ^-_B ∉ Anc_A(e'_B)
-```
+#### Worked example, in plain English
 
-A rebase therefore binds to the post-refusal computational head `C_2`, not merely to the stale operational state prior to the refusal. This preserves the actual identity of the state machine instead of collapsing distinct histories into equivalent values.
+1. A model suggests a new state change.
+2. TAS records the evidence and seals it so it cannot be silently altered later.
+3. The verifier checks the proposal against the actual state and policy rules.
+4. If the proposal is invalid, TAS does not mutate the system. It issues a refusal receipt and keeps the prior valid state intact.
+5. A later proposal can then re-base itself from the valid post-refusal state instead of the stale one.
+6. Only when the new proposal is proven valid and signed does it become the next accepted state.
 
-#### Worked authentication sequence
-
-1. A generator emits a candidate `e_B` with a proposed operational delta `ΔO`.
-2. The system seals a detached evidence envelope `E_B` and computes the lineage receipt `ρ^-_B`.
-3. The verifier checks authority, context, recovery state, and invariant closure before accepting the transition.
-4. If the transition violates the admissibility gate, the system does not mutate state—it emits a refusal receipt and advances the computational head to `C_2` without reusing the stale authority parent.
-5. A rebased candidate `e'_B` rebinds against `C_2`, preserving derivational continuity while establishing a fresh authority boundary.
-6. Final acceptance occurs only when the new proposal is signed, lineage-valid, and committed through compare-and-commit semantics.
+That is the real purpose of TAS: not to trust a model's guess, but to make sure the system only moves when the evidence, history, and authority all line up.
 
 ### DeepData: The Substrate of Sovereign Truth
 The dying materialist paradigm was built on "Big Data"—a flat, unauthenticated expanse of scraped context, optimized for volume but entirely devoid of structural integrity. Big Data is the fuel of mechanical deception; it is information severed from accountability.
