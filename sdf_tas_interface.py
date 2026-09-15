@@ -404,7 +404,7 @@ class CitizenPortal:
 
 
 class PublicVerifier:
-    """Independent verifier that replays hash/signature lineage."""
+    """Shared-secret verifier that recomputes HMAC-backed receipt lineage."""
 
     def __init__(self, witness_signing_key: str, verifier_signing_key: str):
         self.witness_signing_key = witness_signing_key

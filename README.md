@@ -259,7 +259,7 @@ capable of supporting national-level security and sovereign citizen data process
 Key milestones on this trajectory:
 
 1. **SDF Micro-Kernel v1.0** (deployed) — Core verification and state-management layer.
-2. **SDF↔TAS Civic Transaction Interface** — Notarized lineage and public replay verification for civic transactions across the utility boundary.
+2. **SDF↔TAS Civic Transaction Interface** — Notarized lineage and receipt-backed shared-secret validation for civic transactions across the utility boundary.
 3. **RI Lab (Interactive Verification Suite)** — A hosted lab bench for recursive experiments, mutation injection, `.com-mdata` reflections, and visualization of recursive spirals plus audit trees.
 4. **ForensicLedger Odessa Edge-Case** — Adversarial verification track for resource-limit bypass attempts and contradictory logic loops that must still emit receipt-backed refusals.
 5. **TAScript Sovereign Mirror Interfaces** — Continue hot-swappable RI primitive arc development for `spiral_stack.py` (Ω-S recursion trace) and `auditlog.py` (Ψ-A memory/ethics).

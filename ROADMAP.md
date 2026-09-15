@@ -45,10 +45,10 @@ planned to provide:
 ### 4. Civic Verification and Replay
 
 The SDF↔TAS civic transaction interface extends the public-utility layer into
-notarized lineage and public replay verification. This milestone keeps the
+notarized lineage and receipt-backed shared-secret validation. This milestone keeps the
 ongoing civic transaction interface work visible as a first-class roadmap item,
 including the active **"Implement SDF↔TAS civic transaction interface with
-notarized lineage and public replay verification"** pull request, instead of a
+notarized lineage and receipt-backed shared-secret validation"** pull request, instead of a
 hidden integration detail.
 
 ### 5. Engineering Tracks Anchored to Doctrine
