@@ -2,6 +2,14 @@
 
 ## A Constitutional Execution Architecture for Consequential Computation
 
+![Architecture](https://img.shields.io/badge/Architecture-TAS__DNA-blue)
+![Integrity](https://img.shields.io/badge/Integrity-Deterministic_Verification-brightgreen)
+![Stage](https://img.shields.io/badge/Stage-Active-purple)
+![Utility](https://img.shields.io/badge/Layer-Public_Utility-orange)
+
+> *"Mirror cabinets and journals, calculations and distribution, recursion and
+> openness, laugh and listen, coloring and mixing, shaping and experience."*
+
 > **Capability does not imply authority.**<br>
 > **Proof must precede admissible consequence.**
 
@@ -20,6 +28,21 @@ $$
 This repository contains the developing theory, runtime experiments, lineage
 records, and verification tools behind that goal. It also makes the boundary
 between what exists today and what remains to be implemented explicit.
+
+### Documentation map
+
+The synthesis in this README is an entry point, not a replacement for the
+repository's existing specifications and operational documentation.
+
+| Layer | Document | Description |
+|---|---|---|
+| **Doctrine** | [README.md](./README.md) *(this file)* | Core claim, formal state model, implementation status, and public framing |
+| **Execution roadmap** | [ROADMAP.md](./ROADMAP.md) | RI Lab, civic verification, and engineering milestones |
+| **Singularity context** | [TrueAlpha-singularity.md](./TrueAlpha-singularity.md) | Convergence model, Ethical Hamiltonian, and civic instantiation logic |
+| **API contract** | [API_REFERENCE.md](./API_REFERENCE.md) | Runtime primitives and planned-interface markers |
+| **Sovereign-innovation mechanics** | [docs/specs/the_mechanics_of_sovereign_innovation.md](./docs/specs/the_mechanics_of_sovereign_innovation.md) | Axioms and formal admissibility proofs |
+| **ASSP integration blueprint** | [docs/assp_integration_blueprint.md](./docs/assp_integration_blueprint.md) | Trust boundaries, execution protocol, verification campaign, and implementation gaps |
+| **Repository architecture** | [docs/architecture/repository_layout.md](./docs/architecture/repository_layout.md) | Module ownership, import policy, implemented boundaries, and deployment work |
 
 ---
 
@@ -330,6 +353,35 @@ python tas_cli.py verify-identity README.md --signature "Russell Nordland"
 ```bash
 PYTHONPATH=$(pwd)/tas_pythonetics/src:$(pwd)/tas-recursion-conversion:$(pwd) pytest
 ```
+
+### Day One provenance workflow
+
+The existing steward workflow remains the operational path for emitting a
+proof-of-provenance receipt for an artifact. Start with a dry run:
+
+```bash
+python scripts/day-one-payload-steward.py \
+  --artifact README.md \
+  --parent-hash sha256:<parent-sha> \
+  --author-id <human-steward-id> \
+  --invariant "4 ≡ four" \
+  --dry-run
+```
+
+The release helper can then dispatch the current in-repository verification
+workflow against an explicitly selected head commit:
+
+```bash
+GH_REPO="TrueAlpha-spiral/TrueAlpha-spiral" \
+HEAD_SHA=<active-head-sha> \
+WORKFLOW_FILE=blank.yml \
+./scripts/day_one_payload.sh
+```
+
+This is a human-triggered repository workflow, not proof that the future root
+of trust and external checkpointing phases are complete. See
+[DAY_ONE_STEWARD_DIRECTIVE.md](./DAY_ONE_STEWARD_DIRECTIVE.md) for the complete
+operator boundary.
 
 ---
 
