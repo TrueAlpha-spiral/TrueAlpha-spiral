@@ -123,18 +123,39 @@ This is not a minor reframing. It means:
 
 A critical architectural detail: invalid proposals don't simply disappear.
 
-Let $O_n$ be the protected operational state and $\Gamma_n$ be the knowledge/evidence ledger. When a proposal $x$ fails admissibility:
+Let $O_n$ be the protected operational state and $\Gamma_n$ be the ordered, append-only evidence lineage. Define global state as:
 
 \[
-(O_n, \Gamma_n) \xrightarrow{\text{refusal}} (O_n, \Gamma_n \cup r_x)
+S_n := (O_n, \Gamma_n)
+\]
+
+When a proposal $x$ fails admissibility:
+
+\[
+(O_n, \Gamma_n) \xrightarrow{\neg Y(x)} \left(O_n, \operatorname{Extend}(\Gamma_n, r_x)\right)
 \]
 
 where $r_x$ is the refusal receipt—the complete record of why $x$ was rejected.
+with lineage constraint:
+
+\[
+\operatorname{parent}(r_x)=\operatorname{Tip}(\Gamma_n)
+\]
+
+For symmetry, an admitted proposal advances both operational and evidentiary coordinates:
+
+\[
+(O_n, \Gamma_n) \xrightarrow{Y(x)} \left(O_{n+1}, \operatorname{Extend}(\Gamma_n, e_x)\right)
+\]
 
 **Key insight:**
 
 \[
 \boxed{\text{Failure cannot change reality, but failure can increase knowledge about reality.}}
+\]
+
+\[
+\boxed{O_{n+1}=O_n \centernot\implies S_{n+1}=S_n}
 \]
 
 This produces something unusual in conventional systems:
@@ -228,9 +249,7 @@ r_x : \text{Ed25519-signed, cryptographically anchored}
 \]
 
 \[
-r_x
-\xrightarrow{\text{Strengthen context}}
-\Gamma_{n+1} \supset \Gamma_n
+r_x \xrightarrow{\text{Append evidence}} \Gamma_{n+1} = \operatorname{Extend}(\Gamma_n, r_x)
 \]
 
 Each cycle produces:
