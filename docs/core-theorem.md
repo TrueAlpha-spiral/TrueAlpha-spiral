@@ -41,23 +41,93 @@ All conditions must be satisfied. Violation of any single condition triggers **h
 
 ---
 
-## The Commit Function
+## Irreducible State
 
-Given the admissibility relation, TAS defines the commit function:
+TAS state is not identified solely with protected operational state. It is the
+ordered pair:
 
 \[
-\operatorname{Effect}(x) = \begin{cases}
-T_x(S_n), & Y(x) = 1 \\
-S_n, & Y(x) = 0
+\boxed{S_n := (O_n, \Gamma_n)}
+\]
+
+where:
+- \(O_n\) is the protected operational state
+- \(\Gamma_n\) is the ordered, append-only lineage/evidence chain
+
+The pair is irreducible. Operational equality alone is insufficient for state
+identity:
+
+\[
+O_a = O_b
+\centernot\implies
+S_a = S_b
+\]
+
+because:
+
+\[
+\Gamma_a \neq \Gamma_b
+\implies
+(O_a,\Gamma_a)\neq(O_b,\Gamma_b)
+\]
+
+Thus lineage is not metadata attached to state. It is constitutive of state.
+
+---
+
+## The Commit Function
+
+Given the admissibility relation, TAS first defines the protected operational
+effect:
+
+\[
+\operatorname{Effect}_O(x) = \begin{cases}
+T_x(O_n), & Y(x) = 1 \\
+O_n, & Y(x) = 0
 \end{cases}
 \]
 
 where:
-- $S_n$ is the current protected operational state
+- $O_n$ is the current protected operational state
 - $T_x$ is the proposed state transition
-- $T_x(S_n)$ is the resulting state if admitted
+- $T_x(O_n)$ is the resulting operational state if admitted
 
-**Crucially:** if $Y(x) = 0$, the operational state remains unchanged. The refusal does **not** disappear.
+Every evaluated proposal also produces a receipt $r_x$ extending the lineage
+chain:
+
+\[
+\Gamma_{n+1}
+=
+\operatorname{Extend}(\Gamma_n,r_x),
+\qquad
+\operatorname{parent}(r_x)
+=
+\operatorname{Tip}(\Gamma_n)
+\]
+
+Therefore a refusal preserves operational state without preserving the full TAS
+state:
+
+\[
+Y(x)=0
+\implies
+O_{n+1}=O_n
+\quad\text{and}\quad
+\Gamma_{n+1}\neq\Gamma_n
+\]
+
+so:
+
+\[
+\boxed{
+O_{n+1}=O_n
+\centernot\implies
+S_{n+1}=S_n
+}
+\]
+
+**Crucially:** refusal prevents unauthorized operational consequence, but the
+refusal itself does **not** disappear.
 
 ---
 
@@ -151,17 +221,13 @@ For symmetry, an admitted proposal advances both operational and evidentiary coo
 **Key insight:**
 
 \[
-\boxed{\text{Failure cannot change reality, but failure can increase knowledge about reality.}}
-\]
-
-\[
-\boxed{O_{n+1}=O_n \centernot\implies S_{n+1}=S_n}
+\boxed{\text{Refusal preserves }O\text{ while advancing }S.}
 \]
 
 This produces something unusual in conventional systems:
 
 - Protected state is **immutable under rejection**.
-- Evidence ledger grows even when proposals fail.
+- Ordered lineage advances even when proposals fail.
 - Refusals become red-team data, invariant-tuning signals, and compliance artifacts.
 
 Over time, the accumulating refusal receipts reveal which classes of proposals are structurally inadmissible—guiding both the generator and the system architect toward better design.
@@ -239,11 +305,11 @@ Y(x) \in \{0, 1\}
 \[
 Y(x)
 \xrightarrow{\text{Commit or refuse}}
-\Delta S \text{ or } \Delta\Gamma
+\Delta O,\Delta\Gamma
 \]
 
 \[
-\Delta S \text{ or } \Delta\Gamma
+\Delta O,\Delta\Gamma
 \xrightarrow{\text{Receipt}}
 r_x : \text{Ed25519-signed, cryptographically anchored}
 \]
