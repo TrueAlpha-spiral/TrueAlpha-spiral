@@ -119,6 +119,7 @@ class RefusalArtifact:
         candidate_hash: str = "",
         parent_context: str = "",
         verifier: str = "TAS_OPENAI_BRIDGE",
+        timestamp: str | None = None,
         details: dict[str, Any] | None = None,
     ) -> "RefusalArtifact":
         """Convenience constructor with explicit §11 fields."""
@@ -128,6 +129,7 @@ class RefusalArtifact:
             candidate_hash=candidate_hash,
             parent_context=parent_context,
             verifier=verifier,
+            timestamp=timestamp or _now_iso(),
             details=details or {},
         )
         return artifact._with_receipt_id()

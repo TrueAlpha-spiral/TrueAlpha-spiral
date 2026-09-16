@@ -200,6 +200,7 @@ class CanonicalVerticalSlice:
             code=failure_code or "ADMISSION_REFUSED",
             parent_context=context.snapshot_id,
             verifier=verification.verifier_id,
+            timestamp=evaluated_at,
             details={"checks_failed": list(verification.checks_failed)},
         )
         refusal_receipt = refusal.to_dict()
