@@ -149,6 +149,11 @@ class TestIntegrity:
         chain.append(_refused())
         assert chain.verify_integrity()
 
+    def test_empty_chain_returns_true(self):
+        chain = WakeChain.start()
+        chain._links = []
+        assert chain.verify_integrity()
+
     def test_tampered_parent_hash_fails_integrity(self):
         chain = WakeChain.start()
         chain.append(_admitted())
