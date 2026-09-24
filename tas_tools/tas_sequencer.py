@@ -55,7 +55,7 @@ def sequence_artifact(filepath, h_seed=TAS_HUMAN_SIG, genome_id="TAS_GENOME_V1")
                 # to be the *parent* of the new one.
                 # In this simple model, we just hash it into the new one.
                 logger.info(f"Found previous lineage: {previous_lineage}")
-        except:
+        except Exception:
             pass
 
     # Generate Lineage ID
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     genome_id = sys.argv[3] if len(sys.argv) > 3 else "TAS_GENOME_V1"
 
     sequence_artifact(filepath, h_seed, genome_id)
-# Nonce: 20970
+# Nonce: 228086
