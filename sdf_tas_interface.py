@@ -91,6 +91,7 @@ class SDFRegistryAPI:
         self._witness_signing_key = witness_signing_key
         self.identity_registry: Dict[str, Dict[str, Any]] = {}
         self.ledger: List[Dict[str, Any]] = []
+        self._records_by_id: Dict[str, List[Dict[str, Any]]] = {}
         self._sequence = 0
 
     def register_identity(self, identity: SovereignIdentity, metadata: Dict[str, Any] | None = None) -> Dict[str, Any]:
@@ -124,6 +125,10 @@ class SDFRegistryAPI:
         receipt = unsigned.copy()
         receipt["witness_signature"] = sign_payload(unsigned, self._witness_signing_key)
         self.ledger.append(receipt)
+        rec_id = receipt["record_id"]
+        if rec_id not in self._records_by_id:
+            self._records_by_id[rec_id] = []
+        self._records_by_id[rec_id].append(receipt)
         return receipt
 
     def append_execution_record(
@@ -147,11 +152,14 @@ class SDFRegistryAPI:
         entry = unsigned.copy()
         entry["witness_signature"] = sign_payload(unsigned, self._witness_signing_key)
         self.ledger.append(entry)
+        if record_id not in self._records_by_id:
+            self._records_by_id[record_id] = []
+        self._records_by_id[record_id].append(entry)
         return entry
 
     def query_record(self, record_id: str) -> List[Dict[str, Any]]:
-        # Optimization: In CPython tight loops, using native `in` and `[]` access is ~1.25x faster than `.get()` because it avoids function call overhead.
-        return [entry for entry in self.ledger if "record_id" in entry and entry["record_id"] == record_id]
+        # Optimization: Dictionary lookup by record_id provides O(1) query performance instead of linear O(N) traversal.
+        return list(self._records_by_id.get(record_id, []))
 
     @staticmethod
     def _require_non_empty(value: Any, message: str) -> None:
@@ -478,4 +486,4 @@ class PublicVerifier:
             return False
 
         return True
-# Nonce: 825
+# Nonce: 19452
