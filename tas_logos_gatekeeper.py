@@ -8,6 +8,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from collections import Counter
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 
@@ -55,9 +56,7 @@ class LogosValidationLoop:
     def _calculate_shannon_entropy(self, payload_str: str) -> float:
         if not payload_str:
             return 0.0
-        frequencies: Dict[str, int] = {}
-        for char in payload_str:
-            frequencies[char] = frequencies.get(char, 0) + 1
+        frequencies = Counter(payload_str)
 
         entropy = 0.0
         total_chars = len(payload_str)
@@ -610,4 +609,4 @@ class TASLogosGatekeeper:
             "authorization_hash": authorization_hash,
             **finalized,
         }
-# Nonce: 31442
+# Nonce: 79833
