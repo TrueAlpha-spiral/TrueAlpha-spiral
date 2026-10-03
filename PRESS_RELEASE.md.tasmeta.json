@@ -1,16 +1,24 @@
 {
-  "id": "7b1e1c0c847da888c156b42baf404ce0eddb404972c805722b5b090e5e6a2c70",
+  "id": "325f0d381791c5f4729acfffc8f40ab0bca2871b7860b62d620e638af3b80f4b",
   "type": "TasArtifact",
-  "form_id": "66f47e6996469693d9a52ef90a079b14bf8dc7df1b244dd430505e7bbd0b57eb",
+  "form_id": "7cf0f45c7c421a47730984580170dd0ebb70e19acf7f58bcc5cc4fbc4a165a96",
   "genome_id": "TAS_GENOME_V1",
-  "lineage_id": "7b1e1c0c847da888c156b42baf404ce0eddb404972c805722b5b090e5e6a2c70",
-  "h_seed": "Russell Nordland",
-  "cert_id": "924ff056-a91e-4397-9593-b1b7e2179c92",
-  "timestamp": "2026-06-28T01:06:18.831025+00:00",
-  "paradata_trail": [],
+  "lineage_id": "325f0d381791c5f4729acfffc8f40ab0bca2871b7860b62d620e638af3b80f4b",
+  "h_seed": "Codex documentation remediation",
+  "cert_id": "753f2f65-6370-4eed-a8a2-0d0ddb36d687",
+  "timestamp": "2026-10-03T21:27:07.791978+00:00",
+  "paradata_trail": [
+    {
+      "event": "DOCUMENTATION_CORRECTION",
+      "base_commit": "79e9abfdf20ad6d4c0bdc2d13955a6fada5bc663",
+      "previous_lineage_id": "7b1e1c0c847da888c156b42baf404ce0eddb404972c805722b5b090e5e6a2c70",
+      "previous_form_id": "66f47e6996469693d9a52ef90a079b14bf8dc7df1b244dd430505e7bbd0b57eb",
+      "scope": "Source attribution correction; no human cryptographic signature asserted"
+    }
+  ],
   "signatures": [
     {
-      "signer": "Russell Nordland",
+      "signer": "Codex documentation remediation",
       "algorithm": "TAS_HUMAN_SIG_V1",
       "value": "signed_by_ceremony"
     }
