@@ -1,4 +1,14 @@
-🎯 **What:** Extracted subparser setup and execution logic into separate helper functions (`_setup_shadow_scan_parser`, `_handle_shadow_scan`, etc.) in `tas_cli.py`.
-💡 **Why:** The `main` function in `tas_cli.py` was too long. Refactoring it to extract the subparser setup and execution logic into separate functions improves maintainability and readability by keeping the main execution flow focused and making the code more modular.
-✅ **Verification:** Verified that the refactored code correctly registers the parsers using `set_defaults`, the command-line arguments work as expected, and that the `tas_cli.py shadow-scan .` functionality remains intact without drifting artifacts. Ran the full test suite successfully.
-✨ **Result:** A much cleaner, more modular, and more readable `tas_cli.py` file with independent handlers and configuration setup for each command.
+Title: 🧪 Add tests for SDFRegistryAPI.register_identity
+
+### 🎯 What
+Added missing unit test coverage for `SDFRegistryAPI.register_identity` in `sdf_tas_interface.py`.
+
+### 📊 Coverage
+The new test module `tests/test_register_identity.py` covers:
+- Registering identity with default empty metadata dictionary.
+- Registering identity with custom metadata attributes.
+- Confirming shallow copy behavior (mutating the returned dictionary does not mutate the registry entry).
+- Overwriting existing sovereign identities in the registry with updated details and metadata.
+
+### ✨ Result
+100% test coverage for `register_identity`, ensuring state updates and copy mechanics remain reliable.
