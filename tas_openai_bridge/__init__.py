@@ -10,7 +10,7 @@ from .gates import GateResult, tas_admissibility_gateway
 from .receipts import ProvenanceReceipt
 from .refusal import RefusalArtifact
 from .schemas import TAS_CANDIDATE_RESPONSE_SCHEMA, CandidateResponse
-from .authority import HumanAPIKey, ScopedAuthority
+from .authority import HumanAPIKey, ScopedAuthority, AuthorityConfig
 from .trinity import (
     ArchetypeAnalysis,
     OctopusArchetype,
@@ -34,6 +34,7 @@ __all__ = [
     "SafetyEnvelope",
     "SemanticRouter",
     "ScopedAuthority",
+    "AuthorityConfig",
     "SingularityEvent",
     "TAS_CANDIDATE_RESPONSE_SCHEMA",
     "TrinityEngine",
