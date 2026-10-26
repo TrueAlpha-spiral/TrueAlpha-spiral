@@ -5,6 +5,7 @@ from tas_openai_bridge import (
     HumanAPIKey,
     RefusalArtifact,
     ScopedAuthority,
+    AuthorityConfig,
 )
 from tas_openai_bridge.ledger import ImmutableTruthLedger
 
@@ -85,7 +86,7 @@ def test_malformed_scope_refuses():
     polymath = AlgorithmicPolymath(
         human_api_key=HumanAPIKey("HumanAPIKey001"),
         scoped_authority=ScopedAuthority.from_iterables(
-            "HumanAPIKey001", scope=["draft"]
+            "HumanAPIKey001", config=AuthorityConfig(scope=["draft"])
         ),
         lineage_anchor="valid_anchor",
         ledger=ImmutableTruthLedger(),
