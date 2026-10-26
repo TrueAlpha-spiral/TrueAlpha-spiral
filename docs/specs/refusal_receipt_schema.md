@@ -71,6 +71,113 @@ Verity Chain as truth.
 
 ---
 
+## Verity Gate Promotion Logic
+
+The Verity Gate is the only transition path from `PENDING_VERIFICATION` to
+`ADMITTED`. It may run only when the verifier has active source-resolution
+capability and can bind the candidate claim to a canonical source hash.
+
+### Promotion Preconditions
+
+A pending claim may be promoted only when all of the following are true:
+
+1. `claim_id` recomputes from the stored canonical claim input.
+2. `parent_artifact_hash` resolves to the artifact or session that proposed the claim.
+3. `source_uri` resolves through an allowed verifier channel.
+4. The source is authoritative for the claim type.
+5. The verifier canonicalizes the retrieved source content.
+6. `source_content_hash` is computed from canonical source bytes or canonical source text.
+7. The bounded `claim_text` is directly supported by the source content.
+8. No authoritative conflict is detected within the verification scope.
+9. The verifier emits an Admission Receipt that points back to the pending/refusal receipt.
+10. The previous pending/refusal receipt remains immutable; it is superseded, not rewritten.
+
+### Promotion Pseudocode
+
+```python
+def verity_gate_promote(pending_record, verifier):
+    assert pending_record["admission_status"] == "PENDING_VERIFICATION"
+
+    if not verifier.capabilities.network_access and not verifier.capabilities.source_fetch_access:
+        return emit_refusal(
+            pending_record,
+            refusal_code="VERIFIER_CAPABILITY_LIMIT",
+            refusal_reason="Verifier lacks source-resolution capability."
+        )
+
+    if recompute_claim_id(pending_record) != pending_record["claim_id"]:
+        return emit_refusal(pending_record, "HASH_MISMATCH", "Claim ID does not recompute.")
+
+    source = verifier.resolve(pending_record["source_uri"])
+    if source is None:
+        return emit_refusal(pending_record, "SOURCE_UNREACHABLE", "Source URI did not resolve.")
+
+    if not verifier.is_authoritative(source, pending_record["claim_type"]):
+        return emit_refusal(pending_record, "SOURCE_NON_AUTHORITATIVE", "Source lacks authority for claim type.")
+
+    canonical_source = verifier.canonicalize_source(source)
+    source_hash = sha256(canonical_source)
+
+    if not verifier.supports_claim(canonical_source, pending_record["claim_text"]):
+        return emit_refusal(pending_record, "CONTENT_MISMATCH", "Source does not support bounded claim.")
+
+    if verifier.detects_authoritative_conflict(pending_record, canonical_source):
+        return emit_refusal(pending_record, "CONFLICTING_SOURCE", "Authoritative conflict detected.")
+
+    return emit_admission_receipt(
+        pending_record=pending_record,
+        source_content_hash=source_hash,
+        admission_status="ADMITTED"
+    )
+```
+
+### Admission Receipt
+
+A successful promotion emits a new receipt. It never mutates the prior refusal or
+pending receipt.
+
+```json
+{
+  "receipt_type": "TAS_ADMISSION_RECEIPT",
+  "schema_version": "0.1",
+  "receipt_id": "sha256:<canonical-admission-record-hash>",
+  "claim_id": "sha256:<canonical-claim-hash>",
+  "claim_text": "<bounded admitted claim>",
+  "candidate_layer": "LayerB",
+  "target_layer": "LayerA",
+  "admission_status": "ADMITTED",
+  "source_uri": "<resolved-authoritative-uri>",
+  "source_authority": "primary | secondary",
+  "retrieved_at": "<UTC timestamp>",
+  "source_content_hash": "sha256:<canonical-source-content-hash>",
+  "parent_artifact_hash": "sha256:<parent-artifact-hash>",
+  "supersedes_receipt_hash": "sha256:<pending-or-refusal-receipt>",
+  "verifier": "TAS_SubstrateVerifier_v0.1",
+  "verifier_capabilities": {
+    "network_access": true,
+    "canonicalization": "RFC8785-JCS",
+    "hash_algorithm": "SHA-256"
+  },
+  "issued_at": "<UTC timestamp>",
+  "lineage": {
+    "previous_receipt_hash": "sha256:<previous-receipt>",
+    "session_hash": "sha256:<session-or-run-context>",
+    "operator_id": "<operator-or-null>"
+  },
+  "invariant": "Processed != Admitted; Fluent != Verified; Cited != Sealed"
+}
+```
+
+### Promotion Rule
+
+```text
+PENDING_VERIFICATION + verified source + canonical source hash + supported bounded claim + lineage binding = ADMITTED
+```
+
+Anything less remains `PENDING_VERIFICATION` or becomes `REFUSED`.
+
+---
+
 ## Canonical Refusal Receipt
 
 ```json
@@ -202,6 +309,10 @@ Hash rule:
 receipt_id = sha256(JCS(canonical_receipt_without_receipt_id))
 ```
 
+For admission receipts, the same rule applies with `receipt_type` set to
+`TAS_ADMISSION_RECEIPT`, `admission_status` set to `ADMITTED`, and refusal-only
+fields omitted.
+
 ### `session_hash`
 
 `session_hash` binds the refusal to the verification run context without sealing
@@ -237,19 +348,20 @@ session_hash = sha256(JCS(canonical_session_context))
 
 | Field | Required | Purpose |
 |-------|----------|---------|
-| `receipt_type` | Yes | Identifies the artifact as a refusal proof. |
+| `receipt_type` | Yes | Identifies the artifact as a refusal or admission proof. |
 | `schema_version` | Yes | Binds the receipt to a stable schema. |
 | `receipt_id` | Yes | Hash of the canonical receipt payload. |
 | `claim_id` | Yes | Hash of the canonical claim text and declared source metadata. |
 | `claim_text` | Yes | Bounded natural-language claim under review. |
-| `admission_status` | Yes | Must be `REFUSED` or `PENDING_VERIFICATION` for non-admitted claims. |
-| `refusal_code` | Yes | Machine-readable refusal reason. |
-| `refusal_reason` | Yes | Human-readable explanation of the failed check. |
+| `admission_status` | Yes | Must be `REFUSED`, `PENDING_VERIFICATION`, or `ADMITTED`. |
+| `refusal_code` | Conditional | Required for `REFUSED` and `PENDING_VERIFICATION`; omitted for `ADMITTED`. |
+| `refusal_reason` | Conditional | Required for `REFUSED` and `PENDING_VERIFICATION`; omitted for `ADMITTED`. |
 | `source_uri` | Conditional | Required when the candidate claim declared a source. |
-| `source_content_hash` | Conditional | Required only when source content was retrieved. |
-| `parent_artifact_hash` | Yes | Binds refusal to the artifact or session that proposed the claim. |
+| `source_content_hash` | Conditional | Required for `ADMITTED`; required for `REFUSED` only when source content was retrieved. |
+| `parent_artifact_hash` | Yes | Binds receipt to the artifact or session that proposed the claim. |
+| `supersedes_receipt_hash` | Conditional | Required for `ADMITTED` when promotion follows a pending/refusal receipt. |
 | `verifier` | Yes | Names the verifier implementation. |
-| `issued_at` | Yes | UTC timestamp of refusal emission. |
+| `issued_at` | Yes | UTC timestamp of receipt emission. |
 | `invariant` | Yes | Embeds the Layer A / Layer B boundary. |
 
 ---
@@ -315,6 +427,10 @@ session, the proper state is:
 
 If the source resolves but fails to support the claim, the proper state is
 `REFUSED` with `CONTENT_MISMATCH` or `SEMANTIC_OVERREACH`.
+
+If a later verifier run resolves the primary source and supports the bounded
+claim, it must emit a new `TAS_ADMISSION_RECEIPT` that references the prior
+pending/refusal receipt through `supersedes_receipt_hash`.
 
 ---
 
