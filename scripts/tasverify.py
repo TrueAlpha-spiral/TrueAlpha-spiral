@@ -90,31 +90,55 @@ def extract_subject(receipt: Dict[str, Any]) -> Dict[str, Any]:
     return receipt
 
 
-def verify(artifact_path: str, receipt_path: str, expected_steward: Optional[str]) -> VerificationResult:
-    receipt = load_json(receipt_path)
-    subject = extract_subject(receipt)
-
-    artifact_hash = sha256_file(artifact_path)
-    receipt_hash = normalize_hash(
+def extract_receipt_hash(receipt: Dict[str, Any], subject: Dict[str, Any]) -> str:
+    return normalize_hash(
         subject.get("source_hash")
         or subject.get("artifact_hash")
         or nested_get(receipt, "verification", "hash_value")
     )
-    lineage_parent = normalize_hash(subject.get("lineage_parent") or subject.get("parent_hash"))
-    receipt_id = str(
+
+
+def extract_lineage_parent(subject: Dict[str, Any]) -> str:
+    return normalize_hash(subject.get("lineage_parent") or subject.get("parent_hash"))
+
+
+def extract_receipt_id(receipt: Dict[str, Any], subject: Dict[str, Any]) -> str:
+    return str(
         subject.get("canonical_event")
         or subject.get("receipt_id")
         or receipt.get("id")
         or "UNSPECIFIED_RECEIPT"
     )
-    prime_invariant = str(subject.get("prime_invariant") or receipt.get("prime_invariant") or "")
-    human_steward = str(
+
+
+def extract_prime_invariant(receipt: Dict[str, Any], subject: Dict[str, Any]) -> str:
+    return str(subject.get("prime_invariant") or receipt.get("prime_invariant") or "")
+
+
+def extract_human_steward(receipt: Dict[str, Any], subject: Dict[str, Any]) -> str:
+    return str(
         nested_get(subject, "paradata", "human_initiator")
         or subject.get("human_steward")
         or nested_get(receipt, "provenance", "author_steward")
         or ""
     )
-    boundary_checks = subject.get("boundary_checks") or receipt.get("boundary_checks") or {}
+
+
+def extract_boundary_checks(receipt: Dict[str, Any], subject: Dict[str, Any]) -> Any:
+    return subject.get("boundary_checks") or receipt.get("boundary_checks") or {}
+
+
+def verify(artifact_path: str, receipt_path: str, expected_steward: Optional[str]) -> VerificationResult:
+    receipt = load_json(receipt_path)
+    subject = extract_subject(receipt)
+
+    artifact_hash = sha256_file(artifact_path)
+    receipt_hash = extract_receipt_hash(receipt, subject)
+    lineage_parent = extract_lineage_parent(subject)
+    receipt_id = extract_receipt_id(receipt, subject)
+    prime_invariant = extract_prime_invariant(receipt, subject)
+    human_steward = extract_human_steward(receipt, subject)
+    boundary_checks = extract_boundary_checks(receipt, subject)
 
     reasons: List[str] = []
 
@@ -189,4 +213,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-# Nonce: 7084
+# Nonce: 12545
